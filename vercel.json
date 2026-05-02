@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "name": "claim-frontend",
+  "builds": [
+    { "src": "api/**/*.js", "use": "@vercel/node" },
+    { "src": "*.html",      "use": "@vercel/static" }
+  ],
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/$1" },
+    { "src": "/",         "dest": "/claim-job-board.html" },
+    { "src": "/(.*)",     "dest": "/$1" }
+  ],
+  "crons": [
+    {
+      "path": "/api/jobs",
+      "schedule": "0 * * * *"
+    }
+  ]
+}
