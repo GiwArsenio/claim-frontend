@@ -19,13 +19,15 @@
 }
 
 
-html, body { height: 100%; font-family: 'Inter', sans-serif; color: #191c1d; background: #f3f4f5; margin: 0; }
-body { overflow-y: auto; overflow-x: hidden; }
+/* ── LAYOUT PRINCIPAL ── */
+html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; color: #191c1d; background: #f3f4f5; margin: 0; }
 
-#app { display: flex; flex-direction: column; min-height: 100%; }
+/* App = colonne : header | hero | split — prend 100% de la hauteur */
+#app { display: grid; grid-template-rows: auto auto 1fr; height: 100%; overflow: hidden; }
 
-/* ── HEADER ── */
-#hd { flex-shrink: 0; background: #006876; z-index: 200; }
+/* Header */
+#hd { background: #006876; z-index: 200; }
+
 #hd nav { display: flex; justify-content: space-between; align-items: center; padding: .75rem 2rem; }
 .logo { font-size: 1.5rem; font-weight: 900; color: #fff; letter-spacing: -.05em; }
 .nav-links { display: flex; gap: 2rem; }
@@ -35,7 +37,6 @@ body { overflow-y: auto; overflow-x: hidden; }
 
 /* ── HERO ── */
 #hero {
-  flex-shrink: 0;
   background: #f3f4f5;
   border-bottom: 1px solid rgba(187,201,204,.25);
   overflow: hidden;
@@ -65,15 +66,17 @@ body { overflow-y: auto; overflow-x: hidden; }
 .chip { display: flex; align-items: center; gap: .3rem; padding: .28rem .75rem; border-radius: 9999px; background: #fff; color: #515f78; font-size: .72rem; font-weight: 500; border: 1px solid rgba(187,201,204,.25); cursor: pointer; white-space: nowrap; flex-shrink: 0; transition: background .15s; }
 .chip:hover { background: #e8f4f6; }
 
-/* ── SPLIT PANE ── */
-#split { display: flex; overflow: hidden; height: var(--split-h, calc(100vh - 56px)); }
+/* ── SPLIT PANE : prend tout l'espace restant (1fr dans le grid) ── */
+#split { display: flex; overflow: hidden; height: 100%; min-height: 0; }
 
 /* Colonne gauche */
-.pl { width: 420px; flex-shrink: 0; display: flex; flex-direction: column; background: #f3f4f5; border-right: 1px solid rgba(187,201,204,.25); overflow: hidden; }
+/* .pl scrolle verticalement — le footer apparaît après scroll des cards */
+.pl { width: 420px; flex-shrink: 0; display: flex; flex-direction: column; background: #f3f4f5; border-right: 1px solid rgba(187,201,204,.25); overflow-y: auto; overflow-x: hidden; }
+.pl::-webkit-scrollbar { width: 3px; }
+.pl::-webkit-scrollbar-thumb { background: #bbc9cc; border-radius: 10px; }
 .pl-hd { flex-shrink: 0; padding: .625rem 1.375rem .35rem; font-size: .65rem; font-weight: 700; color: #6c797c; text-transform: uppercase; letter-spacing: .1em; background: #f3f4f5; }
-.feed { flex: 1; min-height: 0; overflow-y: auto; padding: .35rem .875rem .875rem; display: flex; flex-direction: column; gap: .45rem; }
-.feed::-webkit-scrollbar { width: 3px; }
-.feed::-webkit-scrollbar-thumb { background: #bbc9cc; border-radius: 10px; }
+/* .feed = conteneur des cards, pas de scroll propre (c'est .pl qui scrolle) */
+.feed { padding: .35rem .875rem .875rem; display: flex; flex-direction: column; gap: .45rem; }
 
 /* Colonne droite */
 .pr { flex: 1; min-height: 0; overflow-y: auto; background: #f3f4f5; }
@@ -146,24 +149,47 @@ body { overflow-y: auto; overflow-x: hidden; }
 .cblogo { width: 44px; height: 44px; border-radius: .5rem; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 900; font-size: 10px; flex-shrink: 0; }
 .bcv { display: inline-flex; align-items: center; gap: .3rem; padding: .5rem .875rem; border-radius: .5rem; background: #191c1d; color: #fff; font-weight: 700; font-size: .75rem; text-decoration: none; }
 
-/* ── FOOTER PLEINE LARGEUR ── */
+/* ── FOOTER RICHE : dans .pl après .feed, visible après scroll des cards ── */
 #ft {
+  flex-shrink: 0;
   background: #006876;
   color: rgba(255,255,255,.65);
-  padding: .6rem 2rem;
+  padding: 1.25rem 1.375rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+  border-top: 2px solid rgba(255,255,255,.1);
+}
+#ft .ft-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
-  font-size: .675rem;
-  font-weight: 500;
-  border-top: 1px solid rgba(255,255,255,.08);
+  gap: .5rem;
 }
-#ft .ft-logo { font-size: .9rem; font-weight: 900; color: #fff; letter-spacing: -.04em; }
-#ft .ft-links { display: flex; gap: 1.25rem; }
-#ft .ft-links a { color: rgba(255,255,255,.55); text-decoration: none; font-size: .675rem; font-weight: 500; transition: color .15s; }
-#ft .ft-links a:hover { color: #fff; }
-#ft .ft-copy { color: rgba(255,255,255,.4); font-size: .625rem; }
+#ft .ft-logo { font-size: 1.1rem; font-weight: 900; color: #fff; letter-spacing: -.05em; }
+#ft .ft-tagline { font-size: .65rem; color: rgba(255,255,255,.5); font-style: italic; margin-top: 1px; }
+#ft .ft-links { display: flex; gap: .625rem; flex-wrap: wrap; }
+#ft .ft-links a {
+  color: rgba(255,255,255,.6);
+  text-decoration: none;
+  font-size: .65rem;
+  font-weight: 500;
+  padding: .2rem .5rem;
+  border-radius: .25rem;
+  border: 1px solid rgba(255,255,255,.15);
+  transition: background .15s, color .15s;
+}
+#ft .ft-links a:hover { background: rgba(255,255,255,.12); color: #fff; }
+#ft .ft-divider { height: 1px; background: rgba(255,255,255,.1); }
+#ft .ft-copy {
+  font-size: .6rem;
+  color: rgba(255,255,255,.35);
+  display: flex;
+  align-items: center;
+  gap: .3rem;
+  flex-wrap: wrap;
+}
+#ft .ft-copy .heart { color: #ff6b8a; font-size: .7rem; }
 
 @media (max-width: 768px) {
   .pr { display: none; }
@@ -223,22 +249,31 @@ body { overflow-y: auto; overflow-x: hidden; }
     <div class="pl">
       <div class="pl-hd">8 offres disponibles</div>
       <div class="feed" id="feed"></div>
+      <!-- Footer riche, visible après scroll des cards -->
+      <div id="ft">
+        <div class="ft-top">
+          <div>
+            <div class="ft-logo">Claim!</div>
+            <div class="ft-tagline">pour les actuaires, data scientists &amp; profils IA</div>
+          </div>
+          <div class="ft-links">
+            <a href="#">À propos</a>
+            <a href="#">CGU</a>
+            <a href="#">Confidentialité</a>
+            <a href="#">Contact</a>
+          </div>
+        </div>
+        <div class="ft-divider"></div>
+        <div class="ft-copy">
+          <span>© 2026 Claim your job</span>
+          <span>·</span>
+          <span>Fait avec <span class="heart">♥</span> pour les experts du risque assurantiel</span>
+        </div>
+      </div>
     </div>
     <div class="pr" id="pr">
       <div class="dc" id="detail"></div>
     </div>
-  </div>
-
-  <!-- ══ FOOTER PLEINE LARGEUR ══ -->
-  <div id="ft">
-    <span class="ft-logo">Claim!</span>
-    <div class="ft-links">
-      <a href="#">À propos</a>
-      <a href="#">CGU</a>
-      <a href="#">Confidentialité</a>
-      <a href="#">Contact</a>
-    </div>
-    <span class="ft-copy">© 2026 Claim your job · Fait avec ♥ pour les actuaires, data scientists &amp; profils IA</span>
   </div>
 
 </div>
@@ -306,33 +341,13 @@ const JOBS = [
 let active = 1;
 
 const feedEl = document.getElementById('feed');
+const plEl   = document.querySelector('.pl');
 const prEl   = document.getElementById('pr');
 const hero   = document.getElementById('hero');
 
-function isInsideFeed(el) { return feedEl.contains(el) || el === feedEl; }
-function isInsidePr(el)   { return prEl.contains(el)   || el === prEl;   }
-
-/* Scroll universel → redirige vers .feed si hors des deux panes */
-document.addEventListener('wheel', function(e) {
-  if (isInsideFeed(e.target) || isInsidePr(e.target)) return;
-  e.preventDefault();
-  feedEl.scrollTop += e.deltaY;
-}, { passive: false });
-
-let touchStartY = 0;
-document.addEventListener('touchstart', function(e) { touchStartY = e.touches[0].clientY; }, { passive: true });
-document.addEventListener('touchmove', function(e) {
-  if (isInsideFeed(e.target) || isInsidePr(e.target)) return;
-  const dy = touchStartY - e.touches[0].clientY;
-  touchStartY = e.touches[0].clientY;
-  e.preventDefault();
-  feedEl.scrollTop += dy;
-}, { passive: false });
-
-/* Collapse hero au scroll de .feed */
-feedEl.addEventListener('scroll', function () {
+/* Collapse hero au scroll de .pl (la colonne gauche scrolle maintenant) */
+plEl.addEventListener('scroll', function () {
   hero.classList.toggle('collapsed', this.scrollTop > 30);
-  setSplitHeight();
 });
 
 /* Ombre sur .d-sticky au scroll de .pr */
@@ -419,22 +434,8 @@ function renderDetail() {
   `;
 }
 
-function setSplitHeight() {
-  const hdH  = document.getElementById('hd').offsetHeight;
-  const heroH = hero.offsetHeight; /* offsetHeight = 0 quand collapsed grâce à max-height:0 */
-  const h = window.innerHeight - hdH - heroH;
-  document.documentElement.style.setProperty('--split-h', h + 'px');
-}
-
-/* Recalcul au resize et à chaque frame de la transition hero */
-window.addEventListener('resize', setSplitHeight);
-hero.addEventListener('transitionrun',  () => { requestAnimationFrame(function tick() { setSplitHeight(); if (!hero.classList.contains('collapsed') || hero.offsetHeight > 0) requestAnimationFrame(tick); }); });
-hero.addEventListener('transitionend',  setSplitHeight);
-
 renderFeed();
 renderDetail();
-/* Calcul initial après rendu */
-requestAnimationFrame(setSplitHeight);
 </script>
 </body>
 </html>
