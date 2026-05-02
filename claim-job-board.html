@@ -430,6 +430,7 @@ prEl.addEventListener('scroll', function () {
 function openDetail() {
   if (isMobile()) {
     splitEl.classList.add('detail-open');
+    hero.classList.add('collapsed');   // masque hero + filtres
     prEl.scrollTop = 0;
   }
 }
@@ -437,6 +438,7 @@ function openDetail() {
 /* ── Navigation mobile : retour à la liste ── */
 function closeDetail() {
   splitEl.classList.remove('detail-open');
+  hero.classList.remove('collapsed'); // restaure hero + filtres
 }
 
 /* ── Geste swipe retour (mobile) ── */
