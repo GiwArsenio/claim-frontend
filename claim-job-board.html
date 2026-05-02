@@ -18,16 +18,13 @@
   vertical-align: middle;
 }
 
-
 /* ── LAYOUT PRINCIPAL ── */
 html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; color: #191c1d; background: #f3f4f5; margin: 0; }
 
-/* App = colonne : header | hero | split — prend 100% de la hauteur */
 #app { display: grid; grid-template-rows: auto auto 1fr; height: 100%; overflow: hidden; }
 
 /* Header */
 #hd { background: #006876; z-index: 200; }
-
 #hd nav { display: flex; justify-content: space-between; align-items: center; padding: .75rem 2rem; }
 .logo { font-size: 1.5rem; font-weight: 900; color: #fff; letter-spacing: -.05em; }
 .nav-links { display: flex; gap: 2rem; }
@@ -66,16 +63,14 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
 .chip { display: flex; align-items: center; gap: .3rem; padding: .28rem .75rem; border-radius: 9999px; background: #fff; color: #515f78; font-size: .72rem; font-weight: 500; border: 1px solid rgba(187,201,204,.25); cursor: pointer; white-space: nowrap; flex-shrink: 0; transition: background .15s; }
 .chip:hover { background: #e8f4f6; }
 
-/* ── SPLIT PANE : prend tout l'espace restant (1fr dans le grid) ── */
+/* ── SPLIT PANE ── */
 #split { display: flex; overflow: hidden; height: 100%; min-height: 0; }
 
 /* Colonne gauche */
-/* .pl scrolle verticalement — le footer apparaît après scroll des cards */
 .pl { width: 420px; flex-shrink: 0; display: flex; flex-direction: column; background: #f3f4f5; border-right: 1px solid rgba(187,201,204,.25); overflow-y: auto; overflow-x: hidden; }
 .pl::-webkit-scrollbar { width: 3px; }
 .pl::-webkit-scrollbar-thumb { background: #bbc9cc; border-radius: 10px; }
 .pl-hd { flex-shrink: 0; padding: .625rem 1.375rem .35rem; font-size: .65rem; font-weight: 700; color: #6c797c; text-transform: uppercase; letter-spacing: .1em; background: #f3f4f5; }
-/* .feed = conteneur des cards, pas de scroll propre (c'est .pl qui scrolle) */
 .feed { padding: .35rem .875rem .875rem; display: flex; flex-direction: column; gap: .45rem; }
 
 /* Colonne droite */
@@ -83,7 +78,7 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
 .pr::-webkit-scrollbar { width: 3px; }
 .pr::-webkit-scrollbar-thumb { background: #bbc9cc; border-radius: 10px; }
 
-/* ── DETAIL CARD — PAS de overflow:hidden → sticky fonctionne ── */
+/* ── DETAIL CARD ── */
 .dc {
   background: #fff;
   border-radius: 1rem;
@@ -149,7 +144,7 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
 .cblogo { width: 44px; height: 44px; border-radius: .5rem; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 900; font-size: 10px; flex-shrink: 0; }
 .bcv { display: inline-flex; align-items: center; gap: .3rem; padding: .5rem .875rem; border-radius: .5rem; background: #191c1d; color: #fff; font-weight: 700; font-size: .75rem; text-decoration: none; }
 
-/* ── FOOTER RICHE : dans .pl après .feed, visible après scroll des cards ── */
+/* ── FOOTER RICHE ── */
 #ft {
   flex-shrink: 0;
   background: #006876;
@@ -160,42 +155,100 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
   gap: .75rem;
   border-top: 2px solid rgba(255,255,255,.1);
 }
-#ft .ft-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: .5rem;
-}
+#ft .ft-top { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
 #ft .ft-logo { font-size: 1.1rem; font-weight: 900; color: #fff; letter-spacing: -.05em; }
 #ft .ft-tagline { font-size: .65rem; color: rgba(255,255,255,.5); font-style: italic; margin-top: 1px; }
 #ft .ft-links { display: flex; gap: .625rem; flex-wrap: wrap; }
-#ft .ft-links a {
-  color: rgba(255,255,255,.6);
-  text-decoration: none;
-  font-size: .65rem;
-  font-weight: 500;
-  padding: .2rem .5rem;
-  border-radius: .25rem;
-  border: 1px solid rgba(255,255,255,.15);
-  transition: background .15s, color .15s;
-}
+#ft .ft-links a { color: rgba(255,255,255,.6); text-decoration: none; font-size: .65rem; font-weight: 500; padding: .2rem .5rem; border-radius: .25rem; border: 1px solid rgba(255,255,255,.15); transition: background .15s, color .15s; }
 #ft .ft-links a:hover { background: rgba(255,255,255,.12); color: #fff; }
 #ft .ft-divider { height: 1px; background: rgba(255,255,255,.1); }
-#ft .ft-copy {
-  font-size: .6rem;
-  color: rgba(255,255,255,.35);
-  display: flex;
-  align-items: center;
-  gap: .3rem;
-  flex-wrap: wrap;
-}
+#ft .ft-copy { font-size: .6rem; color: rgba(255,255,255,.35); display: flex; align-items: center; gap: .3rem; flex-wrap: wrap; }
 #ft .ft-copy .heart { color: #ff6b8a; font-size: .7rem; }
 
+/* ═══════════════════════════════════════════════════
+   MOBILE — Vue liste + Vue détail (slide depuis droite)
+   ═══════════════════════════════════════════════════ */
 @media (max-width: 768px) {
-  .pr { display: none; }
-  .pl { width: 100%; }
+
+  /* Header simplifié */
+  #hd nav { padding: .6rem 1rem; }
   .nav-links { display: none; }
+  .btn-cta { padding: .35rem .875rem; font-size: .8rem; }
+
+  /* Hero compact */
+  #hero { padding: .875rem 1rem .625rem; }
+  #hero h1 { font-size: 1.15rem; }
+  #hero .sub { display: none; }
+  .sbar { border-radius: .625rem; padding: .25rem; }
+  .sf { padding: 0 .625rem; }
+  .sf:last-of-type { display: none; } /* cache le champ localisation */
+  .sdiv { display: none; }
+  .btn-srch { padding: .45rem 1rem; font-size: .8rem; }
+  .chips { gap: .3rem; }
+  .chip { font-size: .68rem; padding: .22rem .6rem; }
+
+  /* Split : les deux colonnes prennent 100% de largeur,
+     positionnées côte à côte en dehors du viewport */
+  #split { position: relative; overflow: hidden; }
+
+  /* Vue liste : toujours visible (translateX 0) */
+  .pl {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    transform: translateX(0);
+    transition: transform .3s cubic-bezier(.4,0,.2,1);
+    z-index: 1;
+  }
+
+  /* Vue détail : hors écran à droite par défaut */
+  .pr {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    transform: translateX(100%);
+    transition: transform .3s cubic-bezier(.4,0,.2,1);
+    z-index: 2;
+    background: #f3f4f5;
+  }
+
+  /* Quand le détail est actif : slide in */
+  #split.detail-open .pl { transform: translateX(-30%); }
+  #split.detail-open .pr { transform: translateX(0); }
+
+  /* Bouton retour mobile dans le détail */
+  .btn-back {
+    display: flex;
+    align-items: center;
+    gap: .3rem;
+    background: transparent;
+    border: none;
+    color: #006876;
+    font-weight: 700;
+    font-size: .825rem;
+    cursor: pointer;
+    padding: .75rem 1rem .25rem;
+    font-family: inherit;
+  }
+  .btn-back:active { opacity: .7; }
+
+  /* Ajuster le détail card en mobile */
+  .dc { margin: .5rem .75rem 1rem; }
+  .d-sticky { padding: .75rem 1rem .625rem; }
+  .dtitle { font-size: 1.1rem; }
+  .dact { flex-direction: row; min-width: 0; }
+  .bap { flex: 1; font-size: .775rem; padding: .45rem .75rem; }
+  .bsh { font-size: .7rem; padding: .38rem .75rem; }
+  .d-body { padding: 1rem 1rem 1.25rem; }
+
+  /* Footer mobile simplifié */
   #ft .ft-links { display: none; }
+  #ft { padding: .875rem 1rem .75rem; }
+}
+
+/* Bouton retour caché sur desktop */
+@media (min-width: 769px) {
+  .btn-back { display: none; }
 }
 </style>
 </head>
@@ -272,7 +325,8 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
       </div>
     </div>
     <div class="pr" id="pr">
-      <div class="dc" id="detail"></div>
+      <!-- Bouton retour mobile (injecté par JS) -->
+      <div id="detail"></div>
     </div>
   </div>
 
@@ -339,29 +393,58 @@ const JOBS = [
 ];
 
 let active = 1;
+const isMobile = () => window.innerWidth <= 768;
 
-const feedEl = document.getElementById('feed');
-const plEl   = document.querySelector('.pl');
-const prEl   = document.getElementById('pr');
-const hero   = document.getElementById('hero');
+const feedEl  = document.getElementById('feed');
+const plEl    = document.querySelector('.pl');
+const prEl    = document.getElementById('pr');
+const splitEl = document.getElementById('split');
+const hero    = document.getElementById('hero');
 
-/* Collapse hero au scroll de .pl (la colonne gauche scrolle maintenant) */
+/* ── Collapse hero au scroll de .pl ── */
 plEl.addEventListener('scroll', function () {
   hero.classList.toggle('collapsed', this.scrollTop > 30);
 });
 
-/* Ombre sur .d-sticky au scroll de .pr */
+/* ── Ombre sticky détail ── */
 prEl.addEventListener('scroll', function () {
   const sticky = document.querySelector('.d-sticky');
   if (sticky) sticky.classList.toggle('scrolled', this.scrollTop > 8);
 });
+
+/* ── Navigation mobile : ouvrir le détail ── */
+function openDetail() {
+  if (isMobile()) {
+    splitEl.classList.add('detail-open');
+    prEl.scrollTop = 0;
+  }
+}
+
+/* ── Navigation mobile : retour à la liste ── */
+function closeDetail() {
+  splitEl.classList.remove('detail-open');
+}
+
+/* ── Geste swipe retour (mobile) ── */
+let touchStartX = 0;
+prEl.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+prEl.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  if (dx > 60 && isMobile()) closeDetail(); // swipe droite → retour
+}, { passive: true });
 
 function renderFeed() {
   feedEl.innerHTML = '';
   JOBS.forEach(j => {
     const el = document.createElement('div');
     el.className = 'jc' + (j.id === active ? ' on' : '');
-    el.onclick = () => { active = j.id; renderFeed(); renderDetail(); prEl.scrollTop = 0; };
+    el.onclick = () => {
+      active = j.id;
+      renderFeed();
+      renderDetail();
+      if (!isMobile()) prEl.scrollTop = 0;
+      openDetail();
+    };
     el.innerHTML = `
       <div class="ct">
         <div class="clogo" style="background:${j.color};">${j.logo}</div>
@@ -385,50 +468,55 @@ function renderFeed() {
 function renderDetail() {
   const j = JOBS.find(x => x.id === active);
   document.getElementById('detail').innerHTML = `
-    <div class="d-sticky">
-      <div class="dh">
-        <div style="display:flex;align-items:center;gap:.75rem;">
-          <div class="dlogo" style="background:${j.color};">${j.logo}</div>
-          <div>
-            <div class="dtitle">${j.title}</div>
-            <div class="dco">${j.company} · ${j.dept}</div>
+    <button class="btn-back" onclick="closeDetail()">
+      <span class="ms" style="font-size:18px;">arrow_back_ios</span> Retour aux offres
+    </button>
+    <div class="dc">
+      <div class="d-sticky">
+        <div class="dh">
+          <div style="display:flex;align-items:center;gap:.75rem;">
+            <div class="dlogo" style="background:${j.color};">${j.logo}</div>
+            <div>
+              <div class="dtitle">${j.title}</div>
+              <div class="dco">${j.company} · ${j.dept}</div>
+            </div>
+          </div>
+          <div class="dact">
+            <button class="bap">Postuler maintenant <span class="ms" style="font-size:14px;">open_in_new</span></button>
+            <button class="bsh"><span class="ms" style="font-size:14px;">share</span> Partager l'offre</button>
           </div>
         </div>
-        <div class="dact">
-          <button class="bap">Postuler maintenant <span class="ms" style="font-size:14px;">open_in_new</span></button>
-          <button class="bsh"><span class="ms" style="font-size:14px;">share</span> Partager l'offre</button>
+        <div class="dkpi">
+          <div class="ki"><span class="ms" style="color:#006876;font-size:18px;">description</span><div><div class="kl">Type de contrat</div><div class="kv">${j.contract}</div></div></div>
+          <div class="ki"><span class="ms" style="color:#006876;font-size:18px;">payments</span><div><div class="kl">Salaire</div><div class="kv">${j.salaryFull}</div></div></div>
+          <div class="ki"><span class="ms" style="color:#006876;font-size:18px;">trending_up</span><div><div class="kl">Expérience</div><div class="kv">${j.level}</div></div></div>
+          <div class="ki"><span class="ms" style="color:#006876;font-size:18px;">location_on</span><div><div class="kl">Localisation</div><div class="kv">${j.loc} · ${j.mode}</div></div></div>
         </div>
       </div>
-      <div class="dkpi">
-        <div class="ki"><span class="ms" style="color:#006876;font-size:18px;">description</span><div><div class="kl">Type de contrat</div><div class="kv">${j.contract}</div></div></div>
-        <div class="ki"><span class="ms" style="color:#006876;font-size:18px;">payments</span><div><div class="kl">Salaire</div><div class="kv">${j.salaryFull}</div></div></div>
-        <div class="ki"><span class="ms" style="color:#006876;font-size:18px;">trending_up</span><div><div class="kl">Expérience</div><div class="kv">${j.level}</div></div></div>
-        <div class="ki"><span class="ms" style="color:#006876;font-size:18px;">location_on</span><div><div class="kl">Localisation</div><div class="kv">${j.loc} · ${j.mode}</div></div></div>
-      </div>
-    </div>
-    <div class="d-body">
-      <div class="ds"><h3><span class="ms" style="color:#006876;">analytics</span> Aperçu du poste</h3><p>${j.ov1}</p><p>${j.ov2}</p></div>
-      <div class="ds">
-        <h3><span class="ms" style="color:#006876;">checklist</span> Missions</h3>
-        ${j.missions.map(m=>`<div class="mi"><span class="ms" style="color:#006876;font-size:16px;flex-shrink:0;margin-top:2px;">check_circle</span><span>${m}</span></div>`).join('')}
-      </div>
-      <div class="ds">
-        <h3><span class="ms" style="color:#006876;">person_search</span> Profil</h3>
-        <div class="pb"><p style="font-weight:600;color:#191c1d;margin-bottom:.35rem;font-size:.825rem;">Expertise attendue :</p><ul>${j.profile.map(p=>`<li>${p}</li>`).join('')}</ul></div>
-      </div>
-      <div class="ds">
-        <h3><span class="ms" style="color:#006876;">construction</span> Outils</h3>
-        <div class="tl">${j.tools.map(t=>`<span class="tt">${t}</span>`).join('')}</div>
-      </div>
-      <div class="cb">
-        <div style="display:flex;align-items:center;gap:.625rem;">
-          <div class="cblogo" style="background:${j.color};">${j.logo}</div>
-          <div>
-            <div style="font-size:.875rem;font-weight:700;color:#191c1d;margin-bottom:2px;">Découvrez ${j.company}</div>
-            <div style="font-size:.75rem;color:#515f78;">${j.cd}</div>
+      <div class="d-body">
+        <div class="ds"><h3><span class="ms" style="color:#006876;">analytics</span> Aperçu du poste</h3><p>${j.ov1}</p><p>${j.ov2}</p></div>
+        <div class="ds">
+          <h3><span class="ms" style="color:#006876;">checklist</span> Missions</h3>
+          ${j.missions.map(m=>`<div class="mi"><span class="ms" style="color:#006876;font-size:16px;flex-shrink:0;margin-top:2px;">check_circle</span><span>${m}</span></div>`).join('')}
+        </div>
+        <div class="ds">
+          <h3><span class="ms" style="color:#006876;">person_search</span> Profil</h3>
+          <div class="pb"><p style="font-weight:600;color:#191c1d;margin-bottom:.35rem;font-size:.825rem;">Expertise attendue :</p><ul>${j.profile.map(p=>`<li>${p}</li>`).join('')}</ul></div>
+        </div>
+        <div class="ds">
+          <h3><span class="ms" style="color:#006876;">construction</span> Outils</h3>
+          <div class="tl">${j.tools.map(t=>`<span class="tt">${t}</span>`).join('')}</div>
+        </div>
+        <div class="cb">
+          <div style="display:flex;align-items:center;gap:.625rem;">
+            <div class="cblogo" style="background:${j.color};">${j.logo}</div>
+            <div>
+              <div style="font-size:.875rem;font-weight:700;color:#191c1d;margin-bottom:2px;">Découvrez ${j.company}</div>
+              <div style="font-size:.75rem;color:#515f78;">${j.cd}</div>
+            </div>
           </div>
+          <a href="#" class="bcv">Voir la présentation <span class="ms" style="font-size:14px;">arrow_forward</span></a>
         </div>
-        <a href="#" class="bcv">Voir la présentation <span class="ms" style="font-size:14px;">arrow_forward</span></a>
       </div>
     </div>
   `;
