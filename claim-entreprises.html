@@ -347,6 +347,121 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
 @media (max-width: 768px) {
   .nav-links { display: none; }
   #ft .ft-links { display: none; }
+  .btn-cta { display: none; }
+
+  /* Bouton burger */
+  .btn-burger {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 36px;
+    height: 36px;
+    background: rgba(255,255,255,.15);
+    border: none;
+    border-radius: .4rem;
+    cursor: pointer;
+    padding: 7px 8px;
+    flex-shrink: 0;
+  }
+  .btn-burger span {
+    display: block;
+    height: 2px;
+    background: #fff;
+    border-radius: 2px;
+    transition: transform .25s, opacity .2s;
+  }
+  .btn-burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .btn-burger.open span:nth-child(2) { opacity: 0; }
+  .btn-burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  #burger-menu {
+    display: block;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 300;
+    pointer-events: none;
+  }
+  #burger-menu .bm-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,.45);
+    opacity: 0;
+    transition: opacity .3s;
+  }
+  #burger-menu .bm-panel {
+    position: absolute;
+    top: 0; right: 0; bottom: 0;
+    width: 78vw;
+    max-width: 300px;
+    background: #006876;
+    transform: translateX(100%);
+    transition: transform .3s cubic-bezier(.4,0,.2,1);
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    box-shadow: -4px 0 24px rgba(0,0,0,.18);
+  }
+  #burger-menu.open { pointer-events: all; }
+  #burger-menu.open .bm-overlay { opacity: 1; }
+  #burger-menu.open .bm-panel { transform: translateX(0); }
+  .bm-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: .875rem 1.25rem;
+    border-bottom: 1px solid rgba(255,255,255,.12);
+  }
+  .bm-logo { font-size: 1.3rem; font-weight: 900; color: #fff; letter-spacing: -.05em; }
+  .bm-close {
+    background: rgba(255,255,255,.12);
+    border: none;
+    color: #fff;
+    width: 32px; height: 32px;
+    border-radius: .375rem;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .bm-nav {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: .75rem 0;
+    gap: .1rem;
+  }
+  .bm-nav a {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    color: rgba(255,255,255,.85);
+    text-decoration: none;
+    font-size: .9rem;
+    font-weight: 600;
+    padding: .875rem 1.25rem;
+    transition: background .15s, color .15s;
+  }
+  .bm-nav a.on { color: #fff; background: rgba(255,255,255,.12); }
+  .bm-nav a:active { background: rgba(255,255,255,.18); }
+  .bm-nav a .ms { font-size: 20px; color: rgba(255,255,255,.6); }
+  .bm-nav a.on .ms { color: rgba(255,255,255,.9); }
+  .bm-footer {
+    padding: 1rem 1.25rem 1.5rem;
+    border-top: 1px solid rgba(255,255,255,.12);
+  }
+  .bm-footer .btn-cta {
+    display: flex !important;
+    width: 100%;
+    justify-content: center;
+    padding: .65rem 1rem;
+    font-size: .875rem;
+    border-radius: .5rem;
+  }
+}
+
+/* Burger caché sur desktop */
+@media (min-width: 769px) {
+  .btn-burger { display: none; }
+  #burger-menu { display: none !important; }
 }
 </style>
 </head>
@@ -366,6 +481,9 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
       </div>
       <div style="display:flex;align-items:center;gap:.75rem;">
         <button class="btn-cta">Contactez-nous</button>
+        <button class="btn-burger" id="btn-burger" onclick="toggleBurger()" aria-label="Menu">
+          <span></span><span></span><span></span>
+        </button>
       </div>
     </nav>
   </div>
@@ -753,6 +871,49 @@ function render() {
 }
 
 render();
+
+/* ── Menu burger ── */
+function toggleBurger() {
+  const menu = document.getElementById('burger-menu');
+  const btn  = document.getElementById('btn-burger');
+  const open = menu.classList.toggle('open');
+  btn.classList.toggle('open', open);
+  document.body.style.overflow = open ? 'hidden' : '';
+}
+function closeBurger() {
+  document.getElementById('burger-menu').classList.remove('open');
+  document.getElementById('btn-burger').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeBurger(); });
 </script>
+
+<!-- ══ BURGER MENU DRAWER ══ -->
+<div id="burger-menu">
+  <div class="bm-overlay" onclick="closeBurger()"></div>
+  <div class="bm-panel">
+    <div class="bm-header">
+      <span class="bm-logo">Claim!</span>
+      <button class="bm-close" onclick="closeBurger()">
+        <span class="ms" style="font-size:18px;">close</span>
+      </button>
+    </div>
+    <nav class="bm-nav">
+      <a href="claim-job-board.html" onclick="closeBurger()">
+        <span class="ms">work</span>Offres
+      </a>
+      <a href="#" class="on" onclick="closeBurger()">
+        <span class="ms">business</span>Entreprises
+      </a>
+      <a href="claim-observatoire.html" onclick="closeBurger()">
+        <span class="ms">bar_chart</span>Observatoire de l'assurance
+      </a>
+    </nav>
+    <div class="bm-footer">
+      <button class="btn-cta" onclick="closeBurger()">Contactez-nous</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
