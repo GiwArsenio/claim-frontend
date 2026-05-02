@@ -505,6 +505,9 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; color: #191c1d; bac
   .sidebar { display: grid; grid-template-columns: repeat(2, 1fr); }
   .nl-widget { grid-column: 1 / -1; }
 }
+/* Burger menu caché par défaut (affiché uniquement en mobile via @media) */
+#burger-menu { display: none; }
+
 @media (max-width: 768px) {
   .une-card { grid-template-columns: 1fr; }
   .articles-grid { grid-template-columns: 1fr; }
