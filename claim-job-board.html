@@ -19,10 +19,10 @@
 }
 
 
-html { font-family: 'Inter', sans-serif; color: #191c1d; background: #f3f4f5; }
-body { margin: 0; overflow-y: auto; overflow-x: hidden; }
+html, body { height: 100%; font-family: 'Inter', sans-serif; color: #191c1d; background: #f3f4f5; margin: 0; }
+body { overflow-y: auto; overflow-x: hidden; }
 
-#app { display: flex; flex-direction: column; }
+#app { display: flex; flex-direction: column; min-height: 100%; }
 
 /* ── HEADER ── */
 #hd { flex-shrink: 0; background: #006876; z-index: 200; }
@@ -66,7 +66,7 @@ body { margin: 0; overflow-y: auto; overflow-x: hidden; }
 .chip:hover { background: #e8f4f6; }
 
 /* ── SPLIT PANE ── */
-#split { display: flex; overflow: hidden; /* hauteur fixée par JS */ }
+#split { display: flex; overflow: hidden; height: var(--split-h, calc(100vh - 56px)); }
 
 /* Colonne gauche */
 .pl { width: 420px; flex-shrink: 0; display: flex; flex-direction: column; background: #f3f4f5; border-right: 1px solid rgba(187,201,204,.25); overflow: hidden; }
@@ -307,6 +307,7 @@ let active = 1;
 
 const feedEl = document.getElementById('feed');
 const prEl   = document.getElementById('pr');
+const hero   = document.getElementById('hero');
 
 function isInsideFeed(el) { return feedEl.contains(el) || el === feedEl; }
 function isInsidePr(el)   { return prEl.contains(el)   || el === prEl;   }
@@ -330,7 +331,8 @@ document.addEventListener('touchmove', function(e) {
 
 /* Collapse hero au scroll de .feed */
 feedEl.addEventListener('scroll', function () {
-  document.getElementById('hero').classList.toggle('collapsed', this.scrollTop > 30);
+  hero.classList.toggle('collapsed', this.scrollTop > 30);
+  setSplitHeight();
 });
 
 /* Ombre sur .d-sticky au scroll de .pr */
@@ -418,19 +420,21 @@ function renderDetail() {
 }
 
 function setSplitHeight() {
-  const hd = document.getElementById('hd').offsetHeight;
-  const hero = document.getElementById('hero');
-  const heroH = hero.classList.contains('collapsed') ? 0 : hero.offsetHeight;
-  document.getElementById('split').style.height = (window.innerHeight - hd - heroH) + 'px';
+  const hdH  = document.getElementById('hd').offsetHeight;
+  const heroH = hero.offsetHeight; /* offsetHeight = 0 quand collapsed grâce à max-height:0 */
+  const h = window.innerHeight - hdH - heroH;
+  document.documentElement.style.setProperty('--split-h', h + 'px');
 }
 
-/* Recalcul au resize et au collapse/expand du hero */
+/* Recalcul au resize et à chaque frame de la transition hero */
 window.addEventListener('resize', setSplitHeight);
-document.getElementById('hero').addEventListener('transitionend', setSplitHeight);
+hero.addEventListener('transitionrun',  () => { requestAnimationFrame(function tick() { setSplitHeight(); if (!hero.classList.contains('collapsed') || hero.offsetHeight > 0) requestAnimationFrame(tick); }); });
+hero.addEventListener('transitionend',  setSplitHeight);
 
 renderFeed();
 renderDetail();
-setSplitHeight();
+/* Calcul initial après rendu */
+requestAnimationFrame(setSplitHeight);
 </script>
 </body>
 </html>
