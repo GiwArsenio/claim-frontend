@@ -19,9 +19,10 @@
 }
 
 
-html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; color: #191c1d; background: #f3f4f5; }
+html { font-family: 'Inter', sans-serif; color: #191c1d; background: #f3f4f5; }
+body { margin: 0; overflow-y: auto; overflow-x: hidden; }
 
-#app { display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+#app { display: flex; flex-direction: column; }
 
 /* ── HEADER ── */
 #hd { flex-shrink: 0; background: #006876; z-index: 200; }
@@ -65,7 +66,7 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
 .chip:hover { background: #e8f4f6; }
 
 /* ── SPLIT PANE ── */
-#split { flex: 1; min-height: 0; display: flex; overflow: hidden; }
+#split { display: flex; overflow: hidden; /* hauteur fixée par JS */ }
 
 /* Colonne gauche */
 .pl { width: 420px; flex-shrink: 0; display: flex; flex-direction: column; background: #f3f4f5; border-right: 1px solid rgba(187,201,204,.25); overflow: hidden; }
@@ -145,22 +146,21 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
 .cblogo { width: 44px; height: 44px; border-radius: .5rem; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 900; font-size: 10px; flex-shrink: 0; }
 .bcv { display: inline-flex; align-items: center; gap: .3rem; padding: .5rem .875rem; border-radius: .5rem; background: #191c1d; color: #fff; font-weight: 700; font-size: .75rem; text-decoration: none; }
 
-/* ── FOOTER MINIMALISTE — dans .feed, après les cards ── */
+/* ── FOOTER PLEINE LARGEUR ── */
 #ft {
-  flex-shrink: 0;
   background: #006876;
-  border-radius: .625rem;
   color: rgba(255,255,255,.65);
-  padding: .75rem 1rem;
+  padding: .6rem 2rem;
   display: flex;
-  flex-direction: column;
-  gap: .4rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
   font-size: .675rem;
   font-weight: 500;
-  margin-top: .25rem;
+  border-top: 1px solid rgba(255,255,255,.08);
 }
 #ft .ft-logo { font-size: .9rem; font-weight: 900; color: #fff; letter-spacing: -.04em; }
-#ft .ft-links { display: flex; gap: 1.25rem; flex-wrap: wrap; }
+#ft .ft-links { display: flex; gap: 1.25rem; }
 #ft .ft-links a { color: rgba(255,255,255,.55); text-decoration: none; font-size: .675rem; font-weight: 500; transition: color .15s; }
 #ft .ft-links a:hover { color: #fff; }
 #ft .ft-copy { color: rgba(255,255,255,.4); font-size: .625rem; }
@@ -229,6 +229,17 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
     </div>
   </div>
 
+  <!-- ══ FOOTER PLEINE LARGEUR ══ -->
+  <div id="ft">
+    <span class="ft-logo">Claim!</span>
+    <div class="ft-links">
+      <a href="#">À propos</a>
+      <a href="#">CGU</a>
+      <a href="#">Confidentialité</a>
+      <a href="#">Contact</a>
+    </div>
+    <span class="ft-copy">© 2026 Claim your job · Fait avec ♥ pour les actuaires, data scientists &amp; profils IA</span>
+  </div>
 
 </div>
 
@@ -406,25 +417,20 @@ function renderDetail() {
   `;
 }
 
-function renderFooter() {
-  const ft = document.createElement('div');
-  ft.id = 'ft';
-  ft.innerHTML = `
-    <span class="ft-logo">Claim!</span>
-    <div class="ft-links">
-      <a href="#">À propos</a>
-      <a href="#">CGU</a>
-      <a href="#">Confidentialité</a>
-      <a href="#">Contact</a>
-    </div>
-    <span class="ft-copy">© 2026 Claim your job · Fait avec ♥ pour les actuaires, data scientists &amp; profils IA</span>
-  `;
-  feedEl.appendChild(ft);
+function setSplitHeight() {
+  const hd = document.getElementById('hd').offsetHeight;
+  const hero = document.getElementById('hero');
+  const heroH = hero.classList.contains('collapsed') ? 0 : hero.offsetHeight;
+  document.getElementById('split').style.height = (window.innerHeight - hd - heroH) + 'px';
 }
+
+/* Recalcul au resize et au collapse/expand du hero */
+window.addEventListener('resize', setSplitHeight);
+document.getElementById('hero').addEventListener('transitionend', setSplitHeight);
 
 renderFeed();
 renderDetail();
-renderFooter();
+setSplitHeight();
 </script>
 </body>
 </html>
