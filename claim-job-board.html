@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Claim your job</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+.ms {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal; font-style: normal;
+  line-height: 1; letter-spacing: normal; text-transform: none;
+  display: inline-block; white-space: nowrap;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  vertical-align: middle;
+}
+
+html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; color: #191c1d; background: #f3f4f5; }
+
+#app { display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+
+/* ── HEADER ── */
+#hd { flex-shrink: 0; background: #006876; z-index: 200; }
+#hd nav { display: flex; justify-content: space-between; align-items: center; padding: .75rem 2rem; }
+.logo { font-size: 1.5rem; font-weight: 900; color: #fff; letter-spacing: -.05em; }
+.nav-links { display: flex; gap: 2rem; }
+.nav-links a { color: rgba(255,255,255,.8); text-decoration: none; font-size: .875rem; font-weight: 600; }
+.nav-links a.on { color: #fff; border-bottom: 2px solid #fff; padding-bottom: 2px; }
+.btn-cta { background: #fff; color: #006876; padding: .45rem 1.2rem; border-radius: .5rem; font-weight: 700; font-size: .875rem; border: none; cursor: pointer; }
+
+/* ── HERO ── */
+#hero {
+  flex-shrink: 0;
+  background: #f3f4f5;
+  border-bottom: 1px solid rgba(187,201,204,.25);
+  overflow: hidden;
+  max-height: 200px;
+  opacity: 1;
+  padding: 1.25rem 2rem .875rem;
+  transition:
+    max-height .35s cubic-bezier(.4,0,.2,1),
+    opacity    .25s ease,
+    padding    .35s cubic-bezier(.4,0,.2,1);
+}
+#hero.collapsed { max-height: 0; opacity: 0; padding-top: 0; padding-bottom: 0; }
+
+#hero h1 { font-size: clamp(1.3rem, 2.2vw, 2rem); font-weight: 900; color: #191c1d; letter-spacing: -.02em; line-height: 1.15; margin-bottom: .3rem; }
+#hero h1 em { color: #006876; font-style: normal; }
+#hero .sub { color: #515f78; font-size: .875rem; margin-bottom: .75rem; }
+
+.sbar { display: flex; align-items: center; background: #fff; border-radius: 9999px; padding: .3rem; max-width: 50rem; box-shadow: 0 1px 4px rgba(0,0,0,.07); margin-bottom: .5rem; }
+.sf { flex: 1; display: flex; align-items: center; padding: 0 1rem; gap: .4rem; }
+.sf input { width: 100%; border: none; outline: none; background: transparent; font-family: inherit; font-size: .875rem; color: #191c1d; }
+.sf input::placeholder { color: rgba(108,121,124,.6); }
+.sdiv { width: 1px; height: 1.4rem; background: rgba(187,201,204,.35); flex-shrink: 0; }
+.btn-srch { background: linear-gradient(135deg,#006876,#00bcd4); color: #fff; border: none; cursor: pointer; padding: .5rem 1.5rem; border-radius: 9999px; font-weight: 700; font-size: .875rem; white-space: nowrap; }
+
+.chips { display: flex; gap: .4rem; overflow-x: auto; padding-bottom: .15rem; }
+.chips::-webkit-scrollbar { display: none; }
+.chip { display: flex; align-items: center; gap: .3rem; padding: .28rem .75rem; border-radius: 9999px; background: #fff; color: #515f78; font-size: .72rem; font-weight: 500; border: 1px solid rgba(187,201,204,.25); cursor: pointer; white-space: nowrap; flex-shrink: 0; transition: background .15s; }
+.chip:hover { background: #e8f4f6; }
+
+/* ── SPLIT PANE ── */
+#split { flex: 1; min-height: 0; display: flex; overflow: hidden; }
+
+/* Colonne gauche */
+.pl { width: 420px; flex-shrink: 0; display: flex; flex-direction: column; background: #f3f4f5; border-right: 1px solid rgba(187,201,204,.25); overflow: hidden; }
+.pl-hd { flex-shrink: 0; padding: .625rem 1.375rem .35rem; font-size: .65rem; font-weight: 700; color: #6c797c; text-transform: uppercase; letter-spacing: .1em; background: #f3f4f5; }
+.feed { flex: 1; min-height: 0; overflow-y: auto; padding: .35rem .875rem .875rem; display: flex; flex-direction: column; gap: .45rem; }
+.feed::-webkit-scrollbar { width: 3px; }
+.feed::-webkit-scrollbar-thumb { background: #bbc9cc; border-radius: 10px; }
+
+/* Colonne droite */
+.pr { flex: 1; min-height: 0; overflow-y: auto; background: #f3f4f5; }
+.pr::-webkit-scrollbar { width: 3px; }
+.pr::-webkit-scrollbar-thumb { background: #bbc9cc; border-radius: 10px; }
+
+/* ── DETAIL CARD — PAS de overflow:hidden → sticky fonctionne ── */
+.dc {
+  background: #fff;
+  border-radius: 1rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,.04);
+  border: 1px solid rgba(187,201,204,.12);
+  margin: 1rem 1.25rem;
+}
+
+/* ── EN-TÊTE STICKY DU DÉTAIL ── */
+.d-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #fff;
+  border-bottom: 1px solid rgba(187,201,204,.18);
+  padding: 1rem 1.5rem .875rem;
+  border-radius: 1rem 1rem 0 0;
+  transition: box-shadow .2s;
+}
+.d-sticky.scrolled { box-shadow: 0 3px 14px rgba(0,0,0,.09); border-radius: 0; }
+
+.d-body { padding: 1.25rem 1.5rem 1.5rem; }
+
+/* ── CARDS ── */
+.jc { background: #fff; border-radius: .625rem; padding: .875rem; cursor: pointer; transition: transform .15s, box-shadow .15s; position: relative; border: 1.5px solid transparent; flex-shrink: 0; }
+.jc:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(85,107,141,.09); }
+.jc.on { border-color: #006876; box-shadow: 0 0 0 3px rgba(0,104,118,.08); }
+.ct { display: flex; align-items: flex-start; margin-bottom: .45rem; }
+.clogo { width: 38px; height: 38px; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 900; font-size: 9.5px; flex-shrink: 0; }
+.ci { flex: 1; min-width: 0; padding-left: .5rem; }
+.ctitle { font-size: .825rem; font-weight: 700; color: #191c1d; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.csub { font-size: .7rem; color: #515f78; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cm { display: flex; flex-wrap: wrap; gap: .25rem .875rem; margin-bottom: .4rem; }
+.cmi { display: flex; align-items: center; gap: 3px; font-size: .675rem; color: #515f78; font-weight: 600; }
+.ctags { display: flex; flex-wrap: wrap; gap: 3px; }
+.cdate { position: absolute; bottom: .5rem; right: .875rem; font-size: 8px; color: #6c797c; font-weight: 500; }
+.tag { display: inline-block; padding: 1.5px 5px; border-radius: 3px; font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+.tm { background: #a1efff; color: #004e59; }
+.tp { background: #f0fdf4; color: #15803d; border: 1px solid rgba(34,197,94,.2); }
+.tn { background: #ffdcc2; color: #6d3a00; }
+
+/* ── DÉTAIL — éléments internes ── */
+.dh { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: .875rem; margin-bottom: .875rem; }
+.dlogo { width: 60px; height: 60px; border-radius: .75rem; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 900; font-size: 13px; flex-shrink: 0; }
+.dtitle { font-size: 1.375rem; font-weight: 900; color: #191c1d; letter-spacing: -.02em; margin-bottom: 2px; }
+.dco { font-size: .875rem; color: #006876; font-weight: 600; }
+.dact { display: flex; flex-direction: column; gap: .3rem; min-width: 170px; }
+.bap { background: #006876; color: #fff; padding: .55rem 1rem; border-radius: .5rem; font-weight: 700; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: .3rem; font-size: .825rem; }
+.bsh { background: #f3f4f5; color: #3c494c; padding: .38rem 1rem; border-radius: .5rem; font-weight: 700; border: 1px solid rgba(187,201,204,.25); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: .3rem; font-size: .75rem; }
+.dkpi { display: flex; flex-wrap: wrap; gap: .875rem 1.75rem; padding: .625rem 0 0; }
+.ki { display: flex; align-items: center; gap: .4rem; }
+.kl { font-size: 8px; font-weight: 700; color: #6c797c; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 2px; }
+.kv { font-size: .775rem; font-weight: 700; color: #191c1d; }
+.ds { margin-bottom: 1.25rem; }
+.ds h3 { font-size: .9375rem; font-weight: 700; color: #191c1d; display: flex; align-items: center; gap: .35rem; margin-bottom: .5rem; }
+.ds p { color: #515f78; line-height: 1.7; margin-bottom: .45rem; font-size: .85rem; }
+.mi { display: flex; align-items: flex-start; gap: .4rem; color: #515f78; margin-bottom: .4rem; line-height: 1.65; font-size: .85rem; }
+.pb { background: #f3f4f5; padding: .875rem; border-radius: .5rem; border: 1px solid rgba(187,201,204,.1); }
+.pb ul { padding-left: 1.1rem; color: #515f78; line-height: 1.7; display: flex; flex-direction: column; gap: .2rem; font-size: .85rem; }
+.tl { display: flex; flex-wrap: wrap; gap: .3rem; }
+.tt { padding: 2.5px 10px; border-radius: 5px; background: #f3f4f5; color: #515f78; font-size: .775rem; font-weight: 600; border: 1px solid rgba(187,201,204,.2); }
+.cb { background: linear-gradient(135deg,#f3f4f5,#e7e8e9); padding: 1.1rem; border-radius: .875rem; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem; margin-top: .25rem; }
+.cblogo { width: 44px; height: 44px; border-radius: .5rem; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 900; font-size: 10px; flex-shrink: 0; }
+.bcv { display: inline-flex; align-items: center; gap: .3rem; padding: .5rem .875rem; border-radius: .5rem; background: #191c1d; color: #fff; font-weight: 700; font-size: .75rem; text-decoration: none; }
+
+/* ── FOOTER MINIMALISTE ── */
+#ft {
+  flex-shrink: 0;
+  background: #006876;
+  color: rgba(255,255,255,.65);
+  padding: .6rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: .675rem;
+  font-weight: 500;
+  border-top: 1px solid rgba(255,255,255,.08);
+}
+#ft .ft-logo { font-size: .9rem; font-weight: 900; color: #fff; letter-spacing: -.04em; }
+#ft .ft-links { display: flex; gap: 1.25rem; }
+#ft .ft-links a { color: rgba(255,255,255,.55); text-decoration: none; font-size: .675rem; font-weight: 500; transition: color .15s; }
+#ft .ft-links a:hover { color: #fff; }
+#ft .ft-copy { color: rgba(255,255,255,.4); font-size: .625rem; }
+
+@media (max-width: 768px) {
+  .pr { display: none; }
+  .pl { width: 100%; }
+  .nav-links { display: none; }
+  #ft .ft-links { display: none; }
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ══ HEADER ══ -->
+  <div id="hd">
+    <nav>
+      <div style="display:flex;align-items:center;gap:2.5rem;">
+        <span class="logo">Claim!</span>
+        <div class="nav-links">
+          <a href="#" class="on">Offres</a>
+          <a href="#">Entreprises</a>
+          <a href="#">Observatoire de l'assurance</a>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:.75rem;">
+        <button class="btn-cta">Contactez-nous</button>
+      </div>
+    </nav>
+  </div>
+
+  <!-- ══ HERO ══ -->
+  <div id="hero">
+    <h1>Trouvez le job idéal en Actuariat <em>&amp;</em> Intelligence Artificielle.</h1>
+    <p class="sub">La plateforme de référence pour les experts de la donnée et du risque assurantiel.</p>
+    <div class="sbar">
+      <div class="sf">
+        <span class="ms" style="color:#6c797c;font-size:17px;">search</span>
+        <input type="text" placeholder="Mots-clés (e.g. Actuaire, Data Scientist)"/>
+      </div>
+      <div class="sdiv"></div>
+      <div class="sf">
+        <span class="ms" style="color:#6c797c;font-size:17px;">location_on</span>
+        <input type="text" placeholder="Localisation"/>
+      </div>
+      <button class="btn-srch">Rechercher</button>
+    </div>
+    <div class="chips">
+      <button class="chip"><span class="ms" style="font-size:13px;">work</span>Type de contrat<span class="ms" style="font-size:13px;">expand_more</span></button>
+      <button class="chip"><span class="ms" style="font-size:13px;">psychology</span>Spécialité<span class="ms" style="font-size:13px;">expand_more</span></button>
+      <button class="chip"><span class="ms" style="font-size:13px;">code</span>Tech<span class="ms" style="font-size:13px;">expand_more</span></button>
+      <button class="chip"><span class="ms" style="font-size:13px;">home_work</span>Télétravail<span class="ms" style="font-size:13px;">expand_more</span></button>
+      <button class="chip"><span class="ms" style="font-size:13px;">euro</span>Salaire<span class="ms" style="font-size:13px;">expand_more</span></button>
+    </div>
+  </div>
+
+  <!-- ══ SPLIT PANE ══ -->
+  <div id="split">
+    <div class="pl">
+      <div class="pl-hd">8 offres disponibles</div>
+      <div class="feed" id="feed"></div>
+    </div>
+    <div class="pr" id="pr">
+      <div class="dc" id="detail"></div>
+    </div>
+  </div>
+
+  <!-- ══ FOOTER MINIMALISTE ══ -->
+  <div id="ft">
+    <span class="ft-logo">Claim!</span>
+    <div class="ft-links">
+      <a href="#">À propos</a>
+      <a href="#">CGU</a>
+      <a href="#">Confidentialité</a>
+      <a href="#">Contact</a>
+    </div>
+    <span class="ft-copy">© 2026 Claim your job · Fait avec ♥ pour les actuaires, data scientists &amp; profils IA</span>
+  </div>
+
+</div>
+
+<script>
+const JOBS = [
+  { id:1, title:"Actuaire IARD Senior", company:"AXA France", dept:"Direction des Assurances Dommages", loc:"Paris, FR", mode:"Hybride", salary:"65k€ – 85k€", salaryFull:"65k€ – 85k€ + Bonus", contract:"CDI", level:"Senior (5-10 ans)", posted:"Il y a 2 jours", color:"#00395D", logo:"AXA",
+    tags:[{l:"IARD",t:"tm"},{l:"Tarification",t:"tp"},{l:"Solvabilité II",t:"tn"}],
+    ov1:"Au sein de la Direction Technique IARD d'AXA France, vous rejoignez l'équipe de Tarification et Modélisation. Votre rôle est crucial pour définir les stratégies de prix et anticiper les risques émergents grâce à des modèles prédictifs avancés.",
+    ov2:"Ce poste combine une expertise technique actuarielle forte avec une vision business stratégique, au service de la rentabilité de nos portefeuilles Particuliers et Professionnels.",
+    missions:["Développement et optimisation de modèles de tarification (GLM, Machine Learning).","Analyse de la rentabilité et monitoring technique des portefeuilles IARD.","Conception d'outils de pilotage data-visualisation pour les directions opérationnelles.","Encadrement technique de profils plus juniors et participation aux projets transverses IA."],
+    profile:["Diplôme d'Actuaire ou Master en Statistique / Mathématiques Appliquées.","Minimum 5 ans d'expérience en actuariat IARD.","Maîtrise de Python, R et SQL. Connaissance des outils de tarification (Emblem, Radar).","Capacité à vulgariser des concepts techniques complexes pour des non-spécialistes."],
+    tools:["Python","R","SQL","SAS","Emblem","Radar"], cd:"Plongez au cœur des métiers et de la culture d'innovation d'AXA France." },
+  { id:2, title:"Data Scientist – Pricing & Modélisation", company:"Allianz France", dept:"Direction Technique & Data", loc:"La Défense, FR", mode:"Présentiel", salary:"55k€ – 75k€", salaryFull:"55k€ – 75k€ + Intéressement", contract:"CDI", level:"Confirmé (3-5 ans)", posted:"Il y a 2h", color:"#003781", logo:"ALZ",
+    tags:[{l:"Actuariat",t:"tm"},{l:"Pricing",t:"tp"},{l:"IFRS 17",t:"tn"}],
+    ov1:"Rejoignez l'équipe Data Science d'Allianz France pour construire les modèles de tarification de demain. Vous travaillerez en étroite collaboration avec les équipes actuarielles et produit pour déployer des algorithmes de pricing en production.",
+    ov2:"Poste au croisement de la data science avancée et de l'expertise assurantielle, avec un fort impact business sur la compétitivité des offres.",
+    missions:["Construction de modèles prédictifs de fréquence et sévérité des sinistres (XGBoost, GLM, réseaux de neurones).","Mise en production des modèles via des pipelines MLOps (MLflow, Docker, Kubernetes).","Collaboration avec les actuaires pour valider les hypothèses de modélisation.","Présentation des résultats aux comités de direction technique."],
+    profile:["Master 2 en Data Science, Statistiques ou équivalent.","3 à 5 ans d'expérience en modélisation prédictive, idéalement en assurance.","Maîtrise de Python (scikit-learn, pandas, statsmodels) et SQL.","Connaissance des normes IFRS 17 appréciée."],
+    tools:["Python","SQL","MLflow","Docker","Spark","Tableau"], cd:"Découvrez l'environnement data-driven et les projets d'innovation d'Allianz France." },
+  { id:3, title:"Actuaire Vie – Épargne & Retraite", company:"BNP Paribas Cardif", dept:"Direction Actuarielle Vie", loc:"Paris 8e, FR", mode:"Hybride", salary:"60k€ – 80k€", salaryFull:"60k€ – 80k€ + Variable", contract:"CDI", level:"Confirmé (3-5 ans)", posted:"Il y a 1 jour", color:"#009966", logo:"BNP",
+    tags:[{l:"Vie",t:"tm"},{l:"Épargne",t:"tp"},{l:"IFRS 17",t:"tn"}],
+    ov1:"Au sein de la Direction Actuarielle Vie de BNP Paribas Cardif, vous prenez en charge le suivi technique des portefeuilles Épargne et Retraite. Vous participez activement à la transition IFRS 17 et à la production des reportings réglementaires.",
+    ov2:"Un rôle clé dans un groupe international, avec une exposition forte aux enjeux de transformation réglementaire et digitale.",
+    missions:["Production et analyse des provisions techniques (Best Estimate, Risk Margin) sous IFRS 17.","Suivi de la rentabilité des portefeuilles Épargne individuelle et collective.","Participation aux travaux de modélisation ALM (Asset-Liability Management).","Contribution aux projets de transformation des outils actuariels (Prophet, MoSes)."],
+    profile:["Diplôme d'Actuaire (IA, DAV ou équivalent).","Expérience de 3 à 5 ans en actuariat Vie, idéalement sur des produits d'épargne.","Maîtrise de Prophet ou MoSes. Bonne connaissance d'Excel VBA et Python.","Rigueur, autonomie et sens de la communication."],
+    tools:["Prophet","MoSes","Python","Excel VBA","SQL","PowerBI"], cd:"Explorez la culture internationale et les projets d'innovation de BNP Paribas Cardif." },
+  { id:4, title:"MLOps Engineer – Assurance", company:"Covéa", dept:"Direction Innovation & IA", loc:"Paris 15e, FR", mode:"Full Remote", salary:"70k€ – 90k€", salaryFull:"70k€ – 90k€ + Bonus", contract:"CDI", level:"Senior (5-10 ans)", posted:"Il y a 3 jours", color:"#E30613", logo:"CVA",
+    tags:[{l:"IA / ML",t:"tm"},{l:"MLOps",t:"tp"},{l:"RGPD",t:"tn"}],
+    ov1:"Covéa (MMA, MAAF, GMF) accélère sa transformation IA et recrute un MLOps Engineer pour industrialiser ses modèles de machine learning. Vous serez le garant de la qualité, de la reproductibilité et de la performance des pipelines ML en production.",
+    ov2:"Poste stratégique au sein d'une équipe IA en forte croissance, avec une liberté technique importante et un impact direct sur les produits assurantiels.",
+    missions:["Conception et maintenance des pipelines CI/CD pour les modèles ML (détection de fraude, tarification, sinistres).","Mise en place du monitoring des modèles en production (drift, performance, biais).","Collaboration avec les Data Scientists pour optimiser le déploiement des modèles.","Définition des standards MLOps et formation des équipes."],
+    profile:["Bac+5 en Informatique, Data Engineering ou équivalent.","5 ans minimum d'expérience en MLOps ou Data Engineering.","Maîtrise de Kubernetes, Docker, MLflow, Airflow et des cloud providers (AWS/GCP/Azure).","Connaissance des enjeux RGPD et d'IA responsable."],
+    tools:["Kubernetes","Docker","MLflow","Airflow","Python","Terraform"], cd:"Rejoignez l'écosystème d'innovation de Covéa, leader de l'assurance mutualiste française." },
+  { id:5, title:"Consultant Actuaire – Risques Émergents", company:"Mazars Actuariat", dept:"Practice Assurance & Risques", loc:"Paris 8e, FR", mode:"Hybride", salary:"50k€ – 70k€", salaryFull:"50k€ – 70k€ + Prime", contract:"CDI", level:"Junior (1-3 ans)", posted:"Il y a 5 jours", color:"#E4003A", logo:"MZR",
+    tags:[{l:"Conseil",t:"tm"},{l:"Risques",t:"tp"},{l:"Solvabilité II",t:"tn"}],
+    ov1:"Mazars Actuariat accompagne les acteurs de l'assurance dans leurs enjeux de transformation réglementaire, de modélisation et de gestion des risques. Vous intégrez une équipe de consultants experts pour intervenir sur des missions variées à fort enjeu.",
+    ov2:"Un environnement stimulant en cabinet, avec une montée en compétences rapide et une exposition à des problématiques de pointe (cyber, climatique, pandémique).",
+    missions:["Réalisation de missions de conseil en actuariat (Solvabilité II, IFRS 17, tarification).","Modélisation des risques émergents (cyber, catastrophes naturelles, longévité).","Rédaction de rapports et présentations pour les directions générales.","Participation au développement commercial et à la veille réglementaire."],
+    profile:["Diplôme d'Actuaire ou Master en Mathématiques Appliquées / Statistiques.","1 à 3 ans d'expérience en actuariat ou conseil.","Maîtrise de R, Python et Excel. Connaissance de Solvabilité II.","Excellent relationnel, curiosité intellectuelle et goût pour le conseil."],
+    tools:["R","Python","Excel","SAS","PowerPoint","VBA"], cd:"Découvrez l'approche conseil et l'expertise sectorielle de Mazars Actuariat." },
+  { id:6, title:"NLP Engineer – Traitement des Sinistres", company:"Generali France", dept:"Digital & Innovation Lab", loc:"Paris 9e, FR", mode:"Hybride", salary:"58k€ – 78k€", salaryFull:"58k€ – 78k€ + Intéressement", contract:"CDI", level:"Confirmé (3-5 ans)", posted:"Il y a 1 semaine", color:"#C8102E", logo:"GNL",
+    tags:[{l:"NLP / IA",t:"tm"},{l:"Sinistres",t:"tp"},{l:"RGPD",t:"tn"}],
+    ov1:"Le Digital & Innovation Lab de Generali France développe des solutions IA pour automatiser et améliorer la gestion des sinistres. Vous rejoignez l'équipe NLP pour construire des modèles de compréhension du langage naturel appliqués aux déclarations de sinistres.",
+    ov2:"Un rôle pionnier dans l'application du NLP à l'assurance, avec des données réelles et un impact direct sur l'expérience client.",
+    missions:["Développement de modèles NLP pour la classification et l'extraction d'informations dans les déclarations de sinistres.","Fine-tuning de LLMs (CamemBERT, LLaMA) sur des corpus assurantiels.","Déploiement des modèles via des APIs REST et intégration dans les SI métier.","Collaboration avec les équipes sinistres pour recueillir les besoins et valider les modèles."],
+    profile:["Master 2 en NLP, Machine Learning ou Informatique.","3 à 5 ans d'expérience en NLP ou Deep Learning.","Maîtrise de Hugging Face, PyTorch et des architectures Transformer.","Sensibilité aux enjeux RGPD et à l'IA responsable."],
+    tools:["Python","PyTorch","Hugging Face","FastAPI","Docker","Elasticsearch"], cd:"Explorez les projets d'innovation et la culture digitale de Generali France." },
+  { id:7, title:"Actuaire Santé – Prévoyance Collective", company:"Malakoff Humanis", dept:"Direction Actuarielle Santé", loc:"Paris 13e, FR", mode:"Hybride", salary:"52k€ – 68k€", salaryFull:"52k€ – 68k€ + PEE", contract:"CDI", level:"Junior (1-3 ans)", posted:"Il y a 4 jours", color:"#005B8E", logo:"MH",
+    tags:[{l:"Santé",t:"tm"},{l:"Prévoyance",t:"tp"},{l:"ANI",t:"tn"}],
+    ov1:"Au sein de la Direction Actuarielle Santé de Malakoff Humanis, vous contribuez à la gestion technique des portefeuilles de prévoyance collective (incapacité, invalidité, décès). Vous participez à la tarification, au suivi de la sinistralité et à la production des reportings.",
+    ov2:"Un premier poste structurant dans un groupe paritaire de référence, avec un accompagnement fort et des perspectives d'évolution rapide.",
+    missions:["Tarification des contrats de prévoyance collective (PME, ETI).","Suivi mensuel de la sinistralité et analyse des écarts.","Production des provisions techniques et des reportings réglementaires.","Participation aux appels d'offres et aux revues de portefeuille."],
+    profile:["Master en Actuariat, Statistiques ou Mathématiques Appliquées.","Première expérience (stage ou alternance) en actuariat Santé/Prévoyance appréciée.","Maîtrise d'Excel et notions de SAS ou R.","Rigueur, esprit d'analyse et sens du travail en équipe."],
+    tools:["Excel","SAS","R","SQL","PowerBI","VBA"], cd:"Rejoignez l'un des leaders de la protection sociale complémentaire en France." },
+  { id:8, title:"Quant Risk Analyst – Réassurance", company:"SCOR SE", dept:"Group Risk Management", loc:"Paris 1er, FR", mode:"Hybride", salary:"75k€ – 100k€", salaryFull:"75k€ – 100k€ + Bonus", contract:"CDI", level:"Senior (5-10 ans)", posted:"Il y a 6 jours", color:"#1A1A2E", logo:"SCR",
+    tags:[{l:"Réassurance",t:"tm"},{l:"Risque Quant.",t:"tp"},{l:"Solvabilité II",t:"tn"}],
+    ov1:"SCOR, l'un des leaders mondiaux de la réassurance, recrute un Quant Risk Analyst pour renforcer son équipe Group Risk Management. Vous développez et maintenez les modèles internes de capital économique et de stress-testing.",
+    ov2:"Un poste d'excellence au sein d'un groupe international, avec une exposition aux risques les plus complexes (catastrophes naturelles, pandémies, cyber) et une forte dimension internationale.",
+    missions:["Développement et calibration des modèles de capital économique (modèle interne Solvabilité II).","Réalisation de stress-tests et d'analyses de scénarios extrêmes.","Contribution aux reportings ORSA et aux interactions avec les régulateurs.","Veille sur les risques émergents et publication de recherches internes."],
+    profile:["Diplôme d'Actuaire ou PhD en Mathématiques / Statistiques.","5 à 10 ans d'expérience en gestion des risques quantitatifs en assurance ou réassurance.","Maîtrise de R, Python et des méthodes de simulation Monte Carlo.","Anglais courant indispensable (environnement international)."],
+    tools:["R","Python","C++","SQL","Excel","Bloomberg"], cd:"Découvrez l'expertise mondiale et la culture d'excellence de SCOR SE." }
+];
+
+let active = 1;
+
+const feedEl = document.getElementById('feed');
+const prEl   = document.getElementById('pr');
+
+function isInsideFeed(el) { return feedEl.contains(el) || el === feedEl; }
+function isInsidePr(el)   { return prEl.contains(el)   || el === prEl;   }
+
+/* Scroll universel → redirige vers .feed si hors des deux panes */
+document.addEventListener('wheel', function(e) {
+  if (isInsideFeed(e.target) || isInsidePr(e.target)) return;
+  e.preventDefault();
+  feedEl.scrollTop += e.deltaY;
+}, { passive: false });
+
+let touchStartY = 0;
+document.addEventListener('touchstart', function(e) { touchStartY = e.touches[0].clientY; }, { passive: true });
+document.addEventListener('touchmove', function(e) {
+  if (isInsideFeed(e.target) || isInsidePr(e.target)) return;
+  const dy = touchStartY - e.touches[0].clientY;
+  touchStartY = e.touches[0].clientY;
+  e.preventDefault();
+  feedEl.scrollTop += dy;
+}, { passive: false });
+
+/* Collapse hero au scroll de .feed */
+feedEl.addEventListener('scroll', function () {
+  document.getElementById('hero').classList.toggle('collapsed', this.scrollTop > 30);
+});
+
+/* Ombre sur .d-sticky au scroll de .pr */
+prEl.addEventListener('scroll', function () {
+  const sticky = document.querySelector('.d-sticky');
+  if (sticky) sticky.classList.toggle('scrolled', this.scrollTop > 8);
+});
+
+function renderFeed() {
+  feedEl.innerHTML = '';
+  JOBS.forEach(j => {
+    const el = document.createElement('div');
+    el.className = 'jc' + (j.id === active ? ' on' : '');
+    el.onclick = () => { active = j.id; renderFeed(); renderDetail(); prEl.scrollTop = 0; };
+    el.innerHTML = `
+      <div class="ct">
+        <div class="clogo" style="background:${j.color};">${j.logo}</div>
+        <div class="ci">
+          <div class="ctitle">${j.title}</div>
+          <div class="csub">${j.company} · ${j.loc} (${j.mode})</div>
+        </div>
+        <span class="ms" style="color:#bbc9cc;font-size:17px;flex-shrink:0;margin-left:.35rem;">notifications</span>
+      </div>
+      <div class="cm">
+        <div class="cmi"><span class="ms" style="font-size:12px;">payments</span>${j.salary}</div>
+        <div class="cmi"><span class="ms" style="font-size:12px;">trending_up</span>${j.level}</div>
+      </div>
+      <div class="ctags">${j.tags.map(t=>`<span class="tag ${t.t}">${t.l}</span>`).join('')}</div>
+      <div class="cdate">${j.posted}</div>
+    `;
+    feedEl.appendChild(el);
+  });
+}
+
+function renderDetail() {
+  const j = JOBS.find(x => x.id === active);
+  document.getElementById('detail').innerHTML = `
+    <div class="d-sticky">
+      <div class="dh">
+        <div style="display:flex;align-items:center;gap:.75rem;">
+          <div class="dlogo" style="background:${j.color};">${j.logo}</div>
+          <div>
+            <div class="dtitle">${j.title}</div>
+            <div class="dco">${j.company} · ${j.dept}</div>
+          </div>
+        </div>
+        <div class="dact">
+          <button class="bap">Postuler maintenant <span class="ms" style="font-size:14px;">open_in_new</span></button>
+          <button class="bsh"><span class="ms" style="font-size:14px;">share</span> Partager l'offre</button>
+        </div>
+      </div>
+      <div class="dkpi">
+        <div class="ki"><span class="ms" style="color:#006876;font-size:18px;">description</span><div><div class="kl">Type de contrat</div><div class="kv">${j.contract}</div></div></div>
+        <div class="ki"><span class="ms" style="color:#006876;font-size:18px;">payments</span><div><div class="kl">Salaire</div><div class="kv">${j.salaryFull}</div></div></div>
+        <div class="ki"><span class="ms" style="color:#006876;font-size:18px;">trending_up</span><div><div class="kl">Expérience</div><div class="kv">${j.level}</div></div></div>
+        <div class="ki"><span class="ms" style="color:#006876;font-size:18px;">location_on</span><div><div class="kl">Localisation</div><div class="kv">${j.loc} · ${j.mode}</div></div></div>
+      </div>
+    </div>
+    <div class="d-body">
+      <div class="ds"><h3><span class="ms" style="color:#006876;">analytics</span> Aperçu du poste</h3><p>${j.ov1}</p><p>${j.ov2}</p></div>
+      <div class="ds">
+        <h3><span class="ms" style="color:#006876;">checklist</span> Missions</h3>
+        ${j.missions.map(m=>`<div class="mi"><span class="ms" style="color:#006876;font-size:16px;flex-shrink:0;margin-top:2px;">check_circle</span><span>${m}</span></div>`).join('')}
+      </div>
+      <div class="ds">
+        <h3><span class="ms" style="color:#006876;">person_search</span> Profil</h3>
+        <div class="pb"><p style="font-weight:600;color:#191c1d;margin-bottom:.35rem;font-size:.825rem;">Expertise attendue :</p><ul>${j.profile.map(p=>`<li>${p}</li>`).join('')}</ul></div>
+      </div>
+      <div class="ds">
+        <h3><span class="ms" style="color:#006876;">construction</span> Outils</h3>
+        <div class="tl">${j.tools.map(t=>`<span class="tt">${t}</span>`).join('')}</div>
+      </div>
+      <div class="cb">
+        <div style="display:flex;align-items:center;gap:.625rem;">
+          <div class="cblogo" style="background:${j.color};">${j.logo}</div>
+          <div>
+            <div style="font-size:.875rem;font-weight:700;color:#191c1d;margin-bottom:2px;">Découvrez ${j.company}</div>
+            <div style="font-size:.75rem;color:#515f78;">${j.cd}</div>
+          </div>
+        </div>
+        <a href="#" class="bcv">Voir la présentation <span class="ms" style="font-size:14px;">arrow_forward</span></a>
+      </div>
+    </div>
+  `;
+}
+
+renderFeed();
+renderDetail();
+</script>
+</body>
+</html>

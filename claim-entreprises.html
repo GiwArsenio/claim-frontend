@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Claim! — Entreprises</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+.ms {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal; font-style: normal; line-height: 1;
+  letter-spacing: normal; text-transform: none;
+  display: inline-block; white-space: nowrap;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  vertical-align: middle;
+}
+
+html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; color: #191c1d; background: #f3f4f5; }
+#app { display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+
+/* ── HEADER ── */
+#hd { flex-shrink: 0; background: #006876; z-index: 200; }
+#hd nav { display: flex; justify-content: space-between; align-items: center; padding: .75rem 2rem; }
+.logo { font-size: 1.5rem; font-weight: 900; color: #fff; letter-spacing: -.05em; cursor: pointer; }
+.nav-links { display: flex; gap: 2rem; }
+.nav-links a { color: rgba(255,255,255,.8); text-decoration: none; font-size: .875rem; font-weight: 600; transition: color .15s; }
+.nav-links a:hover { color: #fff; }
+.nav-links a.on { color: #fff; border-bottom: 2px solid #fff; padding-bottom: 2px; }
+.btn-cta { background: #fff; color: #006876; padding: .45rem 1.2rem; border-radius: .5rem; font-weight: 700; font-size: .875rem; border: none; cursor: pointer; }
+
+/* ── HERO ── */
+#hero-co {
+  flex-shrink: 0;
+  background: #f3f4f5;
+  border-bottom: 1px solid rgba(187,201,204,.25);
+  padding: 1.25rem 2rem .875rem;
+}
+#hero-co h1 { font-size: clamp(1.2rem, 2vw, 1.75rem); font-weight: 900; color: #191c1d; letter-spacing: -.02em; margin-bottom: .2rem; }
+#hero-co h1 em { color: #006876; font-style: normal; }
+#hero-co .sub { color: #515f78; font-size: .825rem; margin-bottom: .875rem; }
+
+/* ── BARRE RECHERCHE + FILTRES ── */
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  flex-wrap: wrap;
+}
+
+/* Barre de recherche */
+.sbar {
+  display: flex; align-items: center;
+  background: #fff; border-radius: 9999px;
+  padding: .3rem; max-width: 36rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,.07);
+  flex: 1;
+}
+.sf { flex: 1; display: flex; align-items: center; padding: 0 .875rem; gap: .4rem; }
+.sf input { width: 100%; border: none; outline: none; background: transparent; font-family: inherit; font-size: .825rem; color: #191c1d; }
+.sf input::placeholder { color: rgba(108,121,124,.6); }
+.btn-srch { background: linear-gradient(135deg,#006876,#00bcd4); color: #fff; border: none; cursor: pointer; padding: .42rem 1.25rem; border-radius: 9999px; font-weight: 700; font-size: .8rem; white-space: nowrap; }
+
+/* Séparateur */
+.bar-sep { width: 1px; height: 1.5rem; background: rgba(187,201,204,.3); flex-shrink: 0; margin: 0 .15rem; }
+
+/* ── DROPDOWN CHIP ── */
+.dd-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* Bouton déclencheur */
+.dd-trigger {
+  display: inline-flex; align-items: center; gap: .3rem;
+  padding: .28rem .75rem;
+  border-radius: 9999px;
+  background: #fff;
+  color: #515f78;
+  font-size: .72rem;
+  font-weight: 500;
+  border: 1px solid rgba(187,201,204,.25);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background .15s, border-color .15s, color .15s;
+  user-select: none;
+}
+.dd-trigger:hover { background: #e8f4f6; }
+.dd-trigger.active {
+  background: #006876;
+  color: #fff;
+  border-color: #006876;
+}
+.dd-trigger.active .dd-arrow { color: #fff; }
+.dd-arrow {
+  font-size: 13px;
+  color: #6c797c;
+  transition: transform .2s;
+  flex-shrink: 0;
+}
+.dd-wrap.open .dd-arrow { transform: rotate(180deg); }
+
+/* Badge compteur sur le trigger */
+.dd-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: #fff; color: #006876;
+  font-size: .55rem; font-weight: 900;
+  flex-shrink: 0;
+}
+.dd-trigger:not(.active) .dd-badge { background: #006876; color: #fff; }
+
+/* Panel déroulant */
+.dd-panel {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 200px;
+  background: #fff;
+  border-radius: .75rem;
+  border: 1px solid rgba(187,201,204,.25);
+  box-shadow: 0 8px 28px rgba(0,0,0,.1);
+  padding: .5rem;
+  z-index: 300;
+}
+.dd-wrap.open .dd-panel { display: block; }
+
+/* Titre du panel */
+.dd-panel-title {
+  font-size: .6rem; font-weight: 800; color: #6c797c;
+  text-transform: uppercase; letter-spacing: .08em;
+  padding: .25rem .5rem .4rem;
+}
+
+/* Options dans le panel */
+.dd-option {
+  display: flex; align-items: center; gap: .5rem;
+  padding: .38rem .625rem;
+  border-radius: .5rem;
+  font-size: .775rem; font-weight: 500; color: #3c494c;
+  cursor: pointer;
+  transition: background .12s;
+  white-space: nowrap;
+}
+.dd-option:hover { background: #f3f4f5; }
+.dd-option.on { background: #e8f4f6; color: #006876; font-weight: 700; }
+.dd-option .check {
+  width: 14px; height: 14px; border-radius: 50%;
+  border: 1.5px solid rgba(187,201,204,.5);
+  flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  transition: all .12s;
+}
+.dd-option.on .check { background: #006876; border-color: #006876; }
+.dd-option.on .check::after { content: ''; display: block; width: 5px; height: 5px; border-radius: 50%; background: #fff; }
+
+/* Séparateur dans panel */
+.dd-divider { height: 1px; background: rgba(187,201,204,.2); margin: .35rem .5rem; }
+
+/* ── Chip toggle "Recrute activement" (pas de dropdown) ── */
+.chip-toggle {
+  display: inline-flex; align-items: center; gap: .3rem;
+  padding: .28rem .75rem;
+  border-radius: 9999px;
+  background: #f0fdf4;
+  color: #15803d;
+  font-size: .72rem;
+  font-weight: 600;
+  border: 1px solid rgba(34,197,94,.3);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all .15s;
+  user-select: none;
+}
+.chip-toggle:hover { background: #dcfce7; border-color: #22c55e; }
+.chip-toggle.on { background: #16a34a; color: #fff; border-color: #16a34a; }
+.chip-toggle .dot-live {
+  width: 6px; height: 6px; border-radius: 50%; background: #22c55e;
+  flex-shrink: 0; animation: pulse 1.8s ease-in-out infinite;
+}
+.chip-toggle.on .dot-live { background: #fff; }
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: .5; transform: scale(.75); }
+}
+
+/* Bouton reset */
+.btn-reset {
+  display: inline-flex; align-items: center; gap: .2rem;
+  padding: .28rem .65rem;
+  border-radius: 9999px;
+  background: transparent; color: #6c797c;
+  font-size: .68rem; font-weight: 600;
+  border: 1px solid rgba(187,201,204,.3);
+  cursor: pointer; white-space: nowrap;
+  transition: all .15s; flex-shrink: 0;
+}
+.btn-reset:hover { color: #E30613; border-color: rgba(227,6,19,.3); background: #fff5f5; }
+.btn-reset.hidden { display: none; }
+
+/* Compteur */
+.co-count {
+  font-size: .7rem; font-weight: 600; color: #6c797c;
+  padding: .5rem 0 .4rem;
+  display: flex; align-items: center; gap: .4rem; flex-wrap: wrap;
+}
+.co-count strong { color: #006876; font-weight: 800; }
+.afs-tag {
+  display: inline-flex; align-items: center; gap: .2rem;
+  padding: 1px 7px; border-radius: 9999px;
+  background: #e8f4f6; color: #006876;
+  font-size: .6rem; font-weight: 700;
+}
+
+/* ── GRILLE ── */
+#grid-wrap { flex: 1; min-height: 0; overflow-y: auto; padding: 0 2rem 1.5rem; }
+#grid-wrap::-webkit-scrollbar { width: 4px; }
+#grid-wrap::-webkit-scrollbar-thumb { background: #bbc9cc; border-radius: 10px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 1rem; }
+
+/* ── CARD ENTREPRISE ── */
+.ec {
+  background: #fff; border-radius: .875rem;
+  border: 1.5px solid rgba(187,201,204,.18);
+  box-shadow: 0 1px 4px rgba(0,0,0,.04);
+  overflow: hidden; cursor: pointer;
+  transition: transform .18s, box-shadow .18s, border-color .18s;
+  display: flex; flex-direction: column;
+}
+.ec:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,104,118,.1); border-color: rgba(0,104,118,.25); }
+
+.ec-banner { height: 68px; position: relative; flex-shrink: 0; }
+.ec-logo {
+  position: absolute; bottom: -18px; left: 1.25rem;
+  width: 52px; height: 52px; border-radius: .625rem;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-weight: 900; font-size: 11px;
+  border: 3px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,.12);
+}
+.ec-badge {
+  position: absolute; top: .625rem; right: .875rem;
+  background: rgba(255,255,255,.92); color: #16a34a;
+  font-size: .6rem; font-weight: 800;
+  padding: 2px 8px; border-radius: 9999px;
+  display: flex; align-items: center; gap: 4px;
+}
+.ec-badge .dot-pulse { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; flex-shrink: 0; animation: pulse 1.8s ease-in-out infinite; }
+
+.ec-body { padding: 1.375rem 1.25rem .875rem; flex: 1; display: flex; flex-direction: column; }
+.ec-name { font-size: 1rem; font-weight: 800; color: #191c1d; margin-bottom: 2px; }
+.ec-sector { font-size: .72rem; color: #006876; font-weight: 600; margin-bottom: .5rem; }
+.ec-desc { font-size: .775rem; color: #515f78; line-height: 1.65; margin-bottom: .75rem; flex: 1; }
+
+.ec-kpis { display: flex; gap: 1rem; margin-bottom: .75rem; flex-wrap: wrap; }
+.ec-kpi { display: flex; flex-direction: column; }
+.ec-kl { font-size: .6rem; font-weight: 700; color: #6c797c; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 1px; }
+.ec-kv { font-size: .775rem; font-weight: 700; color: #191c1d; }
+.ec-remote {
+  display: inline-flex; align-items: center; gap: 3px;
+  padding: 2px 8px; border-radius: 4px;
+  font-size: .65rem; font-weight: 700;
+  background: #f0fafb; color: #006876;
+  border: 1px solid rgba(0,104,118,.15);
+}
+.ec-tags { display: flex; flex-wrap: wrap; gap: 3px; margin-bottom: .75rem; }
+.ec-tag { padding: 2px 8px; border-radius: 4px; font-size: .65rem; font-weight: 700; background: #f3f4f5; color: #515f78; border: 1px solid rgba(187,201,204,.2); }
+.ec-tag.hl { background: #e8f4f6; color: #006876; border-color: rgba(0,104,118,.15); }
+.ec-avantages { display: flex; flex-wrap: wrap; gap: 3px; margin-bottom: .875rem; }
+.ec-av { display: inline-flex; align-items: center; gap: 2px; padding: 2px 7px; border-radius: 4px; font-size: .6rem; font-weight: 700; background: #fefce8; color: #a16207; border: 1px solid rgba(234,179,8,.2); }
+
+.ec-foot {
+  border-top: 1px solid rgba(187,201,204,.15);
+  padding: .625rem 1.25rem;
+  display: flex; align-items: center; justify-content: space-between;
+  background: #fafafa;
+}
+.ec-jobs { display: flex; align-items: center; gap: .3rem; font-size: .72rem; font-weight: 700; color: #006876; }
+.ec-jobs .dot { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; flex-shrink: 0; }
+.ec-jobs.no-jobs { color: #6c797c; }
+.ec-jobs.no-jobs .dot { background: #bbc9cc; }
+.ec-see { font-size: .7rem; font-weight: 700; color: #515f78; display: flex; align-items: center; gap: 2px; transition: color .15s; }
+.ec:hover .ec-see { color: #006876; }
+
+.empty-state { grid-column: 1/-1; text-align: center; padding: 3rem 1rem; color: #6c797c; }
+.empty-state .ms { font-size: 2.5rem; display: block; margin-bottom: .75rem; opacity: .4; }
+.empty-state p { font-size: .875rem; font-weight: 600; }
+.empty-state small { font-size: .75rem; opacity: .7; }
+
+/* ── BANDEAU CTA ── */
+#cta-band {
+  margin: 1.5rem 0 .5rem;
+  background: #fff;
+  border: 1px solid rgba(187,201,204,.25);
+  border-radius: .875rem;
+  padding: 1.375rem 1.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,.04);
+}
+.cta-text h3 {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #191c1d;
+  margin-bottom: .2rem;
+  letter-spacing: -.01em;
+}
+.cta-text p {
+  font-size: .8rem;
+  color: #515f78;
+  font-weight: 400;
+}
+.btn-cta-band {
+  flex-shrink: 0;
+  background: #006876;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  padding: .6rem 1.375rem;
+  border-radius: .5rem;
+  font-weight: 700;
+  font-size: .825rem;
+  white-space: nowrap;
+  transition: background .15s, transform .1s;
+  font-family: inherit;
+}
+.btn-cta-band:hover { background: #00535e; transform: translateY(-1px); }
+
+/* ── FOOTER ── */
+#ft {
+  flex-shrink: 0; background: #006876; color: rgba(255,255,255,.65);
+  padding: .6rem 2rem; display: flex; align-items: center;
+  justify-content: space-between; gap: 1rem;
+  font-size: .675rem; font-weight: 500;
+  border-top: 1px solid rgba(255,255,255,.08);
+}
+#ft .ft-logo { font-size: .9rem; font-weight: 900; color: #fff; letter-spacing: -.04em; }
+#ft .ft-links { display: flex; gap: 1.25rem; }
+#ft .ft-links a { color: rgba(255,255,255,.55); text-decoration: none; font-size: .675rem; font-weight: 500; transition: color .15s; }
+#ft .ft-links a:hover { color: #fff; }
+#ft .ft-copy { color: rgba(255,255,255,.4); font-size: .625rem; }
+
+@media (max-width: 768px) {
+  .nav-links { display: none; }
+  #ft .ft-links { display: none; }
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ══ HEADER ══ -->
+  <div id="hd">
+    <nav>
+      <div style="display:flex;align-items:center;gap:2.5rem;">
+        <span class="logo">Claim!</span>
+        <div class="nav-links">
+          <a href="#">Offres</a>
+          <a href="#" class="on">Entreprises</a>
+          <a href="#">Observatoire de l'assurance</a>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:.75rem;">
+        <button class="btn-cta">Contactez-nous</button>
+      </div>
+    </nav>
+  </div>
+
+  <!-- ══ HERO ══ -->
+  <div id="hero-co">
+    <h1>Les entreprises qui recrutent en <em>Actuariat &amp; IA</em></h1>
+    <p class="sub">Découvrez les acteurs de l'assurance qui cherchent des talents comme vous.</p>
+
+    <!-- Barre recherche + filtres déroulants -->
+    <div class="filter-row">
+
+      <!-- Recherche -->
+      <div class="sbar">
+        <div class="sf">
+          <span class="ms" style="color:#6c797c;font-size:17px;">search</span>
+          <input type="text" id="search-input" placeholder="Entreprise, secteur, technologie…"/>
+        </div>
+        <button class="btn-srch">Rechercher</button>
+      </div>
+
+      <div class="bar-sep"></div>
+
+      <!-- Dropdown 1 : Type d'entreprise -->
+      <div class="dd-wrap" id="dd-type">
+        <button class="dd-trigger" id="trig-type">
+          <span class="ms" style="font-size:13px;">domain</span>
+          <span class="dd-label">Type</span>
+          <span class="ms dd-arrow">expand_more</span>
+        </button>
+        <div class="dd-panel">
+          <div class="dd-panel-title">Type d'entreprise</div>
+          <div class="dd-option on" data-group="type" data-val="all">
+            <span class="check"></span>Toutes
+          </div>
+          <div class="dd-divider"></div>
+          <div class="dd-option" data-group="type" data-val="assureur">
+            <span class="check"></span><span class="ms" style="font-size:14px;color:#6c797c;">shield</span>Assureur
+          </div>
+          <div class="dd-option" data-group="type" data-val="mutuelle">
+            <span class="check"></span><span class="ms" style="font-size:14px;color:#6c797c;">favorite</span>Mutuelle / IP
+          </div>
+          <div class="dd-option" data-group="type" data-val="reassurance">
+            <span class="check"></span><span class="ms" style="font-size:14px;color:#6c797c;">public</span>Réassurance
+          </div>
+          <div class="dd-option" data-group="type" data-val="courtier">
+            <span class="check"></span><span class="ms" style="font-size:14px;color:#6c797c;">handshake</span>Courtier
+          </div>
+          <div class="dd-option" data-group="type" data-val="insurtech">
+            <span class="check"></span><span class="ms" style="font-size:14px;color:#6c797c;">rocket_launch</span>InsurTech
+          </div>
+          <div class="dd-option" data-group="type" data-val="conseil">
+            <span class="check"></span><span class="ms" style="font-size:14px;color:#6c797c;">analytics</span>Conseil / Audit
+          </div>
+          <div class="dd-option" data-group="type" data-val="recrutement">
+            <span class="check"></span><span class="ms" style="font-size:14px;color:#6c797c;">person_search</span>Cabinet RH
+          </div>
+        </div>
+      </div>
+
+      <!-- Dropdown 2 : Télétravail -->
+      <div class="dd-wrap" id="dd-remote">
+        <button class="dd-trigger" id="trig-remote">
+          <span class="ms" style="font-size:13px;">home_work</span>
+          <span class="dd-label">Télétravail</span>
+          <span class="ms dd-arrow">expand_more</span>
+        </button>
+        <div class="dd-panel">
+          <div class="dd-panel-title">Mode de travail</div>
+          <div class="dd-option on" data-group="remote" data-val="all">
+            <span class="check"></span>Tous modes
+          </div>
+          <div class="dd-divider"></div>
+          <div class="dd-option" data-group="remote" data-val="full">
+            <span class="check"></span><span class="ms" style="font-size:14px;color:#6c797c;">laptop_mac</span>Full remote
+          </div>
+          <div class="dd-option" data-group="remote" data-val="3j">
+            <span class="check"></span><span class="ms" style="font-size:14px;color:#6c797c;">home_work</span>3 jours / semaine
+          </div>
+          <div class="dd-option" data-group="remote" data-val="2j">
+            <span class="check"></span><span class="ms" style="font-size:14px;color:#6c797c;">home_work</span>2 jours / semaine
+          </div>
+          <div class="dd-option" data-group="remote" data-val="1j">
+            <span class="check"></span><span class="ms" style="font-size:14px;color:#6c797c;">home_work</span>1 jour / semaine
+          </div>
+          <div class="dd-option" data-group="remote" data-val="none">
+            <span class="check"></span><span class="ms" style="font-size:14px;color:#6c797c;">location_city</span>Présentiel uniquement
+          </div>
+        </div>
+      </div>
+
+      <!-- Dropdown 3 : Avantages -->
+      <div class="dd-wrap" id="dd-avantages">
+        <button class="dd-trigger" id="trig-avantages">
+          <span class="ms" style="font-size:13px;">savings</span>
+          <span class="dd-label">Avantages</span>
+          <span class="ms dd-arrow">expand_more</span>
+        </button>
+        <div class="dd-panel">
+          <div class="dd-panel-title">Avantages entreprise</div>
+          <div class="dd-option on" data-group="avantages" data-val="all">
+            <span class="check"></span>Tous les avantages
+          </div>
+          <div class="dd-divider"></div>
+          <div class="dd-option" data-group="avantages" data-val="pee">
+            <span class="check"></span><span class="ms" style="font-size:14px;color:#6c797c;">account_balance</span>PEE — Plan Épargne Entreprise
+          </div>
+          <div class="dd-option" data-group="avantages" data-val="participation">
+            <span class="check"></span><span class="ms" style="font-size:14px;color:#6c797c;">pie_chart</span>Participation aux bénéfices
+          </div>
+          <div class="dd-option" data-group="avantages" data-val="interessement">
+            <span class="check"></span><span class="ms" style="font-size:14px;color:#6c797c;">trending_up</span>Intéressement
+          </div>
+          <div class="dd-option" data-group="avantages" data-val="abondement">
+            <span class="check"></span><span class="ms" style="font-size:14px;color:#6c797c;">add_circle</span>Abondement
+          </div>
+          <div class="dd-option" data-group="avantages" data-val="cse">
+            <span class="check"></span><span class="ms" style="font-size:14px;color:#6c797c;">celebration</span>CSE — Comité Social &amp; Éco.
+          </div>
+        </div>
+      </div>
+
+      <!-- Toggle : Recrute activement -->
+      <button class="chip-toggle" id="chip-recruiting">
+        <span class="dot-live"></span>
+        Recrute activement
+      </button>
+
+      <!-- Reset -->
+      <button class="btn-reset hidden" id="btn-reset">
+        <span class="ms" style="font-size:11px;">close</span>Réinitialiser
+      </button>
+
+    </div>
+  </div>
+
+  <!-- ══ GRILLE ══ -->
+  <div id="grid-wrap">
+    <div class="co-count" id="co-count"></div>
+    <div class="grid" id="grid"></div>
+
+    <!-- ══ BANDEAU CTA ══ -->
+    <div id="cta-band">
+      <div class="cta-text">
+        <h3>Votre entreprise n'est pas encore listée ?</h3>
+        <p>Rejoignez la plateforme de référence pour les métiers de l'actuariat et de l'IA.</p>
+      </div>
+      <button class="btn-cta-band">Référencer mon entreprise</button>
+    </div>
+
+  </div>
+
+  <!-- ══ FOOTER ══ -->
+  <div id="ft">
+    <span class="ft-logo">Claim!</span>
+    <div class="ft-links">
+      <a href="#">À propos</a>
+      <a href="#">CGU</a>
+      <a href="#">Confidentialité</a>
+      <a href="#">Contact</a>
+    </div>
+    <span class="ft-copy">© 2026 Claim your job · Fait avec ♥ pour les actuaires, data scientists &amp; profils IA</span>
+  </div>
+
+</div>
+
+<script>
+/* ══════════════════════════════════════════════
+   DONNÉES
+══════════════════════════════════════════════ */
+const COMPANIES = [
+  { id:1,  name:"AXA France",                  sector:"Assurance IARD & Vie",              type:"assureur",    color:"#00395D", logo:"AXA", banner:"linear-gradient(135deg,#00395D,#005b96)", desc:"Leader mondial de l'assurance, AXA France développe des modèles de tarification et de risque de pointe. La direction data & actuariat recrute activement des profils quantitatifs.",                                                                                   size:"12 000+ collaborateurs", hq:"Paris 8e",    jobs:4, remote:"2j",   avantages:["pee","participation","interessement","abondement","cse"], tags:["IARD","Vie","Tarification","Data Science","Solvabilité II"] },
+  { id:2,  name:"Allianz France",               sector:"Assurance IARD & Vie",              type:"assureur",    color:"#003781", logo:"ALZ", banner:"linear-gradient(135deg,#003781,#0055b3)", desc:"Filiale française du groupe Allianz, 2e assureur mondial. Forte culture data avec un lab IA interne dédié à la modélisation des risques et au pricing.",                                                                                                              size:"8 500+ collaborateurs",  hq:"La Défense", jobs:3, remote:"2j",   avantages:["pee","participation","interessement","cse"],               tags:["Pricing","IFRS 17","MLOps","Actuariat","IA"] },
+  { id:3,  name:"BNP Paribas Cardif",           sector:"Assurance Vie & Épargne",           type:"assureur",    color:"#009966", logo:"BNP", banner:"linear-gradient(135deg,#009966,#00c47f)", desc:"Spécialiste de l'assurance vie et de l'épargne au sein du groupe BNP Paribas. Acteur majeur de la transition IFRS 17 avec des équipes actuarielles en pleine transformation.",                                                                                   size:"2 300+ collaborateurs",  hq:"Paris 8e",   jobs:2, remote:"2j",   avantages:["pee","participation","interessement","abondement","cse"], tags:["Vie","Épargne","IFRS 17","ALM","Prophet"] },
+  { id:4,  name:"Covéa",                        sector:"Assurance IARD (Mutualiste)",       type:"mutuelle",    color:"#E30613", logo:"CVA", banner:"linear-gradient(135deg,#E30613,#ff4d5a)", desc:"1er groupe d'assurance mutualiste français (MMA, MAAF, GMF). Covéa investit massivement dans l'IA et le MLOps pour industrialiser ses modèles de détection de fraude et de tarification.",                                                                        size:"22 000+ collaborateurs", hq:"Paris 15e",  jobs:3, remote:"full", avantages:["pee","participation","interessement","abondement","cse"], tags:["MLOps","IA / ML","RGPD","Fraude","Full Remote"] },
+  { id:5,  name:"Mazars Actuariat",             sector:"Conseil & Audit actuariel",         type:"conseil",     color:"#E4003A", logo:"MZR", banner:"linear-gradient(135deg,#E4003A,#ff3366)", desc:"Cabinet de conseil et d'audit de référence pour les acteurs de l'assurance. L'équipe actuariat accompagne les assureurs sur Solvabilité II, IFRS 17 et les risques émergents.",                                                                                   size:"500+ actuaires",         hq:"Paris 8e",   jobs:2, remote:"2j",   avantages:["pee","interessement","cse"],                               tags:["Conseil","Solvabilité II","Risques émergents","IFRS 17","Audit"] },
+  { id:6,  name:"Generali France",              sector:"Assurance IARD & Vie",              type:"assureur",    color:"#C8102E", logo:"GNL", banner:"linear-gradient(135deg,#C8102E,#e8354f)", desc:"Filiale française du groupe Generali, 3e assureur européen. Le Digital & Innovation Lab développe des solutions NLP et IA générative pour automatiser la gestion des sinistres.",                                                                                 size:"5 800+ collaborateurs",  hq:"Paris 9e",   jobs:2, remote:"2j",   avantages:["pee","participation","interessement","cse"],               tags:["NLP","LLM","Sinistres","IA générative","RGPD"] },
+  { id:7,  name:"Malakoff Humanis",             sector:"Protection sociale complémentaire", type:"mutuelle",    color:"#005B8E", logo:"MH",  banner:"linear-gradient(135deg,#005B8E,#0080c8)", desc:"1er groupe de protection sociale complémentaire en France. Recrute des actuaires santé et prévoyance pour accompagner sa transformation digitale et réglementaire.",                                                                                              size:"10 000+ collaborateurs", hq:"Paris 13e",  jobs:2, remote:"2j",   avantages:["pee","participation","interessement","abondement","cse"], tags:["Santé","Prévoyance","ANI","Paritaire","Collectif"] },
+  { id:8,  name:"SCOR SE",                      sector:"Réassurance mondiale",              type:"reassurance", color:"#1A1A2E", logo:"SCR", banner:"linear-gradient(135deg,#1A1A2E,#2d2d4e)", desc:"4e réassureur mondial, SCOR recrute des quants d'excellence pour modéliser les risques extrêmes (catastrophes naturelles, pandémies, cyber) et piloter le capital économique.",                                                                                  size:"3 000+ collaborateurs",  hq:"Paris 1er",  jobs:1, remote:"3j",   avantages:["pee","participation","interessement","abondement","cse"], tags:["Réassurance","Capital économique","Monte Carlo","Stress-test","ORSA"] },
+  { id:9,  name:"Société Générale Assurances",  sector:"Assurance Vie & Prévoyance",        type:"assureur",    color:"#E60028", logo:"SGA", banner:"linear-gradient(135deg,#E60028,#ff1a42)", desc:"Filiale assurance du groupe Société Générale, spécialisée en assurance vie, prévoyance et assurance emprunteur. Équipes actuarielles en pleine montée en puissance data.",                                                                                    size:"1 800+ collaborateurs",  hq:"Paris 17e",  jobs:2, remote:"2j",   avantages:["pee","participation","interessement","abondement","cse"], tags:["Vie","Emprunteur","Prévoyance","IFRS 17","Python"] },
+  { id:10, name:"Milliman",                     sector:"Conseil actuariel international",   type:"conseil",     color:"#0066CC", logo:"MLM", banner:"linear-gradient(135deg,#0066CC,#3399ff)", desc:"Cabinet de conseil actuariel indépendant de référence mondiale. Le bureau parisien accompagne les assureurs et réassureurs sur des missions à fort enjeu quantitatif.",                                                                                          size:"4 000+ actuaires (monde)",hq:"Paris 2e",  jobs:3, remote:"1j",   avantages:["pee","interessement"],                                     tags:["Conseil","Actuariat","Vie","IARD","International"] },
+  { id:11, name:"Groupama",                     sector:"Assurance IARD & Vie (Mutualiste)", type:"mutuelle",    color:"#009B3A", logo:"GRP", banner:"linear-gradient(135deg,#009B3A,#00c44a)", desc:"Groupe mutualiste agricole et rural, Groupama développe ses capacités data et actuariat pour moderniser sa tarification IARD et améliorer la gestion des sinistres.",                                                                                          size:"13 000+ collaborateurs", hq:"Paris 8e",   jobs:2, remote:"2j",   avantages:["pee","participation","interessement","abondement","cse"], tags:["IARD","Mutualiste","Tarification","Agricole","Data"] },
+  { id:12, name:"Willis Towers Watson",         sector:"Conseil & Courtage actuariel",      type:"courtier",    color:"#C8102E", logo:"WTW", banner:"linear-gradient(135deg,#C8102E,#e83050)", desc:"Leader mondial du conseil en risques et actuariat. L'équipe Insurance Consulting & Technology développe des outils de modélisation avancés pour les assureurs européens.",                                                                                     size:"45 000+ (monde)",        hq:"Paris 9e",   jobs:2, remote:"3j",   avantages:["pee","participation","interessement","cse"],               tags:["Conseil","Modélisation","Risques","Technologie","International"] },
+];
+
+/* ══════════════════════════════════════════════
+   ÉTAT
+══════════════════════════════════════════════ */
+const state = { type:'all', remote:'all', avantages:'all', recruiting:false, search:'' };
+
+const LABELS = {
+  type:      { assureur:'Assureur', mutuelle:'Mutuelle / IP', reassurance:'Réassurance', courtier:'Courtier', insurtech:'InsurTech', conseil:'Conseil / Audit', recrutement:'Cabinet RH' },
+  remote:    { full:'Full remote', '3j':'3j/sem.', '2j':'2j/sem.', '1j':'1j/sem.', none:'Présentiel' },
+  avantages: { pee:'PEE', participation:'Participation', interessement:'Intéressement', abondement:'Abondement', cse:'CSE' }
+};
+
+const REMOTE_LABEL = { full:'Full remote', '3j':'3j/sem.', '2j':'2j/sem.', '1j':'1j/sem.', none:'Présentiel' };
+const REMOTE_ICON  = { full:'laptop_mac', '3j':'home_work', '2j':'home_work', '1j':'home_work', none:'location_city' };
+const AV_LABEL     = { pee:'PEE', participation:'Participation', interessement:'Intéressement', abondement:'Abondement', cse:'CSE' };
+
+/* ══════════════════════════════════════════════
+   DROPDOWNS — ouverture / fermeture
+══════════════════════════════════════════════ */
+const ddWraps = document.querySelectorAll('.dd-wrap');
+
+function closeAll(except) {
+  ddWraps.forEach(w => { if (w !== except) w.classList.remove('open'); });
+}
+
+ddWraps.forEach(wrap => {
+  wrap.querySelector('.dd-trigger').addEventListener('click', function(e) {
+    e.stopPropagation();
+    const wasOpen = wrap.classList.contains('open');
+    closeAll(null);
+    wrap.classList.toggle('open', !wasOpen);
+  });
+
+  // Clic sur une option
+  wrap.querySelectorAll('.dd-option').forEach(opt => {
+    opt.addEventListener('click', function() {
+      const group = this.dataset.group;
+      const val   = this.dataset.val;
+      // Marquer l'option active
+      wrap.querySelectorAll('.dd-option').forEach(o => o.classList.remove('on'));
+      this.classList.add('on');
+      state[group] = val;
+      // Mettre à jour le label du trigger
+      updateTriggerLabel(group, val);
+      closeAll(null);
+      updateResetBtn();
+      render();
+    });
+  });
+});
+
+// Fermer les dropdowns au clic extérieur
+document.addEventListener('click', () => closeAll(null));
+
+function updateTriggerLabel(group, val) {
+  const trig = document.getElementById(`trig-${group}`);
+  const labelEl = trig.querySelector('.dd-label');
+  const badgeEl = trig.querySelector('.dd-badge');
+
+  if (val === 'all') {
+    // Texte par défaut
+    const defaults = { type:'Type', remote:'Télétravail', avantages:'Avantages' };
+    labelEl.textContent = defaults[group];
+    trig.classList.remove('active');
+    if (badgeEl) badgeEl.remove();
+  } else {
+    labelEl.textContent = LABELS[group][val];
+    trig.classList.add('active');
+    // Ajouter badge si absent
+    if (!trig.querySelector('.dd-badge')) {
+      const badge = document.createElement('span');
+      badge.className = 'dd-badge';
+      badge.textContent = '1';
+      trig.insertBefore(badge, trig.querySelector('.dd-arrow'));
+    }
+  }
+}
+
+/* ══════════════════════════════════════════════
+   TOGGLE "Recrute activement"
+══════════════════════════════════════════════ */
+document.getElementById('chip-recruiting').addEventListener('click', function() {
+  state.recruiting = !state.recruiting;
+  this.classList.toggle('on', state.recruiting);
+  updateResetBtn();
+  render();
+});
+
+/* ══════════════════════════════════════════════
+   RECHERCHE
+══════════════════════════════════════════════ */
+document.getElementById('search-input').addEventListener('input', function() {
+  state.search = this.value.toLowerCase().trim();
+  updateResetBtn();
+  render();
+});
+
+/* ══════════════════════════════════════════════
+   RESET
+══════════════════════════════════════════════ */
+document.getElementById('btn-reset').addEventListener('click', function() {
+  state.type = 'all'; state.remote = 'all'; state.avantages = 'all';
+  state.recruiting = false; state.search = '';
+  document.getElementById('search-input').value = '';
+
+  // Reset options visuelles dans chaque dropdown
+  ['type','remote','avantages'].forEach(g => {
+    const wrap = document.getElementById(`dd-${g}`);
+    wrap.querySelectorAll('.dd-option').forEach(o => o.classList.toggle('on', o.dataset.val === 'all'));
+    updateTriggerLabel(g, 'all');
+  });
+  document.getElementById('chip-recruiting').classList.remove('on');
+
+  updateResetBtn();
+  render();
+});
+
+function isFiltered() {
+  return state.type !== 'all' || state.remote !== 'all' || state.avantages !== 'all' || state.recruiting || state.search !== '';
+}
+function updateResetBtn() {
+  document.getElementById('btn-reset').classList.toggle('hidden', !isFiltered());
+}
+
+/* ══════════════════════════════════════════════
+   RENDU
+══════════════════════════════════════════════ */
+function render() {
+  const list = COMPANIES.filter(c => {
+    if (state.type !== 'all' && c.type !== state.type) return false;
+    if (state.remote !== 'all' && c.remote !== state.remote) return false;
+    if (state.avantages !== 'all' && !c.avantages.includes(state.avantages)) return false;
+    if (state.recruiting && c.jobs === 0) return false;
+    if (state.search) {
+      const hay = [c.name, c.sector, ...c.tags].join(' ').toLowerCase();
+      if (!hay.includes(state.search)) return false;
+    }
+    return true;
+  });
+
+  // Compteur
+  const countEl = document.getElementById('co-count');
+  let summary = '';
+  if (isFiltered()) {
+    const parts = [];
+    if (state.type !== 'all') parts.push(LABELS.type[state.type]);
+    if (state.remote !== 'all') parts.push(LABELS.remote[state.remote]);
+    if (state.avantages !== 'all') parts.push(LABELS.avantages[state.avantages]);
+    if (state.recruiting) parts.push('Recrute activement');
+    if (state.search) parts.push(`"${state.search}"`);
+    summary = '&nbsp;·&nbsp;' + parts.map(p => `<span class="afs-tag">${p}</span>`).join('');
+  }
+  countEl.innerHTML = `<strong>${list.length}</strong>&nbsp;entreprise${list.length > 1 ? 's' : ''} trouvée${list.length > 1 ? 's' : ''}${summary}`;
+
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+
+  if (list.length === 0) {
+    grid.innerHTML = `<div class="empty-state">
+      <span class="ms">search_off</span>
+      <p>Aucune entreprise ne correspond à vos filtres.</p>
+      <small>Essayez de modifier ou réinitialiser vos critères.</small>
+    </div>`;
+    return;
+  }
+
+  list.forEach(c => {
+    const recruiting = c.jobs > 0;
+    const el = document.createElement('div');
+    el.className = 'ec';
+    el.innerHTML = `
+      <div class="ec-banner" style="background:${c.banner};">
+        <div class="ec-logo" style="background:${c.color};">${c.logo}</div>
+        ${recruiting ? `<div class="ec-badge"><span class="dot-pulse"></span>Recrute activement</div>` : ''}
+      </div>
+      <div class="ec-body">
+        <div class="ec-name">${c.name}</div>
+        <div class="ec-sector">${c.sector}</div>
+        <div class="ec-desc">${c.desc}</div>
+        <div class="ec-kpis">
+          <div class="ec-kpi"><div class="ec-kl">Effectif</div><div class="ec-kv">${c.size}</div></div>
+          <div class="ec-kpi"><div class="ec-kl">Siège</div><div class="ec-kv">${c.hq}</div></div>
+          <div class="ec-kpi">
+            <div class="ec-kl">Télétravail</div>
+            <div class="ec-kv"><span class="ec-remote"><span class="ms" style="font-size:12px;">${REMOTE_ICON[c.remote]}</span>${REMOTE_LABEL[c.remote]}</span></div>
+          </div>
+        </div>
+        <div class="ec-tags">${c.tags.map((t,i) => `<span class="ec-tag${i<2?' hl':''}">${t}</span>`).join('')}</div>
+        <div class="ec-avantages">${c.avantages.map(a => `<span class="ec-av"><span class="ms" style="font-size:10px;">savings</span>${AV_LABEL[a]}</span>`).join('')}</div>
+      </div>
+      <div class="ec-foot">
+        <div class="ec-jobs${recruiting ? '' : ' no-jobs'}">
+          <div class="dot"></div>
+          ${recruiting ? `${c.jobs} offre${c.jobs>1?'s':''} en cours` : 'Aucune offre active'}
+        </div>
+        <div class="ec-see">Voir le profil <span class="ms" style="font-size:14px;">arrow_forward</span></div>
+      </div>
+    `;
+    grid.appendChild(el);
+  });
+}
+
+render();
+</script>
+</body>
+</html>

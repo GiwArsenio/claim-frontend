@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Claim! — Observatoire de l'assurance</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+.ms {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal; font-style: normal; line-height: 1;
+  letter-spacing: normal; text-transform: none;
+  display: inline-block; white-space: nowrap;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  vertical-align: middle;
+}
+
+html, body { height: 100%; font-family: 'Inter', sans-serif; color: #191c1d; background: #f3f4f5; }
+#app { display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+
+/* ══════════════════════════════════════
+   HEADER
+══════════════════════════════════════ */
+#hd { flex-shrink: 0; background: #006876; z-index: 200; }
+#hd nav { display: flex; justify-content: space-between; align-items: center; padding: .75rem 2rem; }
+.logo { font-size: 1.5rem; font-weight: 900; color: #fff; letter-spacing: -.05em; cursor: pointer; }
+.nav-links { display: flex; gap: 2rem; }
+.nav-links a { color: rgba(255,255,255,.8); text-decoration: none; font-size: .875rem; font-weight: 600; transition: color .15s; }
+.nav-links a:hover { color: #fff; }
+.nav-links a.on { color: #fff; border-bottom: 2px solid #fff; padding-bottom: 2px; }
+.btn-cta { background: #fff; color: #006876; padding: .45rem 1.2rem; border-radius: .5rem; font-weight: 700; font-size: .875rem; border: none; cursor: pointer; transition: background .15s; }
+.btn-cta:hover { background: #e8f4f6; }
+
+/* ══════════════════════════════════════
+   ZONE SCROLLABLE PRINCIPALE
+══════════════════════════════════════ */
+#main { flex: 1; min-height: 0; overflow-y: auto; }
+#main::-webkit-scrollbar { width: 4px; }
+#main::-webkit-scrollbar-thumb { background: #bbc9cc; border-radius: 10px; }
+
+/* ══════════════════════════════════════
+   HERO OBSERVATOIRE
+══════════════════════════════════════ */
+#obs-hero {
+  background: linear-gradient(135deg, #004d5a 0%, #006876 50%, #00a3b8 100%);
+  padding: 3rem 2rem 2.5rem;
+  position: relative;
+  overflow: hidden;
+}
+#obs-hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+.obs-hero-inner { max-width: 860px; position: relative; }
+.obs-eyebrow {
+  display: inline-flex; align-items: center; gap: .4rem;
+  background: rgba(255,255,255,.12); color: rgba(255,255,255,.9);
+  font-size: .7rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  padding: .25rem .75rem; border-radius: 9999px;
+  border: 1px solid rgba(255,255,255,.15);
+  margin-bottom: .875rem;
+}
+.obs-eyebrow .dot-live { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; animation: pulse 1.8s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.75)} }
+
+#obs-hero h1 {
+  font-size: clamp(1.75rem, 3.5vw, 2.75rem);
+  font-weight: 900; color: #fff;
+  letter-spacing: -.03em; line-height: 1.1;
+  margin-bottom: .75rem;
+}
+#obs-hero h1 em { color: #7dd3e0; font-style: normal; }
+#obs-hero .hero-sub {
+  color: rgba(255,255,255,.75); font-size: .95rem;
+  line-height: 1.65; max-width: 560px; margin-bottom: 1.75rem;
+}
+.hero-stats {
+  display: flex; gap: 2rem; flex-wrap: wrap;
+}
+.hero-stat { display: flex; flex-direction: column; }
+.hero-stat strong { font-size: 1.5rem; font-weight: 900; color: #fff; letter-spacing: -.03em; }
+.hero-stat span { font-size: .7rem; color: rgba(255,255,255,.6); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; margin-top: 1px; }
+
+/* ══════════════════════════════════════
+   BARRE DE NAVIGATION INTERNE (tabs)
+══════════════════════════════════════ */
+#obs-nav {
+  background: #fff;
+  border-bottom: 1px solid rgba(187,201,204,.25);
+  position: sticky; top: 0; z-index: 100;
+}
+.obs-tabs {
+  display: flex; gap: 0; padding: 0 2rem;
+  overflow-x: auto;
+}
+.obs-tabs::-webkit-scrollbar { display: none; }
+.obs-tab {
+  display: flex; align-items: center; gap: .35rem;
+  padding: .75rem 1.125rem;
+  font-size: .8rem; font-weight: 600; color: #515f78;
+  border-bottom: 2.5px solid transparent;
+  cursor: pointer; white-space: nowrap;
+  transition: color .15s, border-color .15s;
+  background: none; border-top: none; border-left: none; border-right: none;
+  font-family: inherit;
+}
+.obs-tab:hover { color: #006876; }
+.obs-tab.on { color: #006876; border-bottom-color: #006876; }
+.obs-tab .ms { font-size: 16px; }
+
+/* ══════════════════════════════════════
+   LAYOUT PRINCIPAL (contenu + sidebar)
+══════════════════════════════════════ */
+#obs-body {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 1.5rem;
+  padding: 1.75rem 2rem;
+  max-width: 1280px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ══════════════════════════════════════
+   SECTION LABELS
+══════════════════════════════════════ */
+.section-label {
+  font-size: .6rem; font-weight: 800; color: #6c797c;
+  text-transform: uppercase; letter-spacing: .1em;
+  display: flex; align-items: center; gap: .4rem;
+  margin-bottom: .875rem;
+}
+.section-label::after {
+  content: ''; flex: 1; height: 1px; background: rgba(187,201,204,.3);
+}
+
+/* ══════════════════════════════════════
+   ARTICLE À LA UNE
+══════════════════════════════════════ */
+.une-card {
+  background: #fff;
+  border-radius: 1rem;
+  border: 1.5px solid rgba(187,201,204,.18);
+  box-shadow: 0 1px 4px rgba(0,0,0,.04);
+  overflow: hidden;
+  cursor: pointer;
+  transition: box-shadow .2s, transform .18s;
+  margin-bottom: 1.5rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+.une-card:hover { transform: translateY(-2px); box-shadow: 0 10px 32px rgba(0,104,118,.1); }
+
+.une-img {
+  background: linear-gradient(135deg, #004d5a, #006876);
+  min-height: 220px;
+  display: flex; align-items: flex-end; padding: 1.5rem;
+  position: relative; overflow: hidden;
+}
+.une-img::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='50' cy='50' r='40' fill='none' stroke='rgba(255,255,255,0.05)' stroke-width='1'/%3E%3Ccircle cx='50' cy='50' r='25' fill='none' stroke='rgba(255,255,255,0.05)' stroke-width='1'/%3E%3Ccircle cx='50' cy='50' r='10' fill='rgba(255,255,255,0.05)'/%3E%3C/svg%3E") center/cover;
+}
+.une-img-icon {
+  font-size: 4rem; color: rgba(255,255,255,.15);
+  position: absolute; top: 1rem; right: 1rem;
+}
+.une-badge {
+  display: inline-flex; align-items: center; gap: .3rem;
+  background: rgba(255,255,255,.15); color: #fff;
+  font-size: .6rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase;
+  padding: .2rem .6rem; border-radius: 9999px;
+  border: 1px solid rgba(255,255,255,.2);
+  position: relative; z-index: 1;
+}
+.une-content { padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between; }
+.une-meta { display: flex; align-items: center; gap: .5rem; margin-bottom: .625rem; flex-wrap: wrap; }
+.une-cat { font-size: .6rem; font-weight: 800; color: #006876; text-transform: uppercase; letter-spacing: .07em; background: #e8f4f6; padding: 2px 8px; border-radius: 4px; }
+.une-date { font-size: .65rem; color: #6c797c; font-weight: 500; }
+.une-title { font-size: 1.2rem; font-weight: 900; color: #191c1d; letter-spacing: -.02em; line-height: 1.3; margin-bottom: .625rem; }
+.une-excerpt { font-size: .825rem; color: #515f78; line-height: 1.7; flex: 1; margin-bottom: .875rem; }
+.une-footer { display: flex; align-items: center; justify-content: space-between; }
+.une-author { display: flex; align-items: center; gap: .5rem; }
+.une-avatar { width: 28px; height: 28px; border-radius: 50%; background: #006876; display: flex; align-items: center; justify-content: center; color: #fff; font-size: .6rem; font-weight: 800; flex-shrink: 0; }
+.une-author-name { font-size: .7rem; font-weight: 700; color: #191c1d; }
+.une-author-role { font-size: .6rem; color: #6c797c; }
+.une-read { display: flex; align-items: center; gap: .25rem; font-size: .7rem; font-weight: 700; color: #006876; }
+
+/* ══════════════════════════════════════
+   GRILLE ARTICLES
+══════════════════════════════════════ */
+.articles-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.art-card {
+  background: #fff;
+  border-radius: .875rem;
+  border: 1.5px solid rgba(187,201,204,.18);
+  box-shadow: 0 1px 4px rgba(0,0,0,.04);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform .18s, box-shadow .18s;
+  display: flex; flex-direction: column;
+}
+.art-card:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,104,118,.1); }
+
+.art-thumb {
+  height: 100px;
+  display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+}
+.art-thumb .ms { font-size: 2.5rem; color: rgba(255,255,255,.25); }
+.art-body { padding: .875rem; flex: 1; display: flex; flex-direction: column; }
+.art-meta { display: flex; align-items: center; gap: .4rem; margin-bottom: .4rem; flex-wrap: wrap; }
+.art-cat { font-size: .55rem; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; padding: 1.5px 6px; border-radius: 3px; }
+.art-date { font-size: .6rem; color: #6c797c; }
+.art-title { font-size: .875rem; font-weight: 800; color: #191c1d; line-height: 1.4; margin-bottom: .35rem; letter-spacing: -.01em; flex: 1; }
+.art-excerpt { font-size: .75rem; color: #515f78; line-height: 1.6; margin-bottom: .625rem; }
+.art-foot { display: flex; align-items: center; justify-content: space-between; }
+.art-read-time { font-size: .6rem; color: #6c797c; font-weight: 600; display: flex; align-items: center; gap: 3px; }
+.art-tag { font-size: .6rem; font-weight: 700; color: #515f78; background: #f3f4f5; padding: 1.5px 6px; border-radius: 3px; }
+
+/* ══════════════════════════════════════
+   SECTION RESSOURCES
+══════════════════════════════════════ */
+.ressources-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: .75rem;
+  margin-bottom: 1.5rem;
+}
+.res-card {
+  background: #fff;
+  border-radius: .875rem;
+  border: 1.5px solid rgba(187,201,204,.18);
+  padding: 1rem;
+  cursor: pointer;
+  transition: transform .15s, box-shadow .15s, border-color .15s;
+  display: flex; flex-direction: column; gap: .5rem;
+}
+.res-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,104,118,.08); border-color: rgba(0,104,118,.2); }
+.res-icon {
+  width: 36px; height: 36px; border-radius: .5rem;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.res-icon .ms { font-size: 18px; }
+.res-type { font-size: .55rem; font-weight: 800; text-transform: uppercase; letter-spacing: .07em; color: #6c797c; }
+.res-title { font-size: .8rem; font-weight: 800; color: #191c1d; line-height: 1.4; letter-spacing: -.01em; }
+.res-desc { font-size: .7rem; color: #515f78; line-height: 1.55; flex: 1; }
+.res-foot { display: flex; align-items: center; justify-content: space-between; }
+.res-dl { display: flex; align-items: center; gap: .25rem; font-size: .65rem; font-weight: 700; color: #006876; }
+.res-badge { font-size: .55rem; font-weight: 800; padding: 1.5px 6px; border-radius: 3px; }
+
+/* ══════════════════════════════════════
+   SIDEBAR
+══════════════════════════════════════ */
+.sidebar { display: flex; flex-direction: column; gap: 1.25rem; }
+
+/* Widget newsletter */
+.nl-widget {
+  background: linear-gradient(135deg, #004d5a, #006876);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  color: #fff;
+  position: relative; overflow: hidden;
+}
+.nl-widget::before {
+  content: '';
+  position: absolute; top: -30px; right: -30px;
+  width: 120px; height: 120px; border-radius: 50%;
+  background: rgba(255,255,255,.05);
+}
+.nl-widget::after {
+  content: '';
+  position: absolute; bottom: -20px; right: 20px;
+  width: 80px; height: 80px; border-radius: 50%;
+  background: rgba(255,255,255,.04);
+}
+.nl-eyebrow {
+  display: inline-flex; align-items: center; gap: .3rem;
+  background: rgba(255,255,255,.12); color: rgba(255,255,255,.9);
+  font-size: .6rem; font-weight: 800; letter-spacing: .07em; text-transform: uppercase;
+  padding: .2rem .6rem; border-radius: 9999px;
+  border: 1px solid rgba(255,255,255,.15);
+  margin-bottom: .75rem;
+}
+.nl-widget h3 { font-size: 1.1rem; font-weight: 900; letter-spacing: -.02em; margin-bottom: .4rem; line-height: 1.25; position: relative; }
+.nl-widget p { font-size: .75rem; color: rgba(255,255,255,.7); line-height: 1.6; margin-bottom: 1rem; position: relative; }
+.nl-form { display: flex; flex-direction: column; gap: .5rem; position: relative; }
+.nl-input {
+  background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2);
+  border-radius: .5rem; padding: .55rem .875rem;
+  color: #fff; font-family: inherit; font-size: .8rem;
+  outline: none; transition: border-color .15s, background .15s;
+}
+.nl-input::placeholder { color: rgba(255,255,255,.45); }
+.nl-input:focus { border-color: rgba(255,255,255,.5); background: rgba(255,255,255,.18); }
+.nl-btn {
+  background: #fff; color: #006876;
+  border: none; cursor: pointer;
+  padding: .6rem; border-radius: .5rem;
+  font-weight: 800; font-size: .8rem;
+  font-family: inherit; transition: background .15s, transform .1s;
+  display: flex; align-items: center; justify-content: center; gap: .35rem;
+}
+.nl-btn:hover { background: #e8f4f6; transform: translateY(-1px); }
+.nl-stats {
+  display: flex; gap: 1rem; margin-top: .875rem; padding-top: .875rem;
+  border-top: 1px solid rgba(255,255,255,.12);
+  position: relative;
+}
+.nl-stat { display: flex; flex-direction: column; }
+.nl-stat strong { font-size: .95rem; font-weight: 900; color: #fff; }
+.nl-stat span { font-size: .58rem; color: rgba(255,255,255,.55); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+
+/* Widget tendances */
+.widget {
+  background: #fff;
+  border-radius: 1rem;
+  border: 1.5px solid rgba(187,201,204,.18);
+  box-shadow: 0 1px 4px rgba(0,0,0,.04);
+  overflow: hidden;
+}
+.widget-hd {
+  padding: .875rem 1rem .625rem;
+  border-bottom: 1px solid rgba(187,201,204,.15);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.widget-hd h4 { font-size: .8rem; font-weight: 800; color: #191c1d; display: flex; align-items: center; gap: .35rem; }
+.widget-hd h4 .ms { font-size: 16px; color: #006876; }
+.widget-hd a { font-size: .65rem; font-weight: 700; color: #006876; text-decoration: none; }
+
+/* Tendances */
+.trend-list { padding: .5rem 0; }
+.trend-item {
+  display: flex; align-items: center; gap: .75rem;
+  padding: .5rem 1rem;
+  cursor: pointer; transition: background .12s;
+}
+.trend-item:hover { background: #f3f4f5; }
+.trend-num { font-size: .7rem; font-weight: 900; color: #bbc9cc; width: 16px; flex-shrink: 0; }
+.trend-body { flex: 1; min-width: 0; }
+.trend-kw { font-size: .8rem; font-weight: 700; color: #191c1d; }
+.trend-sub { font-size: .65rem; color: #6c797c; }
+.trend-arrow {
+  font-size: .6rem; font-weight: 800;
+  display: flex; align-items: center; gap: 2px;
+}
+.trend-arrow.up { color: #16a34a; }
+.trend-arrow.down { color: #dc2626; }
+.trend-arrow.flat { color: #6c797c; }
+
+/* Prochains événements */
+.event-list { padding: .5rem 0; }
+.event-item {
+  display: flex; gap: .75rem; align-items: flex-start;
+  padding: .625rem 1rem;
+  cursor: pointer; transition: background .12s;
+  border-bottom: 1px solid rgba(187,201,204,.1);
+}
+.event-item:last-child { border-bottom: none; }
+.event-item:hover { background: #f3f4f5; }
+.event-date-box {
+  width: 36px; flex-shrink: 0;
+  display: flex; flex-direction: column; align-items: center;
+  background: #e8f4f6; border-radius: .375rem; padding: .25rem .2rem;
+}
+.event-day { font-size: .9rem; font-weight: 900; color: #006876; line-height: 1; }
+.event-month { font-size: .5rem; font-weight: 800; color: #006876; text-transform: uppercase; letter-spacing: .05em; }
+.event-body { flex: 1; min-width: 0; }
+.event-title { font-size: .775rem; font-weight: 700; color: #191c1d; line-height: 1.35; margin-bottom: 2px; }
+.event-meta { font-size: .62rem; color: #6c797c; display: flex; align-items: center; gap: .3rem; flex-wrap: wrap; }
+.event-type { font-size: .55rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; padding: 1px 5px; border-radius: 3px; background: #e8f4f6; color: #006876; }
+
+/* Chiffres clés */
+.kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: rgba(187,201,204,.15); }
+.kpi-item { background: #fff; padding: .875rem 1rem; }
+.kpi-val { font-size: 1.25rem; font-weight: 900; color: #006876; letter-spacing: -.03em; margin-bottom: 2px; }
+.kpi-lbl { font-size: .6rem; font-weight: 700; color: #6c797c; text-transform: uppercase; letter-spacing: .06em; line-height: 1.4; }
+.kpi-delta { font-size: .6rem; font-weight: 700; display: flex; align-items: center; gap: 2px; margin-top: 2px; }
+.kpi-delta.up { color: #16a34a; }
+.kpi-delta.down { color: #dc2626; }
+
+/* Podcasts */
+.podcast-list { padding: .5rem 0; }
+.pod-item {
+  display: flex; gap: .75rem; align-items: center;
+  padding: .625rem 1rem;
+  cursor: pointer; transition: background .12s;
+  border-bottom: 1px solid rgba(187,201,204,.1);
+}
+.pod-item:last-child { border-bottom: none; }
+.pod-item:hover { background: #f3f4f5; }
+.pod-thumb {
+  width: 44px; height: 44px; border-radius: .5rem;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.pod-thumb .ms { font-size: 20px; color: rgba(255,255,255,.8); }
+.pod-body { flex: 1; min-width: 0; }
+.pod-title { font-size: .775rem; font-weight: 700; color: #191c1d; line-height: 1.35; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pod-meta { font-size: .62rem; color: #6c797c; display: flex; align-items: center; gap: .3rem; }
+.pod-play {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: #006876; display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: background .15s;
+}
+.pod-play:hover { background: #00535e; }
+.pod-play .ms { font-size: 14px; color: #fff; font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+
+/* ══════════════════════════════════════
+   SECTION NEWSLETTER PLEINE LARGEUR
+══════════════════════════════════════ */
+#nl-section {
+  background: linear-gradient(135deg, #003d4a 0%, #006876 60%, #008fa3 100%);
+  padding: 3rem 2rem;
+  position: relative; overflow: hidden;
+}
+#nl-section::before {
+  content: '';
+  position: absolute; top: -60px; right: -60px;
+  width: 300px; height: 300px; border-radius: 50%;
+  background: rgba(255,255,255,.04);
+}
+#nl-section::after {
+  content: '';
+  position: absolute; bottom: -40px; left: 10%;
+  width: 200px; height: 200px; border-radius: 50%;
+  background: rgba(255,255,255,.03);
+}
+.nl-section-inner {
+  max-width: 700px; margin: 0 auto; text-align: center; position: relative;
+}
+.nl-section-inner .obs-eyebrow { margin: 0 auto .875rem; }
+#nl-section h2 { font-size: clamp(1.5rem, 3vw, 2.25rem); font-weight: 900; color: #fff; letter-spacing: -.03em; margin-bottom: .625rem; line-height: 1.15; }
+#nl-section h2 em { color: #7dd3e0; font-style: normal; }
+#nl-section p { color: rgba(255,255,255,.7); font-size: .9rem; line-height: 1.65; margin-bottom: 1.75rem; }
+.nl-section-form { display: flex; gap: .5rem; max-width: 480px; margin: 0 auto 1.25rem; }
+.nl-section-input {
+  flex: 1; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25);
+  border-radius: .5rem; padding: .7rem 1rem;
+  color: #fff; font-family: inherit; font-size: .875rem; outline: none;
+  transition: border-color .15s, background .15s;
+}
+.nl-section-input::placeholder { color: rgba(255,255,255,.45); }
+.nl-section-input:focus { border-color: rgba(255,255,255,.6); background: rgba(255,255,255,.18); }
+.nl-section-btn {
+  background: #fff; color: #006876; border: none; cursor: pointer;
+  padding: .7rem 1.5rem; border-radius: .5rem;
+  font-weight: 800; font-size: .875rem; font-family: inherit;
+  white-space: nowrap; transition: background .15s, transform .1s;
+}
+.nl-section-btn:hover { background: #e8f4f6; transform: translateY(-1px); }
+.nl-perks { display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap; }
+.nl-perk { display: flex; align-items: center; gap: .35rem; font-size: .72rem; color: rgba(255,255,255,.65); font-weight: 600; }
+.nl-perk .ms { font-size: 14px; color: rgba(255,255,255,.5); }
+.nl-section-stats { display: flex; justify-content: center; gap: 2.5rem; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,.1); flex-wrap: wrap; }
+.nl-section-stat { text-align: center; }
+.nl-section-stat strong { display: block; font-size: 1.5rem; font-weight: 900; color: #fff; letter-spacing: -.03em; }
+.nl-section-stat span { font-size: .65rem; color: rgba(255,255,255,.55); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+
+/* ══════════════════════════════════════
+   FOOTER
+══════════════════════════════════════ */
+#ft {
+  flex-shrink: 0; background: #006876; color: rgba(255,255,255,.65);
+  padding: .6rem 2rem; display: flex; align-items: center;
+  justify-content: space-between; gap: 1rem;
+  font-size: .675rem; font-weight: 500;
+  border-top: 1px solid rgba(255,255,255,.08);
+}
+#ft .ft-logo { font-size: .9rem; font-weight: 900; color: #fff; letter-spacing: -.04em; }
+#ft .ft-links { display: flex; gap: 1.25rem; }
+#ft .ft-links a { color: rgba(255,255,255,.55); text-decoration: none; font-size: .675rem; font-weight: 500; transition: color .15s; }
+#ft .ft-links a:hover { color: #fff; }
+#ft .ft-copy { color: rgba(255,255,255,.4); font-size: .625rem; }
+
+/* ══════════════════════════════════════
+   CATÉGORIES COULEURS
+══════════════════════════════════════ */
+.cat-reglementation { background: #fef3c7; color: #92400e; }
+.cat-marche        { background: #dbeafe; color: #1e40af; }
+.cat-technologie   { background: #f0fdf4; color: #15803d; border: 1px solid rgba(34,197,94,.2); }
+.cat-metier        { background: #fce7f3; color: #9d174d; }
+.cat-recherche     { background: #ede9fe; color: #6d28d9; }
+.cat-data          { background: #e8f4f6; color: #006876; }
+
+.res-badge-pdf     { background: #fee2e2; color: #991b1b; }
+.res-badge-xls     { background: #dcfce7; color: #166534; }
+.res-badge-guide   { background: #e8f4f6; color: #006876; }
+.res-badge-etude   { background: #ede9fe; color: #6d28d9; }
+.res-badge-new     { background: #fef3c7; color: #92400e; }
+
+@media (max-width: 1024px) {
+  #obs-body { grid-template-columns: 1fr; }
+  .sidebar { display: grid; grid-template-columns: repeat(2, 1fr); }
+  .nl-widget { grid-column: 1 / -1; }
+}
+@media (max-width: 768px) {
+  .une-card { grid-template-columns: 1fr; }
+  .articles-grid { grid-template-columns: 1fr; }
+  .ressources-grid { grid-template-columns: 1fr 1fr; }
+  .sidebar { grid-template-columns: 1fr; }
+  .nav-links { display: none; }
+  #ft .ft-links { display: none; }
+  .nl-section-form { flex-direction: column; }
+  .hero-stats { gap: 1.25rem; }
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ══ HEADER ══ -->
+  <div id="hd">
+    <nav>
+      <div style="display:flex;align-items:center;gap:2.5rem;">
+        <span class="logo">Claim!</span>
+        <div class="nav-links">
+          <a href="#">Offres</a>
+          <a href="#">Entreprises</a>
+          <a href="#" class="on">Observatoire de l'assurance</a>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:.75rem;">
+        <button class="btn-cta">Contactez-nous</button>
+      </div>
+    </nav>
+  </div>
+
+  <!-- ══ ZONE SCROLLABLE ══ -->
+  <div id="main">
+
+    <!-- ── HERO ── -->
+    <div id="obs-hero">
+      <div class="obs-hero-inner">
+        <div class="obs-eyebrow">
+          <span class="dot-live"></span>
+          Média indépendant · Actuariat &amp; IA
+        </div>
+        <h1>L'Observatoire de<br/><em>l'assurance</em></h1>
+        <p class="hero-sub">Analyses, données et ressources pour les professionnels du risque, de l'actuariat et de l'intelligence artificielle en assurance.</p>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <strong>4 200+</strong>
+            <span>Abonnés newsletter</span>
+          </div>
+          <div class="hero-stat">
+            <strong>2×/mois</strong>
+            <span>Éditions publiées</span>
+          </div>
+          <div class="hero-stat">
+            <strong>120+</strong>
+            <span>Articles &amp; ressources</span>
+          </div>
+          <div class="hero-stat">
+            <strong>18</strong>
+            <span>Experts contributeurs</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── NAVIGATION INTERNE ── -->
+    <div id="obs-nav">
+      <div class="obs-tabs">
+        <button class="obs-tab on" data-tab="tout">
+          <span class="ms">grid_view</span>Tout
+        </button>
+        <button class="obs-tab" data-tab="analyses">
+          <span class="ms">analytics</span>Analyses &amp; Études
+        </button>
+        <button class="obs-tab" data-tab="reglementation">
+          <span class="ms">gavel</span>Réglementation
+        </button>
+        <button class="obs-tab" data-tab="technologie">
+          <span class="ms">memory</span>IA &amp; Technologie
+        </button>
+        <button class="obs-tab" data-tab="marche">
+          <span class="ms">show_chart</span>Marché &amp; Emploi
+        </button>
+        <button class="obs-tab" data-tab="ressources">
+          <span class="ms">folder_open</span>Ressources
+        </button>
+        <button class="obs-tab" data-tab="podcast">
+          <span class="ms">podcasts</span>Podcast
+        </button>
+      </div>
+    </div>
+
+    <!-- ── CORPS ── -->
+    <div id="obs-body">
+
+      <!-- ════ COLONNE PRINCIPALE ════ -->
+      <div id="col-main">
+
+        <!-- Article à la une -->
+        <div class="section-label">
+          <span class="ms" style="font-size:13px;color:#006876;">star</span>
+          À la une
+        </div>
+
+        <div class="une-card">
+          <div class="une-img" style="background:linear-gradient(135deg,#004d5a,#006876);">
+            <span class="ms une-img-icon">psychology</span>
+            <span class="une-badge">
+              <span class="ms" style="font-size:11px;">auto_awesome</span>
+              Dossier spécial
+            </span>
+          </div>
+          <div class="une-content">
+            <div>
+              <div class="une-meta">
+                <span class="une-cat">IA &amp; Technologie</span>
+                <span class="une-date">14 avril 2026</span>
+                <span style="font-size:.6rem;color:#6c797c;display:flex;align-items:center;gap:2px;"><span class="ms" style="font-size:12px;">schedule</span>12 min</span>
+              </div>
+              <div class="une-title">LLMs en actuariat : de l'expérimentation à l'industrialisation — où en sont les assureurs français ?</div>
+              <div class="une-excerpt">Deux ans après l'émergence de ChatGPT, nous avons interrogé 14 DSI et directeurs actuariat de grands groupes. Le bilan est contrasté : si les POC se multiplient, la mise en production reste freinée par des enjeux de gouvernance, de qualité des données et de réglementation DORA.</div>
+            </div>
+            <div class="une-footer">
+              <div class="une-author">
+                <div class="une-avatar">BC</div>
+                <div>
+                  <div class="une-author-name">Bécaye SYLLA</div>
+                  <div class="une-author-role">Fondateur · Claim!</div>
+                </div>
+              </div>
+              <div class="une-read">
+                Lire l'article
+                <span class="ms" style="font-size:14px;">arrow_forward</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Grille articles -->
+        <div class="section-label">
+          <span class="ms" style="font-size:13px;color:#006876;">article</span>
+          Derniers articles
+        </div>
+
+        <div class="articles-grid" id="articles-grid">
+
+          <div class="art-card">
+            <div class="art-thumb" style="background:linear-gradient(135deg,#1e40af,#3b82f6);">
+              <span class="ms">gavel</span>
+            </div>
+            <div class="art-body">
+              <div class="art-meta">
+                <span class="art-cat cat-reglementation">Réglementation</span>
+                <span class="art-date">10 avr. 2026</span>
+              </div>
+              <div class="art-title">IFRS 17 : bilan de la première année complète d'application en France</div>
+              <div class="art-excerpt">Retour d'expérience des équipes actuarielles sur les défis de la transition et les chantiers encore ouverts.</div>
+              <div class="art-foot">
+                <span class="art-read-time"><span class="ms" style="font-size:11px;">schedule</span>8 min</span>
+                <span class="art-tag">IFRS 17</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="art-card">
+            <div class="art-thumb" style="background:linear-gradient(135deg,#15803d,#22c55e);">
+              <span class="ms">show_chart</span>
+            </div>
+            <div class="art-body">
+              <div class="art-meta">
+                <span class="art-cat cat-marche">Marché &amp; Emploi</span>
+                <span class="art-date">7 avr. 2026</span>
+              </div>
+              <div class="art-title">Baromètre des salaires actuariels 2026 : les data scientists tirent les rémunérations vers le haut</div>
+              <div class="art-excerpt">Notre enquête annuelle auprès de 380 professionnels révèle une hausse moyenne de 6,2% sur les profils hybrides actuariat-IA.</div>
+              <div class="art-foot">
+                <span class="art-read-time"><span class="ms" style="font-size:11px;">schedule</span>6 min</span>
+                <span class="art-tag">Salaires</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="art-card">
+            <div class="art-thumb" style="background:linear-gradient(135deg,#6d28d9,#a78bfa);">
+              <span class="ms">science</span>
+            </div>
+            <div class="art-body">
+              <div class="art-meta">
+                <span class="art-cat cat-recherche">Recherche</span>
+                <span class="art-date">3 avr. 2026</span>
+              </div>
+              <div class="art-title">Modèles de survie et deep learning : une revue des approches hybrides pour la mortalité</div>
+              <div class="art-excerpt">Synthèse de 12 papiers récents sur l'intégration des réseaux de neurones dans les tables de mortalité prospectives.</div>
+              <div class="art-foot">
+                <span class="art-read-time"><span class="ms" style="font-size:11px;">schedule</span>15 min</span>
+                <span class="art-tag">Recherche</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="art-card">
+            <div class="art-thumb" style="background:linear-gradient(135deg,#9d174d,#ec4899);">
+              <span class="ms">manage_accounts</span>
+            </div>
+            <div class="art-body">
+              <div class="art-meta">
+                <span class="art-cat cat-metier">Métier</span>
+                <span class="art-date">28 mars 2026</span>
+              </div>
+              <div class="art-title">Actuaire vs Data Scientist : convergence des rôles ou concurrence des profils ?</div>
+              <div class="art-excerpt">Les frontières s'estompent. Enquête sur les nouvelles compétences attendues et les passerelles entre ces deux métiers.</div>
+              <div class="art-foot">
+                <span class="art-read-time"><span class="ms" style="font-size:11px;">schedule</span>9 min</span>
+                <span class="art-tag">Carrière</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="art-card">
+            <div class="art-thumb" style="background:linear-gradient(135deg,#006876,#00bcd4);">
+              <span class="ms">security</span>
+            </div>
+            <div class="art-body">
+              <div class="art-meta">
+                <span class="art-cat cat-reglementation">Réglementation</span>
+                <span class="art-date">24 mars 2026</span>
+              </div>
+              <div class="art-title">AI Act européen : ce que ça change concrètement pour les modèles de scoring en assurance</div>
+              <div class="art-excerpt">Analyse des obligations de transparence et d'auditabilité pour les systèmes d'IA à haut risque utilisés en souscription.</div>
+              <div class="art-foot">
+                <span class="art-read-time"><span class="ms" style="font-size:11px;">schedule</span>10 min</span>
+                <span class="art-tag">AI Act</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="art-card">
+            <div class="art-thumb" style="background:linear-gradient(135deg,#92400e,#f59e0b);">
+              <span class="ms">bolt</span>
+            </div>
+            <div class="art-body">
+              <div class="art-meta">
+                <span class="art-cat cat-technologie">IA &amp; Technologie</span>
+                <span class="art-date">19 mars 2026</span>
+              </div>
+              <div class="art-title">MLOps en assurance : retour d'expérience sur 3 déploiements de modèles en production</div>
+              <div class="art-excerpt">Comment AXA, Covéa et un acteur mutualiste ont industrialisé leurs pipelines ML. Leçons apprises et pièges à éviter.</div>
+              <div class="art-foot">
+                <span class="art-read-time"><span class="ms" style="font-size:11px;">schedule</span>11 min</span>
+                <span class="art-tag">MLOps</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Bouton voir plus -->
+        <div style="text-align:center;margin-bottom:2rem;">
+          <button style="display:inline-flex;align-items:center;gap:.4rem;padding:.6rem 1.5rem;border-radius:.5rem;background:#fff;color:#006876;font-weight:700;font-size:.825rem;border:1.5px solid rgba(0,104,118,.25);cursor:pointer;font-family:inherit;transition:background .15s,border-color .15s;" onmouseover="this.style.background='#e8f4f6'" onmouseout="this.style.background='#fff'">
+            <span class="ms" style="font-size:16px;">expand_more</span>
+            Voir tous les articles
+          </button>
+        </div>
+
+        <!-- Section ressources -->
+        <div class="section-label">
+          <span class="ms" style="font-size:13px;color:#006876;">folder_open</span>
+          Ressources &amp; Outils
+        </div>
+
+        <div class="ressources-grid">
+
+          <div class="res-card">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div class="res-icon" style="background:#fee2e2;">
+                <span class="ms" style="color:#991b1b;">picture_as_pdf</span>
+              </div>
+              <span class="res-badge res-badge-new">Nouveau</span>
+            </div>
+            <div class="res-type">Rapport PDF · 48 pages</div>
+            <div class="res-title">Panorama de l'actuariat français 2026</div>
+            <div class="res-desc">Chiffres clés, tendances salariales, répartition par secteur et projections d'emploi pour les 3 prochaines années.</div>
+            <div class="res-foot">
+              <span class="res-dl"><span class="ms" style="font-size:14px;">download</span>Télécharger</span>
+              <span class="res-badge res-badge-pdf">PDF</span>
+            </div>
+          </div>
+
+          <div class="res-card">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div class="res-icon" style="background:#dcfce7;">
+                <span class="ms" style="color:#166534;">table_chart</span>
+              </div>
+              <span class="res-badge res-badge-new">Nouveau</span>
+            </div>
+            <div class="res-type">Fichier Excel · Mise à jour trimestrielle</div>
+            <div class="res-title">Grille de salaires actuariat &amp; data 2026</div>
+            <div class="res-desc">Rémunérations par niveau d'expérience, type d'entreprise et localisation. Basé sur 380 réponses anonymisées.</div>
+            <div class="res-foot">
+              <span class="res-dl"><span class="ms" style="font-size:14px;">download</span>Télécharger</span>
+              <span class="res-badge res-badge-xls">XLSX</span>
+            </div>
+          </div>
+
+          <div class="res-card">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div class="res-icon" style="background:#e8f4f6;">
+                <span class="ms" style="color:#006876;">menu_book</span>
+              </div>
+            </div>
+            <div class="res-type">Guide pratique · 22 pages</div>
+            <div class="res-title">Guide de transition IFRS 17 pour les équipes actuarielles</div>
+            <div class="res-desc">Checklist, points de vigilance et retours d'expérience terrain pour accompagner votre équipe dans la transition.</div>
+            <div class="res-foot">
+              <span class="res-dl"><span class="ms" style="font-size:14px;">download</span>Télécharger</span>
+              <span class="res-badge res-badge-guide">Guide</span>
+            </div>
+          </div>
+
+          <div class="res-card">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div class="res-icon" style="background:#ede9fe;">
+                <span class="ms" style="color:#6d28d9;">biotech</span>
+              </div>
+            </div>
+            <div class="res-type">Étude de cas · 15 pages</div>
+            <div class="res-title">Détection de fraude par ML : cas pratique en assurance auto</div>
+            <div class="res-desc">Méthodologie, features engineering et résultats d'un modèle XGBoost déployé sur 2M de sinistres.</div>
+            <div class="res-foot">
+              <span class="res-dl"><span class="ms" style="font-size:14px;">download</span>Télécharger</span>
+              <span class="res-badge res-badge-etude">Étude</span>
+            </div>
+          </div>
+
+          <div class="res-card">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div class="res-icon" style="background:#fef3c7;">
+                <span class="ms" style="color:#92400e;">calculate</span>
+              </div>
+            </div>
+            <div class="res-type">Outil interactif · Web</div>
+            <div class="res-title">Calculateur de provisions IARD — méthode Chain-Ladder</div>
+            <div class="res-desc">Outil en ligne pour calculer vos provisions de sinistres à payer avec visualisation des triangles de développement.</div>
+            <div class="res-foot">
+              <span class="res-dl"><span class="ms" style="font-size:14px;">open_in_new</span>Accéder</span>
+              <span class="res-badge" style="background:#fef3c7;color:#92400e;">Outil</span>
+            </div>
+          </div>
+
+          <div class="res-card">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div class="res-icon" style="background:#f0fdf4;">
+                <span class="ms" style="color:#15803d;">schema</span>
+              </div>
+            </div>
+            <div class="res-type">Template · Python / R</div>
+            <div class="res-title">Boîte à outils : modèles de tarification GLM prêts à l'emploi</div>
+            <div class="res-desc">Notebooks annotés pour la tarification en assurance auto et habitation. GLM, GAM et gradient boosting inclus.</div>
+            <div class="res-foot">
+              <span class="res-dl"><span class="ms" style="font-size:14px;">download</span>Télécharger</span>
+              <span class="res-badge" style="background:#f0fdf4;color:#15803d;">Code</span>
+            </div>
+          </div>
+
+        </div>
+
+      </div><!-- /col-main -->
+
+      <!-- ════ SIDEBAR ════ -->
+      <div class="sidebar">
+
+        <!-- Widget newsletter -->
+        <div class="nl-widget">
+          <div class="nl-eyebrow">
+            <span class="ms" style="font-size:12px;">mail</span>
+            Newsletter
+          </div>
+          <h3>La lettre des experts du risque</h3>
+          <p>Analyses exclusives, offres d'emploi sélectionnées et ressources pratiques — deux fois par mois dans votre boîte mail.</p>
+          <div class="nl-form">
+            <input class="nl-input" type="email" placeholder="votre@email.com"/>
+            <button class="nl-btn">
+              <span class="ms" style="font-size:15px;">send</span>
+              Je m'abonne gratuitement
+            </button>
+          </div>
+          <div class="nl-stats">
+            <div class="nl-stat">
+              <strong>4 200+</strong>
+              <span>Abonnés</span>
+            </div>
+            <div class="nl-stat">
+              <strong>68%</strong>
+              <span>Taux d'ouverture</span>
+            </div>
+            <div class="nl-stat">
+              <strong>2×</strong>
+              <span>Par mois</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chiffres clés du marché -->
+        <div class="widget">
+          <div class="widget-hd">
+            <h4><span class="ms">bar_chart</span>Chiffres clés du marché</h4>
+            <a href="#">Voir tout</a>
+          </div>
+          <div class="kpi-grid">
+            <div class="kpi-item">
+              <div class="kpi-val">+6,2%</div>
+              <div class="kpi-lbl">Hausse salaires actuariat 2026</div>
+              <div class="kpi-delta up"><span class="ms" style="font-size:11px;">trending_up</span>vs 2025</div>
+            </div>
+            <div class="kpi-item">
+              <div class="kpi-val">1 840</div>
+              <div class="kpi-lbl">Offres actuariat actives en France</div>
+              <div class="kpi-delta up"><span class="ms" style="font-size:11px;">trending_up</span>+12% / an</div>
+            </div>
+            <div class="kpi-item">
+              <div class="kpi-val">73%</div>
+              <div class="kpi-lbl">Actuaires utilisant Python en 2026</div>
+              <div class="kpi-delta up"><span class="ms" style="font-size:11px;">trending_up</span>+18pts en 3 ans</div>
+            </div>
+            <div class="kpi-item">
+              <div class="kpi-val">58k€</div>
+              <div class="kpi-lbl">Salaire médian jeune actuaire (Paris)</div>
+              <div class="kpi-delta up"><span class="ms" style="font-size:11px;">trending_up</span>+4k€ vs 2024</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tendances de recherche -->
+        <div class="widget">
+          <div class="widget-hd">
+            <h4><span class="ms">trending_up</span>Tendances du moment</h4>
+            <a href="#">Voir tout</a>
+          </div>
+          <div class="trend-list">
+            <div class="trend-item">
+              <span class="trend-num">1</span>
+              <div class="trend-body">
+                <div class="trend-kw">IFRS 17</div>
+                <div class="trend-sub">Réglementation · 2 340 recherches</div>
+              </div>
+              <span class="trend-arrow up"><span class="ms" style="font-size:12px;">arrow_upward</span>+24%</span>
+            </div>
+            <div class="trend-item">
+              <span class="trend-num">2</span>
+              <div class="trend-body">
+                <div class="trend-kw">LLM en assurance</div>
+                <div class="trend-sub">IA &amp; Technologie · 1 890 recherches</div>
+              </div>
+              <span class="trend-arrow up"><span class="ms" style="font-size:12px;">arrow_upward</span>+61%</span>
+            </div>
+            <div class="trend-item">
+              <span class="trend-num">3</span>
+              <div class="trend-body">
+                <div class="trend-kw">Salaires actuariat 2026</div>
+                <div class="trend-sub">Marché &amp; Emploi · 1 650 recherches</div>
+              </div>
+              <span class="trend-arrow up"><span class="ms" style="font-size:12px;">arrow_upward</span>+18%</span>
+            </div>
+            <div class="trend-item">
+              <span class="trend-num">4</span>
+              <div class="trend-body">
+                <div class="trend-kw">AI Act assurance</div>
+                <div class="trend-sub">Réglementation · 1 210 recherches</div>
+              </div>
+              <span class="trend-arrow up"><span class="ms" style="font-size:12px;">arrow_upward</span>+89%</span>
+            </div>
+            <div class="trend-item">
+              <span class="trend-num">5</span>
+              <div class="trend-body">
+                <div class="trend-kw">Solvabilité II révision</div>
+                <div class="trend-sub">Réglementation · 980 recherches</div>
+              </div>
+              <span class="trend-arrow flat"><span class="ms" style="font-size:12px;">remove</span>stable</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Prochains événements -->
+        <div class="widget">
+          <div class="widget-hd">
+            <h4><span class="ms">event</span>Prochains événements</h4>
+            <a href="#">Agenda complet</a>
+          </div>
+          <div class="event-list">
+            <div class="event-item">
+              <div class="event-date-box">
+                <div class="event-day">24</div>
+                <div class="event-month">Avr</div>
+              </div>
+              <div class="event-body">
+                <div class="event-title">Webinaire Claim! — IA générative &amp; actuariat : cas d'usage réels</div>
+                <div class="event-meta">
+                  <span class="event-type">Webinaire</span>
+                  <span>En ligne · 12h30</span>
+                </div>
+              </div>
+            </div>
+            <div class="event-item">
+              <div class="event-date-box">
+                <div class="event-day">6</div>
+                <div class="event-month">Mai</div>
+              </div>
+              <div class="event-body">
+                <div class="event-title">Journées Actuarielles de Strasbourg 2026</div>
+                <div class="event-meta">
+                  <span class="event-type">Conférence</span>
+                  <span>Strasbourg · 2 jours</span>
+                </div>
+              </div>
+            </div>
+            <div class="event-item">
+              <div class="event-date-box">
+                <div class="event-day">15</div>
+                <div class="event-month">Mai</div>
+              </div>
+              <div class="event-body">
+                <div class="event-title">Table ronde : Solvabilité II post-révision — impacts opérationnels</div>
+                <div class="event-meta">
+                  <span class="event-type">Table ronde</span>
+                  <span>Paris · Présentiel</span>
+                </div>
+              </div>
+            </div>
+            <div class="event-item">
+              <div class="event-date-box">
+                <div class="event-day">3</div>
+                <div class="event-month">Juin</div>
+              </div>
+              <div class="event-body">
+                <div class="event-title">Insurance Data Summit — Paris 2026</div>
+                <div class="event-meta">
+                  <span class="event-type">Salon</span>
+                  <span>Paris · 1 jour</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Podcast -->
+        <div class="widget">
+          <div class="widget-hd">
+            <h4><span class="ms">podcasts</span>Podcast — Les Quants</h4>
+            <a href="#">Tous les épisodes</a>
+          </div>
+          <div class="podcast-list">
+            <div class="pod-item">
+              <div class="pod-thumb" style="background:linear-gradient(135deg,#006876,#00bcd4);">
+                <span class="ms">mic</span>
+              </div>
+              <div class="pod-body">
+                <div class="pod-title">Ep. 18 — L'actuaire augmenté : mythe ou réalité ?</div>
+                <div class="pod-meta">
+                  <span class="ms" style="font-size:11px;">schedule</span>42 min · 8 avr. 2026
+                </div>
+              </div>
+              <div class="pod-play"><span class="ms">play_arrow</span></div>
+            </div>
+            <div class="pod-item">
+              <div class="pod-thumb" style="background:linear-gradient(135deg,#6d28d9,#a78bfa);">
+                <span class="ms">mic</span>
+              </div>
+              <div class="pod-body">
+                <div class="pod-title">Ep. 17 — DORA &amp; modèles IA : ce que les assureurs doivent anticiper</div>
+                <div class="pod-meta">
+                  <span class="ms" style="font-size:11px;">schedule</span>38 min · 25 mars 2026
+                </div>
+              </div>
+              <div class="pod-play"><span class="ms">play_arrow</span></div>
+            </div>
+            <div class="pod-item">
+              <div class="pod-thumb" style="background:linear-gradient(135deg,#92400e,#f59e0b);">
+                <span class="ms">mic</span>
+              </div>
+              <div class="pod-body">
+                <div class="pod-title">Ep. 16 — Risques climatiques : la modélisation actuarielle face à l'urgence</div>
+                <div class="pod-meta">
+                  <span class="ms" style="font-size:11px;">schedule</span>51 min · 11 mars 2026
+                </div>
+              </div>
+              <div class="pod-play"><span class="ms">play_arrow</span></div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /sidebar -->
+    </div><!-- /obs-body -->
+
+    <!-- ══ SECTION NEWSLETTER PLEINE LARGEUR ══ -->
+    <div id="nl-section">
+      <div class="nl-section-inner">
+        <div class="obs-eyebrow" style="display:inline-flex;">
+          <span class="ms" style="font-size:12px;">mail</span>
+          Newsletter bimensuelle · Gratuite
+        </div>
+        <h2>Ne manquez aucune<br/><em>analyse du secteur</em></h2>
+        <p>Rejoignez 4 200+ professionnels de l'actuariat et de l'IA qui reçoivent chaque quinzaine nos analyses exclusives, les offres d'emploi sélectionnées et les ressources pratiques.</p>
+        <div class="nl-section-form">
+          <input class="nl-section-input" type="email" placeholder="votre@email.com"/>
+          <button class="nl-section-btn">
+            <span class="ms" style="font-size:15px;vertical-align:middle;margin-right:.25rem;">send</span>
+            S'abonner
+          </button>
+        </div>
+        <div class="nl-perks">
+          <span class="nl-perk"><span class="ms">check_circle</span>100% gratuit, sans spam</span>
+          <span class="nl-perk"><span class="ms">check_circle</span>Désabonnement en 1 clic</span>
+          <span class="nl-perk"><span class="ms">check_circle</span>68% de taux d'ouverture</span>
+          <span class="nl-perk"><span class="ms">check_circle</span>Contenu exclusif Claim!</span>
+        </div>
+        <div class="nl-section-stats">
+          <div class="nl-section-stat">
+            <strong>4 200+</strong>
+            <span>Abonnés actifs</span>
+          </div>
+          <div class="nl-section-stat">
+            <strong>68%</strong>
+            <span>Taux d'ouverture moyen</span>
+          </div>
+          <div class="nl-section-stat">
+            <strong>24</strong>
+            <span>Éditions publiées</span>
+          </div>
+          <div class="nl-section-stat">
+            <strong>4,9/5</strong>
+            <span>Note lecteurs</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ FOOTER ══ -->
+    <div id="ft">
+      <span class="ft-logo">Claim!</span>
+      <div class="ft-links">
+        <a href="#">À propos</a>
+        <a href="#">CGU</a>
+        <a href="#">Confidentialité</a>
+        <a href="#">Contact</a>
+      </div>
+      <span class="ft-copy">© 2026 Claim your job · Fait avec ♥ pour les actuaires, data scientists &amp; profils IA</span>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<script>
+/* ══ TABS NAVIGATION ══ */
+document.querySelectorAll('.obs-tab').forEach(tab => {
+  tab.addEventListener('click', function() {
+    document.querySelectorAll('.obs-tab').forEach(t => t.classList.remove('on'));
+    this.classList.add('on');
+    // Ici on pourrait filtrer les articles par catégorie
+  });
+});
+
+/* ══ SMOOTH SCROLL pour sticky nav ══ */
+// La nav interne est sticky dans #main (overflow-y:auto)
+// On réattache le sticky au bon scroll container
+const obsNav = document.getElementById('obs-nav');
+const mainEl = document.getElementById('main');
+const heroEl = document.getElementById('obs-hero');
+
+mainEl.addEventListener('scroll', function() {
+  // Ombre sur la nav interne au scroll
+  const heroBottom = heroEl.offsetTop + heroEl.offsetHeight;
+  obsNav.style.boxShadow = mainEl.scrollTop > heroBottom - 60
+    ? '0 2px 12px rgba(0,0,0,.08)'
+    : 'none';
+});
+</script>
+</body>
+</html>
