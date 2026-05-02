@@ -145,22 +145,22 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
 .cblogo { width: 44px; height: 44px; border-radius: .5rem; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 900; font-size: 10px; flex-shrink: 0; }
 .bcv { display: inline-flex; align-items: center; gap: .3rem; padding: .5rem .875rem; border-radius: .5rem; background: #191c1d; color: #fff; font-weight: 700; font-size: .75rem; text-decoration: none; }
 
-/* ── FOOTER MINIMALISTE ── */
+/* ── FOOTER MINIMALISTE — dans .feed, après les cards ── */
 #ft {
   flex-shrink: 0;
   background: #006876;
+  border-radius: .625rem;
   color: rgba(255,255,255,.65);
-  padding: .6rem 2rem;
+  padding: .75rem 1rem;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
+  flex-direction: column;
+  gap: .4rem;
   font-size: .675rem;
   font-weight: 500;
-  border-top: 1px solid rgba(255,255,255,.08);
+  margin-top: .25rem;
 }
 #ft .ft-logo { font-size: .9rem; font-weight: 900; color: #fff; letter-spacing: -.04em; }
-#ft .ft-links { display: flex; gap: 1.25rem; }
+#ft .ft-links { display: flex; gap: 1.25rem; flex-wrap: wrap; }
 #ft .ft-links a { color: rgba(255,255,255,.55); text-decoration: none; font-size: .675rem; font-weight: 500; transition: color .15s; }
 #ft .ft-links a:hover { color: #fff; }
 #ft .ft-copy { color: rgba(255,255,255,.4); font-size: .625rem; }
@@ -229,17 +229,6 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
     </div>
   </div>
 
-  <!-- ══ FOOTER MINIMALISTE ══ -->
-  <div id="ft">
-    <span class="ft-logo">Claim!</span>
-    <div class="ft-links">
-      <a href="#">À propos</a>
-      <a href="#">CGU</a>
-      <a href="#">Confidentialité</a>
-      <a href="#">Contact</a>
-    </div>
-    <span class="ft-copy">© 2026 Claim your job · Fait avec ♥ pour les actuaires, data scientists &amp; profils IA</span>
-  </div>
 
 </div>
 
@@ -417,8 +406,25 @@ function renderDetail() {
   `;
 }
 
+function renderFooter() {
+  const ft = document.createElement('div');
+  ft.id = 'ft';
+  ft.innerHTML = `
+    <span class="ft-logo">Claim!</span>
+    <div class="ft-links">
+      <a href="#">À propos</a>
+      <a href="#">CGU</a>
+      <a href="#">Confidentialité</a>
+      <a href="#">Contact</a>
+    </div>
+    <span class="ft-copy">© 2026 Claim your job · Fait avec ♥ pour les actuaires, data scientists &amp; profils IA</span>
+  `;
+  feedEl.appendChild(ft);
+}
+
 renderFeed();
 renderDetail();
+renderFooter();
 </script>
 </body>
 </html>
