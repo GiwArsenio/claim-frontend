@@ -439,7 +439,7 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
   <!-- ══ SPLIT PANE ══ -->
   <div id="split">
     <div class="pl">
-      <div class="pl-hd">8 offres disponibles</div>
+      <div class="pl-hd">Chargement…</div>
       <div class="feed" id="feed"></div>
       <!-- Footer riche, visible après scroll des cards -->
       <div id="ft">
@@ -472,67 +472,55 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
 </div>
 
 <script>
-const JOBS = [
-  { id:1, title:"Actuaire IARD Senior", company:"AXA France", dept:"Direction des Assurances Dommages", loc:"Paris, FR", mode:"Hybride", salary:"65k€ – 85k€", salaryFull:"65k€ – 85k€ + Bonus", contract:"CDI", level:"Senior (5-10 ans)", posted:"Il y a 2 jours", color:"#00395D", logo:"AXA",
-    tags:[{l:"IARD",t:"tm"},{l:"Tarification",t:"tp"},{l:"Solvabilité II",t:"tn"}],
-    ov1:"Au sein de la Direction Technique IARD d'AXA France, vous rejoignez l'équipe de Tarification et Modélisation. Votre rôle est crucial pour définir les stratégies de prix et anticiper les risques émergents grâce à des modèles prédictifs avancés.",
-    ov2:"Ce poste combine une expertise technique actuarielle forte avec une vision business stratégique, au service de la rentabilité de nos portefeuilles Particuliers et Professionnels.",
-    missions:["Développement et optimisation de modèles de tarification (GLM, Machine Learning).","Analyse de la rentabilité et monitoring technique des portefeuilles IARD.","Conception d'outils de pilotage data-visualisation pour les directions opérationnelles.","Encadrement technique de profils plus juniors et participation aux projets transverses IA."],
-    profile:["Diplôme d'Actuaire ou Master en Statistique / Mathématiques Appliquées.","Minimum 5 ans d'expérience en actuariat IARD.","Maîtrise de Python, R et SQL. Connaissance des outils de tarification (Emblem, Radar).","Capacité à vulgariser des concepts techniques complexes pour des non-spécialistes."],
-    tools:["Python","R","SQL","SAS","Emblem","Radar"], cd:"Plongez au cœur des métiers et de la culture d'innovation d'AXA France." },
-  { id:2, title:"Data Scientist – Pricing & Modélisation", company:"Allianz France", dept:"Direction Technique & Data", loc:"La Défense, FR", mode:"Présentiel", salary:"55k€ – 75k€", salaryFull:"55k€ – 75k€ + Intéressement", contract:"CDI", level:"Confirmé (3-5 ans)", posted:"Il y a 2h", color:"#003781", logo:"ALZ",
-    tags:[{l:"Actuariat",t:"tm"},{l:"Pricing",t:"tp"},{l:"IFRS 17",t:"tn"}],
-    ov1:"Rejoignez l'équipe Data Science d'Allianz France pour construire les modèles de tarification de demain. Vous travaillerez en étroite collaboration avec les équipes actuarielles et produit pour déployer des algorithmes de pricing en production.",
-    ov2:"Poste au croisement de la data science avancée et de l'expertise assurantielle, avec un fort impact business sur la compétitivité des offres.",
-    missions:["Construction de modèles prédictifs de fréquence et sévérité des sinistres (XGBoost, GLM, réseaux de neurones).","Mise en production des modèles via des pipelines MLOps (MLflow, Docker, Kubernetes).","Collaboration avec les actuaires pour valider les hypothèses de modélisation.","Présentation des résultats aux comités de direction technique."],
-    profile:["Master 2 en Data Science, Statistiques ou équivalent.","3 à 5 ans d'expérience en modélisation prédictive, idéalement en assurance.","Maîtrise de Python (scikit-learn, pandas, statsmodels) et SQL.","Connaissance des normes IFRS 17 appréciée."],
-    tools:["Python","SQL","MLflow","Docker","Spark","Tableau"], cd:"Découvrez l'environnement data-driven et les projets d'innovation d'Allianz France." },
-  { id:3, title:"Actuaire Vie – Épargne & Retraite", company:"BNP Paribas Cardif", dept:"Direction Actuarielle Vie", loc:"Paris 8e, FR", mode:"Hybride", salary:"60k€ – 80k€", salaryFull:"60k€ – 80k€ + Variable", contract:"CDI", level:"Confirmé (3-5 ans)", posted:"Il y a 1 jour", color:"#009966", logo:"BNP",
-    tags:[{l:"Vie",t:"tm"},{l:"Épargne",t:"tp"},{l:"IFRS 17",t:"tn"}],
-    ov1:"Au sein de la Direction Actuarielle Vie de BNP Paribas Cardif, vous prenez en charge le suivi technique des portefeuilles Épargne et Retraite. Vous participez activement à la transition IFRS 17 et à la production des reportings réglementaires.",
-    ov2:"Un rôle clé dans un groupe international, avec une exposition forte aux enjeux de transformation réglementaire et digitale.",
-    missions:["Production et analyse des provisions techniques (Best Estimate, Risk Margin) sous IFRS 17.","Suivi de la rentabilité des portefeuilles Épargne individuelle et collective.","Participation aux travaux de modélisation ALM (Asset-Liability Management).","Contribution aux projets de transformation des outils actuariels (Prophet, MoSes)."],
-    profile:["Diplôme d'Actuaire (IA, DAV ou équivalent).","Expérience de 3 à 5 ans en actuariat Vie, idéalement sur des produits d'épargne.","Maîtrise de Prophet ou MoSes. Bonne connaissance d'Excel VBA et Python.","Rigueur, autonomie et sens de la communication."],
-    tools:["Prophet","MoSes","Python","Excel VBA","SQL","PowerBI"], cd:"Explorez la culture internationale et les projets d'innovation de BNP Paribas Cardif." },
-  { id:4, title:"MLOps Engineer – Assurance", company:"Covéa", dept:"Direction Innovation & IA", loc:"Paris 15e, FR", mode:"Full Remote", salary:"70k€ – 90k€", salaryFull:"70k€ – 90k€ + Bonus", contract:"CDI", level:"Senior (5-10 ans)", posted:"Il y a 3 jours", color:"#E30613", logo:"CVA",
-    tags:[{l:"IA / ML",t:"tm"},{l:"MLOps",t:"tp"},{l:"RGPD",t:"tn"}],
-    ov1:"Covéa (MMA, MAAF, GMF) accélère sa transformation IA et recrute un MLOps Engineer pour industrialiser ses modèles de machine learning. Vous serez le garant de la qualité, de la reproductibilité et de la performance des pipelines ML en production.",
-    ov2:"Poste stratégique au sein d'une équipe IA en forte croissance, avec une liberté technique importante et un impact direct sur les produits assurantiels.",
-    missions:["Conception et maintenance des pipelines CI/CD pour les modèles ML (détection de fraude, tarification, sinistres).","Mise en place du monitoring des modèles en production (drift, performance, biais).","Collaboration avec les Data Scientists pour optimiser le déploiement des modèles.","Définition des standards MLOps et formation des équipes."],
-    profile:["Bac+5 en Informatique, Data Engineering ou équivalent.","5 ans minimum d'expérience en MLOps ou Data Engineering.","Maîtrise de Kubernetes, Docker, MLflow, Airflow et des cloud providers (AWS/GCP/Azure).","Connaissance des enjeux RGPD et d'IA responsable."],
-    tools:["Kubernetes","Docker","MLflow","Airflow","Python","Terraform"], cd:"Rejoignez l'écosystème d'innovation de Covéa, leader de l'assurance mutualiste française." },
-  { id:5, title:"Consultant Actuaire – Risques Émergents", company:"Mazars Actuariat", dept:"Practice Assurance & Risques", loc:"Paris 8e, FR", mode:"Hybride", salary:"50k€ – 70k€", salaryFull:"50k€ – 70k€ + Prime", contract:"CDI", level:"Junior (1-3 ans)", posted:"Il y a 5 jours", color:"#E4003A", logo:"MZR",
-    tags:[{l:"Conseil",t:"tm"},{l:"Risques",t:"tp"},{l:"Solvabilité II",t:"tn"}],
-    ov1:"Mazars Actuariat accompagne les acteurs de l'assurance dans leurs enjeux de transformation réglementaire, de modélisation et de gestion des risques. Vous intégrez une équipe de consultants experts pour intervenir sur des missions variées à fort enjeu.",
-    ov2:"Un environnement stimulant en cabinet, avec une montée en compétences rapide et une exposition à des problématiques de pointe (cyber, climatique, pandémique).",
-    missions:["Réalisation de missions de conseil en actuariat (Solvabilité II, IFRS 17, tarification).","Modélisation des risques émergents (cyber, catastrophes naturelles, longévité).","Rédaction de rapports et présentations pour les directions générales.","Participation au développement commercial et à la veille réglementaire."],
-    profile:["Diplôme d'Actuaire ou Master en Mathématiques Appliquées / Statistiques.","1 à 3 ans d'expérience en actuariat ou conseil.","Maîtrise de R, Python et Excel. Connaissance de Solvabilité II.","Excellent relationnel, curiosité intellectuelle et goût pour le conseil."],
-    tools:["R","Python","Excel","SAS","PowerPoint","VBA"], cd:"Découvrez l'approche conseil et l'expertise sectorielle de Mazars Actuariat." },
-  { id:6, title:"NLP Engineer – Traitement des Sinistres", company:"Generali France", dept:"Digital & Innovation Lab", loc:"Paris 9e, FR", mode:"Hybride", salary:"58k€ – 78k€", salaryFull:"58k€ – 78k€ + Intéressement", contract:"CDI", level:"Confirmé (3-5 ans)", posted:"Il y a 1 semaine", color:"#C8102E", logo:"GNL",
-    tags:[{l:"NLP / IA",t:"tm"},{l:"Sinistres",t:"tp"},{l:"RGPD",t:"tn"}],
-    ov1:"Le Digital & Innovation Lab de Generali France développe des solutions IA pour automatiser et améliorer la gestion des sinistres. Vous rejoignez l'équipe NLP pour construire des modèles de compréhension du langage naturel appliqués aux déclarations de sinistres.",
-    ov2:"Un rôle pionnier dans l'application du NLP à l'assurance, avec des données réelles et un impact direct sur l'expérience client.",
-    missions:["Développement de modèles NLP pour la classification et l'extraction d'informations dans les déclarations de sinistres.","Fine-tuning de LLMs (CamemBERT, LLaMA) sur des corpus assurantiels.","Déploiement des modèles via des APIs REST et intégration dans les SI métier.","Collaboration avec les équipes sinistres pour recueillir les besoins et valider les modèles."],
-    profile:["Master 2 en NLP, Machine Learning ou Informatique.","3 à 5 ans d'expérience en NLP ou Deep Learning.","Maîtrise de Hugging Face, PyTorch et des architectures Transformer.","Sensibilité aux enjeux RGPD et à l'IA responsable."],
-    tools:["Python","PyTorch","Hugging Face","FastAPI","Docker","Elasticsearch"], cd:"Explorez les projets d'innovation et la culture digitale de Generali France." },
-  { id:7, title:"Actuaire Santé – Prévoyance Collective", company:"Malakoff Humanis", dept:"Direction Actuarielle Santé", loc:"Paris 13e, FR", mode:"Hybride", salary:"52k€ – 68k€", salaryFull:"52k€ – 68k€ + PEE", contract:"CDI", level:"Junior (1-3 ans)", posted:"Il y a 4 jours", color:"#005B8E", logo:"MH",
-    tags:[{l:"Santé",t:"tm"},{l:"Prévoyance",t:"tp"},{l:"ANI",t:"tn"}],
-    ov1:"Au sein de la Direction Actuarielle Santé de Malakoff Humanis, vous contribuez à la gestion technique des portefeuilles de prévoyance collective (incapacité, invalidité, décès). Vous participez à la tarification, au suivi de la sinistralité et à la production des reportings.",
-    ov2:"Un premier poste structurant dans un groupe paritaire de référence, avec un accompagnement fort et des perspectives d'évolution rapide.",
-    missions:["Tarification des contrats de prévoyance collective (PME, ETI).","Suivi mensuel de la sinistralité et analyse des écarts.","Production des provisions techniques et des reportings réglementaires.","Participation aux appels d'offres et aux revues de portefeuille."],
-    profile:["Master en Actuariat, Statistiques ou Mathématiques Appliquées.","Première expérience (stage ou alternance) en actuariat Santé/Prévoyance appréciée.","Maîtrise d'Excel et notions de SAS ou R.","Rigueur, esprit d'analyse et sens du travail en équipe."],
-    tools:["Excel","SAS","R","SQL","PowerBI","VBA"], cd:"Rejoignez l'un des leaders de la protection sociale complémentaire en France." },
-  { id:8, title:"Quant Risk Analyst – Réassurance", company:"SCOR SE", dept:"Group Risk Management", loc:"Paris 1er, FR", mode:"Hybride", salary:"75k€ – 100k€", salaryFull:"75k€ – 100k€ + Bonus", contract:"CDI", level:"Senior (5-10 ans)", posted:"Il y a 6 jours", color:"#1A1A2E", logo:"SCR",
-    tags:[{l:"Réassurance",t:"tm"},{l:"Risque Quant.",t:"tp"},{l:"Solvabilité II",t:"tn"}],
-    ov1:"SCOR, l'un des leaders mondiaux de la réassurance, recrute un Quant Risk Analyst pour renforcer son équipe Group Risk Management. Vous développez et maintenez les modèles internes de capital économique et de stress-testing.",
-    ov2:"Un poste d'excellence au sein d'un groupe international, avec une exposition aux risques les plus complexes (catastrophes naturelles, pandémies, cyber) et une forte dimension internationale.",
-    missions:["Développement et calibration des modèles de capital économique (modèle interne Solvabilité II).","Réalisation de stress-tests et d'analyses de scénarios extrêmes.","Contribution aux reportings ORSA et aux interactions avec les régulateurs.","Veille sur les risques émergents et publication de recherches internes."],
-    profile:["Diplôme d'Actuaire ou PhD en Mathématiques / Statistiques.","5 à 10 ans d'expérience en gestion des risques quantitatifs en assurance ou réassurance.","Maîtrise de R, Python et des méthodes de simulation Monte Carlo.","Anglais courant indispensable (environnement international)."],
-    tools:["R","Python","C++","SQL","Excel","Bloomberg"], cd:"Découvrez l'expertise mondiale et la culture d'excellence de SCOR SE." }
-];
+// ── Configuration ──────────────────────────────────────────────────────────
+const API_BASE = 'https://claim-api-production-06b3.up.railway.app/api/v1';
 
-let active = 1;
-const isMobile = () => window.innerWidth <= 768;
+// ── Helpers ────────────────────────────────────────────────────────────────
+const CONTRACT_LABELS = {
+  cdi: 'CDI', cdd: 'CDD', alternance: 'Alternance',
+  stage: 'Stage', freelance: 'Freelance', interim: 'Intérim', vie: 'V.I.E'
+};
+const SPECIALTY_LABELS = {
+  actuariat: 'Actuariat', data_science: 'Data Science', machine_learning: 'ML / IA',
+  quant_risk: 'Risque Quant.', finance: 'Finance', it: 'IT', autre: 'Autre',
+  nlp: 'NLP', devops: 'DevOps', audit: 'Audit', conformite: 'Conformité'
+};
+const COMPANY_COLORS = {
+  'ag2r': '#1B4F72', 'axa': '#00395D', 'allianz': '#003781',
+  'bnp-paribas-cardif': '#009966', 'covea': '#E30613', 'scor': '#1A1A2E',
+  'swiss-life': '#E4003A', 'generali': '#C8102E', 'malakoff-humanis': '#005B8E',
+};
+function companyColor(slug) {
+  return COMPANY_COLORS[slug] || '#006876';
+}
+function companyInitials(name) {
+  return name.split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+}
+function formatDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  const now = new Date();
+  const diff = Math.floor((now - d) / 86400000);
+  if (diff === 0) return "Aujourd'hui";
+  if (diff === 1) return 'Il y a 1 jour';
+  if (diff < 7)  return `Il y a ${diff} jours`;
+  if (diff < 14) return 'Il y a 1 semaine';
+  if (diff < 30) return `Il y a ${Math.floor(diff/7)} semaines`;
+  return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+}
+function contractTagClass(ct) {
+  if (ct === 'cdi') return 'tm';
+  if (ct === 'alternance' || ct === 'stage') return 'tp';
+  return 'tn';
+}
+function specialtyTagClass(sp) {
+  return 'tn';
+}
+
+// ── State ──────────────────────────────────────────────────────────────────
+let JOBS = [];
+let activeId = null;
+let detailCache = {};
 
 const feedEl  = document.getElementById('feed');
 const plEl    = document.querySelector('.pl');
@@ -540,130 +528,224 @@ const prEl    = document.getElementById('pr');
 const splitEl = document.getElementById('split');
 const hero    = document.getElementById('hero');
 
-/* ── Collapse hero au scroll de .pl ── */
-plEl.addEventListener('scroll', function () {
-  hero.classList.toggle('collapsed', this.scrollTop > 30);
-});
-
-/* ── Ombre sticky détail ── */
-prEl.addEventListener('scroll', function () {
-  const sticky = document.querySelector('.d-sticky');
-  if (sticky) sticky.classList.toggle('scrolled', this.scrollTop > 8);
-});
-
-/* ── Navigation mobile : ouvrir le détail ── */
-function openDetail() {
-  if (isMobile()) {
-    splitEl.classList.add('detail-open');
-    hero.classList.add('collapsed');   // masque hero + filtres
-    prEl.scrollTop = 0;
+// ── Fetch list ─────────────────────────────────────────────────────────────
+async function loadJobs() {
+  feedEl.innerHTML = '<div style="padding:1.5rem;color:#6c797c;font-size:.8rem;">Chargement des offres…</div>';
+  try {
+    const r = await fetch(`${API_BASE}/jobs?limit=100&order=desc`);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const d = await r.json();
+    JOBS = d.data || [];
+    document.querySelector('.pl-hd').textContent =
+      `${JOBS.length} offre${JOBS.length > 1 ? 's' : ''} disponible${JOBS.length > 1 ? 's' : ''}`;
+    if (JOBS.length > 0) {
+      activeId = JOBS[0].id;
+      renderFeed();
+      await renderDetail(activeId);
+    } else {
+      feedEl.innerHTML = '<div style="padding:1.5rem;color:#6c797c;font-size:.8rem;">Aucune offre disponible.</div>';
+    }
+  } catch (e) {
+    feedEl.innerHTML = `<div style="padding:1.5rem;color:#c0392b;font-size:.8rem;">Erreur de chargement : ${e.message}</div>`;
+    console.error('[CLAIM!] loadJobs error:', e);
   }
 }
 
-/* ── Navigation mobile : retour à la liste ── */
-function closeDetail() {
-  splitEl.classList.remove('detail-open');
-  hero.classList.remove('collapsed'); // restaure hero + filtres
+// ── Fetch detail ───────────────────────────────────────────────────────────
+async function fetchDetail(id) {
+  if (detailCache[id]) return detailCache[id];
+  const r = await fetch(`${API_BASE}/jobs/${id}`);
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  const d = await r.json();
+  detailCache[id] = d;
+  return d;
 }
 
-/* ── Geste swipe retour (mobile) ── */
-let touchStartX = 0;
-prEl.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
-prEl.addEventListener('touchend', e => {
-  const dx = e.changedTouches[0].clientX - touchStartX;
-  if (dx > 60 && isMobile()) closeDetail(); // swipe droite → retour
-}, { passive: true });
-
+// ── Render feed (liste gauche) ─────────────────────────────────────────────
 function renderFeed() {
   feedEl.innerHTML = '';
   JOBS.forEach(j => {
+    const co = j.companies || {};
+    const color = companyColor(co.slug || '');
+    const initials = companyInitials(co.name || j.source || '?');
+    const ct = j.contract_type || 'cdi';
+    const sp = j.specialty || '';
+    const tags = [
+      { l: CONTRACT_LABELS[ct] || ct, t: contractTagClass(ct) },
+      sp ? { l: SPECIALTY_LABELS[sp] || sp, t: 'tn' } : null,
+    ].filter(Boolean);
+    const tagHtml = (j.specialty_tags || []).slice(0, 2)
+      .map(t => `<span class="tag tm">${t}</span>`).join('');
+
     const el = document.createElement('div');
-    el.className = 'jc' + (j.id === active ? ' on' : '');
-    el.onclick = () => {
-      active = j.id;
+    el.className = 'jc' + (j.id === activeId ? ' on' : '');
+    el.onclick = async () => {
+      activeId = j.id;
       renderFeed();
-      renderDetail();
+      await renderDetail(j.id);
       if (!isMobile()) prEl.scrollTop = 0;
       openDetail();
     };
     el.innerHTML = `
       <div class="ct">
-        <div class="clogo" style="background:${j.color};">${j.logo}</div>
+        <div class="clogo" style="background:${color};">${initials}</div>
         <div class="ci">
           <div class="ctitle">${j.title}</div>
-          <div class="csub">${j.company} · ${j.loc} (${j.mode})</div>
+          <div class="csub">${co.name || j.source} · ${j.city || ''}${j.region ? ', ' + j.region : ''}</div>
         </div>
         <span class="ms" style="color:#bbc9cc;font-size:17px;flex-shrink:0;margin-left:.35rem;">notifications</span>
       </div>
       <div class="cm">
-        <div class="cmi"><span class="ms" style="font-size:12px;">payments</span>${j.salary}</div>
-        <div class="cmi"><span class="ms" style="font-size:12px;">trending_up</span>${j.level}</div>
+        <div class="cmi"><span class="ms" style="font-size:12px;">description</span>${CONTRACT_LABELS[ct] || ct}</div>
+        ${j.experience_level ? `<div class="cmi"><span class="ms" style="font-size:12px;">trending_up</span>${j.experience_level}</div>` : ''}
       </div>
-      <div class="ctags">${j.tags.map(t=>`<span class="tag ${t.t}">${t.l}</span>`).join('')}</div>
-      <div class="cdate">${j.posted}</div>
+      <div class="ctags">
+        ${tags.map(t => `<span class="tag ${t.t}">${t.l}</span>`).join('')}
+        ${tagHtml}
+      </div>
+      <div class="cdate">${formatDate(j.source_published_at)}</div>
     `;
     feedEl.appendChild(el);
   });
 }
 
-function renderDetail() {
-  const j = JOBS.find(x => x.id === active);
+// ── Render detail (panneau droit) ──────────────────────────────────────────
+async function renderDetail(id) {
   document.getElementById('detail').innerHTML = `
     <button class="btn-back" onclick="closeDetail()">
       <span class="ms" style="font-size:18px;">arrow_back_ios</span> Retour aux offres
     </button>
-    <div class="dc">
-      <div class="d-sticky">
-        <div class="dh">
-          <div style="display:flex;align-items:center;gap:.75rem;">
-            <div class="dlogo" style="background:${j.color};">${j.logo}</div>
-            <div>
-              <div class="dtitle">${j.title}</div>
-              <div class="dco">${j.company} · ${j.dept}</div>
-            </div>
-          </div>
-          <div class="dact">
-            <button class="bap">Postuler maintenant <span class="ms" style="font-size:14px;">open_in_new</span></button>
-            <button class="bsh"><span class="ms" style="font-size:14px;">share</span> Partager l'offre</button>
-          </div>
-        </div>
-        <div class="dkpi">
-          <div class="ki"><span class="ms" style="color:#006876;font-size:18px;">description</span><div><div class="kl">Type de contrat</div><div class="kv">${j.contract}</div></div></div>
-          <div class="ki"><span class="ms" style="color:#006876;font-size:18px;">payments</span><div><div class="kl">Salaire</div><div class="kv">${j.salaryFull}</div></div></div>
-          <div class="ki"><span class="ms" style="color:#006876;font-size:18px;">trending_up</span><div><div class="kl">Expérience</div><div class="kv">${j.level}</div></div></div>
-          <div class="ki"><span class="ms" style="color:#006876;font-size:18px;">location_on</span><div><div class="kl">Localisation</div><div class="kv">${j.loc} · ${j.mode}</div></div></div>
-        </div>
-      </div>
-      <div class="d-body">
-        <div class="ds"><h3><span class="ms" style="color:#006876;">analytics</span> Aperçu du poste</h3><p>${j.ov1}</p><p>${j.ov2}</p></div>
-        <div class="ds">
-          <h3><span class="ms" style="color:#006876;">checklist</span> Missions</h3>
-          ${j.missions.map(m=>`<div class="mi"><span class="ms" style="color:#006876;font-size:16px;flex-shrink:0;margin-top:2px;">check_circle</span><span>${m}</span></div>`).join('')}
-        </div>
-        <div class="ds">
-          <h3><span class="ms" style="color:#006876;">person_search</span> Profil</h3>
-          <div class="pb"><p style="font-weight:600;color:#191c1d;margin-bottom:.35rem;font-size:.825rem;">Expertise attendue :</p><ul>${j.profile.map(p=>`<li>${p}</li>`).join('')}</ul></div>
-        </div>
-        <div class="ds">
-          <h3><span class="ms" style="color:#006876;">construction</span> Outils</h3>
-          <div class="tl">${j.tools.map(t=>`<span class="tt">${t}</span>`).join('')}</div>
-        </div>
-        <div class="cb">
-          <div style="display:flex;align-items:center;gap:.625rem;">
-            <div class="cblogo" style="background:${j.color};">${j.logo}</div>
-            <div>
-              <div style="font-size:.875rem;font-weight:700;color:#191c1d;margin-bottom:2px;">Découvrez ${j.company}</div>
-              <div style="font-size:.75rem;color:#515f78;">${j.cd}</div>
-            </div>
-          </div>
-          <a href="#" class="bcv">Voir la présentation <span class="ms" style="font-size:14px;">arrow_forward</span></a>
-        </div>
-      </div>
-    </div>
+    <div class="dc" style="padding:2rem;color:#6c797c;font-size:.85rem;">Chargement du détail…</div>
   `;
+  try {
+    const j = await fetchDetail(id);
+    const co = j.companies || {};
+    const color = companyColor(co.slug || '');
+    const initials = companyInitials(co.name || j.source || '?');
+    const ct = j.contract_type || 'cdi';
+    const ctLabel = CONTRACT_LABELS[ct] || ct;
+    const spLabel = SPECIALTY_LABELS[j.specialty] || j.specialty || '—';
+    const tools = (j.specialty_tags || []).slice(0, 12);
+
+    // Résumé IA ou description brute tronquée
+    const summary = j.ai_summary
+      ? `<p>${j.ai_summary}</p>`
+      : j.description_raw
+        ? `<p>${j.description_raw.slice(0, 600).replace(/</g,'&lt;')}…</p>`
+        : '<p>Description non disponible.</p>';
+
+    document.getElementById('detail').innerHTML = `
+      <button class="btn-back" onclick="closeDetail()">
+        <span class="ms" style="font-size:18px;">arrow_back_ios</span> Retour aux offres
+      </button>
+      <div class="dc">
+        <div class="d-sticky">
+          <div class="dh">
+            <div style="display:flex;align-items:center;gap:.75rem;">
+              <div class="dlogo" style="background:${color};">${initials}</div>
+              <div>
+                <div class="dtitle">${j.title}</div>
+                <div class="dco">${co.name || j.source}</div>
+              </div>
+            </div>
+            <div class="dact">
+              <a href="${j.source_url || '#'}" target="_blank" rel="noopener" class="bap">
+                Postuler maintenant <span class="ms" style="font-size:14px;">open_in_new</span>
+              </a>
+              <button class="bsh" onclick="navigator.clipboard?.writeText(window.location.href)">
+                <span class="ms" style="font-size:14px;">share</span> Partager
+              </button>
+            </div>
+          </div>
+          <div class="dkpi">
+            <div class="ki"><span class="ms" style="color:#006876;font-size:18px;">description</span>
+              <div><div class="kl">Contrat</div><div class="kv">${ctLabel}</div></div>
+            </div>
+            ${j.city ? `<div class="ki"><span class="ms" style="color:#006876;font-size:18px;">location_on</span>
+              <div><div class="kl">Localisation</div><div class="kv">${j.city}${j.region ? ', ' + j.region : ''}</div></div>
+            </div>` : ''}
+            ${j.experience_level ? `<div class="ki"><span class="ms" style="color:#006876;font-size:18px;">trending_up</span>
+              <div><div class="kl">Expérience</div><div class="kv">${j.experience_level}</div></div>
+            </div>` : ''}
+            ${j.remote_policy && j.remote_policy !== 'not_specified' ? `<div class="ki"><span class="ms" style="color:#006876;font-size:18px;">home_work</span>
+              <div><div class="kl">Télétravail</div><div class="kv">${j.remote_policy}</div></div>
+            </div>` : ''}
+            <div class="ki"><span class="ms" style="color:#006876;font-size:18px;">category</span>
+              <div><div class="kl">Spécialité</div><div class="kv">${spLabel}</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="d-body">
+          <div class="ds">
+            <h3><span class="ms" style="color:#006876;">analytics</span> Aperçu du poste</h3>
+            ${summary}
+          </div>
+          ${tools.length ? `
+          <div class="ds">
+            <h3><span class="ms" style="color:#006876;">construction</span> Compétences & Outils</h3>
+            <div class="tl">${tools.map(t => `<span class="tt">${t}</span>`).join('')}</div>
+          </div>` : ''}
+          <div class="cb">
+            <div style="display:flex;align-items:center;gap:.625rem;">
+              <div class="cblogo" style="background:${color};">${initials}</div>
+              <div>
+                <div style="font-size:.875rem;font-weight:700;color:#191c1d;margin-bottom:2px;">${co.name || j.source}</div>
+                <div style="font-size:.75rem;color:#515f78;">${SPECIALTY_LABELS[j.specialty] || 'Assurance & Protection sociale'}</div>
+              </div>
+            </div>
+            ${co.website_url ? `<a href="${co.website_url}" target="_blank" rel="noopener" class="bcv">
+              Voir l'entreprise <span class="ms" style="font-size:14px;">arrow_forward</span>
+            </a>` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+    // Ombre sticky
+    prEl.addEventListener('scroll', function () {
+      const sticky = document.querySelector('.d-sticky');
+      if (sticky) sticky.classList.toggle('scrolled', this.scrollTop > 8);
+    }, { once: true });
+  } catch (e) {
+    document.getElementById('detail').innerHTML = `
+      <button class="btn-back" onclick="closeDetail()">
+        <span class="ms" style="font-size:18px;">arrow_back_ios</span> Retour
+      </button>
+      <div class="dc" style="padding:2rem;color:#c0392b;font-size:.85rem;">
+        Erreur de chargement du détail : ${e.message}
+      </div>
+    `;
+    console.error('[CLAIM!] renderDetail error:', e);
+  }
 }
 
-/* ── Menu burger ── */
+// ── Mobile navigation ──────────────────────────────────────────────────────
+const isMobile = () => window.innerWidth <= 768;
+
+function openDetail() {
+  if (isMobile()) {
+    splitEl.classList.add('detail-open');
+    hero.classList.add('collapsed');
+    prEl.scrollTop = 0;
+  }
+}
+function closeDetail() {
+  splitEl.classList.remove('detail-open');
+  hero.classList.remove('collapsed');
+}
+
+// Collapse hero au scroll
+plEl.addEventListener('scroll', function () {
+  hero.classList.toggle('collapsed', this.scrollTop > 30);
+});
+
+// Swipe retour mobile
+let touchStartX = 0;
+prEl.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+prEl.addEventListener('touchend', e => {
+  if (e.changedTouches[0].clientX - touchStartX > 60 && isMobile()) closeDetail();
+}, { passive: true });
+
+// ── Menu burger ────────────────────────────────────────────────────────────
 function toggleBurger() {
   const menu = document.getElementById('burger-menu');
   const btn  = document.getElementById('btn-burger');
@@ -676,11 +758,10 @@ function closeBurger() {
   document.getElementById('btn-burger').classList.remove('open');
   document.body.style.overflow = '';
 }
-/* Fermer avec Escape */
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeBurger(); });
 
-renderFeed();
-renderDetail();
+// ── Init ───────────────────────────────────────────────────────────────────
+loadJobs();
 </script>
 <!-- ══ BURGER MENU DRAWER ══ -->
 <div id="burger-menu">
