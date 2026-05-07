@@ -544,12 +544,23 @@ const hero    = document.getElementById('hero');
 async function loadJobs() {
   feedEl.innerHTML = '<div style="padding:1.5rem;color:#6c797c;font-size:.8rem;">Chargement des offres…</div>';
   try {
-    const r = await fetch(`${API_BASE}/jobs?limit=250&order=desc`);
-    if (!r.ok) throw new Error(`HTTP ${r.status}`);
-    const d = await r.json();
+    // Charge toutes les offres (pagination auto, 300/page)
+    const PAGE_SIZE = 300;
+    const firstR = await fetch(`${API_BASE}/jobs?per_page=${PAGE_SIZE}&limit=${PAGE_SIZE}&page=1&order=desc`);
+    if (!firstR.ok) throw new Error(`HTTP ${firstR.status}`);
+    const d = await firstR.json();
     JOBS = d.data || [];
+    const total = d.pagination?.total || JOBS.length;
+    const pages = d.pagination?.pages || 1;
+    if (pages > 1) {
+      for (let p = 2; p <= pages; p++) {
+        const pr = await fetch(`${API_BASE}/jobs?per_page=${PAGE_SIZE}&limit=${PAGE_SIZE}&page=${p}&order=desc`);
+        const pd = await pr.json();
+        JOBS = JOBS.concat(pd.data || []);
+      }
+    }
     document.querySelector('.pl-hd').textContent =
-      `${JOBS.length} offre${JOBS.length > 1 ? 's' : ''} disponible${JOBS.length > 1 ? 's' : ''}`;
+      `${total} offre${total > 1 ? 's' : ''} disponible${total > 1 ? 's' : ''}`;
     if (JOBS.length > 0) {
       activeId = JOBS[0].id;
       renderFeed();
