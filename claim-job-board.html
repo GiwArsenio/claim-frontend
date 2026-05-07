@@ -481,14 +481,26 @@ const CONTRACT_LABELS = {
   stage: 'Stage', freelance: 'Freelance', interim: 'Intérim', vie: 'V.I.E'
 };
 const SPECIALTY_LABELS = {
-  actuariat: 'Actuariat', data_science: 'Data Science', machine_learning: 'ML / IA',
+  actuariat: 'Actuariat', actuariat_vie: 'Actuariat Vie', actuariat_sante: 'Actuariat Santé',
+  actuariat_iard: 'Actuariat IARD', actuariat_retraite: 'Actuariat Retraite',
+  data_science: 'Data Science', machine_learning: 'ML / IA', data_engineering: 'Data Eng.',
   quant_risk: 'Risque Quant.', finance: 'Finance', it: 'IT', autre: 'Autre',
-  nlp: 'NLP', devops: 'DevOps', audit: 'Audit', conformite: 'Conformité'
+  nlp: 'NLP', devops: 'DevOps', audit: 'Audit', conformite: 'Conformité',
+  consulting_actuariat: 'Consulting Actua.', direction_technique: 'Dir. Technique',
+  moa: 'MOA', moe: 'MOE', risk_management: 'Risk Mgmt'
 };
 const COMPANY_COLORS = {
   'ag2r': '#1B4F72', 'axa': '#00395D', 'allianz': '#003781',
   'bnp-paribas-cardif': '#009966', 'covea': '#E30613', 'scor': '#1A1A2E',
-  'swiss-life': '#E4003A', 'generali': '#C8102E', 'malakoff-humanis': '#005B8E',
+  'swiss_life': '#E4003A', 'swiss-life': '#E4003A',
+  'generali': '#C8102E', 'malakoff_humanis': '#005B8E', 'malakoff-humanis': '#005B8E',
+  'groupama_gan': '#009B3A', 'groupama-gan': '#009B3A',
+  'groupe_vyv': '#6B2D8B', 'groupe-vyv': '#6B2D8B',
+  'klesia': '#E85D04', 'cnp': '#003F7F',
+  'cm_arkea': '#E30613', 'cm-arkea': '#E30613',
+  'ca_assurances': '#007A3D', 'ca-assurances': '#007A3D',
+  'pro_btp': '#F5A623', 'groupe_agrica': '#4A7C59',
+  'matmut': '#E8001D', 'la_mutuelle_generale': '#0066CC',
 };
 function companyColor(slug) {
   return COMPANY_COLORS[slug] || '#006876';
@@ -532,7 +544,7 @@ const hero    = document.getElementById('hero');
 async function loadJobs() {
   feedEl.innerHTML = '<div style="padding:1.5rem;color:#6c797c;font-size:.8rem;">Chargement des offres…</div>';
   try {
-    const r = await fetch(`${API_BASE}/jobs?limit=100&order=desc`);
+    const r = await fetch(`${API_BASE}/jobs?limit=250&order=desc`);
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const d = await r.json();
     JOBS = d.data || [];
