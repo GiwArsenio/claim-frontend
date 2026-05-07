@@ -26,10 +26,9 @@ module.exports = async (req, res) => {
       });
     }
 
-    // 3. Pages statiques
+    // 3. Pages statiques (hors job-board, couvert par pagination p=1)
     const staticPages = [
       { url: '/',                          priority: '1.0', changefreq: 'daily'   },
-      { url: '/claim-job-board.html',      priority: '1.0', changefreq: 'daily'   },
       { url: '/claim-entreprises.html',    priority: '0.7', changefreq: 'weekly'  },
       { url: '/claim-observatoire.html',   priority: '0.6', changefreq: 'monthly' },
     ];
