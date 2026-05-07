@@ -473,7 +473,8 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
 
 <script>
 // ── Configuration ──────────────────────────────────────────────────────────
-const API_BASE = 'https://claim-api-production-06b3.up.railway.app/api/v1';
+const API_BASE    = 'https://claim-api-production-06b3.up.railway.app/api/v1';
+const PAGE_SIZE   = 20;   // offres affichées par page (Load More)
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 const CONTRACT_LABELS = {
@@ -502,16 +503,13 @@ const COMPANY_COLORS = {
   'pro_btp': '#F5A623', 'groupe_agrica': '#4A7C59',
   'matmut': '#E8001D', 'la_mutuelle_generale': '#0066CC',
 };
-function companyColor(slug) {
-  return COMPANY_COLORS[slug] || '#006876';
-}
+function companyColor(slug) { return COMPANY_COLORS[slug] || '#006876'; }
 function companyInitials(name) {
-  return name.split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+  return (name || '?').split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase();
 }
 function formatDate(iso) {
   if (!iso) return '';
-  const d = new Date(iso);
-  const now = new Date();
+  const d = new Date(iso), now = new Date();
   const diff = Math.floor((now - d) / 86400000);
   if (diff === 0) return "Aujourd'hui";
   if (diff === 1) return 'Il y a 1 jour';
@@ -525,14 +523,15 @@ function contractTagClass(ct) {
   if (ct === 'alternance' || ct === 'stage') return 'tp';
   return 'tn';
 }
-function specialtyTagClass(sp) {
-  return 'tn';
-}
 
 // ── State ──────────────────────────────────────────────────────────────────
-let JOBS = [];
-let activeId = null;
-let detailCache = {};
+let ALL_JOBS      = [];   // toutes les offres chargées côté client
+let VISIBLE_COUNT = PAGE_SIZE; // combien sont affichées
+let TOTAL_SERVER  = 0;   // total réel côté serveur
+let SERVER_PAGE   = 1;   // page API courante (pour load more serveur)
+let SERVER_PAGES  = 1;   // nb total de pages serveur
+let activeId      = null;
+let detailCache   = {};
 
 const feedEl  = document.getElementById('feed');
 const plEl    = document.querySelector('.pl');
@@ -540,60 +539,124 @@ const prEl    = document.getElementById('pr');
 const splitEl = document.getElementById('split');
 const hero    = document.getElementById('hero');
 
-// ── Fetch list ─────────────────────────────────────────────────────────────
+// ── Lecture de ?page= dans l'URL (SEO) ────────────────────────────────────
+function getUrlPage() {
+  const p = parseInt(new URLSearchParams(window.location.search).get('page') || '1', 10);
+  return isNaN(p) || p < 1 ? 1 : p;
+}
+
+// ── Fetch une page serveur ─────────────────────────────────────────────────
+async function fetchPage(page) {
+  const r = await fetch(`${API_BASE}/jobs?per_page=${PAGE_SIZE}&limit=${PAGE_SIZE}&page=${page}&order=desc`);
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  return r.json();
+}
+
+// ── Chargement initial ─────────────────────────────────────────────────────
 async function loadJobs() {
   feedEl.innerHTML = '<div style="padding:1.5rem;color:#6c797c;font-size:.8rem;">Chargement des offres…</div>';
   try {
-    // Charge toutes les offres (pagination auto, 300/page)
-    const PAGE_SIZE = 300;
-    const firstR = await fetch(`${API_BASE}/jobs?per_page=${PAGE_SIZE}&limit=${PAGE_SIZE}&page=1&order=desc`);
-    if (!firstR.ok) throw new Error(`HTTP ${firstR.status}`);
-    const d = await firstR.json();
-    JOBS = d.data || [];
-    const total = d.pagination?.total || JOBS.length;
-    const pages = d.pagination?.pages || 1;
-    if (pages > 1) {
-      for (let p = 2; p <= pages; p++) {
-        const pr = await fetch(`${API_BASE}/jobs?per_page=${PAGE_SIZE}&limit=${PAGE_SIZE}&page=${p}&order=desc`);
-        const pd = await pr.json();
-        JOBS = JOBS.concat(pd.data || []);
-      }
-    }
+    const urlPage = getUrlPage();
+    const d = await fetchPage(urlPage);
+
+    ALL_JOBS      = d.data || [];
+    TOTAL_SERVER  = d.pagination?.total || ALL_JOBS.length;
+    SERVER_PAGES  = d.pagination?.pages || 1;
+    SERVER_PAGE   = urlPage;
+    VISIBLE_COUNT = ALL_JOBS.length; // on affiche tout ce qu'on a chargé
+
     document.querySelector('.pl-hd').textContent =
-      `${total} offre${total > 1 ? 's' : ''} disponible${total > 1 ? 's' : ''}`;
-    if (JOBS.length > 0) {
-      activeId = JOBS[0].id;
+      `${TOTAL_SERVER} offre${TOTAL_SERVER > 1 ? 's' : ''} disponible${TOTAL_SERVER > 1 ? 's' : ''}`;
+
+    // Injecter les liens SEO invisibles vers toutes les pages
+    injectSeoLinks(SERVER_PAGES);
+
+    if (ALL_JOBS.length > 0) {
+      activeId = ALL_JOBS[0].id;
       renderFeed();
       await renderDetail(activeId);
     } else {
       feedEl.innerHTML = '<div style="padding:1.5rem;color:#6c797c;font-size:.8rem;">Aucune offre disponible.</div>';
     }
   } catch (e) {
-    feedEl.innerHTML = `<div style="padding:1.5rem;color:#c0392b;font-size:.8rem;">Erreur de chargement : ${e.message}</div>`;
+    feedEl.innerHTML = `<div style="padding:1.5rem;color:#c0392b;font-size:.8rem;">Erreur : ${e.message}</div>`;
     console.error('[CLAIM!] loadJobs error:', e);
   }
 }
 
-// ── Fetch detail ───────────────────────────────────────────────────────────
-async function fetchDetail(id) {
-  if (detailCache[id]) return detailCache[id];
-  const r = await fetch(`${API_BASE}/jobs/${id}`);
-  if (!r.ok) throw new Error(`HTTP ${r.status}`);
-  const d = await r.json();
-  detailCache[id] = d;
-  return d;
+// ── Load More ──────────────────────────────────────────────────────────────
+async function loadMore() {
+  const btn = document.getElementById('load-more-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Chargement…'; }
+
+  try {
+    const nextPage = SERVER_PAGE + 1;
+    const d = await fetchPage(nextPage);
+    const newJobs = d.data || [];
+
+    ALL_JOBS      = ALL_JOBS.concat(newJobs);
+    SERVER_PAGE   = nextPage;
+    VISIBLE_COUNT = ALL_JOBS.length;
+
+    renderFeed();
+  } catch (e) {
+    if (btn) { btn.disabled = false; btn.textContent = 'Voir plus d\'offres'; }
+    console.error('[CLAIM!] loadMore error:', e);
+  }
 }
 
-// ── Render feed (liste gauche) ─────────────────────────────────────────────
+// ── Liens SEO invisibles (pour les robots Google) ─────────────────────────
+function injectSeoLinks(totalPages) {
+  // Supprimer les anciens
+  document.querySelectorAll('.seo-pagination').forEach(el => el.remove());
+
+  if (totalPages <= 1) return;
+
+  const nav = document.createElement('nav');
+  nav.setAttribute('aria-label', 'Pagination SEO');
+  nav.className = 'seo-pagination';
+  nav.style.cssText = 'position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;';
+
+  const currentPage = getUrlPage();
+
+  // Lien page précédente (rel=prev)
+  if (currentPage > 1) {
+    const prev = document.createElement('link');
+    prev.rel = 'prev';
+    prev.href = `${window.location.pathname}?page=${currentPage - 1}`;
+    document.head.appendChild(prev);
+  }
+  // Lien page suivante (rel=next)
+  if (currentPage < totalPages) {
+    const next = document.createElement('link');
+    next.rel = 'next';
+    next.href = `${window.location.pathname}?page=${currentPage + 1}`;
+    document.head.appendChild(next);
+  }
+
+  // Liens <a> invisibles vers toutes les pages (crawlables par Google)
+  for (let p = 1; p <= totalPages; p++) {
+    const a = document.createElement('a');
+    a.href  = `?page=${p}`;
+    a.textContent = `Page ${p}`;
+    if (p === currentPage) a.setAttribute('aria-current', 'page');
+    nav.appendChild(a);
+  }
+
+  document.body.appendChild(nav);
+}
+
+// ── Render feed ────────────────────────────────────────────────────────────
 function renderFeed() {
   feedEl.innerHTML = '';
-  JOBS.forEach(j => {
-    const co = j.companies || {};
-    const color = companyColor(co.slug || '');
+
+  ALL_JOBS.forEach(j => {
+    const co      = j.companies || {};
+    const color   = companyColor(co.slug || '');
     const initials = companyInitials(co.name || j.source || '?');
-    const ct = j.contract_type || 'cdi';
-    const sp = j.specialty || '';
-    const tags = [
+    const ct      = j.contract_type || 'cdi';
+    const sp      = j.specialty || '';
+    const tags    = [
       { l: CONTRACT_LABELS[ct] || ct, t: contractTagClass(ct) },
       sp ? { l: SPECIALTY_LABELS[sp] || sp, t: 'tn' } : null,
     ].filter(Boolean);
@@ -630,9 +693,39 @@ function renderFeed() {
     `;
     feedEl.appendChild(el);
   });
+
+  // Bouton Load More si d'autres pages serveur existent
+  if (SERVER_PAGE < SERVER_PAGES) {
+    const remaining = TOTAL_SERVER - ALL_JOBS.length;
+    const btn = document.createElement('button');
+    btn.id        = 'load-more-btn';
+    btn.innerHTML = `<span class="ms" style="font-size:16px;vertical-align:middle;">expand_more</span> Voir plus d'offres <span style="color:#6c797c;font-size:.75em;">(${remaining} restantes)</span>`;
+    btn.style.cssText = `
+      display:block; width:calc(100% - 1.75rem); margin:.5rem .875rem 1rem;
+      padding:.65rem 1rem; border-radius:.625rem;
+      background:#fff; border:1.5px solid rgba(0,104,118,.25);
+      color:#006876; font-weight:700; font-size:.825rem;
+      cursor:pointer; font-family:inherit;
+      transition:background .15s, border-color .15s;
+    `;
+    btn.onmouseover = () => { btn.style.background='#e8f4f6'; btn.style.borderColor='#006876'; };
+    btn.onmouseout  = () => { btn.style.background='#fff';    btn.style.borderColor='rgba(0,104,118,.25)'; };
+    btn.onclick = loadMore;
+    feedEl.appendChild(btn);
+  }
 }
 
-// ── Render detail (panneau droit) ──────────────────────────────────────────
+// ── Fetch detail ───────────────────────────────────────────────────────────
+async function fetchDetail(id) {
+  if (detailCache[id]) return detailCache[id];
+  const r = await fetch(`${API_BASE}/jobs/${id}`);
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  const d = await r.json();
+  detailCache[id] = d;
+  return d;
+}
+
+// ── Render detail ──────────────────────────────────────────────────────────
 async function renderDetail(id) {
   document.getElementById('detail').innerHTML = `
     <button class="btn-back" onclick="closeDetail()">
@@ -642,15 +735,14 @@ async function renderDetail(id) {
   `;
   try {
     const j = await fetchDetail(id);
-    const co = j.companies || {};
-    const color = companyColor(co.slug || '');
+    const co      = j.companies || {};
+    const color   = companyColor(co.slug || '');
     const initials = companyInitials(co.name || j.source || '?');
-    const ct = j.contract_type || 'cdi';
+    const ct      = j.contract_type || 'cdi';
     const ctLabel = CONTRACT_LABELS[ct] || ct;
     const spLabel = SPECIALTY_LABELS[j.specialty] || j.specialty || '—';
-    const tools = (j.specialty_tags || []).slice(0, 12);
+    const tools   = (j.specialty_tags || []).slice(0, 12);
 
-    // Résumé IA ou description brute tronquée
     const summary = j.ai_summary
       ? `<p>${j.ai_summary}</p>`
       : j.description_raw
@@ -723,7 +815,6 @@ async function renderDetail(id) {
         </div>
       </div>
     `;
-    // Ombre sticky
     prEl.addEventListener('scroll', function () {
       const sticky = document.querySelector('.d-sticky');
       if (sticky) sticky.classList.toggle('scrolled', this.scrollTop > 8);
@@ -734,7 +825,7 @@ async function renderDetail(id) {
         <span class="ms" style="font-size:18px;">arrow_back_ios</span> Retour
       </button>
       <div class="dc" style="padding:2rem;color:#c0392b;font-size:.85rem;">
-        Erreur de chargement du détail : ${e.message}
+        Erreur : ${e.message}
       </div>
     `;
     console.error('[CLAIM!] renderDetail error:', e);
@@ -743,7 +834,6 @@ async function renderDetail(id) {
 
 // ── Mobile navigation ──────────────────────────────────────────────────────
 const isMobile = () => window.innerWidth <= 768;
-
 function openDetail() {
   if (isMobile()) {
     splitEl.classList.add('detail-open');
@@ -755,13 +845,9 @@ function closeDetail() {
   splitEl.classList.remove('detail-open');
   hero.classList.remove('collapsed');
 }
-
-// Collapse hero au scroll
 plEl.addEventListener('scroll', function () {
   hero.classList.toggle('collapsed', this.scrollTop > 30);
 });
-
-// Swipe retour mobile
 let touchStartX = 0;
 prEl.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
 prEl.addEventListener('touchend', e => {

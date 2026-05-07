@@ -2,13 +2,36 @@
   "version": 2,
   "name": "claim-frontend",
   "builds": [
-    { "src": "api/**/*.js", "use": "@vercel/node" },
-    { "src": "*.html",      "use": "@vercel/static" }
+    {
+      "src": "api/**/*.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "*.html",
+      "use": "@vercel/static"
+    }
   ],
   "routes": [
-    { "src": "/api/(.*)", "dest": "/api/$1" },
-    { "src": "/",         "dest": "/claim-job-board.html" },
-    { "src": "/(.*)",     "dest": "/$1" }
+    {
+      "src": "/sitemap.xml",
+      "dest": "/api/sitemap.js"
+    },
+    {
+      "src": "/robots.txt",
+      "dest": "/api/robots.js"
+    },
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    },
+    {
+      "src": "/",
+      "dest": "/claim-job-board.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
+    }
   ],
   "crons": [
     {
