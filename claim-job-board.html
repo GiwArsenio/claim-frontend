@@ -563,7 +563,8 @@ function buildJobsUrl(page) {
   const isSearch = f.q.length >= 2;
   const params = new URLSearchParams({ per_page: PAGE_SIZE, limit: PAGE_SIZE, page });
   if (isSearch) params.set('q', f.q);
-  if (f.city) params.set('city', f.city);
+  // "France" est le scope global du site : ne pas filtrer sur city=France.
+  if (f.city && f.city.toLowerCase() !== 'france') params.set('city', f.city);
   if (f.contract) params.set('contract', f.contract);
   if (f.specialty) params.set('specialty', f.specialty);
   if (f.category) params.set('category', f.category);
