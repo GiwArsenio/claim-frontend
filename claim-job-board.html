@@ -575,10 +575,9 @@ function currentFilters() {
 function buildJobsUrl(page) {
   const f = currentFilters();
   const companySource = COMPANY_QUERY_ALIASES[f.q.toLowerCase()] || '';
-  const isSearch = f.q.length >= 2 && !companySource;
+  const isSearch = f.q.length >= 2;
   const params = new URLSearchParams({ per_page: PAGE_SIZE, limit: PAGE_SIZE, page });
   if (isSearch) params.set('q', f.q);
-  if (companySource) params.set('source', companySource);
   // "France" est le scope global du site : ne pas filtrer sur city=France.
   if (f.city && f.city.toLowerCase() !== 'france') params.set('city', f.city);
   if (f.contract) params.set('contract', f.contract);
@@ -611,7 +610,9 @@ async function loadJobs(forcedPage) {
     const d = await fetchPage(urlPage);
 
     ALL_JOBS      = d.data || [];
-    TOTAL_SERVER  = d.pagination?.total || ALL_JOBS.length;
+    const companySource = COMPANY_QUERY_ALIASES[currentFilters().q.toLowerCase()] || '';
+    if (companySource) ALL_JOBS = ALL_JOBS.filter(j => j.source === companySource);
+    TOTAL_SERVER  = companySource ? ALL_JOBS.length : (d.pagination?.total || ALL_JOBS.length);
     SERVER_PAGES  = d.pagination?.pages || 1;
     SERVER_PAGE   = urlPage;
     VISIBLE_COUNT = ALL_JOBS.length; // on affiche tout ce qu'on a chargé
@@ -643,7 +644,9 @@ async function loadMore() {
   try {
     const nextPage = SERVER_PAGE + 1;
     const d = await fetchPage(nextPage);
-    const newJobs = d.data || [];
+    let newJobs = d.data || [];
+    const companySource = COMPANY_QUERY_ALIASES[currentFilters().q.toLowerCase()] || '';
+    if (companySource) newJobs = newJobs.filter(j => j.source === companySource);
 
     ALL_JOBS      = ALL_JOBS.concat(newJobs);
     SERVER_PAGE   = nextPage;
