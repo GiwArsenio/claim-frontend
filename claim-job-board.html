@@ -494,6 +494,7 @@ const SPECIALTY_LABELS = {
 };
 const COMPANY_QUERY_ALIASES = {
   generali: 'generali',
+  axa: 'axa',
   'oliver wyman': 'oliver_wyman',
   mazars: 'mazars',
   kpmg: 'kpmg',
@@ -551,12 +552,21 @@ function normalizeLocationQuery(city) {
   ].includes(v)) return 'Paris';
   return city.trim();
 }
+function decodeEntities(value) {
+  const txt = document.createElement('textarea');
+  txt.innerHTML = value || '';
+  return txt.value;
+}
 function plainTextFromHtml(value) {
-  const div = document.createElement('div');
-  div.innerHTML = value || '';
-  return (div.textContent || div.innerText || '')
-    .replace(/\s+/g, ' ')
-    .trim();
+  let text = decodeEntities(value || '');
+  // Plusieurs flux stockent du HTML déjà échappé (&lt;p&gt;...). Décoder puis retirer les tags.
+  for (let i = 0; i < 3 && /<\/?[a-z][\s\S]*>/i.test(text); i++) {
+    const div = document.createElement('div');
+    div.innerHTML = text;
+    text = div.textContent || div.innerText || '';
+    text = decodeEntities(text);
+  }
+  return text.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
 }
 function escapeHtml(value) {
   return String(value || '').replace(/[&<>'"]/g, c => ({
@@ -572,6 +582,7 @@ let SERVER_PAGE   = 1;   // page API courante (pour load more serveur)
 let SERVER_PAGES  = 1;   // nb total de pages serveur
 let activeId      = null;
 let detailCache   = {};
+let KNOWN_SOURCES  = new Set(Object.values(COMPANY_QUERY_ALIASES));
 
 const feedEl  = document.getElementById('feed');
 const plEl    = document.querySelector('.pl');
@@ -598,7 +609,8 @@ function currentFilters() {
 }
 function buildJobsUrl(page) {
   const f = currentFilters();
-  const companySource = COMPANY_QUERY_ALIASES[f.q.toLowerCase()] || '';
+  const qKey = f.q.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[- ]/g, '_');
+  const companySource = COMPANY_QUERY_ALIASES[f.q.toLowerCase()] || (KNOWN_SOURCES.has(qKey) ? qKey : '');
   const isSearch = f.q.length >= 2;
   const params = new URLSearchParams({ per_page: PAGE_SIZE, limit: PAGE_SIZE, page });
   if (isSearch) params.set('q', f.q);
@@ -634,7 +646,9 @@ async function loadJobs(forcedPage) {
     const d = await fetchPage(urlPage);
 
     ALL_JOBS      = d.data || [];
-    const companySource = COMPANY_QUERY_ALIASES[currentFilters().q.toLowerCase()] || '';
+    ALL_JOBS.forEach(j => { if (j.source) KNOWN_SOURCES.add(j.source); });
+    const qKey = currentFilters().q.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[- ]/g, '_');
+    const companySource = COMPANY_QUERY_ALIASES[currentFilters().q.toLowerCase()] || (KNOWN_SOURCES.has(qKey) ? qKey : '');
     if (companySource) ALL_JOBS = ALL_JOBS.filter(j => j.source === companySource);
     TOTAL_SERVER  = companySource ? ALL_JOBS.length : (d.pagination?.total || ALL_JOBS.length);
     SERVER_PAGES  = d.pagination?.pages || 1;
@@ -669,7 +683,9 @@ async function loadMore() {
     const nextPage = SERVER_PAGE + 1;
     const d = await fetchPage(nextPage);
     let newJobs = d.data || [];
-    const companySource = COMPANY_QUERY_ALIASES[currentFilters().q.toLowerCase()] || '';
+    newJobs.forEach(j => { if (j.source) KNOWN_SOURCES.add(j.source); });
+    const qKey = currentFilters().q.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[- ]/g, '_');
+    const companySource = COMPANY_QUERY_ALIASES[currentFilters().q.toLowerCase()] || (KNOWN_SOURCES.has(qKey) ? qKey : '');
     if (companySource) newJobs = newJobs.filter(j => j.source === companySource);
 
     ALL_JOBS      = ALL_JOBS.concat(newJobs);
