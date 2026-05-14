@@ -418,21 +418,21 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
     <div class="sbar">
       <div class="sf">
         <span class="ms" style="color:#6c797c;font-size:17px;">search</span>
-        <input type="text" placeholder="Mots-clés (e.g. Actuaire, Data Scientist)"/>
+        <input id="q-input" type="text" placeholder="Mots-clés (e.g. Actuaire, Data Scientist)"/>
       </div>
       <div class="sdiv"></div>
       <div class="sf loc-field">
         <span class="ms" style="color:#6c797c;font-size:17px;">location_on</span>
-        <input type="text" placeholder="Localisation"/>
+        <input id="city-input" type="text" placeholder="Localisation"/>
       </div>
-      <button class="btn-srch">Rechercher</button>
+      <button class="btn-srch" onclick="applySearch()">Rechercher</button>
     </div>
     <div class="chips">
-      <button class="chip"><span class="ms" style="font-size:13px;">work</span>Type de contrat<span class="ms" style="font-size:13px;">expand_more</span></button>
-      <button class="chip"><span class="ms" style="font-size:13px;">psychology</span>Spécialité<span class="ms" style="font-size:13px;">expand_more</span></button>
-      <button class="chip"><span class="ms" style="font-size:13px;">code</span>Tech<span class="ms" style="font-size:13px;">expand_more</span></button>
-      <button class="chip"><span class="ms" style="font-size:13px;">home_work</span>Télétravail<span class="ms" style="font-size:13px;">expand_more</span></button>
-      <button class="chip"><span class="ms" style="font-size:13px;">euro</span>Salaire<span class="ms" style="font-size:13px;">expand_more</span></button>
+      <select id="contract-filter" class="chip" onchange="applyFilters()"><option value="">Type de contrat</option><option value="cdi">CDI</option><option value="cdd">CDD</option><option value="alternance">Alternance</option><option value="stage">Stage</option><option value="vie">V.I.E</option><option value="freelance">Freelance</option></select>
+      <select id="specialty-filter" class="chip" onchange="applyFilters()"><option value="">Spécialité</option><option value="actuariat_vie">Actuariat Vie</option><option value="actuariat_sante">Actuariat Santé</option><option value="actuariat_iard">Actuariat IARD</option><option value="consulting_actuariat">Conseil actuariat</option><option value="data_science">Data Science</option><option value="machine_learning">ML / IA</option><option value="data_engineering">Data Engineering</option><option value="quant_risk">Risque quant.</option><option value="direction_technique">Direction technique</option><option value="autre">Autre</option></select>
+      <select id="category-filter" class="chip" onchange="applyFilters()"><option value="">Pertinence</option><option value="coeur">Cœur</option><option value="pertinent">Pertinent</option></select>
+      <button class="chip" onclick="resetFilters()"><span class="ms" style="font-size:13px;">restart_alt</span>Réinitialiser</button>
+      
     </div>
   </div>
 
@@ -546,17 +546,46 @@ function getUrlPage() {
 }
 
 // ── Fetch une page serveur ─────────────────────────────────────────────────
+function currentFilters() {
+  return {
+    q: document.getElementById('q-input')?.value.trim() || '',
+    city: document.getElementById('city-input')?.value.trim() || '',
+    contract: document.getElementById('contract-filter')?.value || '',
+    specialty: document.getElementById('specialty-filter')?.value || '',
+    category: document.getElementById('category-filter')?.value || '',
+  };
+}
+function buildJobsUrl(page) {
+  const f = currentFilters();
+  const isSearch = f.q.length >= 2;
+  const params = new URLSearchParams({ per_page: PAGE_SIZE, limit: PAGE_SIZE, page });
+  if (isSearch) params.set('q', f.q);
+  if (f.city) params.set('city', f.city);
+  if (f.contract) params.set('contract', f.contract);
+  if (f.specialty) params.set('specialty', f.specialty);
+  if (f.category) params.set('category', f.category);
+  if (!isSearch) params.set('order', 'desc');
+  return `${API_BASE}/${isSearch ? 'jobs/search' : 'jobs'}?${params.toString()}`;
+}
 async function fetchPage(page) {
-  const r = await fetch(`${API_BASE}/jobs?per_page=${PAGE_SIZE}&limit=${PAGE_SIZE}&page=${page}&order=desc`);
+  const r = await fetch(buildJobsUrl(page));
   if (!r.ok) throw new Error(`HTTP ${r.status}`);
-  return r.json();
+  const d = await r.json();
+  if (!d.pagination) d.pagination = { page, per_page: PAGE_SIZE, total: d.data?.length || 0, pages: 1 };
+  return d;
+}
+function applySearch() { loadJobs(1); }
+function applyFilters() { loadJobs(1); }
+function resetFilters() {
+  ['q-input','city-input','contract-filter','specialty-filter','category-filter'].forEach(id => { const el=document.getElementById(id); if (el) el.value=''; });
+  loadJobs(1);
 }
 
 // ── Chargement initial ─────────────────────────────────────────────────────
-async function loadJobs() {
+async function loadJobs(forcedPage) {
   feedEl.innerHTML = '<div style="padding:1.5rem;color:#6c797c;font-size:.8rem;">Chargement des offres…</div>';
   try {
-    const urlPage = getUrlPage();
+    const urlPage = forcedPage || getUrlPage();
     const d = await fetchPage(urlPage);
 
     ALL_JOBS      = d.data || [];
@@ -868,6 +897,10 @@ function closeBurger() {
   document.body.style.overflow = '';
 }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeBurger(); });
+
+// ── Search events ─────────────────────────────────────────────────────────
+document.getElementById('q-input')?.addEventListener('keydown', e => { if (e.key === 'Enter') applySearch(); });
+document.getElementById('city-input')?.addEventListener('keydown', e => { if (e.key === 'Enter') applySearch(); });
 
 // ── Init ───────────────────────────────────────────────────────────────────
 loadJobs();
