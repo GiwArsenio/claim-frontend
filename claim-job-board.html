@@ -492,6 +492,20 @@ const SPECIALTY_LABELS = {
   consulting_actuariat: 'Consulting Actua.', direction_technique: 'Dir. Technique',
   moa: 'MOA', moe: 'MOE', risk_management: 'Risk Mgmt'
 };
+const COMPANY_QUERY_ALIASES = {
+  generali: 'generali',
+  'oliver wyman': 'oliver_wyman',
+  mazars: 'mazars',
+  kpmg: 'kpmg',
+  ey: 'ey',
+  aon: 'aon',
+  wakam: 'wakam',
+  allianz: 'allianz',
+  'swiss life': 'swiss_life',
+  cnp: 'cnp',
+  apicil: 'apicil',
+  alan: 'alan',
+};
 const COMPANY_COLORS = {
   'ag2r': '#1B4F72', 'axa': '#00395D', 'allianz': '#003781',
   'bnp-paribas-cardif': '#009966', 'covea': '#E30613', 'scor': '#1A1A2E',
@@ -560,9 +574,11 @@ function currentFilters() {
 }
 function buildJobsUrl(page) {
   const f = currentFilters();
-  const isSearch = f.q.length >= 2;
+  const companySource = COMPANY_QUERY_ALIASES[f.q.toLowerCase()] || '';
+  const isSearch = f.q.length >= 2 && !companySource;
   const params = new URLSearchParams({ per_page: PAGE_SIZE, limit: PAGE_SIZE, page });
   if (isSearch) params.set('q', f.q);
+  if (companySource) params.set('source', companySource);
   // "France" est le scope global du site : ne pas filtrer sur city=France.
   if (f.city && f.city.toLowerCase() !== 'france') params.set('city', f.city);
   if (f.contract) params.set('contract', f.contract);
