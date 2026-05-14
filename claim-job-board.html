@@ -539,6 +539,30 @@ function contractTagClass(ct) {
   if (ct === 'alternance' || ct === 'stage') return 'tp';
   return 'tn';
 }
+function normalizeLocationQuery(city) {
+  const v = (city || '').trim().toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[-_]/g, ' ')
+    .replace(/\s+/g, ' ');
+  if (!v || v === 'france') return '';
+  if ([
+    'ile de france', 'idf', 'ile-de-france', 'île de france',
+    'region parisienne', 'région parisienne', 'paris region'
+  ].includes(v)) return 'Paris';
+  return city.trim();
+}
+function plainTextFromHtml(value) {
+  const div = document.createElement('div');
+  div.innerHTML = value || '';
+  return (div.textContent || div.innerText || '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+function escapeHtml(value) {
+  return String(value || '').replace(/[&<>'"]/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+  }[c]));
+}
 
 // ── State ──────────────────────────────────────────────────────────────────
 let ALL_JOBS      = [];   // toutes les offres chargées côté client
@@ -578,8 +602,8 @@ function buildJobsUrl(page) {
   const isSearch = f.q.length >= 2;
   const params = new URLSearchParams({ per_page: PAGE_SIZE, limit: PAGE_SIZE, page });
   if (isSearch) params.set('q', f.q);
-  // "France" est le scope global du site : ne pas filtrer sur city=France.
-  if (f.city && f.city.toLowerCase() !== 'france') params.set('city', f.city);
+  const normalizedCity = normalizeLocationQuery(f.city);
+  if (normalizedCity) params.set('city', normalizedCity);
   if (f.contract) params.set('contract', f.contract);
   if (f.specialty) params.set('specialty', f.specialty);
   if (f.category) params.set('category', f.category);
@@ -798,10 +822,11 @@ async function renderDetail(id) {
     const spLabel = SPECIALTY_LABELS[j.specialty] || j.specialty || '—';
     const tools   = (j.specialty_tags || []).slice(0, 12);
 
+    const cleanDescription = plainTextFromHtml(j.description_raw || '');
     const summary = j.ai_summary
-      ? `<p>${j.ai_summary}</p>`
-      : j.description_raw
-        ? `<p>${j.description_raw.slice(0, 600).replace(/</g,'&lt;')}…</p>`
+      ? `<p>${escapeHtml(j.ai_summary)}</p>`
+      : cleanDescription
+        ? `<p>${escapeHtml(cleanDescription.slice(0, 600))}…</p>`
         : '<p>Description non disponible.</p>';
 
     document.getElementById('detail').innerHTML = `
