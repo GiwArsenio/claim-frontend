@@ -431,7 +431,7 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
     <div class="chips">
       <select id="contract-filter" class="chip" onchange="applyFilters()"><option value="">Type de contrat</option><option value="cdi">CDI</option><option value="cdd">CDD</option><option value="alternance">Alternance</option><option value="stage">Stage</option><option value="vie">V.I.E</option><option value="freelance">Freelance</option></select>
       <select id="specialty-filter" class="chip" onchange="applyFilters()"><option value="">Spécialité</option><option value="actuariat_vie">Actuariat Vie</option><option value="actuariat_sante">Actuariat Santé</option><option value="actuariat_iard">Actuariat IARD</option><option value="consulting_actuariat">Conseil actuariat</option><option value="data_science">Data Science</option><option value="machine_learning">ML / IA</option><option value="data_engineering">Data Engineering</option><option value="quant_risk">Risque quant.</option><option value="direction_technique">Direction technique</option><option value="autre">Autre</option></select>
-      <select id="category-filter" class="chip" onchange="applyFilters()"><option value="">Pertinence</option><option value="coeur">Cœur</option><option value="pertinent">Pertinent</option></select>
+      <select id="category-filter" class="chip" onchange="applyFilters()"><option value="">Toutes</option><option value="coeur" selected>Cœur</option><option value="pertinent">Pertinent</option></select>
       <select id="ats-filter" class="chip" onchange="applyFilters()"><option value="">Source ATS</option><option value="workday">Workday</option><option value="smartrecruiters">SmartRecruiters</option><option value="talentsoft">TalentSoft</option><option value="custom">Custom</option><option value="magnet">Magnet</option><option value="greenhouse">Greenhouse</option><option value="ashby">Ashby</option><option value="successfactors">SuccessFactors</option><option value="radancy">Radancy</option><option value="groupama">Groupama</option><option value="oracle_hcm">Oracle HCM</option></select>
       <button class="chip" onclick="resetFilters()"><span class="ms" style="font-size:13px;">restart_alt</span>Réinitialiser</button>
       
@@ -634,7 +634,8 @@ async function fetchPage(page) {
 function applySearch() { loadJobs(1); }
 function applyFilters() { loadJobs(1); }
 function resetFilters() {
-  ['q-input','city-input','contract-filter','specialty-filter','category-filter','ats-filter'].forEach(id => { const el=document.getElementById(id); if (el) el.value=''; });
+  ['q-input','city-input','contract-filter','specialty-filter','ats-filter'].forEach(id => { const el=document.getElementById(id); if (el) el.value=''; });
+  document.getElementById('category-filter').value = 'coeur';
   loadJobs(1);
 }
 
