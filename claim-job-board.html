@@ -854,7 +854,6 @@ function renderFeed() {
     const ct      = j.contract_type || 'cdi';
     const sp      = j.specialty || '';
     const tags    = [
-      { l: CONTRACT_LABELS[ct] || ct, t: contractTagClass(ct) },
       sp ? { l: SPECIALTY_LABELS[sp] || sp, t: 'tn' } : null,
       j.ats_type ? { l: j.ats_type, t: 'tm' } : null,
     ].filter(Boolean);
