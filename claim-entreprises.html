@@ -829,6 +829,13 @@ const COMPANY_DOMAINS = {
   'WTW': 'wtwco.com',
 };
 function getCompanyLogoUrl(name) {
+  // URLs directes prioritaires (SVG/PNG haute qualité)
+  const DIRECT_URLS = {
+    'Sia Partners': 'https://sia-partners.com/sites/default/files/2025-01/Optimists_for_Change_0.svg',
+    'BPCE Assurances': 'https://upload.wikimedia.org/wikipedia/fr/0/0a/Groupe_BPCE_%28logo%29.svg',
+    'Shift Technology': 'https://claimyourjob.fr/logos/shift-technology.svg',
+  };
+  if (DIRECT_URLS[name]) return DIRECT_URLS[name];
   const domain = COMPANY_DOMAINS[name];
   return domain ? 'https://www.google.com/s2/favicons?domain=' + domain + '&sz=256' : null;
 }
