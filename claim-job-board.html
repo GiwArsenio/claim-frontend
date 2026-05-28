@@ -108,7 +108,7 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
 .jc:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(85,107,141,.09); }
 .jc.on { border-color: #006876; box-shadow: 0 0 0 3px rgba(0,104,118,.08); }
 .ct { display: flex; align-items: flex-start; margin-bottom: .45rem; }
-.clogo { width: 38px; height: 38px; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 900; font-size: 9.5px; flex-shrink: 0; }
+.clogo { width: 38px; height: 38px; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 900; font-size: 9.5px; flex-shrink: 0; position: relative; overflow: hidden; }
 .ci { flex: 1; min-width: 0; padding-left: .5rem; }
 .ctitle { font-size: .825rem; font-weight: 700; color: #191c1d; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .csub { font-size: .7rem; color: #515f78; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -123,7 +123,7 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
 
 /* ── DÉTAIL — éléments internes ── */
 .dh { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: .875rem; margin-bottom: .875rem; }
-.dlogo { width: 60px; height: 60px; border-radius: .75rem; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 900; font-size: 13px; flex-shrink: 0; }
+.dlogo { width: 60px; height: 60px; border-radius: .75rem; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 900; font-size: 13px; flex-shrink: 0; position: relative; overflow: hidden; }
 .dtitle { font-size: 1.375rem; font-weight: 900; color: #191c1d; letter-spacing: -.02em; margin-bottom: 2px; }
 .dco { font-size: .875rem; color: #006876; font-weight: 600; }
 .dact { display: flex; flex-direction: column; gap: .3rem; min-width: 170px; }
@@ -142,7 +142,8 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
 .tl { display: flex; flex-wrap: wrap; gap: .3rem; }
 .tt { padding: 2.5px 10px; border-radius: 5px; background: #f3f4f5; color: #515f78; font-size: .775rem; font-weight: 600; border: 1px solid rgba(187,201,204,.2); }
 .cb { background: linear-gradient(135deg,#f3f4f5,#e7e8e9); padding: 1.1rem; border-radius: .875rem; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem; margin-top: .25rem; }
-.cblogo { width: 44px; height: 44px; border-radius: .5rem; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 900; font-size: 10px; flex-shrink: 0; }
+.cblogo { width: 44px; height: 44px; border-radius: .5rem; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 900; font-size: 10px; flex-shrink: 0; position: relative; overflow: hidden; }
+.clogo img, .dlogo img, .cblogo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; border-radius: inherit; padding: 2px; }
 .bcv { display: inline-flex; align-items: center; gap: .3rem; padding: .5rem .875rem; border-radius: .5rem; background: #191c1d; color: #fff; font-weight: 700; font-size: .75rem; text-decoration: none; }
 
 /* ── FOOTER RICHE ── */
@@ -524,6 +525,19 @@ function companyColor(slug) { return COMPANY_COLORS[slug] || '#006876'; }
 function companyInitials(name) {
   return (name || '?').split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase();
 }
+function renderCompanyLogo(company, cssClass) {
+  const color = companyColor((company && company.slug) || '');
+  const initials = companyInitials((company && company.name) || '?');
+  const logoUrl = company && company.logo_url;
+  if (logoUrl) {
+    return '<div class="' + cssClass + '" style="background:' + color + ';">' +
+      '<span>' + initials + '</span>' +
+      '<img src="' + logoUrl + '" alt="Logo ' + (company.name||'') + '" onerror="this.remove()" onload="this.previousElementSibling.remove()" />' +
+      '</div>';
+  }
+  return '<div class="' + cssClass + '" style="background:' + color + ';">' + initials + '</div>';
+}
+
 function formatDate(iso) {
   if (!iso) return '';
   const d = new Date(iso), now = new Date();
@@ -746,9 +760,7 @@ function renderFeed() {
   feedEl.innerHTML = '';
 
   ALL_JOBS.forEach(j => {
-    const co      = j.companies || {};
-    const color   = companyColor(co.slug || '');
-    const initials = companyInitials(co.name || j.source || '?');
+    const co = j.companies || {};
     const ct      = j.contract_type || 'cdi';
     const sp      = j.specialty || '';
     const tags    = [
@@ -770,7 +782,7 @@ function renderFeed() {
     };
     el.innerHTML = `
       <div class="ct">
-        <div class="clogo" style="background:${color};">${initials}</div>
+        ${renderCompanyLogo(co, 'clogo')}
         <div class="ci">
           <div class="ctitle">${j.title}</div>
           <div class="csub">${co.name || j.source} · ${j.city || ''}${j.region ? ', ' + j.region : ''}</div>
@@ -831,9 +843,7 @@ async function renderDetail(id) {
   `;
   try {
     const j = await fetchDetail(id);
-    const co      = j.companies || {};
-    const color   = companyColor(co.slug || '');
-    const initials = companyInitials(co.name || j.source || '?');
+    const co = j.companies || {};
     const ct      = j.contract_type || 'cdi';
     const ctLabel = CONTRACT_LABELS[ct] || ct;
     const spLabel = SPECIALTY_LABELS[j.specialty] || j.specialty || '—';
@@ -854,7 +864,7 @@ async function renderDetail(id) {
         <div class="d-sticky">
           <div class="dh">
             <div style="display:flex;align-items:center;gap:.75rem;">
-              <div class="dlogo" style="background:${color};">${initials}</div>
+              ${renderCompanyLogo(co, 'dlogo')}
               <div>
                 <div class="dtitle">${j.title}</div>
                 <div class="dco">${co.name || j.source}</div>
@@ -899,7 +909,7 @@ async function renderDetail(id) {
           </div>` : ''}
           <div class="cb">
             <div style="display:flex;align-items:center;gap:.625rem;">
-              <div class="cblogo" style="background:${color};">${initials}</div>
+              ${renderCompanyLogo(co, 'cblogo')}
               <div>
                 <div style="font-size:.875rem;font-weight:700;color:#191c1d;margin-bottom:2px;">${co.name || j.source}</div>
                 <div style="font-size:.75rem;color:#515f78;">${SPECIALTY_LABELS[j.specialty] || 'Assurance & Protection sociale'}</div>

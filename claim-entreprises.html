@@ -239,7 +239,9 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
   display: flex; align-items: center; justify-content: center;
   color: #fff; font-weight: 900; font-size: 11px;
   border: 3px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,.12);
+  overflow: hidden;
 }
+.ec-logo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; border-radius: inherit; padding: 3px; }
 .ec-badge {
   position: absolute; top: .625rem; right: .875rem;
   background: rgba(255,255,255,.92); color: #16a34a;
@@ -799,7 +801,50 @@ function updateResetBtn() {
    RENDU
 ══════════════════════════════════════════════ */
 function render() {
-  const list = COMPANIES.filter(c => {
+  const list = 
+const COMPANY_DOMAINS = {
+  'AXA France': 'axa.fr', 'Allianz France': 'allianz.fr',
+  'BNP Paribas Cardif': 'bnpparibascardif.com', 'Covéa': 'covea.eu',
+  'Mazars Actuariat': 'mazars.fr', 'Generali France': 'generali.fr',
+  'Malakoff Humanis': 'malakoffhumanis.com', 'SCOR SE': 'scor.com',
+  'Société Générale Assurances': 'assurances.societegenerale.com',
+  'Milliman': 'milliman.com', 'Groupama': 'groupama.fr',
+  'Willis Towers Watson': 'wtwco.com', 'Swiss Life France': 'swisslife.fr',
+  'Swiss Re': 'swissre.com', 'CNP Assurances': 'cnp.fr',
+  'Klesia': 'klesia.fr', 'Matmut': 'matmut.fr',
+  'AG2R La Mondiale': 'ag2rlamondiale.fr', 'MAIF': 'maif.fr',
+  'Alan': 'alan.com', 'Wakam': 'wakam.com',
+  'Pro BTP': 'probtp.com', 'MACSF': 'macsf.fr',
+  'Aésio Mutuelle': 'aesio.fr', 'SMA BTP': 'smabtp.fr',
+  'KPMG France': 'kpmg.fr', 'EY': 'ey.com',
+  'Deloitte': 'deloitte.com', 'PwC France': 'pwc.fr',
+  'Aon France': 'aon.com', 'Oliver Wyman': 'oliverwyman.com',
+  'Akur8': 'akur8.com', 'Zelros': 'zelros.com',
+  'Shift Technology': 'shift-technology.com', 'Descartes Underwriting': 'descartesunderwriting.com',
+  'PartnerRe': 'partnerre.com', 'Luko': 'luko.eu', 'Seyna': 'seyna.eu',
+  'Verlingue': 'verlingue.fr', 'April': 'april.fr', 'DiOT-Siaci': 'diot-siaci.com',
+  'Apicil': 'apicil.fr', 'Groupe VYV': 'groupe-vyv.fr',
+  'BNP Cardif': 'bnpparibascardif.com', 'Covea': 'covea.eu',
+  'Generali': 'generali.fr', 'SCOR': 'scor.com', 'Groupama Gan': 'groupama.fr',
+  'WTW': 'wtwco.com',
+};
+function getCompanyLogoUrl(name) {
+  const domain = COMPANY_DOMAINS[name];
+  return domain ? 'https://www.google.com/s2/favicons?domain=' + domain + '&sz=256' : null;
+}
+function renderEcLogo(c) {
+  const logoUrl = getCompanyLogoUrl(c.name);
+  const initials = c.logo || companyInitials(c.name);
+  if (logoUrl) {
+    return '<div class="ec-logo" style="background:' + c.color + ';">' +
+      '<span>' + initials + '</span>' +
+      '<img src="' + logoUrl + '" alt="Logo ' + c.name + '" onerror="this.remove()" onload="this.previousElementSibling.remove()" />' +
+      '</div>';
+  }
+  return '<div class="ec-logo" style="background:' + c.color + ';">' + initials + '</div>';
+}
+
+COMPANIES.filter(c => {
     if (state.type !== 'all' && c.type !== state.type) return false;
     if (state.remote !== 'all' && c.remote !== state.remote) return false;
     if (state.avantages !== 'all' && !c.avantages.includes(state.avantages)) return false;
@@ -843,7 +888,7 @@ function render() {
     el.className = 'ec';
     el.innerHTML = `
       <div class="ec-banner" style="background:${c.banner};">
-        <div class="ec-logo" style="background:${c.color};">${c.logo}</div>
+        ${renderEcLogo(c)}
         ${recruiting ? `<div class="ec-badge"><span class="dot-pulse"></span>Recrute activement</div>` : ''}
       </div>
       <div class="ec-body">
