@@ -845,6 +845,53 @@ function injectSeoLinks(totalPages) {
   document.body.appendChild(nav);
 }
 
+
+// ── Domain tag extraction ──────────────────────────────────────────────────
+const DOMAIN_TAGS = [
+  { tag: 'IFRS 17',       kw: ['ifrs 17', 'ifrs17', 'ifrs'] },
+  { tag: 'Solvabilité II', kw: ['solvabilité', 'solvency', 'scr', 'mcr', 'orsa'] },
+  { tag: 'Tarification',   kw: ['tarif', 'pricing', 'tarification', 'prime pure'] },
+  { tag: 'IARD',           kw: ['iard', 'non.vie', 'non vie', 'dommages', 'incendie', 'auto', 'habitation', 'rc', 'responsabilité civile'] },
+  { tag: 'Vie',            kw: ['assurance vie', 'viager', 'épargne', 'epargne', 'retraite'] },
+  { tag: 'Santé',          kw: ['santé', 'sante', 'mutuelle', 'prévoyance', 'prevoyance', 'frais de santé'] },
+  { tag: 'Réassurance',    kw: ['réassurance', 'reassurance', 'cession', 'traité', 'traite'] },
+  { tag: 'Risque',         kw: ['risque', 'risk manag', 'gestion des risques', 'erm'] },
+  { tag: 'Provisionnement', kw: ['provision', 'best estimate', 'sap', 'gaap', 'réserves', 'reserves'] },
+  { tag: 'ML / IA',        kw: ['machine learning', 'deep learning', 'réseau de neurones', 'neural', 'intelligence artificielle', 'ia générative'] },
+  { tag: 'MLOps',          kw: ['mlops', 'ml ops'] },
+  { tag: 'NLP / LLM',      kw: ['nlp', 'llm', 'natural language', 'chatgpt', 'gpt'] },
+  { tag: 'Python',         kw: ['python'] },
+  { tag: 'Data Science',   kw: ['data scien', 'data analyst', 'data engin'] },
+  { tag: 'Actuariat',      kw: ['actuair', 'actuari'] },
+  { tag: 'ALM',            kw: ['alm', 'asset.liability'] },
+  { tag: 'Sinistres',      kw: ['sinistre', 'gestion des sinistres', 'claims'] },
+  { tag: 'Souscription',   kw: ['souscription', 'underwriting'] },
+  { tag: 'R',              kw: ['\br\b', 'r studio'] },
+  { tag: 'SAS',            kw: ['\bsas\b'] },
+  { tag: 'SQL',            kw: ['\bsql\b'] },
+  { tag: 'Cloud',          kw: ['azure', 'aws', 'gcp', 'cloud'] },
+  { tag: 'Tableau / BI',   kw: ['tableau', 'power bi', 'business intelligence'] },
+];
+
+function extractDomainTags(job) {
+  const text = ((job.title || '') + ' ' + (job.description_raw || job.description || '') + ' ' + (job.ai_summary || '')).toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const found = [];
+  for (const dt of DOMAIN_TAGS) {
+    for (const kw of dt.kw) {
+      const escaped = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      try {
+        if (new RegExp(escaped, 'i').test(text)) {
+          found.push(dt.tag);
+          break;
+        }
+      } catch(e) {}
+    }
+  }
+  return found.slice(0, 4); // max 4 domain tags
+}
+
+
 // ── Render feed ────────────────────────────────────────────────────────────
 function renderFeed() {
   feedEl.innerHTML = '';
@@ -856,7 +903,9 @@ function renderFeed() {
     const tags    = [
       sp ? { l: SPECIALTY_LABELS[sp] || sp, t: 'tn' } : null,
     ].filter(Boolean);
-    const tagHtml = '';
+    const domainTags = extractDomainTags(j);
+    const tagHtml = domainTags
+      .map(t => `<span class="tag tm">${t}</span>`).join('');
 
     const el = document.createElement('div');
     el.className = 'jc' + (j.id === activeId ? ' on' : '');
