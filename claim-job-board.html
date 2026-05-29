@@ -931,6 +931,7 @@ function renderFeed() {
       </div>
       <div class="ctags">
         ${tags.map(t => `<span class="tag ${t.t}">${t.l}</span>`).join('')}
+        ${tagHtml}
       </div>
       <div class="cdate">${formatDate(j.source_published_at)}</div>
     `;
