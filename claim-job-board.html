@@ -855,7 +855,6 @@ function renderFeed() {
     const sp      = j.specialty || '';
     const tags    = [
       sp ? { l: SPECIALTY_LABELS[sp] || sp, t: 'tn' } : null,
-      j.ats_type ? { l: j.ats_type, t: 'tm' } : null,
     ].filter(Boolean);
     const tagHtml = (j.specialty_tags || []).slice(0, 2)
       .map(t => `<span class="tag tm">${t}</span>`).join('');
