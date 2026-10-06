@@ -433,6 +433,7 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
       <select id="contract-filter" class="chip" onchange="applyFilters()"><option value="">Type de contrat</option><option value="cdi">CDI</option><option value="cdd">CDD</option><option value="alternance">Alternance</option><option value="stage">Stage</option><option value="vie">V.I.E</option><option value="freelance">Freelance</option></select>
       <select id="specialty-filter" class="chip" onchange="applyFilters()"><option value="">Spécialité</option><option value="actuariat_vie">Actuariat Vie</option><option value="actuariat_sante">Actuariat Santé</option><option value="actuariat_iard">Actuariat IARD</option><option value="consulting_actuariat">Conseil actuariat</option><option value="data_science">Data Science</option><option value="machine_learning">ML / IA</option><option value="data_engineering">Data Engineering</option><option value="quant_risk">Risque quant.</option><option value="direction_technique">Direction technique</option><option value="autre">Autre</option></select>
       <select id="category-filter" class="chip" onchange="applyFilters()"><option value="">Toutes</option><option value="coeur" selected>Cœur</option><option value="pertinent">Pertinent</option></select>
+      <select id="experience-filter" class="chip" onchange="applyFilters()"><option value="">Expérience</option><option value="junior">Junior</option><option value="confirmed">Confirmé</option><option value="senior">Senior</option><option value="lead">Lead</option></select>
       <select id="ats-filter" class="chip" onchange="applyFilters()"><option value="">Source ATS</option><option value="workday">Workday</option><option value="smartrecruiters">SmartRecruiters</option><option value="talentsoft">TalentSoft</option><option value="custom">Custom</option><option value="magnet">Magnet</option><option value="greenhouse">Greenhouse</option><option value="ashby">Ashby</option><option value="successfactors">SuccessFactors</option><option value="radancy">Radancy</option><option value="groupama">Groupama</option><option value="oracle_hcm">Oracle HCM</option></select>
       <button class="chip" onclick="resetFilters()"><span class="ms" style="font-size:13px;">restart_alt</span>Réinitialiser</button>
       
@@ -492,6 +493,15 @@ const SPECIALTY_LABELS = {
   nlp: 'NLP', devops: 'DevOps', audit: 'Audit', conformite: 'Conformité',
   consulting_actuariat: 'Consulting Actua.', direction_technique: 'Dir. Technique',
   moa: 'MOA', moe: 'MOE', risk_management: 'Risk Mgmt'
+};
+// Libellés Jev (spécialité curation + expérience) — pipeline cascade B
+const JEV_SPECIALTY_LABELS = {
+  actuariat: 'Actuariat','ia_data': 'IA / Data', souscription_technique: 'Souscription tech.',
+  autre: 'Autre'
+};
+const JEV_EXPERIENCE_LABELS = {
+  junior: 'Junior', confirmed: 'Confirmé', senior: 'Senior', lead: 'Lead',
+  not_specified: 'Non précisé'
 };
 const COMPANY_QUERY_ALIASES = {
   generali: 'generali',
@@ -708,6 +718,7 @@ function currentFilters() {
     contract: document.getElementById('contract-filter')?.value || '',
     specialty: document.getElementById('specialty-filter')?.value || '',
     category: document.getElementById('category-filter')?.value || '',
+    experience: document.getElementById('experience-filter')?.value || '',
     ats: document.getElementById('ats-filter')?.value || '',
   };
 }
@@ -723,6 +734,7 @@ function buildJobsUrl(page) {
   if (f.contract) params.set('contract', f.contract);
   if (f.specialty) params.set('specialty', f.specialty);
   if (f.category) params.set('category', f.category);
+  if (f.experience) params.set('experience', f.experience);
   if (f.ats) params.set('ats', f.ats);
   params.set('france_only', 'true');
   if (!isSearch) params.set('order', 'desc');
@@ -738,7 +750,7 @@ async function fetchPage(page) {
 function applySearch() { loadJobs(1); }
 function applyFilters() { loadJobs(1); }
 function resetFilters() {
-  ['q-input','city-input','contract-filter','specialty-filter','ats-filter'].forEach(id => { const el=document.getElementById(id); if (el) el.value=''; });
+  ['q-input','city-input','contract-filter','specialty-filter','experience-filter','ats-filter'].forEach(id => { const el=document.getElementById(id); if (el) el.value=''; });
   document.getElementById('category-filter').value = 'coeur';
   loadJobs(1);
 }
@@ -892,6 +904,38 @@ function extractDomainTags(job) {
 }
 
 
+// ── Proposition IA (spécialité/contrat Jev) vs valeurs publiées ──────────
+function jevProposalHtml(j) {
+  if (j.jev_curation_status !== 'done') return '';
+  const specialtyJev = j.jev_specialty ? (JEV_SPECIALTY_LABELS[j.jev_specialty] || j.jev_specialty) : '';
+  const contractJev  = j.jev_contract ? (CONTRACT_LABELS[j.jev_contract] || j.jev_contract) : '';
+  if (!specialtyJev && !contractJev) return '';
+  const lines = [];
+  if (specialtyJev) lines.push(`<div>Spécialité : <strong>${escapeHtml(specialtyJev)}</strong></div>`);
+  if (contractJev) {
+    const published = j.contract_type ? (CONTRACT_LABELS[j.contract_type] || j.contract_type) : '—';
+    const conflict = j.jev_curation_ats_conflict ? ' <span style="color:#c0392b;font-size:.7rem;">(diffère de l\'offre)</span>' : '';
+    lines.push(`<div>Contrat proposé : <strong>${escapeHtml(contractJev)}</strong> <span style="color:#6c797c;">(offre : ${escapeHtml(published)})</span>${conflict}</div>`);
+  }
+  return `<div class="ki" style="background:#f0f7f8;border-radius:.5rem;"><span class="ms" style="color:#006876;font-size:18px;">auto_awesome</span>
+    <div><div class="kl">Analyse IA</div><div class="kv" style="font-size:.78rem;line-height:1.45;">${lines.join('')}</div></div>
+  </div>`;
+}
+
+// ── Jev helpers (expérience affichée depuis jev_experience si curée) ──────
+function experienceLabel(j) {
+  if (j.jev_curation_status === 'done' && j.jev_experience) {
+    return JEV_EXPERIENCE_LABELS[j.jev_experience] || j.jev_experience;
+  }
+  if (j.experience_level && j.experience_level !== 'not_specified') return j.experience_level;
+  return '';
+}
+function cardExperienceHtml(j) {
+  const label = experienceLabel(j);
+  if (!label) return '';
+  return `<div class="cmi"><span class="ms" style="font-size:12px;">trending_up</span>${escapeHtml(label)}</div>`;
+}
+
 // ── Render feed ────────────────────────────────────────────────────────────
 function renderFeed() {
   feedEl.innerHTML = '';
@@ -927,7 +971,7 @@ function renderFeed() {
       </div>
       <div class="cm">
         <div class="cmi"><span class="ms" style="font-size:12px;">description</span>${CONTRACT_LABELS[ct] || ct}</div>
-        ${j.experience_level ? `<div class="cmi"><span class="ms" style="font-size:12px;">trending_up</span>${j.experience_level}</div>` : ''}
+        ${cardExperienceHtml(j)}
       </div>
       <div class="ctags">
         ${tags.map(t => `<span class="tag ${t.t}">${t.l}</span>`).join('')}
@@ -1022,15 +1066,16 @@ async function renderDetail(id) {
             ${j.city ? `<div class="ki"><span class="ms" style="color:#006876;font-size:18px;">location_on</span>
               <div><div class="kl">Localisation</div><div class="kv">${j.city}${j.region ? ', ' + j.region : ''}</div></div>
             </div>` : ''}
-            ${j.experience_level ? `<div class="ki"><span class="ms" style="color:#006876;font-size:18px;">trending_up</span>
-              <div><div class="kl">Expérience</div><div class="kv">${j.experience_level}</div></div>
-            </div>` : ''}
+            ${(() => { const expLabel = experienceLabel(j); return expLabel ? `<div class="ki"><span class="ms" style="color:#006876;font-size:18px;">trending_up</span>
+              <div><div class="kl">Expérience</div><div class="kv">${escapeHtml(expLabel)}</div></div>
+            </div>` : ''; })()}
             ${j.remote_policy && j.remote_policy !== 'not_specified' ? `<div class="ki"><span class="ms" style="color:#006876;font-size:18px;">home_work</span>
               <div><div class="kl">Télétravail</div><div class="kv">${j.remote_policy}</div></div>
             </div>` : ''}
             <div class="ki"><span class="ms" style="color:#006876;font-size:18px;">category</span>
               <div><div class="kl">Spécialité</div><div class="kv">${spLabel}</div></div>
             </div>
+            ${jevProposalHtml(j)}
           </div>
         </div>
         <div class="d-body">
