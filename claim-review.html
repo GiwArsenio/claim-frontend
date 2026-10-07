@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="robots" content="noindex, nofollow"/>
+<title>Revue de la curation — CLAIM!</title>
+<style>
+  :root { --teal:#006876; --ink:#191c1d; --muted:#515f78; --line:rgba(0,104,118,.16); }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif; color:var(--ink); background:#f6f8f9; }
+  header { background:#fff; border-bottom:1px solid var(--line); padding:1rem 1.25rem; position:sticky; top:0; z-index:5; }
+  h1 { font-size:1.05rem; margin:0 0 .2rem; }
+  .sub { color:var(--muted); font-size:.8rem; }
+  main { max-width:1080px; margin:0 auto; padding:1.25rem; }
+  .banner { background:#fff6e5; border:1px solid #f0d08a; color:#7a5200; font-size:.8rem;
+            border-radius:.6rem; padding:.7rem .9rem; margin-bottom:1rem; line-height:1.5; }
+  .panel { background:#fff; border:1px solid var(--line); border-radius:.7rem; padding:1rem; margin-bottom:1rem; }
+  label { font-size:.72rem; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); font-weight:700; display:block; margin-bottom:.3rem; }
+  input,select,button,textarea { font:inherit; }
+  input[type=password],input[type=text],select,textarea { width:100%; padding:.5rem .6rem; border:1px solid var(--line);
+            border-radius:.5rem; background:#fff; color:var(--ink); }
+  .row { display:flex; gap:.75rem; flex-wrap:wrap; align-items:flex-end; }
+  .row > div { flex:1 1 160px; }
+  button { background:var(--teal); color:#fff; border:0; border-radius:.5rem; padding:.55rem .9rem; font-weight:700; cursor:pointer; }
+  button.ghost { background:#fff; color:var(--teal); border:1px solid var(--line); }
+  button.small { padding:.35rem .6rem; font-size:.78rem; }
+  button[aria-pressed=true] { outline:2px solid var(--teal); outline-offset:1px; }
+  button.v { background:#0b7a4b; } button.c { background:#b8860b; } button.p { background:#5a6675; }
+  .chips { display:flex; gap:.5rem; flex-wrap:wrap; margin-top:.5rem; }
+  .chip { background:#eef4f5; border:1px solid var(--line); border-radius:999px; padding:.3rem .65rem; font-size:.75rem; cursor:pointer; }
+  .chip b { color:var(--teal); }
+  .cards { display:grid; gap:.85rem; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:.7rem; padding:.9rem; }
+  .card h2 { font-size:.92rem; margin:0 0 .25rem; }
+  .meta { color:var(--muted); font-size:.75rem; margin-bottom:.6rem; }
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:.6rem; margin-bottom:.6rem; }
+  .box { background:#f7fafa; border:1px solid var(--line); border-radius:.5rem; padding:.55rem .65rem; font-size:.8rem; }
+  .box h3 { margin:0 0 .3rem; font-size:.68rem; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); }
+  .sev { display:inline-block; font-size:.68rem; font-weight:700; border-radius:999px; padding:.15rem .5rem; margin-left:.4rem; }
+  .sev.contradiction { background:#fdeaea; color:#a3271f; }
+  .sev.absence { background:#fff6e5; color:#7a5200; }
+  .sev.low_confidence { background:#eef4f5; color:#41535f; }
+  .tag { display:inline-block; background:#eef4f5; border-radius:999px; padding:.12rem .5rem; font-size:.7rem; margin:.15rem .3rem .15rem 0; color:#41535f; }
+  .decisions { display:flex; gap:.4rem; flex-wrap:wrap; margin-top:.6rem; align-items:center; }
+  .corrections { margin-top:.6rem; display:none; gap:.5rem; }
+  .corrections.on { display:grid; grid-template-columns:repeat(4,1fr); }
+  .status { font-size:.72rem; color:var(--muted); margin-left:auto; }
+  .bar { position:sticky; bottom:0; background:#fff; border-top:1px solid var(--line); padding:.7rem 1.25rem;
+         display:flex; gap:.6rem; align-items:center; justify-content:center; }
+  .pager { display:flex; gap:.6rem; align-items:center; justify-content:center; margin:1rem 0; font-size:.8rem; color:var(--muted); }
+  .err { color:#a3271f; font-size:.82rem; }
+  .empty { color:var(--muted); font-size:.85rem; text-align:center; padding:1.5rem; }
+  @media (max-width:720px){ .grid{grid-template-columns:1fr;} .corrections.on{grid-template-columns:1fr 1fr;} }
+</style>
+</head>
+<body>
+<header>
+  <h1>Revue de la curation — CLAIM!</h1>
+  <div class="sub">Vérification humaine des propositions de curation avant publication.</div>
+</header>
+
+<main>
+  <div class="banner">
+    <strong>Aucune décision n'est enregistrée en base.</strong>
+    Les décisions prises ici restent dans votre navigateur jusqu'à l'export du fichier.
+    Conservez le fichier exporté : il servira de référence tant que la persistance n'est pas activée.
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <div style="flex:2 1 260px">
+        <label for="key">Clé admin</label>
+        <input id="key" type="password" placeholder="X-Admin-Key" autocomplete="off"/>
+      </div>
+      <div><button id="load">Charger la file</button></div>
+    </div>
+    <div id="err" class="err" style="margin-top:.5rem"></div>
+    <div class="chips" id="summary"></div>
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <div>
+        <label for="severity">Nature du signalement</label>
+        <select id="severity">
+          <option value="">Toutes</option>
+          <option value="contradiction">Contradiction à vérifier</option>
+          <option value="absence">Information absente</option>
+          <option value="low_confidence">Confiance faible</option>
+        </select>
+      </div>
+      <div>
+        <label for="reason">Motif précis</label>
+        <select id="reason"><option value="">Tous</option></select>
+      </div>
+      <div>
+        <label for="per_page">Par page</label>
+        <select id="per_page"><option>20</option><option>50</option><option>100</option></select>
+      </div>
+    </div>
+  </div>
+
+  <div class="cards" id="cards"><div class="empty">Renseignez la clé admin puis chargez la file.</div></div>
+
+  <div class="pager" id="pager"></div>
+</main>
+
+<div class="bar">
+  <span id="taken">0 décision prise</span>
+  <button class="ghost small" id="export-json">Exporter en JSON</button>
+  <button class="ghost small" id="export-csv">Exporter en CSV</button>
+  <button class="ghost small" id="reset">Réinitialiser</button>
+</div>
+
+<script>
+const API_BASE = 'https://claim-api-production-06b3.up.railway.app';
+
+const REASON_LABELS = {
+  contract_conflicts_with_ats: 'Contrat en conflit avec l\'offre',
+  contract_not_specified: 'Contrat non précisé',
+  contract_low_probability: 'Contrat : confiance faible',
+  specialty_other: 'Spécialité indéterminée',
+  specialty_low_probability: 'Spécialité : confiance faible',
+  experience_low_probability: 'Expérience : confiance faible',
+  classification_low_probability: 'Classification : confiance faible',
+};
+const SEVERITY_LABELS = {
+  contradiction: 'Contradiction à vérifier',
+  absence: 'Information absente',
+  low_confidence: 'Confiance faible',
+};
+const SPECIALTY_LABELS = {
+  actuariat: 'Actuariat', souscription_technique: 'Souscription technique',
+  ia_data: 'IA / Data', autre: 'Autre', data_science: 'Data Science',
+  actuariat_vie: 'Actuariat Vie', actuariat_iard: 'Actuariat IARD',
+  actuariat_sante: 'Actuariat Santé', actuariat_retraite: 'Actuariat Retraite',
+  quant_risk: 'Risque quantitatif', consulting_actuariat: 'Conseil actuariat',
+  direction_technique: 'Direction technique', data_engineering: 'Data Engineering',
+};
+const EXPERIENCE_LABELS = {
+  junior: 'Junior', confirmed: 'Confirmé', senior: 'Senior', lead: 'Lead',
+  not_specified: 'Non précisé',
+};
+const CONTRACT_LABELS = {
+  cdi: 'CDI', cdd: 'CDD', stage: 'Stage', alternance: 'Alternance',
+  vie: 'V.I.E', freelance: 'Freelance', interim: 'Intérim',
+  these_cifre: 'Thèse CIFRE', autre: 'Autre',
+};
+const DECISION_LABELS = { validated: 'Validée', corrected: 'Corrigée', pending: 'En attente' };
+
+let state = { page: 1, perPage: 20, total: 0, items: [], decisions: {} };
+
+function esc(v) {
+  return String(v == null ? '' : v).replace(/[&<>'"]/g, c => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[c]
+  ));
+}
+function label(map, value) { return value ? (map[value] || value) : 'non précisé'; }
+function prob(value) {
+  return typeof value === 'number' ? ' (' + Math.round(value * 100) + ' %)' : '';
+}
+
+function apiKey() { return document.getElementById('key').value.trim(); }
+
+async function loadQueue(page) {
+  const err = document.getElementById('err');
+  err.textContent = '';
+  const key = apiKey();
+  if (!key) { err.textContent = 'Clé admin requise.'; return; }
+  sessionStorage.setItem('claim_admin_key', key);
+
+  const params = new URLSearchParams({ page: page || 1, per_page: document.getElementById('per_page').value });
+  const severity = document.getElementById('severity').value;
+  const reason = document.getElementById('reason').value;
+  if (severity) params.set('severity', severity);
+  if (reason) params.set('reason', reason);
+
+  try {
+    const r = await fetch(API_BASE + '/admin/review?' + params.toString(), { headers: { 'X-Admin-Key': key } });
+    if (r.status === 401) { err.textContent = 'Clé admin refusée.'; return; }
+    if (!r.ok) { err.textContent = 'Erreur ' + r.status + ' au chargement de la file.'; return; }
+    const d = await r.json();
+    state.items = d.data || [];
+    state.total = d.pagination.total;
+    state.page = d.pagination.page;
+    state.perPage = d.pagination.per_page;
+    state.pages = d.pagination.pages;
+    renderSummary(d.summary);
+    renderCards();
+    renderPager();
+  } catch (e) {
+    err.textContent = 'Connexion impossible : ' + e.message;
+  }
+}
+
+function renderSummary(summary) {
+  const el = document.getElementById('summary');
+  if (!summary) { el.innerHTML = ''; return; }
+  const byReason = summary.by_reason || {};
+  const chips = ['<span class="chip">Offres signalées <b>' + summary.offers + '</b></span>'];
+  Object.keys(SEVERITY_LABELS).forEach(sev => {
+    const n = (sev === 'contradiction') ? (byReason.contract_conflicts_with_ats || 0) : null;
+    if (n !== null) chips.push('<span class="chip" data-sev="' + sev + '">' + SEVERITY_LABELS[sev] + ' <b>' + n + '</b></span>');
+  });
+  Object.keys(REASON_LABELS).forEach(reason => {
+    chips.push('<span class="chip" data-reason="' + reason + '">' + REASON_LABELS[reason] + ' <b>' + (byReason[reason] || 0) + '</b></span>');
+  });
+  el.innerHTML = chips.join('');
+  el.querySelectorAll('.chip[data-reason]').forEach(c => {
+    c.onclick = () => {
+      document.getElementById('reason').value = c.dataset.reason;
+      document.getElementById('severity').value = '';
+      loadQueue(1);
+    };
+  });
+  el.querySelectorAll('.chip[data-sev]').forEach(c => {
+    c.onclick = () => {
+      document.getElementById('severity').value = c.dataset.sev;
+      document.getElementById('reason').value = '';
+      loadQueue(1);
+    };
+  });
+}
+
+function decisionOf(id) { return state.decisions[id] || null; }
+
+function renderCards() {
+  const host = document.getElementById('cards');
+  if (!state.items.length) { host.innerHTML = '<div class="empty">Aucune offre pour ce filtre.</div>'; return; }
+  host.innerHTML = state.items.map(row => {
+    const rev = row.review || { reasons: [], severity: 'low_confidence' };
+    const dec = decisionOf(row.id);
+    const publie = row.contract_type ? label(CONTRACT_LABELS, row.contract_type) : 'non précisé';
+    const raison = (row.ats_contract_raw && row.ats_contract_raw !== row.contract_type)
+      ? ' <span style="color:#515f78">(source : ' + esc(row.ats_contract_raw) + ')</span>' : '';
+    return '<div class="card" data-id="' + esc(row.id) + '">'
+      + '<h2>' + esc(row.title || '(sans titre)') + '<span class="sev ' + rev.severity + '">' + SEVERITY_LABELS[rev.severity] + '</span></h2>'
+      + '<div class="meta">' + esc(row.source || '') + (row.city ? ' · ' + esc(row.city) : '')
+      + (row.source_url ? ' · <a href="' + esc(row.source_url) + '" target="_blank" rel="noopener">offre d\'origine</a>' : '') + '</div>'
+      + '<div class="grid">'
+      + '<div class="box"><h3>Publié (source de l\'offre)</h3>'
+      + 'Contrat : <strong>' + esc(publie) + '</strong>' + raison + '<br/>'
+      + 'Spécialité : ' + esc(label(SPECIALTY_LABELS, row.specialty)) + '</div>'
+      + '<div class="box"><h3>Proposition IA (à confirmer)</h3>'
+      + 'Contrat : <strong>' + esc(label(CONTRACT_LABELS, row.jev_contract)) + '</strong>' + prob(row.jev_contract_probability) + '<br/>'
+      + 'Spécialité : ' + esc(label(SPECIALTY_LABELS, row.jev_specialty)) + prob(row.jev_specialty_probability) + '<br/>'
+      + 'Expérience : ' + esc(label(EXPERIENCE_LABELS, row.jev_experience)) + prob(row.jev_experience_probability) + '</div>'
+      + '</div>'
+      + '<div>' + (rev.reasons || []).map(r => '<span class="tag">' + esc(REASON_LABELS[r] || r) + '</span>').join('') + '</div>'
+      + '<div class="decisions">'
+      + '<button class="small v" data-dec="validated">Valider</button>'
+      + '<button class="small c" data-dec="corrected">Corriger</button>'
+      + '<button class="small p" data-dec="pending">Laisser en attente</button>'
+      + '<span class="status">' + (dec ? 'Décision : ' + DECISION_LABELS[dec.decision] : 'aucune décision') + '</span>'
+      + '</div>'
+      + '<div class="corrections' + (dec && dec.decision === 'corrected' ? ' on' : '') + '">'
+      + '<div><label>Spécialité retenue</label><select data-field="specialty">' + options(SPECIALTY_LABELS, dec && dec.specialty) + '</select></div>'
+      + '<div><label>Expérience retenue</label><select data-field="experience">' + options(EXPERIENCE_LABELS, dec && dec.experience) + '</select></div>'
+      + '<div><label>Contrat retenu</label><select data-field="contract">' + options(CONTRACT_LABELS, dec && dec.contract) + '</select></div>'
+      + '<div><label>Note</label><input type="text" data-field="note" value="' + esc(dec && dec.note || '') + '"/></div>'
+      + '</div></div>';
+  }).join('');
+
+  host.querySelectorAll('.card').forEach(card => {
+    const id = card.dataset.id;
+    const row = state.items.find(x => x.id === id);
+    card.querySelectorAll('button[data-dec]').forEach(btn => {
+      btn.onclick = () => {
+        setDecision(id, row, btn.dataset.dec);
+        renderCards();
+      };
+    });
+    card.querySelectorAll('[data-field]').forEach(input => {
+      // `input` couvre la saisie au clavier, `change` la selection au menu :
+      // sans les deux, une note saisie juste avant l'export serait perdue.
+      ['input', 'change'].forEach(evt => input.addEventListener(evt, () => {
+        const dec = state.decisions[id];
+        if (!dec) return;
+        dec[input.dataset.field] = input.value;
+        dec.decided_at = new Date().toISOString();
+        updateTaken();
+      }));
+    });
+  });
+}
+
+function options(map, current) {
+  const none = '<option value="">— inchangé —</option>';
+  return none + Object.keys(map).map(k =>
+    '<option value="' + k + '"' + (k === current ? ' selected' : '') + '>' + map[k] + '</option>').join('');
+}
+
+function setDecision(id, row, decision) {
+  const existing = state.decisions[id] || {};
+  state.decisions[id] = Object.assign({
+    job_id: id, slug: row.slug, source: row.source, title: row.title,
+    severity: (row.review || {}).severity,
+    reasons: (row.review || {}).reasons || [],
+    published_contract: row.contract_type, proposed_contract: row.jev_contract,
+    specialty: '', experience: '', contract: '', note: '',
+  }, existing, { decision: decision, decided_at: new Date().toISOString() });
+  updateTaken();
+}
+
+function updateTaken() {
+  const n = Object.keys(state.decisions).length;
+  document.getElementById('taken').textContent = n + ' décision' + (n > 1 ? 's' : '') + ' prise' + (n > 1 ? 's' : '');
+}
+
+function renderPager() {
+  const p = document.getElementById('pager');
+  if (!state.pages || state.pages <= 1) { p.innerHTML = ''; return; }
+  p.innerHTML = '<button class="ghost small" id="prev"' + (state.page <= 1 ? ' disabled' : '') + '>Précédent</button>'
+    + '<span>Page ' + state.page + ' / ' + state.pages + ' — ' + state.total + ' offres</span>'
+    + '<button class="ghost small" id="next"' + (state.page >= state.pages ? ' disabled' : '') + '>Suivant</button>';
+  const prev = document.getElementById('prev'), next = document.getElementById('next');
+  if (prev) prev.onclick = () => loadQueue(state.page - 1);
+  if (next) next.onclick = () => loadQueue(state.page + 1);
+}
+
+function download(name, content, type) {
+  const blob = new Blob([content], { type: type });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(a.href);
+}
+
+function exportRows() {
+  return Object.values(state.decisions).map(d => ({
+    job_id: d.job_id, slug: d.slug, source: d.source, titre: d.title,
+    decision: d.decision, severite: d.severity,
+    motifs: (d.reasons || []).join(' | '),
+    contrat_publie: d.published_contract, contrat_propose: d.proposed_contract,
+    specialite_retenue: d.specialty, experience_retenue: d.experience,
+    contrat_retenu: d.contract, note: d.note, decide_le: d.decided_at,
+  }));
+}
+
+document.getElementById('load').onclick = () => loadQueue(1);
+document.getElementById('key').onkeydown = e => { if (e.key === 'Enter') loadQueue(1); };
+document.getElementById('severity').onchange = () => loadQueue(1);
+document.getElementById('reason').onchange = () => loadQueue(1);
+document.getElementById('per_page').onchange = () => loadQueue(1);
+
+document.getElementById('export-json').onclick = () => {
+  download('revue_curation.json', JSON.stringify(exportRows(), null, 2), 'application/json');
+};
+document.getElementById('export-csv').onclick = () => {
+  const rows = exportRows();
+  if (!rows.length) { document.getElementById('err').textContent = 'Aucune décision à exporter.'; return; }
+  const cols = Object.keys(rows[0]);
+  const csv = [cols.join(';')].concat(rows.map(r => cols.map(c =>
+    '"' + String(r[c] == null ? '' : r[c]).replace(/"/g, '""') + '"').join(';'))).join('\n');
+  download('revue_curation.csv', '\ufeff' + csv, 'text/csv');
+};
+document.getElementById('reset').onclick = () => {
+  state.decisions = {};
+  updateTaken();
+  renderCards();
+};
+
+// Le selecteur de motifs reste aligne sur les motifs connus de l'API.
+(function initReasons() {
+  const sel = document.getElementById('reason');
+  Object.keys(REASON_LABELS).forEach(r => {
+    const o = document.createElement('option');
+    o.value = r; o.textContent = REASON_LABELS[r];
+    sel.appendChild(o);
+  });
+  const saved = sessionStorage.getItem('claim_admin_key');
+  if (saved) document.getElementById('key').value = saved;
+  updateTaken();
+})();
+</script>
+</body>
+</html>
