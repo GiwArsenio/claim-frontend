@@ -30,3 +30,10 @@ const filter = html.match(/<select id="specialty-filter"[\s\S]*?<\/select>/)[0];
 for (const name of ['actuariat','ia_data','souscription_technique']) assert.ok(filter.includes(`value="${name}"`));
 assert.ok(!filter.includes('actuariat_iard'));
 console.log('Cards Jev regression tests passed');
+
+// Le libellé de lieu vient de l'API (champ ville) : la carte ne doit plus
+// concaténer la région, qui n'est jamais renseignée en base.
+assert.ok(!html.includes('j.region'), 'la region ne doit plus etre affichee');
+assert.ok(html.includes("j.ville ? ' \u00b7 ' + escapeHtml(j.ville)"), 'la carte doit afficher la ville');
+assert.ok(!html.includes('${j.city'), 'la carte ne doit plus utiliser city brut');
+console.log('Ville display tests passed');
