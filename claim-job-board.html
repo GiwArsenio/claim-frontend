@@ -908,45 +908,66 @@ function extractDomainTags(job) {
 // Règles: la valeur publiée reste celle de la source (ATS). La curation Jev est
 // une proposition indicative, jamais présentée comme une information certaine.
 // La spécialité "autre" n'est pas publiée: ni badge, ni proposition.
+// ── Proposition IA (curation Jev) face aux valeurs de l'offre ─────────────
+// Règles: la valeur publiée reste celle de l'offre (contrat et spécialité ATS).
+// Une proposition sous le seuil de confiance n'est jamais présentée comme un
+// attribut : elle n'apparaît qu'ici, explicitement signalée comme incertaine.
 function jevProposalHtml(j) {
   if (j.jev_curation_status !== 'done') return '';
 
-  const lines = [];
-  const specialtyJev = (j.jev_specialty && j.jev_specialty !== 'autre')
-    ? (JEV_SPECIALTY_LABELS[j.jev_specialty] || j.jev_specialty) : '';
-  if (specialtyJev) {
-    lines.push(`Spécialité proposée : <strong>${escapeHtml(specialtyJev)}</strong>`);
-  }
+  const publie = j.jev_publishable || {};
+  const lignes = [];
+  const sansInteret = { specialty: ['autre'], experience: ['not_specified'] };
 
-  // Divergence: l'offre reste publiée avec son propre contrat, on signale l'écart.
-  const publie = j.contract_type ? (CONTRACT_LABELS[j.contract_type] || j.contract_type) : '';
-  const propose = j.jev_contract ? (CONTRACT_LABELS[j.jev_contract] || j.jev_contract) : '';
+  [['Spécialité', 'jev_specialty', 'jev_specialty_probability', JEV_SPECIALTY_LABELS, 'specialty'],
+   ['Expérience', 'jev_experience', 'jev_experience_probability', JEV_EXPERIENCE_LABELS, 'experience'],
+  ].forEach(([titre, champ, champProba, libelles, cle]) => {
+    const valeur = j[champ];
+    if (!valeur || sansInteret[cle].includes(valeur)) return;
+    // Une valeur déjà fiable est affichée comme attribut : pas de doublon ici.
+    if (cle === 'experience' && publie[cle]) return;
+    const proba = j[champProba];
+    const texte = escapeHtml(libelles[valeur] || valeur) +
+      (typeof proba === 'number' ? ' (' + Math.round(proba * 100) + ' %)' : '');
+    const doute = publie[cle] ? '' : ' <span style="color:#b8860b;">confiance faible, à vérifier</span>';
+    lignes.push(titre + ' proposée : <strong>' + texte + '</strong>' + doute);
+  });
+
+  // Contrat : l'offre garde son propre contrat, on signale seulement l'écart.
+  const contratPublie = j.contract_type ? (CONTRACT_LABELS[j.contract_type] || j.contract_type) : '';
+  const contratPropose = j.jev_contract ? (CONTRACT_LABELS[j.jev_contract] || j.jev_contract) : '';
   const divergence = Boolean(j.jev_curation_ats_conflict) ||
     Boolean(j.jev_contract && j.contract_type && j.jev_contract !== j.contract_type);
   if (divergence) {
-    lines.push('Contrat : offre annoncée <strong>' + escapeHtml(publie || 'non précisé') +
-      '</strong>, IA propose <strong>' + escapeHtml(propose) + '</strong> — divergence à vérifier');
+    const proba = j.jev_contract_probability;
+    lignes.push('Contrat : offre annoncée <strong>' + escapeHtml(contratPublie || 'non précisé') +
+      '</strong>, IA propose <strong>' + escapeHtml(contratPropose) +
+      (typeof proba === 'number' ? ' (' + Math.round(proba * 100) + ' %)' : '') +
+      '</strong> — divergence à vérifier');
   }
 
-  if (!lines.length) return '';
+  if (!lignes.length) return '';
   return `<div class="ki" style="background:#f0f7f8;border-radius:.5rem;"><span class="ms" style="color:#006876;font-size:18px;">auto_awesome</span>
-    <div><div class="kl">Proposition IA — à confirmer</div><div class="kv" style="font-size:.78rem;line-height:1.45;">${lines.map(l => `<div>${l}</div>`).join('')}</div></div>
+    <div><div class="kl">Proposition IA — à confirmer</div><div class="kv" style="font-size:.78rem;line-height:1.45;">${lignes.map(l => `<div>${l}</div>`).join('')}</div></div>
   </div>`;
 }
 
 // ── Jev helpers (expérience affichée depuis jev_experience si curée) ──────
-function experienceLabel(j, pourCarte) {
-  if (j.jev_curation_status === 'done' && j.jev_experience) {
-    // Sur une carte, "Non précisé" n'apprend rien au visiteur : pas de badge.
-    // Dans le détail, l'information reste affichée telle quelle.
-    if (pourCarte && j.jev_experience === 'not_specified') return '';
+function experienceLabel(j) {
+  // Une proposition n'est présentée comme attribut de l'offre que si la
+  // curation la juge publiable (curee, informative, confiance suffisante).
+  // Sinon elle n'apparait que dans le bloc de proposition, signalee incertaine.
+  // experience_level est vide (not_specified) sur la quasi-totalite du stock:
+  // il ne constitue pas un repli utilisable.
+  const publie = (j.jev_publishable || {}).experience;
+  if (j.jev_curation_status === 'done' && publie && j.jev_experience) {
     return JEV_EXPERIENCE_LABELS[j.jev_experience] || j.jev_experience;
   }
   if (j.experience_level && j.experience_level !== 'not_specified') return j.experience_level;
   return '';
 }
 function cardExperienceHtml(j) {
-  const label = experienceLabel(j, true);
+  const label = experienceLabel(j);
   if (!label) return '';
   return `<div class="cmi"><span class="ms" style="font-size:12px;">trending_up</span>${escapeHtml(label)}</div>`;
 }
