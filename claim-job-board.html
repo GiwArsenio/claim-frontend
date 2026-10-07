@@ -962,6 +962,36 @@ function experienceLabel(j) {
   if (j.experience_level && j.experience_level !== 'not_specified') return j.experience_level;
   return '';
 }
+// Compétences citées dans l'offre, détectées dans le texte par l'API.
+// Ce ne sont pas des valeurs de curation : Jev ne les produit pas. L'intitulé
+// du bloc doit donc rester prudent.
+const SKILLS_FAMILIES = { outils: 'Outils', reglementation: 'Réglementation' };
+
+function skillLabels(j) {
+  const s = j.skills || {};
+  return Object.keys(SKILLS_FAMILIES).flatMap(f => (s[f] || []).map(l => ({ famille: f, label: l })));
+}
+
+function skillChips(j, max) {
+  return skillLabels(j).slice(0, max)
+    .map(x => `<span class="tag tm">${escapeHtml(x.label)}</span>`).join('');
+}
+
+function skillsHtml(j) {
+  const s = j.skills || {};
+  const familles = Object.keys(SKILLS_FAMILIES).filter(f => (s[f] || []).length);
+  if (!familles.length) return '';
+  const blocs = familles.map(f => `<div style="margin-bottom:.5rem;">
+      <div style="font-size:.68rem;text-transform:uppercase;letter-spacing:.04em;color:#515f78;font-weight:700;margin-bottom:.2rem;">${SKILLS_FAMILIES[f]}</div>
+      <div class="tl">${s[f].map(l => `<span class="tt">${escapeHtml(l)}</span>`).join('')}</div>
+    </div>`).join('');
+  return `<div class="ds">
+      <h3><span class="ms" style="color:#006876;">construction</span> Outils et réglementation cités</h3>
+      ${blocs}
+      <div style="font-size:.7rem;color:#6c797c;">Repérés dans le texte de l'offre. Ce ne sont pas des valeurs validées par la curation.</div>
+    </div>`;
+}
+
 function specialtyLabel(j) {
   if (j.jev_curation_status !== 'done' || !(j.jev_publishable || {}).specialty) return '';
   return JEV_SPECIALTY_LABELS[j.jev_specialty] && j.jev_specialty !== 'autre'
@@ -983,7 +1013,7 @@ function renderFeed() {
     const ct      = j.contract_type || '';
     const sp = specialtyLabel(j);
     const tags = sp ? [{ l: sp, t: 'tn' }] : [];
-    // Aucun tag déduit du texte : seules les valeurs curées publiables.
+    const skillTagHtml = skillChips(j, 3);
 
 
     const el = document.createElement('div');
@@ -1010,6 +1040,7 @@ function renderFeed() {
       </div>
       <div class="ctags">
         ${tags.map(t => `<span class="tag ${t.t}">${t.l}</span>`).join('')}
+        ${skillTagHtml}
       </div>
       <div class="cdate">${formatDate(j.source_published_at)}</div>
     `;
@@ -1061,7 +1092,7 @@ async function renderDetail(id) {
     const ct      = j.contract_type || '';
     const ctLabel = escapeHtml(CONTRACT_LABELS[ct] || ct || 'Non précisé');
     const spLabel = specialtyLabel(j);
-    const tools   = (j.specialty_tags || []).slice(0, 12);
+    const skillsBloc = skillsHtml(j);
 
     const cleanDescription = plainTextFromHtml(j.description_raw || '');
     const summary = j.ai_summary
@@ -1117,11 +1148,7 @@ async function renderDetail(id) {
             <h3><span class="ms" style="color:#006876;">analytics</span> Aperçu du poste</h3>
             ${summary}
           </div>
-          ${tools.length ? `
-          <div class="ds">
-            <h3><span class="ms" style="color:#006876;">construction</span> Compétences & Outils</h3>
-            <div class="tl">${tools.map(t => `<span class="tt">${t}</span>`).join('')}</div>
-          </div>` : ''}
+          ${skillsBloc}
           <div class="cb">
             <div style="display:flex;align-items:center;gap:.625rem;">
               ${renderCompanyLogo(co, 'cblogo')}
