@@ -37,3 +37,9 @@ assert.ok(!html.includes('j.region'), 'la region ne doit plus etre affichee');
 assert.ok(html.includes("j.ville ? ' \u00b7 ' + escapeHtml(j.ville)"), 'la carte doit afficher la ville');
 assert.ok(!html.includes('${j.city'), 'la carte ne doit plus utiliser city brut');
 console.log('Ville display tests passed');
+
+// Ordre des métadonnées : localisation puis contrat, sans icône sur le contrat.
+const meta = html.match(/<div class="cm">[\s\S]*?<\/div>\n        \$\{cardExperienceHtml/)[0];
+assert.ok(meta.indexOf('j.ville') < meta.indexOf('CONTRACT_LABELS'), 'la ville doit preceder le contrat');
+assert.ok(!/description<\/span>/.test(meta), 'le contrat ne doit plus porter d icone');
+console.log('Card metadata order tests passed');
