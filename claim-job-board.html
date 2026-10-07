@@ -935,15 +935,18 @@ function jevProposalHtml(j) {
 }
 
 // ── Jev helpers (expérience affichée depuis jev_experience si curée) ──────
-function experienceLabel(j) {
+function experienceLabel(j, pourCarte) {
   if (j.jev_curation_status === 'done' && j.jev_experience) {
+    // Sur une carte, "Non précisé" n'apprend rien au visiteur : pas de badge.
+    // Dans le détail, l'information reste affichée telle quelle.
+    if (pourCarte && j.jev_experience === 'not_specified') return '';
     return JEV_EXPERIENCE_LABELS[j.jev_experience] || j.jev_experience;
   }
   if (j.experience_level && j.experience_level !== 'not_specified') return j.experience_level;
   return '';
 }
 function cardExperienceHtml(j) {
-  const label = experienceLabel(j);
+  const label = experienceLabel(j, true);
   if (!label) return '';
   return `<div class="cmi"><span class="ms" style="font-size:12px;">trending_up</span>${escapeHtml(label)}</div>`;
 }
