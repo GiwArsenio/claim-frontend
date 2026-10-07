@@ -2,14 +2,14 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const assert = require('node:assert/strict');
 const html = fs.readFileSync(require('node:path').join(__dirname, '../claim-job-board.html'), 'utf8');
-const funcs = ['specialtyLabel', 'experienceLabel', 'cardExperienceHtml', 'skillLabels', 'skillChips', 'skillsHtml'].map(name => {
+const funcs = ['specialtyLabel', 'experienceLabel', 'cardExperienceHtml', 'cardFactHtml', 'cardSalaryHtml', 'cardMetadataHtml', 'skillLabels', 'skillChips', 'skillsHtml'].map(name => {
  const start = html.indexOf('function ' + name + '(');
  const end = html.indexOf('\n}', start) + 2;
  assert.ok(start >= 0 && end > start);
  return html.slice(start, end);
 }).join('\n');
 const context = vm.createContext({});
-vm.runInContext(`const JEV_SPECIALTY_LABELS = {"actuariat": "Actuariat", "ia_data": "IA / Data", "souscription_technique": "Souscription technique", "autre": "Autre"}; const JEV_EXPERIENCE_LABELS = {senior:"Senior"}; function escapeHtml(x){return x;} ${funcs}`, context);
+vm.runInContext(`const JEV_SPECIALTY_LABELS = {"actuariat": "Actuariat", "ia_data": "IA / Data", "souscription_technique": "Souscription technique", "autre": "Autre"}; const JEV_EXPERIENCE_LABELS = {senior:"Senior"}; const CONTRACT_LABELS = {cdi:"CDI"}; function escapeHtml(x){return x;} ${funcs}`, context);
 
 function label(row){context.row = row;return vm.runInContext('specialtyLabel(row)', context);}
 assert.equal(label({specialty:'actuariat_iard',jev_specialty:'ia_data',jev_curation_status:'done',jev_publishable:{specialty:true}}), 'IA / Data');
@@ -44,3 +44,14 @@ assert.ok(html.includes('border: 1.5px solid #d5dfe3; box-shadow:'));
 assert.ok(html.includes('background: #e9eef1; border-right:'));
 assert.ok(html.includes('.ctitle { font-size: .875rem;'));
 console.log('Typography and card contrast tests passed');
+
+context.row = {contract_type:'cdi',jev_experience:'senior',jev_curation_status:'done',jev_publishable:{experience:true},salary_min:50000};
+const metadata = vm.runInContext('cardMetadataHtml(row)', context);
+assert.ok(metadata.includes('Contrat') && metadata.includes('CDI'));
+assert.ok(metadata.includes('Expérience') && metadata.includes('Senior'));
+assert.ok(!metadata.includes('description</span>') && !metadata.includes('trending_up'));
+assert.ok(!metadata.includes('50000') && !metadata.includes('Salaire'));
+context.row.jev_publishable.experience = false;
+assert.ok(!vm.runInContext('cardMetadataHtml(row)', context).includes('Expérience'));
+assert.equal(vm.runInContext('cardSalaryHtml(row)', context), '');
+console.log('Contract/experience extensible metadata tests passed');
