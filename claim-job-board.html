@@ -432,7 +432,7 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
     <div class="chips">
       <select id="contract-filter" class="chip" onchange="applyFilters()"><option value="">Type de contrat</option><option value="cdi">CDI</option><option value="cdd">CDD</option><option value="alternance">Alternance</option><option value="stage">Stage</option><option value="vie">V.I.E</option><option value="freelance">Freelance</option></select>
       <select id="specialty-filter" class="chip" onchange="applyFilters()"><option value="">Spécialité</option><option value="actuariat_vie">Actuariat Vie</option><option value="actuariat_sante">Actuariat Santé</option><option value="actuariat_iard">Actuariat IARD</option><option value="consulting_actuariat">Conseil actuariat</option><option value="data_science">Data Science</option><option value="machine_learning">ML / IA</option><option value="data_engineering">Data Engineering</option><option value="quant_risk">Risque quant.</option><option value="direction_technique">Direction technique</option><option value="autre">Autre</option></select>
-      <select id="category-filter" class="chip" onchange="applyFilters()"><option value="">Toutes</option><option value="coeur" selected>Cœur</option><option value="pertinent">Pertinent</option></select>
+      <select id="category-filter" class="chip" onchange="applyFilters()"><option value="">Toutes</option><option value="coeur" selected>Cœur</option></select>
       <select id="experience-filter" class="chip" onchange="applyFilters()"><option value="">Expérience</option><option value="junior">Junior</option><option value="confirmed">Confirmé</option><option value="senior">Senior</option><option value="lead">Lead</option></select>
       <select id="ats-filter" class="chip" onchange="applyFilters()"><option value="">Source ATS</option><option value="workday">Workday</option><option value="smartrecruiters">SmartRecruiters</option><option value="talentsoft">TalentSoft</option><option value="custom">Custom</option><option value="magnet">Magnet</option><option value="greenhouse">Greenhouse</option><option value="ashby">Ashby</option><option value="successfactors">SuccessFactors</option><option value="radancy">Radancy</option><option value="groupama">Groupama</option><option value="oracle_hcm">Oracle HCM</option></select>
       <button class="chip" onclick="resetFilters()"><span class="ms" style="font-size:13px;">restart_alt</span>Réinitialiser</button>
@@ -496,7 +496,7 @@ const SPECIALTY_LABELS = {
 };
 // Libellés Jev (spécialité curation + expérience) — pipeline cascade B
 const JEV_SPECIALTY_LABELS = {
-  actuariat: 'Actuariat','ia_data': 'IA / Data', souscription_technique: 'Souscription tech.',
+  actuariat: 'Actuariat', ia_data: 'IA / Data', souscription_technique: 'Souscription tech.',
   autre: 'Autre'
 };
 const JEV_EXPERIENCE_LABELS = {
@@ -905,20 +905,32 @@ function extractDomainTags(job) {
 
 
 // ── Proposition IA (spécialité/contrat Jev) vs valeurs publiées ──────────
+// Règles: la valeur publiée reste celle de la source (ATS). La curation Jev est
+// une proposition indicative, jamais présentée comme une information certaine.
+// La spécialité "autre" n'est pas publiée: ni badge, ni proposition.
 function jevProposalHtml(j) {
   if (j.jev_curation_status !== 'done') return '';
-  const specialtyJev = j.jev_specialty ? (JEV_SPECIALTY_LABELS[j.jev_specialty] || j.jev_specialty) : '';
-  const contractJev  = j.jev_contract ? (CONTRACT_LABELS[j.jev_contract] || j.jev_contract) : '';
-  if (!specialtyJev && !contractJev) return '';
+
   const lines = [];
-  if (specialtyJev) lines.push(`<div>Spécialité : <strong>${escapeHtml(specialtyJev)}</strong></div>`);
-  if (contractJev) {
-    const published = j.contract_type ? (CONTRACT_LABELS[j.contract_type] || j.contract_type) : '—';
-    const conflict = j.jev_curation_ats_conflict ? ' <span style="color:#c0392b;font-size:.7rem;">(diffère de l\'offre)</span>' : '';
-    lines.push(`<div>Contrat proposé : <strong>${escapeHtml(contractJev)}</strong> <span style="color:#6c797c;">(offre : ${escapeHtml(published)})</span>${conflict}</div>`);
+  const specialtyJev = (j.jev_specialty && j.jev_specialty !== 'autre')
+    ? (JEV_SPECIALTY_LABELS[j.jev_specialty] || j.jev_specialty) : '';
+  if (specialtyJev) {
+    lines.push(`Spécialité proposée : <strong>${escapeHtml(specialtyJev)}</strong>`);
   }
+
+  // Divergence: l'offre reste publiée avec son propre contrat, on signale l'écart.
+  const publie = j.contract_type ? (CONTRACT_LABELS[j.contract_type] || j.contract_type) : '';
+  const propose = j.jev_contract ? (CONTRACT_LABELS[j.jev_contract] || j.jev_contract) : '';
+  const divergence = Boolean(j.jev_curation_ats_conflict) ||
+    Boolean(j.jev_contract && j.contract_type && j.jev_contract !== j.contract_type);
+  if (divergence) {
+    lines.push('Contrat : offre annoncée <strong>' + escapeHtml(publie || 'non précisé') +
+      '</strong>, IA propose <strong>' + escapeHtml(propose) + '</strong> — divergence à vérifier');
+  }
+
+  if (!lines.length) return '';
   return `<div class="ki" style="background:#f0f7f8;border-radius:.5rem;"><span class="ms" style="color:#006876;font-size:18px;">auto_awesome</span>
-    <div><div class="kl">Analyse IA</div><div class="kv" style="font-size:.78rem;line-height:1.45;">${lines.join('')}</div></div>
+    <div><div class="kl">Proposition IA — à confirmer</div><div class="kv" style="font-size:.78rem;line-height:1.45;">${lines.map(l => `<div>${l}</div>`).join('')}</div></div>
   </div>`;
 }
 
@@ -945,7 +957,7 @@ function renderFeed() {
     const ct      = j.contract_type || 'cdi';
     const sp      = j.specialty || '';
     const tags    = [
-      sp ? { l: SPECIALTY_LABELS[sp] || sp, t: 'tn' } : null,
+      sp && sp !== 'autre' ? { l: SPECIALTY_LABELS[sp] || sp, t: 'tn' } : null,
     ].filter(Boolean);
     const domainTags = extractDomainTags(j);
     const tagHtml = domainTags
@@ -1072,9 +1084,9 @@ async function renderDetail(id) {
             ${j.remote_policy && j.remote_policy !== 'not_specified' ? `<div class="ki"><span class="ms" style="color:#006876;font-size:18px;">home_work</span>
               <div><div class="kl">Télétravail</div><div class="kv">${j.remote_policy}</div></div>
             </div>` : ''}
-            <div class="ki"><span class="ms" style="color:#006876;font-size:18px;">category</span>
+            ${j.specialty && j.specialty !== 'autre' ? `<div class="ki"><span class="ms" style="color:#006876;font-size:18px;">category</span>
               <div><div class="kl">Spécialité</div><div class="kv">${spLabel}</div></div>
-            </div>
+            </div>` : ''}
             ${jevProposalHtml(j)}
           </div>
         </div>
