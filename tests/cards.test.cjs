@@ -2,7 +2,7 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const assert = require('node:assert/strict');
 const html = fs.readFileSync(require('node:path').join(__dirname, '../claim-job-board.html'), 'utf8');
-const funcs = ['specialtyLabel', 'experienceLabel', 'cardExperienceHtml'].map(name => {
+const funcs = ['specialtyLabel', 'experienceLabel', 'cardExperienceHtml', 'skillLabels', 'skillChips', 'skillsHtml'].map(name => {
  const start = html.indexOf('function ' + name + '(');
  const end = html.indexOf('\n}', start) + 2;
  assert.ok(start >= 0 && end > start);
@@ -22,6 +22,9 @@ for (const row of [
 assert.ok(!html.includes('id="category-filter"'));
 assert.ok(!html.includes("j.contract_type || 'cdi'"));
 assert.ok(!html.includes('const domainTags = extractDomainTags(j)'));
+assert.ok(!html.includes('specialty_tags'), 'les tags errones ne doivent plus etre affiches');
+const skillsBlock = html.match(/function skillsHtml\(j\)[\s\S]*?\n\}/)[0];
+assert.ok(skillsBlock.includes("Repérés dans le texte de l'offre"), 'le bloc doit rester prudent');
 assert.ok(html.includes('Non précisé'));
 const filter = html.match(/<select id="specialty-filter"[\s\S]*?<\/select>/)[0];
 for (const name of ['actuariat','ia_data','souscription_technique']) assert.ok(filter.includes(`value="${name}"`));
