@@ -37,3 +37,10 @@ assert.ok(!html.includes('j.region'), 'la region ne doit plus etre affichee');
 assert.ok(html.includes("j.ville ? ' \u00b7 ' + escapeHtml(j.ville)"), 'la carte doit afficher la ville');
 assert.ok(!html.includes('${j.city'), 'la carte ne doit plus utiliser city brut');
 console.log('Ville display tests passed');
+
+// Typography aligned across page; resting cards have visible border and shadow.
+assert.ok(html.includes('.kl { font-size: 10px;'));
+assert.ok(html.includes('border: 1.5px solid #d5dfe3; box-shadow:'));
+assert.ok(html.includes('background: #e9eef1; border-right:'));
+assert.ok(html.includes('.ctitle { font-size: .875rem;'));
+console.log('Typography and card contrast tests passed');
