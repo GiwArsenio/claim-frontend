@@ -50,6 +50,8 @@
          display:flex; gap:.6rem; align-items:center; justify-content:center; }
   .pager { display:flex; gap:.6rem; align-items:center; justify-content:center; margin:1rem 0; font-size:.8rem; color:var(--muted); }
   .err { color:#a3271f; font-size:.82rem; }
+  .notice { color:#7a5200; background:#fff6e5; border:1px solid #f0d08a; border-radius:.5rem; padding:.5rem .7rem; font-size:.8rem; }
+  .notice:empty { display:none; }
   .empty { color:var(--muted); font-size:.85rem; text-align:center; padding:1.5rem; }
   @media (max-width:720px){ .grid{grid-template-columns:1fr;} .corrections.on{grid-template-columns:1fr 1fr;} }
 </style>
@@ -73,9 +75,14 @@
         <label for="key">Clé admin</label>
         <input id="key" type="password" placeholder="X-Admin-Key" autocomplete="off"/>
       </div>
+      <div style="flex:1 1 200px">
+        <label for="reviewer">Nom du réviseur</label>
+        <input id="reviewer" type="text" placeholder="Qui examine ?" autocomplete="off"/>
+      </div>
       <div><button id="load">Charger la file</button></div>
     </div>
     <div id="err" class="err" style="margin-top:.5rem"></div>
+    <div id="notice" class="notice" style="margin-top:.5rem"></div>
     <div class="chips" id="summary"></div>
   </div>
 
@@ -110,6 +117,8 @@
   <span id="taken">0 décision prise</span>
   <button class="ghost small" id="export-json">Exporter en JSON</button>
   <button class="ghost small" id="export-csv">Exporter en CSV</button>
+  <button class="ghost small" id="import">Reprendre un export</button>
+  <input type="file" id="import-file" accept="application/json,.json" style="display:none"/>
   <button class="ghost small" id="reset">Réinitialiser</button>
 </div>
 
@@ -149,7 +158,18 @@ const CONTRACT_LABELS = {
 };
 const DECISION_LABELS = { validated: 'Validée', corrected: 'Corrigée', pending: 'En attente' };
 
-let state = { page: 1, perPage: 20, total: 0, items: [], decisions: {} };
+// Même regroupement que l'API : la nature restreint les motifs proposés, ce qui
+// rend la combinaison lisible au lieu de laisser deux filtres se contredire.
+const REASON_BY_SEVERITY = {
+  contradiction: ['contract_conflicts_with_ats'],
+  absence: ['contract_not_specified', 'specialty_other'],
+  low_confidence: ['contract_low_probability', 'specialty_low_probability',
+                   'experience_low_probability', 'classification_low_probability'],
+};
+
+const TOOL = { name: 'claim-review', version: 2 };
+
+let state = { page: 1, perPage: 20, total: 0, items: [], decisions: {}, pendingExport: false, loaded: false };
 
 function esc(v) {
   return String(v == null ? '' : v).replace(/[&<>'"]/g, c => (
@@ -186,6 +206,7 @@ async function loadQueue(page) {
     state.page = d.pagination.page;
     state.perPage = d.pagination.per_page;
     state.pages = d.pagination.pages;
+    document.getElementById('notice').textContent = d.notice || '';
     renderSummary(d.summary);
     renderCards();
     renderPager();
@@ -241,7 +262,8 @@ function renderCards() {
       + '<div class="grid">'
       + '<div class="box"><h3>Publié (source de l\'offre)</h3>'
       + 'Contrat : <strong>' + esc(publie) + '</strong>' + raison + '<br/>'
-      + 'Spécialité : ' + esc(label(SPECIALTY_LABELS, row.specialty)) + '</div>'
+      + 'Spécialité : ' + esc(label(SPECIALTY_LABELS, row.specialty)) + '<br/>'
+      + classificationHtml(row) + '</div>'
       + '<div class="box"><h3>Proposition IA (à confirmer)</h3>'
       + 'Contrat : <strong>' + esc(label(CONTRACT_LABELS, row.jev_contract)) + '</strong>' + prob(row.jev_contract_probability) + '<br/>'
       + 'Spécialité : ' + esc(label(SPECIALTY_LABELS, row.jev_specialty)) + prob(row.jev_specialty_probability) + '<br/>'
@@ -285,6 +307,16 @@ function renderCards() {
   });
 }
 
+// Les signalements de confiance faible de classification ne s'examinent pas
+// sans la valeur, la confiance et la version des criteres.
+function classificationHtml(row) {
+  const snap = (row.snapshot || {}).classification || {};
+  const proba = typeof snap.probability === 'number' ? ' — ' + Math.round(snap.probability * 100) + ' %' : '';
+  const version = snap.criteria_version ? ' — critères ' + esc(snap.criteria_version) : '';
+  const limite = snap.limit_case ? ' <span style="color:#b8860b;">cas limite</span>' : '';
+  return 'Classification : ' + esc(snap.value || '—') + proba + version + limite;
+}
+
 function options(map, current) {
   const none = '<option value="">— inchangé —</option>';
   return none + Object.keys(map).map(k =>
@@ -297,15 +329,28 @@ function setDecision(id, row, decision) {
     job_id: id, slug: row.slug, source: row.source, title: row.title,
     severity: (row.review || {}).severity,
     reasons: (row.review || {}).reasons || [],
-    published_contract: row.contract_type, proposed_contract: row.jev_contract,
+    // Photographie: ce sur quoi la decision porte reellement.
+    snapshot: row.snapshot || null,
     specialty: '', experience: '', contract: '', note: '',
-  }, existing, { decision: decision, decided_at: new Date().toISOString() });
+  }, existing, {
+    decision: decision,
+    reviewer: document.getElementById('reviewer').value.trim(),
+    decided_at: new Date().toISOString(),
+  });
+  markDirty();
+  updateTaken();
+}
+
+function markDirty() {
+  state.pendingExport = true;
   updateTaken();
 }
 
 function updateTaken() {
   const n = Object.keys(state.decisions).length;
-  document.getElementById('taken').textContent = n + ' décision' + (n > 1 ? 's' : '') + ' prise' + (n > 1 ? 's' : '');
+  let texte = n + ' décision' + (n > 1 ? 's' : '') + ' prise' + (n > 1 ? 's' : '');
+  if (n && state.pendingExport) texte += ' — non exporté';
+  document.getElementById('taken').textContent = texte;
 }
 
 function renderPager() {
@@ -329,24 +374,118 @@ function download(name, content, type) {
 }
 
 function exportRows() {
-  return Object.values(state.decisions).map(d => ({
-    job_id: d.job_id, slug: d.slug, source: d.source, titre: d.title,
-    decision: d.decision, severite: d.severity,
-    motifs: (d.reasons || []).join(' | '),
-    contrat_publie: d.published_contract, contrat_propose: d.proposed_contract,
-    specialite_retenue: d.specialty, experience_retenue: d.experience,
-    contrat_retenu: d.contract, note: d.note, decide_le: d.decided_at,
-  }));
+  return Object.values(state.decisions).map(d => {
+    const snap = d.snapshot || {};
+    const publie = snap.published || {};
+    const propose = snap.proposed || {};
+    const curation = snap.curation || {};
+    const classif = snap.classification || {};
+    return {
+      job_id: d.job_id, slug: d.slug, source: d.source, titre: d.title,
+      decision: d.decision, severite: d.severity,
+      motifs: (d.reasons || []).join(' | '),
+      contrat_publie: publie.contract_type || '',
+      contrat_source: publie.ats_contract_raw || '',
+      specialite_publiee: publie.specialty || '',
+      contrat_propose: propose.contract || '',
+      specialite_proposee: propose.specialty || '',
+      experience_proposee: propose.experience || '',
+      curation_version: curation.version || '',
+      curation_modele: curation.model || '',
+      curation_le: curation.curated_at || '',
+      classification: classif.value || '',
+      classification_version: classif.criteria_version || '',
+      specialite_retenue: d.specialty || '',
+      experience_retenue: d.experience || '',
+      contrat_retenu: d.contract || '',
+      note: d.note || '',
+      reviseur: d.reviewer || '',
+      decide_le: d.decided_at || '',
+    };
+  });
+}
+
+function exportPayload() {
+  return {
+    tool: TOOL.name,
+    version: TOOL.version,
+    exported_at: new Date().toISOString(),
+    source: 'GET /admin/review',
+    decisions: exportRows(),
+  };
+}
+
+function markExported() {
+  state.pendingExport = false;
+  updateTaken();
+}
+
+// Reprise d'une session: les decisions reviennent avec la photographie qui a
+// servi a les prendre, pour qu'elles restent rattachables a une curation.
+function importPayload(data) {
+  const decisions = (data && Array.isArray(data.decisions)) ? data.decisions : null;
+  if (!decisions) {
+    document.getElementById('err').textContent = 'Fichier non reconnu : export de revue attendu.';
+    return;
+  }
+  let reprises = 0;
+  decisions.forEach(d => {
+    if (!d || !d.job_id) return;
+    state.decisions[d.job_id] = {
+      job_id: d.job_id, slug: d.slug, source: d.source, title: d.titre,
+      decision: d.decision, severity: d.severite,
+      reasons: String(d.motifs || '').split(' | ').filter(Boolean),
+      snapshot: {
+        published: { contract_type: d.contrat_publie, ats_contract_raw: d.contrat_source,
+                     specialty: d.specialite_publiee },
+        proposed: { contract: d.contrat_propose, specialty: d.specialite_proposee,
+                    experience: d.experience_proposee },
+        curation: { version: d.curation_version, model: d.curation_modele,
+                    curated_at: d.curation_le },
+        classification: { value: d.classification, criteria_version: d.classification_version },
+      },
+      specialty: d.specialite_retenue, experience: d.experience_retenue,
+      contract: d.contrat_retenu, note: d.note,
+      reviewer: d.reviseur, decided_at: d.decide_le,
+    };
+    reprises++;
+  });
+  document.getElementById('notice').textContent =
+    'Export du ' + (data.exported_at || 'date inconnue') + ' — ' + reprises + ' décision(s) reprise(s).';
+  markDirty();
+  renderCards();
+}
+
+// La nature restreint les motifs proposes: plus de combinaison contradictoire.
+function syncReasonOptions() {
+  const severity = document.getElementById('severity').value;
+  const select = document.getElementById('reason');
+  const autorises = severity ? REASON_BY_SEVERITY[severity] : Object.keys(REASON_LABELS);
+  const courant = select.value;
+  select.innerHTML = '<option value="">Tous</option>';
+  autorises.forEach(r => {
+    const o = document.createElement('option');
+    o.value = r;
+    o.textContent = REASON_LABELS[r];
+    select.appendChild(o);
+  });
+  select.value = autorises.includes(courant) ? courant : '';
 }
 
 document.getElementById('load').onclick = () => loadQueue(1);
 document.getElementById('key').onkeydown = e => { if (e.key === 'Enter') loadQueue(1); };
-document.getElementById('severity').onchange = () => loadQueue(1);
+document.getElementById('severity').onchange = () => { syncReasonOptions(); loadQueue(1); };
 document.getElementById('reason').onchange = () => loadQueue(1);
 document.getElementById('per_page').onchange = () => loadQueue(1);
+document.getElementById('reviewer').onchange = () => {
+  // L'identite s'applique aux decisions deja prises dans cette session.
+  Object.values(state.decisions).forEach(d => { d.reviewer = document.getElementById('reviewer').value.trim(); });
+  markDirty();
+};
 
 document.getElementById('export-json').onclick = () => {
-  download('revue_curation.json', JSON.stringify(exportRows(), null, 2), 'application/json');
+  download('revue_curation.json', JSON.stringify(exportPayload(), null, 2), 'application/json');
+  markExported();
 };
 document.getElementById('export-csv').onclick = () => {
   const rows = exportRows();
@@ -355,21 +494,44 @@ document.getElementById('export-csv').onclick = () => {
   const csv = [cols.join(';')].concat(rows.map(r => cols.map(c =>
     '"' + String(r[c] == null ? '' : r[c]).replace(/"/g, '""') + '"').join(';'))).join('\n');
   download('revue_curation.csv', '\ufeff' + csv, 'text/csv');
+  markExported();
 };
 document.getElementById('reset').onclick = () => {
+  if (Object.keys(state.decisions).length && state.pendingExport &&
+      !confirm('Des décisions ne sont pas exportées. Les perdre ?')) return;
   state.decisions = {};
+  state.pendingExport = false;
   updateTaken();
   renderCards();
 };
 
+document.getElementById('import').onclick = () => document.getElementById('import-file').click();
+document.getElementById('import-file').onchange = (e) => {
+  const fichier = e.target.files && e.target.files[0];
+  if (!fichier) return;
+  const lecteur = new FileReader();
+  lecteur.onload = () => {
+    try {
+      importPayload(JSON.parse(lecteur.result));
+    } catch (err) {
+      document.getElementById('err').textContent = 'Export illisible : ' + err.message;
+    }
+  };
+  lecteur.readAsText(fichier);
+  e.target.value = '';
+};
+
+// Un export non fait est une perte de travail: on previent avant de fermer.
+window.addEventListener('beforeunload', (e) => {
+  if (Object.keys(state.decisions).length && state.pendingExport) {
+    e.preventDefault();
+    e.returnValue = '';
+  }
+});
+
 // Le selecteur de motifs reste aligne sur les motifs connus de l'API.
 (function initReasons() {
-  const sel = document.getElementById('reason');
-  Object.keys(REASON_LABELS).forEach(r => {
-    const o = document.createElement('option');
-    o.value = r; o.textContent = REASON_LABELS[r];
-    sel.appendChild(o);
-  });
+  syncReasonOptions();
   const saved = sessionStorage.getItem('claim_admin_key');
   if (saved) document.getElementById('key').value = saved;
   updateTaken();
