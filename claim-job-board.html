@@ -1035,8 +1035,7 @@ function renderFeed() {
         <span class="ms" style="color:#bbc9cc;font-size:17px;flex-shrink:0;margin-left:.35rem;">notifications</span>
       </div>
       <div class="cm">
-        <div class="cmi">${j.ville ? escapeHtml(j.ville) : 'Localisation non précisée'}</div>
-        <div class="cmi">${escapeHtml(CONTRACT_LABELS[ct] || ct || 'Non précisé')}</div>
+        <div class="cmi"><span class="ms" style="font-size:12px;">description</span>${escapeHtml(CONTRACT_LABELS[ct] || ct || 'Non précisé')}</div>
         ${cardExperienceHtml(j)}
       </div>
       <div class="ctags">
