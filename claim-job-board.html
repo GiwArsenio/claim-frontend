@@ -1030,7 +1030,7 @@ function renderFeed() {
         ${renderCompanyLogo(co, 'clogo')}
         <div class="ci">
           <div class="ctitle">${j.title}</div>
-          <div class="csub">${co.name || j.source} · ${j.city || ''}${j.region ? ', ' + j.region : ''}</div>
+          <div class="csub">${co.name || j.source}${j.ville ? ' · ' + escapeHtml(j.ville) : ''}</div>
         </div>
         <span class="ms" style="color:#bbc9cc;font-size:17px;flex-shrink:0;margin-left:.35rem;">notifications</span>
       </div>
@@ -1128,8 +1128,8 @@ async function renderDetail(id) {
             <div class="ki"><span class="ms" style="color:#006876;font-size:18px;">description</span>
               <div><div class="kl">Contrat</div><div class="kv">${ctLabel}</div></div>
             </div>
-            ${j.city ? `<div class="ki"><span class="ms" style="color:#006876;font-size:18px;">location_on</span>
-              <div><div class="kl">Localisation</div><div class="kv">${j.city}${j.region ? ', ' + j.region : ''}</div></div>
+            ${j.ville ? `<div class="ki"><span class="ms" style="color:#006876;font-size:18px;">location_on</span>
+              <div><div class="kl">Localisation</div><div class="kv">${escapeHtml(j.ville)}</div></div>
             </div>` : ''}
             ${(() => { const expLabel = experienceLabel(j); return expLabel ? `<div class="ki"><span class="ms" style="color:#006876;font-size:18px;">trending_up</span>
               <div><div class="kl">Expérience</div><div class="kv">${escapeHtml(expLabel)}</div></div>
