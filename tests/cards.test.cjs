@@ -2,14 +2,14 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const assert = require('node:assert/strict');
 const html = fs.readFileSync(require('node:path').join(__dirname, '../claim-job-board.html'), 'utf8');
-const funcs = ['specialtyLabel', 'experienceLabel', 'cardExperienceHtml', 'cardFactHtml', 'cardSalaryHtml', 'cardMetadataHtml', 'salaryLabel', 'cardLocationHtml', 'skillLabels', 'skillChips', 'skillsHtml'].map(name => {
+const funcs = ['specialtyLabel', 'experienceLabel', 'cardExperienceHtml', 'cardFactHtml', 'cardSalaryHtml', 'cardMetadataHtml', 'salaryLabel', 'cardLocationHtml', 'descriptionBlocks', 'descriptionHtml', 'decodeBasicEntities', 'skillLabels', 'skillChips', 'skillsHtml'].map(name => {
  const start = html.indexOf('function ' + name + '(');
  const end = html.indexOf('\n}', start) + 2;
  assert.ok(start >= 0 && end > start);
  return html.slice(start, end);
 }).join('\n');
 const context = vm.createContext({});
-vm.runInContext(`const JEV_SPECIALTY_LABELS = {"actuariat": "Actuariat", "ia_data": "IA / Data", "souscription_technique": "Souscription technique", "autre": "Autre"}; const JEV_EXPERIENCE_LABELS = {senior:"Senior"}; const CONTRACT_LABELS = {cdi:"CDI"}; function escapeHtml(x){return x;} ${funcs}`, context);
+vm.runInContext(`const JEV_SPECIALTY_LABELS = {"actuariat": "Actuariat", "ia_data": "IA / Data", "souscription_technique": "Souscription technique", "autre": "Autre"}; const JEV_EXPERIENCE_LABELS = {senior:"Senior"}; const CONTRACT_LABELS = {cdi:"CDI"}; const DESCRIPTION_PREVIEW_CHARS = 600; let descExpanded = false; let descBlocks = []; function escapeHtml(x){return x;} ${funcs}`, context);
 
 function label(row){context.row = row;return vm.runInContext('specialtyLabel(row)', context);}
 assert.equal(label({specialty:'actuariat_iard',jev_specialty:'ia_data',jev_curation_status:'done',jev_publishable:{specialty:true}}), 'IA / Data');
@@ -113,3 +113,37 @@ assert.ok(html.includes('.card-fact--loc { background: #e9f6f8; border-color: #b
 assert.ok(html.includes('.card-fact--loc .ms { color: #006876; }'));
 assert.ok(html.includes('.jc .ctags .tag { font-size: 9px; padding: 3px 6px; }'));
 console.log('Location colour and badge height tests passed');
+
+// Description : aperçu dépliable, paragraphes conservés. Le texte long ne doit
+// plus être coupé définitivement à 600 caractères.
+context.long = Array.from({length: 12}, (_, i) => 'Paragraphe ' + (i + 1) + ' ' + 'x'.repeat(180)).join('\n');
+context.blocks = vm.runInContext('descriptionBlocks(long)', context);
+assert.ok(context.blocks.length >= 10, 'les paragraphes doivent etre conserves');
+context.apercu = vm.runInContext('descriptionHtml(blocks, false)', context);
+assert.ok(context.apercu.includes('Lire la suite'), 'un apercu tronque doit proposer la suite');
+assert.ok(context.apercu.length < context.long.length / 2, 'l apercu doit rester court');
+assert.ok(!context.apercu.includes('Paragraphe 12'), 'les derniers paragraphes restent masques');
+context.complet = vm.runInContext('descriptionHtml(blocks, true)', context);
+assert.ok(context.complet.includes('Paragraphe 12'), 'le texte complet doit etre atteignable');
+assert.ok(context.complet.includes('R\u00e9duire'));
+assert.ok(context.complet.length > context.apercu.length * 2, 'le depliage doit rendre bien plus de texte');
+// Une description courte s'affiche entièrement, sans bouton.
+context.blocks = vm.runInContext("descriptionBlocks('Une seule phrase courte.')", context);
+context.court = vm.runInContext('descriptionHtml(blocks, false)', context);
+assert.ok(!context.court.includes('Lire la suite'), 'pas de bouton quand tout est visible');
+// Les balises de bloc deviennent des paragraphes.
+context.blocks = vm.runInContext("descriptionBlocks('<p>Premier</p><p>Second</p>')", context);
+assert.equal(context.blocks.length, 2);
+// Le résumé généré ne remplace plus la description.
+assert.ok(!html.includes('cleanDescription.slice(0, 600)'), 'la troncature a 600 caracteres doit disparaitre');
+console.log('Description preview tests passed');
+
+// Décodage pur, vérifiable sans navigateur.
+context.brut = "&lt;p&gt;Salaire &amp;amp; primes&lt;/p&gt;";
+assert.equal(vm.runInContext('decodeBasicEntities(brut)', context), '<p>Salaire &amp; primes</p>');
+context.brut = 'Ligne1<br/>Ligne2&nbsp;suite';
+context.blocks = vm.runInContext('descriptionBlocks(brut)', context);
+// Array.from replacer dans le domaine hote : un tableau cree dans le contexte
+// vm n a pas le meme prototype, et le comparateur strict le refuse.
+assert.deepEqual(Array.from(context.blocks), ['Ligne1', 'Ligne2 suite']);
+console.log('Entity decoding tests passed');
