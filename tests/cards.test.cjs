@@ -55,3 +55,15 @@ context.row.jev_publishable.experience = false;
 assert.ok(!vm.runInContext('cardMetadataHtml(row)', context).includes('Expérience'));
 assert.equal(vm.runInContext('cardSalaryHtml(row)', context), '');
 console.log('Contract/experience extensible metadata tests passed');
+
+// Compact independent pills: no visible labels, no full-width band.
+assert.ok(!metadata.includes('card-fact-label'));
+assert.ok(metadata.includes('title="Contrat : CDI"'));
+assert.ok(metadata.includes('aria-label="Expérience : Senior"'));
+assert.ok(html.includes('padding: 2px 8px;'));
+assert.ok(html.includes('line-height: 16px;'));
+assert.ok(!html.includes('.card-fact + .card-fact'));
+context.row = {contract_type:'cdi'};
+const single = vm.runInContext('cardMetadataHtml(row)', context);
+assert.equal((single.match(/class="card-fact"/g) || []).length, 1);
+console.log('Compact pills tests passed');
