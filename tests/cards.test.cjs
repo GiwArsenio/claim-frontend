@@ -2,7 +2,7 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const assert = require('node:assert/strict');
 const html = fs.readFileSync(require('node:path').join(__dirname, '../claim-job-board.html'), 'utf8');
-const funcs = ['specialtyLabel', 'experienceLabel', 'cardExperienceHtml', 'cardFactHtml', 'cardSalaryHtml', 'cardMetadataHtml', 'salaryLabel', 'skillLabels', 'skillChips', 'skillsHtml'].map(name => {
+const funcs = ['specialtyLabel', 'experienceLabel', 'cardExperienceHtml', 'cardFactHtml', 'cardSalaryHtml', 'cardMetadataHtml', 'salaryLabel', 'cardLocationHtml', 'skillLabels', 'skillChips', 'skillsHtml'].map(name => {
  const start = html.indexOf('function ' + name + '(');
  const end = html.indexOf('\n}', start) + 2;
  assert.ok(start >= 0 && end > start);
@@ -34,7 +34,7 @@ console.log('Cards Jev regression tests passed');
 // Le libellé de lieu vient de l'API (champ ville) : la carte ne doit plus
 // concaténer la région, qui n'est jamais renseignée en base.
 assert.ok(!html.includes('j.region'), 'la region ne doit plus etre affichee');
-assert.ok(html.includes("j.ville ? ' \u00b7 ' + escapeHtml(j.ville)"), 'la carte doit afficher la ville');
+assert.ok(!html.includes("' \u00b7 ' + escapeHtml(j.ville)"), 'la ville ne doit plus suivre le nom de l entreprise');
 assert.ok(!html.includes('${j.city'), 'la carte ne doit plus utiliser city brut');
 console.log('Ville display tests passed');
 
@@ -88,3 +88,18 @@ const avecSalaire = vm.runInContext('cardMetadataHtml(row)', context);
 assert.ok(avecSalaire.includes('45–55 k€/an') && avecSalaire.includes('CDI'));
 assert.ok(avecSalaire.indexOf('CDI') < avecSalaire.indexOf('45–55 k€/an'), 'le salaire vient apres le contrat');
 console.log('Salary pill tests passed');
+
+// Localisation dans le bandeau, en tete, avec une icone.
+context.row = {contract_type:'cdi', ville:'Nanterre', jev_publishable:{}};
+const bandeau = vm.runInContext('cardMetadataHtml(row)', context);
+const posVille = bandeau.indexOf('Nanterre');
+const posContrat = bandeau.indexOf('CDI');
+assert.ok(posVille >= 0 && posVille < posContrat, 'la localisation doit preceder le contrat');
+assert.ok(bandeau.includes('location_on'), 'la localisation doit porter une icone');
+assert.ok(bandeau.includes('aria-label="Localisation : Nanterre"'));
+// Sans ville, aucune pastille vide.
+context.row = {contract_type:'cdi', ville:'', jev_publishable:{}};
+const sansVille = vm.runInContext('cardMetadataHtml(row)', context);
+assert.ok(!sansVille.includes('location_on'), 'pas de pastille de localisation sans ville');
+assert.ok(sansVille.includes('CDI'));
+console.log('Location pill tests passed');
