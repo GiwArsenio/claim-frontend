@@ -1011,11 +1011,19 @@ function cardExperienceHtml(j) {
   return label ? cardFactHtml('Expérience', label) : '';
 }
 
+function salaryLabel(j) {
+  // Le montant vient du texte de l'offre. Il n'est affiché que si l'API le
+  // déclare publiable : au-dessus du seuil de confiance, sans contradiction.
+  // Rien n'est estimé ni complété.
+  const publie = (j.jev_publishable || {}).salaire === true;
+  const libelle = j.jev_salaire_libelle;
+  return publie && libelle ? libelle : '';
+}
+
 function cardSalaryHtml(j) {
-  // Extension prévue : troisième compartiment « Salaire ». Les règles de
-  // montant, devise, périodicité et source seront définies plus tard.
-  // Aucun salaire ni compartiment vide n'est affiché pour le moment.
-  return '';
+  // Troisième pastille, à côté du contrat et de l'expérience.
+  const libelle = salaryLabel(j);
+  return libelle ? cardFactHtml('Salaire', libelle) : '';
 }
 
 function cardMetadataHtml(j) {
@@ -1144,6 +1152,8 @@ async function renderDetail(id) {
             <div class="ki"><span class="ms" style="color:#006876;font-size:18px;">description</span>
               <div><div class="kl">Contrat</div><div class="kv">${ctLabel}</div></div>
             </div>
+            ${salaryLabel(j) ? `<div class="ki"><span class="ms" style="color:#006876;font-size:18px;">payments</span>
+              <div><div class="kl">Salaire annoncé</div><div class="kv">${escapeHtml(salaryLabel(j))}</div></div></div>` : ''}
             ${j.ville ? `<div class="ki"><span class="ms" style="color:#006876;font-size:18px;">location_on</span>
               <div><div class="kl">Localisation</div><div class="kv">${escapeHtml(j.ville)}</div></div>
             </div>` : ''}
