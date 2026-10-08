@@ -115,6 +115,7 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
 .cm { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin: 9px 0; }
 .card-fact { display: inline-flex; align-items: center; flex: 0 0 auto; max-width: 100%; padding: 2px 8px; border: 1px solid #dce5e9; border-radius: 4px; background: #f5f8f9; }
 .card-fact-value { color: #24363d; font-size: 12px; font-weight: 600; line-height: 16px; overflow-wrap: anywhere; }
+.card-fact .ms { font-size: 14px; color: #65747c; margin-right: 3px; }
 .cmi { display: flex; align-items: center; gap: 3px; font-size: .725rem; color: #515f78; font-weight: 600; }
 .ctags { display: flex; flex-wrap: wrap; gap: 3px; }
 .jc .ctags .tag { font-size: 9px; }
@@ -1026,9 +1027,21 @@ function cardSalaryHtml(j) {
   return libelle ? cardFactHtml('Salaire', libelle) : '';
 }
 
+function cardLocationHtml(j) {
+  // Seule pastille avec une icône : la ville seule ne se lit pas comme une
+  // localisation, alors que « CDI » ou « Senior » sont explicites.
+  const ville = j.ville;
+  if (!ville) return '';
+  const accessibleLabel = escapeHtml(`Localisation : ${ville}`);
+  return `<span class="card-fact" title="${accessibleLabel}" aria-label="${accessibleLabel}">`
+    + `<span class="ms">location_on</span>`
+    + `<span class="card-fact-value">${escapeHtml(ville)}</span></span>`;
+}
+
 function cardMetadataHtml(j) {
   const contract = CONTRACT_LABELS[j.contract_type] || j.contract_type || 'Non précisé';
-  return `<div class="cm">${cardFactHtml('Contrat', contract)}${cardExperienceHtml(j)}${cardSalaryHtml(j)}</div>`;
+  return `<div class="cm">${cardLocationHtml(j)}${cardFactHtml('Contrat', contract)}`
+    + `${cardExperienceHtml(j)}${cardSalaryHtml(j)}</div>`;
 }
 
 // ── Render feed ────────────────────────────────────────────────────────────
@@ -1057,7 +1070,7 @@ function renderFeed() {
         ${renderCompanyLogo(co, 'clogo')}
         <div class="ci">
           <div class="ctitle">${j.title}</div>
-          <div class="csub">${co.name || j.source}${j.ville ? ' · ' + escapeHtml(j.ville) : ''}</div>
+          <div class="csub">${co.name || j.source}</div>
         </div>
         <span class="ms" style="color:#bbc9cc;font-size:17px;flex-shrink:0;margin-left:.35rem;">notifications</span>
       </div>
