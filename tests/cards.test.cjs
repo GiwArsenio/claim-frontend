@@ -2,7 +2,7 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const assert = require('node:assert/strict');
 const html = fs.readFileSync(require('node:path').join(__dirname, '../claim-job-board.html'), 'utf8');
-const funcs = ['specialtyLabel', 'experienceLabel', 'cardExperienceHtml', 'cardFactHtml', 'cardSalaryHtml', 'cardMetadataHtml', 'skillLabels', 'skillChips', 'skillsHtml'].map(name => {
+const funcs = ['specialtyLabel', 'experienceLabel', 'cardExperienceHtml', 'cardFactHtml', 'cardSalaryHtml', 'cardMetadataHtml', 'salaryLabel', 'skillLabels', 'skillChips', 'skillsHtml'].map(name => {
  const start = html.indexOf('function ' + name + '(');
  const end = html.indexOf('\n}', start) + 2;
  assert.ok(start >= 0 && end > start);
@@ -67,3 +67,24 @@ context.row = {contract_type:'cdi'};
 const single = vm.runInContext('cardMetadataHtml(row)', context);
 assert.equal((single.match(/class="card-fact"/g) || []).length, 1);
 console.log('Compact pills tests passed');
+
+// Salaire : affiché uniquement si l'API le déclare publiable.
+context.row = {jev_salaire_libelle:'45–55 k€/an', jev_publishable:{salaire:true}};
+assert.equal(vm.runInContext('salaryLabel(row)', context), '45–55 k€/an');
+assert.ok(vm.runInContext('cardSalaryHtml(row)', context).includes('45–55 k€/an'));
+// Sous le seuil, contradiction, ou montant absent : aucune pastille.
+for (const row of [
+  {jev_salaire_libelle:'≥ 46 k€/an', jev_publishable:{salaire:false}},
+  {jev_salaire_libelle:'45–55 k€/an', jev_publishable:{}},
+  {jev_salaire_libelle:null, jev_publishable:{salaire:true}},
+  {jev_publishable:{salaire:true}}
+]) {
+  context.row = row;
+  assert.equal(vm.runInContext('salaryLabel(row)', context), '');
+  assert.equal(vm.runInContext('cardSalaryHtml(row)', context), '');
+}
+context.row = {contract_type:'cdi', jev_salaire_libelle:'45–55 k€/an', jev_publishable:{salaire:true}};
+const avecSalaire = vm.runInContext('cardMetadataHtml(row)', context);
+assert.ok(avecSalaire.includes('45–55 k€/an') && avecSalaire.includes('CDI'));
+assert.ok(avecSalaire.indexOf('CDI') < avecSalaire.indexOf('45–55 k€/an'), 'le salaire vient apres le contrat');
+console.log('Salary pill tests passed');
