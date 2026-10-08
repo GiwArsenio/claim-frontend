@@ -1131,8 +1131,8 @@ async function fetchDetail(id) {
 // dépliable. Rien n'est tronqué définitivement, et les paragraphes sont
 // conservés — sans quoi un texte de 20 000 caractères devient un bloc illisible.
 const DESCRIPTION_PREVIEW_CHARS = 600;
-let descExpanded = false;
-let descBlocks = [];
+let descExpanded = {};
+let descSections = [];
 
 // Décodage sans DOM : la mise en forme d'une description ne doit pas dépendre
 // du navigateur, et reste ainsi vérifiable par les tests.
@@ -1162,7 +1162,7 @@ function descriptionBlocks(value) {
     .filter(Boolean);
 }
 
-function descriptionHtml(blocks, expanded) {
+function descriptionHtml(blocks, expanded, index) {
   if (!blocks.length) return '';
   let choisis = blocks;
   if (!expanded) {
@@ -1177,15 +1177,26 @@ function descriptionHtml(blocks, expanded) {
   const corps = choisis.map(p => `<p>${escapeHtml(p)}</p>`).join('');
   const reste = choisis.length < blocks.length;
   if (!reste && !expanded) return corps;
-  return corps + `<button class="desc-more" onclick="toggleDescription()">`
+  return corps + `<button class="desc-more" onclick="toggleDescription(${index})">`
     + `${expanded ? 'Réduire' : 'Lire la suite'}</button>`;
 }
 
-function toggleDescription() {
-  const cible = document.getElementById('desc-body');
+function toggleDescription(index) {
+  const cible = document.getElementById('desc-body-' + index);
   if (!cible) return;
-  descExpanded = !descExpanded;
-  cible.innerHTML = descriptionHtml(descBlocks, descExpanded);
+  descExpanded[index] = !descExpanded[index];
+  cible.innerHTML = descriptionHtml(descSections[index].paragraphes, descExpanded[index], index);
+}
+
+// Icône propre à chaque section, pour les distinguer d'un coup d'œil.
+const SECTION_ICONS = { "Le poste": "work", "Missions": "checklist", "Profil recherché": "person" };
+
+function descriptionSectionsHtml() {
+  return descSections.map((section, index) => `<div class="ds">
+      <h3><span class="ms" style="color:#006876;">${SECTION_ICONS[section.titre] || 'article'}</span>
+        ${escapeHtml(section.titre)}</h3>
+      <div id="desc-body-${index}">${descriptionHtml(section.paragraphes, false, index)}</div>
+    </div>`).join('');
 }
 
 // ── Render detail ──────────────────────────────────────────────────────────
@@ -1204,12 +1215,18 @@ async function renderDetail(id) {
     const spLabel = specialtyLabel(j);
     const skillsBloc = skillsHtml(j);
 
-    // Un résumé généré ne remplace pas la description : il la précède.
-    descExpanded = false;
-    descBlocks = descriptionBlocks(j.description_raw);
-    const summary = descBlocks.length
+    // L'API découpe la description quand les intitulés sont reconnaissables.
+    // Sans section, le texte entier est présenté comme avant : rien n'est perdu.
+    const sectionsApi = (Array.isArray(j.sections) ? j.sections : [])
+      .filter(s => (s.paragraphes || []).length);
+    const blocsTexte = descriptionBlocks(j.description_raw);
+    descSections = sectionsApi.length
+      ? sectionsApi.map(s => ({ titre: s.titre, paragraphes: s.paragraphes }))
+      : (blocsTexte.length ? [{ titre: 'Aperçu du poste', paragraphes: blocsTexte }] : []);
+    descExpanded = {};
+    const summary = descSections.length
       ? (j.ai_summary ? `<p class="desc-ia">${escapeHtml(j.ai_summary)}</p>` : '')
-        + `<div id="desc-body">${descriptionHtml(descBlocks, false)}</div>`
+        + descriptionSectionsHtml()
       : '<p>Description non disponible.</p>';
 
     document.getElementById('detail').innerHTML = `
@@ -1257,10 +1274,7 @@ async function renderDetail(id) {
           </div>
         </div>
         <div class="d-body">
-          <div class="ds">
-            <h3><span class="ms" style="color:#006876;">analytics</span> Aperçu du poste</h3>
-            ${summary}
-          </div>
+          ${summary}
           ${skillsBloc}
           <div class="cb">
             <div style="display:flex;align-items:center;gap:.625rem;">
