@@ -103,3 +103,13 @@ const sansVille = vm.runInContext('cardMetadataHtml(row)', context);
 assert.ok(!sansVille.includes('location_on'), 'pas de pastille de localisation sans ville');
 assert.ok(sansVille.includes('CDI'));
 console.log('Location pill tests passed');
+
+// Couleur propre à la localisation, et badges de spécialité rehaussés.
+context.row = {ville:'Nanterre', jev_publishable:{}};
+const loc = vm.runInContext('cardLocationHtml(row)', context);
+assert.ok(loc.includes('card-fact--loc'), 'la localisation doit porter sa propre classe');
+assert.ok(!vm.runInContext("cardFactHtml('Contrat','CDI')", context).includes('card-fact--loc'));
+assert.ok(html.includes('.card-fact--loc { background: #e9f6f8; border-color: #bfe2e8; }'));
+assert.ok(html.includes('.card-fact--loc .ms { color: #006876; }'));
+assert.ok(html.includes('.jc .ctags .tag { font-size: 9px; padding: 3px 6px; }'));
+console.log('Location colour and badge height tests passed');

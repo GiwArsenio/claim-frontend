@@ -116,9 +116,16 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
 .card-fact { display: inline-flex; align-items: center; flex: 0 0 auto; max-width: 100%; padding: 2px 8px; border: 1px solid #dce5e9; border-radius: 4px; background: #f5f8f9; }
 .card-fact-value { color: #24363d; font-size: 12px; font-weight: 600; line-height: 16px; overflow-wrap: anywhere; }
 .card-fact .ms { font-size: 14px; color: #65747c; margin-right: 3px; }
+/* La localisation porte sa propre teinte : elle indique un lieu, pas une
+   condition de poste, et doit se distinguer au premier regard. */
+.card-fact--loc { background: #e9f6f8; border-color: #bfe2e8; }
+.card-fact--loc .card-fact-value { color: #00545f; }
+.card-fact--loc .ms { color: #006876; }
 .cmi { display: flex; align-items: center; gap: 3px; font-size: .725rem; color: #515f78; font-weight: 600; }
 .ctags { display: flex; flex-wrap: wrap; gap: 3px; }
-.jc .ctags .tag { font-size: 9px; }
+/* Hauteur relevée sans toucher au texte : les badges gagnent en présence sans
+   concurrencer le titre. */
+.jc .ctags .tag { font-size: 9px; padding: 3px 6px; }
 .cdate { position: absolute; bottom: .5rem; right: .875rem; font-size: 9px; color: #6c797c; font-weight: 500; }
 .tag { display: inline-block; padding: 1.5px 5px; border-radius: 3px; font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
 .tm { background: #a1efff; color: #004e59; }
@@ -1033,7 +1040,7 @@ function cardLocationHtml(j) {
   const ville = j.ville;
   if (!ville) return '';
   const accessibleLabel = escapeHtml(`Localisation : ${ville}`);
-  return `<span class="card-fact" title="${accessibleLabel}" aria-label="${accessibleLabel}">`
+  return `<span class="card-fact card-fact--loc" title="${accessibleLabel}" aria-label="${accessibleLabel}">`
     + `<span class="ms">location_on</span>`
     + `<span class="card-fact-value">${escapeHtml(ville)}</span></span>`;
 }
