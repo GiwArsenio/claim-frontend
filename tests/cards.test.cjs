@@ -2,14 +2,14 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const assert = require('node:assert/strict');
 const html = fs.readFileSync(require('node:path').join(__dirname, '../claim-job-board.html'), 'utf8');
-const funcs = ['specialtyLabel', 'experienceLabel', 'cardExperienceHtml', 'cardFactHtml', 'cardSalaryHtml', 'cardMetadataHtml', 'salaryLabel', 'cardLocationHtml', 'descriptionBlocks', 'descriptionHtml', 'decodeBasicEntities', 'skillLabels', 'skillChips', 'skillsHtml'].map(name => {
+const funcs = ['specialtyLabel', 'experienceLabel', 'cardExperienceHtml', 'cardFactHtml', 'cardSalaryHtml', 'cardMetadataHtml', 'salaryLabel', 'cardLocationHtml', 'descriptionBlocks', 'descriptionHtml', 'decodeBasicEntities', 'descriptionSectionsHtml', 'skillLabels', 'skillChips', 'skillsHtml'].map(name => {
  const start = html.indexOf('function ' + name + '(');
  const end = html.indexOf('\n}', start) + 2;
  assert.ok(start >= 0 && end > start);
  return html.slice(start, end);
 }).join('\n');
 const context = vm.createContext({});
-vm.runInContext(`const JEV_SPECIALTY_LABELS = {"actuariat": "Actuariat", "ia_data": "IA / Data", "souscription_technique": "Souscription technique", "autre": "Autre"}; const JEV_EXPERIENCE_LABELS = {senior:"Senior"}; const CONTRACT_LABELS = {cdi:"CDI"}; const DESCRIPTION_PREVIEW_CHARS = 600; let descExpanded = false; let descBlocks = []; function escapeHtml(x){return x;} ${funcs}`, context);
+vm.runInContext(`const JEV_SPECIALTY_LABELS = {"actuariat": "Actuariat", "ia_data": "IA / Data", "souscription_technique": "Souscription technique", "autre": "Autre"}; const JEV_EXPERIENCE_LABELS = {senior:"Senior"}; const CONTRACT_LABELS = {cdi:"CDI"}; const DESCRIPTION_PREVIEW_CHARS = 600; let descExpanded = {}; let descSections = []; const SECTION_ICONS = { "Le poste": "work", "Missions": "checklist", "Profil recherché": "person" }; function escapeHtml(x){return x;} ${funcs}`, context);
 
 function label(row){context.row = row;return vm.runInContext('specialtyLabel(row)', context);}
 assert.equal(label({specialty:'actuariat_iard',jev_specialty:'ia_data',jev_curation_status:'done',jev_publishable:{specialty:true}}), 'IA / Data');
@@ -147,3 +147,24 @@ context.blocks = vm.runInContext('descriptionBlocks(brut)', context);
 // vm n a pas le meme prototype, et le comparateur strict le refuse.
 assert.deepEqual(Array.from(context.blocks), ['Ligne1', 'Ligne2 suite']);
 console.log('Entity decoding tests passed');
+
+// Sections : ordre respecté, chacune dépliable, icône propre.
+// Les variables déclarées par « let » dans le contexte masquent les propriétés
+// qu'on y déposerait : on les assigne depuis l'intérieur du contexte.
+vm.runInContext(`descSections = [
+  {titre:'Le poste', paragraphes:['Un rôle.']},
+  {titre:'Missions', paragraphes:Array.from({length:10},(_,i)=>'Mission '+(i+1)+' '+'x'.repeat(150))},
+  {titre:'Profil recherché', paragraphes:['Un Master 2.']},
+]; descExpanded = {};`, context);
+const htmlSections = vm.runInContext('descriptionSectionsHtml()', context);
+assert.ok(htmlSections.indexOf('Le poste') < htmlSections.indexOf('Missions'), 'ordre: poste avant missions');
+assert.ok(htmlSections.indexOf('Missions') < htmlSections.indexOf('Profil recherché'), 'ordre: missions avant profil');
+assert.ok(htmlSections.includes('work') && htmlSections.includes('checklist') && htmlSections.includes('person'));
+assert.ok(htmlSections.includes('desc-body-0') && htmlSections.includes('desc-body-2'));
+assert.ok(!htmlSections.includes('Aperçu du poste'), 'le titre generique disparait quand les sections existent');
+// Le bouton cible bien la section concerne.
+vm.runInContext("descSections = [{titre:'Missions', paragraphes:Array.from({length:8},(_,i)=>'M'+i+' '+'y'.repeat(160))}]; descExpanded = {};", context);
+const une = vm.runInContext('descriptionSectionsHtml()', context);
+assert.ok(une.includes('onclick="toggleDescription(0)"'), 'le depliage doit viser la section');
+assert.ok(!html.includes('toggleDescription()'), 'plus de depliage sans index');
+console.log('Description sections tests passed');
