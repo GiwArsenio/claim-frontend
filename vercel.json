@@ -25,6 +25,10 @@
       "dest": "/api/$1"
     },
     {
+      "src": "/offre/(.*)",
+      "dest": "/api/offre.js?slug=$1"
+    },
+    {
       "src": "/",
       "dest": "/claim-job-board.html"
     },
