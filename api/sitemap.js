@@ -45,7 +45,9 @@ module.exports = async (req, res) => {
 
     // 5. Pages offres individuelles
     const jobPages = allSlugs.map(({ slug, date }) => ({
-      url:        `/offre/${slug}`,
+      // Les slugs comportent des accents : une adresse de sitemap doit être
+      // encodée, sinon elle ne correspond à aucune ressource.
+      url:        `/offre/${encodeURIComponent(slug)}`,
       lastmod:    date ? date.slice(0, 10) : undefined,
       priority:   '0.6',
       changefreq: 'weekly',
