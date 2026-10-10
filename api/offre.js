@@ -93,8 +93,17 @@ function construire(job, urlCanonique) {
     pastilles.push(`<span class="pastille pastille-specialite">${echapper(LABELS_SPECIALITE[job.jev_specialty] || job.jev_specialty)}</span>`);
   }
 
+  // Priorité à la structure éditoriale de la source quand elle a été
+  // conservée : paragraphes, puces et emphases sont ce que le lecteur attend.
+  // Le HTML a été nettoyé à la collecte ; il ne contient que du texte et des
+  // balises de lecture.
+  const htmlSource = typeof job.description_html === 'string' ? job.description_html.trim() : '';
+  const structureSource = htmlSource && /<(p|ul|ol|li|h[2-6]|blockquote)\b/i.test(htmlSource);
+
   let corps = '';
-  if (sections.length) {
+  if (structureSource) {
+    corps = htmlSource;
+  } else if (sections.length) {
     corps = sections.map((s) => {
       const paragraphes = (s.paragraphes || []).map((p) => `<p>${echapper(p)}</p>`).join('');
       return `<section class="section"><h2>${echapper(s.titre)}</h2>${paragraphes}</section>`;
@@ -157,6 +166,15 @@ ${societe.logo_url ? `<meta property="og:image" content="${echapper(societe.logo
  .pastille-specialite { background:#ffdcc2; border-color:#f0c8a6; color:#6d3a00; }
  h2 { font-size:1.05rem; margin:1.8rem 0 .5rem; }
  p { margin:0 0 .7rem; color:#3c494c; }
+ /* Structure éditoriale venue de la source : listes, emphases, sous-titres. */
+ ul, ol { margin:0 0 .9rem; padding-left:1.3rem; color:#3c494c; }
+ li { margin:.25rem 0; }
+ li > ul, li > ol { margin:.25rem 0 .1rem; }
+ strong, b { color:#191c1d; }
+ em, i { font-style:italic; }
+ h3, h4, h5, h6 { font-size:.98rem; margin:1.2rem 0 .4rem; color:#191c1d; }
+ blockquote { margin:0 0 .9rem; padding-left:.8rem; border-left:3px solid #bfe2e8; color:#3c494c; }
+ a { color:var(--teal); }
  .pied { margin-top:2.5rem; padding-top:1.2rem; border-top:1px solid #e6edf0; font-size:.85rem; color:var(--gris); }
  .pied a { color:var(--teal); font-weight:600; }
 </style>
