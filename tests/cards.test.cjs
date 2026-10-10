@@ -192,3 +192,22 @@ assert.ok(html.includes('id=\'toast-claim\'') || html.includes("'toast-claim'"),
 assert.ok(html.includes('navigator.share'), 'la feuille de partage native doit etre tentee');
 assert.ok(html.includes('offreCourante = j;'), 'l offre affichee doit etre memorisee');
 console.log('Offer link tests passed');
+
+
+// Structure editoriale dans le board : la page d'offre la rendait, pas le
+// detail du board. La mise a jour n'y apparaissait donc pas.
+const boardHtml = require('node:fs').readFileSync(__dirname + '/../claim-job-board.html', 'utf8');
+assert.ok(boardHtml.includes('descHtmlSource'), 'le board doit suivre la structure d origine');
+assert.ok(boardHtml.includes('desc-source'), 'un conteneur dedie est attendu');
+assert.ok(
+  boardHtml.indexOf('descHtmlSource') < boardHtml.indexOf('descriptionSectionsHtml()'),
+  'la structure d origine passe avant la decoupe automatique'
+);
+// Le HTML n'est jamais evalue : il est insere tel quel, apres nettoyage a la
+// collecte. Aucun eval, aucune fonction construite dynamiquement.
+assert.ok(!boardHtml.includes('eval('), 'aucune evaluation de HTML');
+assert.ok(!boardHtml.includes('new Function'), 'aucune fonction construite a la volee');
+// Styles des listes et emphases.
+assert.ok(boardHtml.includes('.desc-source ul'), 'les listes doivent etre stylisees');
+assert.ok(boardHtml.includes('.desc-source strong'), 'les emphases doivent etre stylisees');
+console.log('Board editorial structure tests passed');
