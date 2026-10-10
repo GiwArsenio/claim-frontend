@@ -157,6 +157,17 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
 .ds h3 { font-size: 0.9875rem; font-weight: 700; color: #191c1d; display: flex; align-items: center; gap: .35rem; margin-bottom: .5rem; }
 .ds p { color: #515f78; line-height: 1.7; margin-bottom: .45rem; font-size: 0.9rem; }
 .ds p.desc-ia { color: #3c494c; font-style: italic; padding-left: .6rem; border-left: 3px solid rgba(0,104,118,.25); }
+/* Structure éditoriale venue de la source : listes, emphases, sous-titres.
+   Même lecture que la page d'offre, dans la typographie du site. */
+.desc-source p { color: #515f78; line-height: 1.7; margin-bottom: .55rem; font-size: 0.9rem; }
+.desc-source ul, .desc-source ol { margin: 0 0 .7rem; padding-left: 1.25rem; color: #515f78; }
+.desc-source li { margin: .28rem 0; line-height: 1.7; font-size: 0.9rem; }
+.desc-source li > ul, .desc-source li > ol { margin: .3rem 0 .1rem; }
+.desc-source strong, .desc-source b { color: #191c1d; font-weight: 700; }
+.desc-source em, .desc-source i { font-style: italic; }
+.desc-source h3, .desc-source h4, .desc-source h5, .desc-source h6 { font-size: 0.92rem; font-weight: 700; color: #191c1d; margin: 1.1rem 0 .4rem; }
+.desc-source blockquote { margin: 0 0 .7rem; padding-left: .7rem; border-left: 3px solid rgba(0,104,118,.25); color: #515f78; }
+.desc-source a { color: #006876; }
 .desc-more { margin-top: .35rem; padding: .3rem .7rem; border-radius: 9999px; border: 1px solid rgba(0,104,118,.3);
   background: #fff; color: #006876; font-family: inherit; font-size: .78rem; font-weight: 700; cursor: pointer; }
 .desc-more:hover { background: #e8f4f6; }
@@ -1148,6 +1159,9 @@ async function fetchDetail(id) {
 const DESCRIPTION_PREVIEW_CHARS = 600;
 let descExpanded = {};
 let descSections = [];
+// Structure éditoriale de l'annonce, conservée à la collecte et nettoyée.
+// Prioritaire sur la découpe automatique : c'est la rédaction d'origine.
+let descHtmlSource = '';
 
 // Décodage sans DOM : la mise en forme d'une description ne doit pas dépendre
 // du navigateur, et reste ainsi vérifiable par les tests.
@@ -1283,8 +1297,16 @@ async function renderDetail(id) {
     const spLabel = specialtyLabel(j);
     const skillsBloc = skillsHtml(j);
 
-    // L'API découpe la description quand les intitulés sont reconnaissables.
-    // Sans section, le texte entier est présenté comme avant : rien n'est perdu.
+    // Priorité à la structure éditoriale de la source quand elle a été
+    // conservée à la collecte : paragraphes, puces et emphases sont ceux de la
+    // rédaction d'origine. Le HTML a été nettoyé à la collecte ; il n'est
+    // jamais évalué, seulement inséré.
+    const htmlSource = typeof j.description_html === 'string' ? j.description_html.trim() : '';
+    descHtmlSource = (htmlSource && /<(p|ul|ol|li|h[2-6]|blockquote)\b/i.test(htmlSource))
+      ? htmlSource : '';
+
+    // Sans structure d'origine : découpe automatique quand les intitulés sont
+    // reconnaissables, sinon le texte entier. Rien n'est perdu.
     const sectionsApi = (Array.isArray(j.sections) ? j.sections : [])
       .filter(s => (s.paragraphes || []).length);
     const blocsTexte = descriptionBlocks(j.description_raw);
@@ -1292,10 +1314,12 @@ async function renderDetail(id) {
       ? sectionsApi.map(s => ({ titre: s.titre, paragraphes: s.paragraphes }))
       : (blocsTexte.length ? [{ titre: 'Aperçu du poste', paragraphes: blocsTexte }] : []);
     descExpanded = {};
-    const summary = descSections.length
-      ? (j.ai_summary ? `<p class="desc-ia">${escapeHtml(j.ai_summary)}</p>` : '')
-        + descriptionSectionsHtml()
-      : '<p>Description non disponible.</p>';
+    const resumeIa = j.ai_summary ? `<p class="desc-ia">${escapeHtml(j.ai_summary)}</p>` : '';
+    const summary = descHtmlSource
+      ? resumeIa + `<div class="desc-source">${descHtmlSource}</div>`
+      : (descSections.length
+          ? resumeIa + descriptionSectionsHtml()
+          : '<p>Description non disponible.</p>');
 
     document.getElementById('detail').innerHTML = `
       <button class="btn-back" onclick="closeDetail()">
