@@ -140,6 +140,15 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
 .dact { display: flex; flex-direction: column; gap: .3rem; min-width: 170px; }
 .bap { background: #006876; color: #fff; padding: .55rem 1rem; border-radius: .5rem; font-weight: 700; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: .3rem; font-size: 0.875rem; }
 .bsh { background: #f3f4f5; color: #3c494c; padding: .38rem 1rem; border-radius: .5rem; font-weight: 700; border: 1px solid rgba(187,201,204,.25); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: .3rem; font-size: 0.8rem; }
+/* Lien direct vers l'offre, à côté du partage. */
+.lien-offre { text-decoration: none; }
+.lien-offre:hover { background: #e8f4f6; color: #006876; }
+/* Retour visuel après la copie : sur mobile, sans lui, rien ne confirme. */
+.toast-claim { position: fixed; left: 50%; bottom: 1.5rem; transform: translate(-50%, 1rem);
+  background: #191c1d; color: #fff; padding: .55rem 1.1rem; border-radius: 9999px;
+  font-size: .82rem; font-weight: 600; opacity: 0; pointer-events: none; z-index: 9999;
+  transition: opacity .2s ease, transform .2s ease; }
+.toast-claim.vu { opacity: 1; transform: translate(-50%, 0); }
 .dkpi { display: flex; flex-wrap: wrap; gap: .875rem 1.75rem; padding: .625rem 0 0; }
 .ki { display: flex; align-items: center; gap: .4rem; }
 .kl { font-size: 10px; font-weight: 700; color: #6c797c; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 2px; }
@@ -711,6 +720,9 @@ let TOTAL_SERVER  = 0;   // total réel côté serveur
 let SERVER_PAGE   = 1;   // page API courante (pour load more serveur)
 let SERVER_PAGES  = 1;   // nb total de pages serveur
 let activeId      = null;
+// Offre actuellement affichee. Le partage s'appuie sur elle, et non sur
+// window.location.href : l'adresse ne designait aucun poste.
+let offreCourante = null;
 let detailCache   = {};
 let KNOWN_SOURCES  = new Set(Object.values(COMPANY_QUERY_ALIASES));
 
@@ -1077,6 +1089,7 @@ function renderFeed() {
       await renderDetail(j.id);
       if (!isMobile()) prEl.scrollTop = 0;
       openDetail();
+      poserAdresseOffre(j.slug);
     };
     el.innerHTML = `
       <div class="ct">
@@ -1202,6 +1215,58 @@ function descriptionSectionsHtml() {
 }
 
 // ── Render detail ──────────────────────────────────────────────────────────
+// ── Adresse et partage d'une offre ────────────────────────────────────────
+// Chaque offre a une adresse : /offre/{slug}. Ouvrir une offre ne changeait
+// pas l'adresse, donc rien n'était copiable ni partageable.
+
+function urlOffre(slug) {
+  return slug ? `${location.origin}/offre/${encodeURIComponent(slug)}` : location.href;
+}
+
+// Retour visuel bref : sur mobile, sans lui, on ne sait pas si le lien est copié.
+function signaler(message) {
+  let bulle = document.getElementById('toast-claim');
+  if (!bulle) {
+    bulle = document.createElement('div');
+    bulle.id = 'toast-claim';
+    bulle.className = 'toast-claim';
+    document.body.appendChild(bulle);
+  }
+  bulle.textContent = message;
+  bulle.classList.add('vu');
+  clearTimeout(bulle._minuteur);
+  bulle._minuteur = setTimeout(() => bulle.classList.remove('vu'), 2600);
+}
+
+async function partagerOffre() {
+  const j = offreCourante;
+  if (!j || !j.slug) return;
+  const url = urlOffre(j.slug);
+  // Sur mobile, la feuille de partage du système est le geste attendu.
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: j.title || 'Offre', url });
+      return;
+    } catch (e) {
+      // Partage annulé par l'utilisateur : on retombe sur la copie.
+    }
+  }
+  try {
+    await navigator.clipboard.writeText(url);
+    signaler('Lien de l\'offre copié');
+  } catch (e) {
+    window.prompt('Copiez le lien de cette offre :', url);
+  }
+}
+
+// L'adresse suit l'offre ouverte : le lien devient copiable depuis la barre.
+function poserAdresseOffre(slug) {
+  if (!slug) return;
+  const cible = `/offre/${encodeURIComponent(slug)}`;
+  if (location.pathname === cible) return;
+  try { history.pushState({ offre: slug }, '', cible); } catch (e) { /* sans history */ }
+}
+
 async function renderDetail(id) {
   document.getElementById('detail').innerHTML = `
     <button class="btn-back" onclick="closeDetail()">
@@ -1211,6 +1276,7 @@ async function renderDetail(id) {
   `;
   try {
     const j = await fetchDetail(id);
+    offreCourante = j;
     const co = j.companies || {};
     const ct      = j.contract_type || '';
     const ctLabel = escapeHtml(CONTRACT_LABELS[ct] || ct || 'Non précisé');
@@ -1249,9 +1315,12 @@ async function renderDetail(id) {
               <a href="${j.source_url || '#'}" target="_blank" rel="noopener" class="bap">
                 Postuler maintenant <span class="ms" style="font-size:14px;">open_in_new</span>
               </a>
-              <button class="bsh" onclick="navigator.clipboard?.writeText(window.location.href)">
+              <button class="bsh" onclick="partagerOffre()">
                 <span class="ms" style="font-size:14px;">share</span> Partager
               </button>
+              <a class="bsh lien-offre" href="${escapeHtml(urlOffre(j.slug))}" onclick="poserAdresseOffre('${escapeHtml(j.slug)}')">
+                <span class="ms" style="font-size:14px;">link</span> Lien de l'offre
+              </a>
             </div>
           </div>
           <div class="dkpi">
@@ -1323,6 +1392,24 @@ function closeDetail() {
   splitEl.classList.remove('detail-open');
   hero.classList.remove('collapsed');
 }
+// Le bouton retour du navigateur : revenir à la liste ferme le détail,
+// revenir en avant le rouvre. Sans cela, l'adresse et l'écran divergeraient.
+window.addEventListener('popstate', async () => {
+  const trouve = location.pathname.match(/^\/offre\/(.+)$/);
+  if (trouve) {
+    const slug = decodeURIComponent(trouve[1]);
+    const cible = ALL_JOBS.find(x => x.slug === slug);
+    if (cible) {
+      activeId = cible.id;
+      renderFeed();
+      await renderDetail(cible.id);
+      openDetail();
+    }
+    return;
+  }
+  closeDetail();
+});
+
 plEl.addEventListener('scroll', function () {
   hero.classList.toggle('collapsed', this.scrollTop > 30);
 });

@@ -2,14 +2,14 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const assert = require('node:assert/strict');
 const html = fs.readFileSync(require('node:path').join(__dirname, '../claim-job-board.html'), 'utf8');
-const funcs = ['specialtyLabel', 'experienceLabel', 'cardExperienceHtml', 'cardFactHtml', 'cardSalaryHtml', 'cardMetadataHtml', 'salaryLabel', 'cardLocationHtml', 'descriptionBlocks', 'descriptionHtml', 'decodeBasicEntities', 'descriptionSectionsHtml', 'skillLabels', 'skillChips', 'skillsHtml'].map(name => {
+const funcs = ['specialtyLabel', 'experienceLabel', 'cardExperienceHtml', 'cardFactHtml', 'cardSalaryHtml', 'cardMetadataHtml', 'salaryLabel', 'cardLocationHtml', 'descriptionBlocks', 'descriptionHtml', 'decodeBasicEntities', 'descriptionSectionsHtml', 'urlOffre', 'skillLabels', 'skillChips', 'skillsHtml'].map(name => {
  const start = html.indexOf('function ' + name + '(');
  const end = html.indexOf('\n}', start) + 2;
  assert.ok(start >= 0 && end > start);
  return html.slice(start, end);
 }).join('\n');
 const context = vm.createContext({});
-vm.runInContext(`const JEV_SPECIALTY_LABELS = {"actuariat": "Actuariat", "ia_data": "IA / Data", "souscription_technique": "Souscription technique", "autre": "Autre"}; const JEV_EXPERIENCE_LABELS = {senior:"Senior"}; const CONTRACT_LABELS = {cdi:"CDI"}; const DESCRIPTION_PREVIEW_CHARS = 600; let descExpanded = {}; let descSections = []; const SECTION_ICONS = { "Le poste": "work", "Missions": "checklist", "Profil recherché": "person" }; function escapeHtml(x){return x;} ${funcs}`, context);
+vm.runInContext(`const JEV_SPECIALTY_LABELS = {"actuariat": "Actuariat", "ia_data": "IA / Data", "souscription_technique": "Souscription technique", "autre": "Autre"}; const JEV_EXPERIENCE_LABELS = {senior:"Senior"}; const CONTRACT_LABELS = {cdi:"CDI"}; const DESCRIPTION_PREVIEW_CHARS = 600; let descExpanded = {}; let descSections = []; const SECTION_ICONS = { "Le poste": "work", "Missions": "checklist", "Profil recherché": "person" }; function escapeHtml(x){return x;} const location={origin:"https://claimyourjob.fr",href:"https://claimyourjob.fr/claim-job-board.html",pathname:"/claim-job-board.html"}; ${funcs}`, context);
 
 function label(row){context.row = row;return vm.runInContext('specialtyLabel(row)', context);}
 assert.equal(label({specialty:'actuariat_iard',jev_specialty:'ia_data',jev_curation_status:'done',jev_publishable:{specialty:true}}), 'IA / Data');
@@ -168,3 +168,27 @@ const une = vm.runInContext('descriptionSectionsHtml()', context);
 assert.ok(une.includes('onclick="toggleDescription(0)"'), 'le depliage doit viser la section');
 assert.ok(!html.includes('toggleDescription()'), 'plus de depliage sans index');
 console.log('Description sections tests passed');
+
+
+// Adresse et partage d'une offre : ouvrir un poste ne changeait pas l'adresse,
+// et le bouton Partager copiait l'adresse du board, qui ne désigne aucune offre.
+context.row = {slug:'actuaire-senior-h-f-42cf9f9e7942'};
+assert.equal(
+  vm.runInContext('urlOffre(row.slug)', context),
+  'https://claimyourjob.fr/offre/actuaire-senior-h-f-42cf9f9e7942'
+);
+// Les slugs accentués doivent être encodés, sinon l'adresse ne résout pas.
+context.row = {slug:'chargé-d-études-actuarielles-h-f-1234'};
+const enc = vm.runInContext('urlOffre(row.slug)', context);
+assert.ok(enc.includes('%C3%A9'), 'les accents doivent être encodés');
+assert.ok(!enc.includes('chargé'), 'aucun caractère accentué brut');
+
+// Le partage ne doit plus dépendre de l'adresse courante.
+assert.ok(!html.includes('navigator.clipboard?.writeText(window.location.href)'),
+  'le bouton ne doit plus copier window.location.href');
+assert.ok(html.includes('onclick="partagerOffre()"'), 'le bouton partage l offre');
+assert.ok(html.includes('id=\'toast-claim\'') || html.includes("'toast-claim'"),
+  'un retour visuel est attendu apres la copie');
+assert.ok(html.includes('navigator.share'), 'la feuille de partage native doit etre tentee');
+assert.ok(html.includes('offreCourante = j;'), 'l offre affichee doit etre memorisee');
+console.log('Offer link tests passed');
