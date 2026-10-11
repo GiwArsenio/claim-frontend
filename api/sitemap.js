@@ -1,12 +1,15 @@
 // api/sitemap.js — Sitemap dynamique CLAIM! (Vercel Serverless)
 // Génère un sitemap XML incluant :
 //   - Les pages statiques
-//   - Les pages de pagination (?page=N) pour le job board
 //   - Les offres individuelles (/offre/{slug})
+//
+// Les pages de pagination du job board (?page=N) ne sont pas declarees. Le
+// board est rendu en JavaScript : ces adresses servent le meme document et ne
+// se distinguent que par leur etat cote client. La balise canonique de la page
+// les consolide vers l'accueil — les declarer ici enverrait le signal inverse.
 
 const API_BASE = process.env.API_URL || 'https://claim-api-production-06b3.up.railway.app/api/v1';
 const SITE_URL = process.env.SITE_URL || 'https://claimyourjob.fr';
-const PAGE_SIZE = 20;
 
 module.exports = async (req, res) => {
   try {
@@ -14,7 +17,6 @@ module.exports = async (req, res) => {
     const r = await fetch(`${API_BASE}/jobs?per_page=1&limit=1&page=1`);
     const d = await r.json();
     const total = d.pagination?.total || 0;
-    const pages = Math.ceil(total / PAGE_SIZE);
 
     // 2. Récupérer tous les slugs pour les URLs individuelles
     const allSlugs = [];
@@ -33,21 +35,7 @@ module.exports = async (req, res) => {
       { url: '/claim-observatoire.html',   priority: '0.6', changefreq: 'monthly' },
     ];
 
-    // 4. Pages de pagination du job board.
-    //    On démarre à p=2 : la page 1 est l'accueil, déjà déclaré ci-dessus sous
-    //    '/'. La déclarer aussi sous '/claim-job-board.html' revenait à soumettre
-    //    deux adresses pour un même contenu (Vercel sert le même fichier sur les
-    //    deux routes) — un doublon que la Search Console signale.
-    const paginationPages = [];
-    for (let p = 2; p <= pages; p++) {
-      paginationPages.push({
-        url:        `/claim-job-board.html?page=${p}`,
-        priority:   '0.8',
-        changefreq: 'daily',
-      });
-    }
-
-    // 5. Pages offres individuelles
+    // 4. Pages offres individuelles
     const jobPages = allSlugs.map(({ slug, date }) => ({
       // Les slugs comportent des accents : une adresse de sitemap doit être
       // encodée, sinon elle ne correspond à aucune ressource.
@@ -57,9 +45,9 @@ module.exports = async (req, res) => {
       changefreq: 'weekly',
     }));
 
-    // 6. Générer le XML
+    // 5. Générer le XML
     const today = new Date().toISOString().slice(0, 10);
-    const urlEntries = [...staticPages, ...paginationPages, ...jobPages]
+    const urlEntries = [...staticPages, ...jobPages]
       .map(({ url, lastmod, priority, changefreq }) => `
   <url>
     <loc>${SITE_URL}${url}</loc>
