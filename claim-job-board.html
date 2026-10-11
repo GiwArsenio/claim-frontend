@@ -821,6 +821,68 @@ let activeId      = null;
 // Offre actuellement affichee. Le partage s'appuie sur elle, et non sur
 // window.location.href : l'adresse ne designait aucun poste.
 let offreCourante = null;
+
+// ── Mesure ────────────────────────────────────────────────────────────────
+// Un plan d'événements unique, commun au board et aux pages d'offre, pour
+// répondre à la seule question qui compte ici : quels canaux amènent des
+// candidats qui trouvent une offre pertinente, et cliquent pour postuler.
+//
+// Rien n'est envoyé si gtag est absent (bloqueur de réseau ou de publicité) :
+// la mesure ne doit jamais casser la page.
+let origineDetail  = 'auto';  // 'auto' au chargement, sinon action de l'utilisateur
+let mesureEnAttente = null;   // recherche ou filtre, envoyé avec son nombre de résultats
+
+function tronquer(valeur, max) {
+  const t = String(valeur == null ? '' : valeur);
+  return t.length > max ? t.slice(0, max) : t;
+}
+
+function mesurer(nom, params) {
+  if (typeof gtag !== 'function') return;
+  const propres = {};
+  Object.keys(params || {}).forEach(k => {
+    const v = params[k];
+    if (v === '' || v == null) return;
+    propres[k] = typeof v === 'string' ? tronquer(v, 100) : v;
+  });
+  gtag('event', nom, propres);
+}
+
+// Paramètres métier portés par tous les événements qui concernent une offre.
+function paramOffre(j, contexte) {
+  const co = (j && j.companies) || {};
+  return {
+    item_id:          tronquer(j && j.id, 100),
+    item_name:        tronquer(j && j.title, 100),
+    company_name:     tronquer(co.name || (j && j.source), 100),
+    job_specialty:    tronquer(j && (j.jev_specialty || j.specialty), 100),
+    contract_type:    tronquer(j && j.contract_type, 100),
+    experience_level: tronquer(j && j.jev_experience, 100),
+    job_source:       tronquer(j && j.source, 100),
+    view_context:     contexte,
+  };
+}
+
+// Filtres actifs : ce que les visiteurs cherchent réellement.
+function paramsFiltres(reinitialise) {
+  const f = currentFilters();
+  const p = {};
+  if (f.contract)   p.filtre_contrat    = f.contract;
+  if (f.specialty)  p.filtre_specialite = f.specialty;
+  if (f.experience) p.filtre_experience = f.experience;
+  if (f.ats)        p.filtre_source     = f.ats;
+  if (f.city)       p.filtre_ville      = f.city;
+  if (reinitialise) p.filtres_reinitialises = true;
+  return p;
+}
+
+// Le clic « Postuler » est la conversion du site : l'intention de candidature.
+// Une intention, pas une candidature envoyée — Claim! ne voit pas ce qui se
+// passe ensuite sur le site de l'employeur.
+function mesurerClicPostuler() {
+  if (!offreCourante) return;
+  mesurer('job_apply_click', paramOffre(offreCourante, 'board'));
+}
 let detailCache   = {};
 let KNOWN_SOURCES  = new Set(Object.values(COMPANY_QUERY_ALIASES));
 
@@ -891,9 +953,17 @@ async function fetchPage(page) {
   if (!d.pagination) d.pagination = { page, per_page: PAGE_SIZE, total: d.data?.length || 0, pages: 1 };
   return d;
 }
-function applySearch() { loadJobs(1); }
-function applyFilters() { loadJobs(1); }
+function applySearch() {
+  const f = currentFilters();
+  mesureEnAttente = { nom: 'search', params: { search_term: f.q || f.city } };
+  loadJobs(1);
+}
+function applyFilters() {
+  mesureEnAttente = { nom: 'filter_apply', params: paramsFiltres(false) };
+  loadJobs(1);
+}
 function resetFilters() {
+  mesureEnAttente = { nom: 'filter_apply', params: paramsFiltres(true) };
   ['q-input','city-input','contract-filter','specialty-filter','experience-filter','ats-filter'].forEach(id => { const el=document.getElementById(id); if (el) el.value=''; });
   loadJobs(1);
 }
@@ -921,8 +991,21 @@ async function loadJobs(forcedPage) {
     // Injecter les liens SEO invisibles vers toutes les pages
     injectSeoLinks(SERVER_PAGES);
 
+    // Ce que le visiteur voit après un chargement, une recherche ou un filtre.
+    mesurer('view_item_list', {
+      results_count: TOTAL_SERVER,
+      page: SERVER_PAGE,
+      view_context: 'board',
+      ...paramsFiltres(false),
+    });
+    if (mesureEnAttente) {
+      mesurer(mesureEnAttente.nom, { ...mesureEnAttente.params, results_count: TOTAL_SERVER });
+      mesureEnAttente = null;
+    }
+
     if (ALL_JOBS.length > 0) {
       activeId = ALL_JOBS[0].id;
+      origineDetail = 'auto';
       renderFeed();
       await renderDetail(activeId);
     } else {
@@ -1222,6 +1305,10 @@ function renderFeed() {
     el.className = 'jc' + (j.id === activeId ? ' on' : '');
     el.onclick = async () => {
       activeId = j.id;
+      // Sélection dans la liste. Distincte de l'ouverture automatique de la
+      // première offre au chargement : celle-ci n'est pas un choix.
+      mesurer('select_item', paramOffre(j, 'board'));
+      origineDetail = 'liste';
       renderFeed();
       await renderDetail(j.id);
       if (!isMobile()) prEl.scrollTop = 0;
@@ -1386,6 +1473,7 @@ async function partagerOffre() {
   if (navigator.share) {
     try {
       await navigator.share({ title: j.title || 'Offre', url });
+      mesurer('share', { ...paramOffre(j, 'board'), method: 'partage_systeme' });
       return;
     } catch (e) {
       // Partage annulé par l'utilisateur : on retombe sur la copie.
@@ -1394,6 +1482,7 @@ async function partagerOffre() {
   try {
     await navigator.clipboard.writeText(url);
     signaler('Lien de l\'offre copié');
+    mesurer('share', { ...paramOffre(j, 'board'), method: 'copie_lien' });
   } catch (e) {
     window.prompt('Copiez le lien de cette offre :', url);
   }
@@ -1417,6 +1506,7 @@ async function renderDetail(id) {
   try {
     const j = await fetchDetail(id);
     offreCourante = j;
+    if (origineDetail !== 'auto') mesurer('view_item', paramOffre(j, 'board'));
     const co = j.companies || {};
     const skillsBloc = skillsHtml(j);
 
@@ -1454,7 +1544,7 @@ async function renderDetail(id) {
             <div class="pastilles">${pastillesOffreHtml(j)}</div>
           </div>
           <div class="dact">
-            ${j.source_url ? `<a class="bap" href="${escapeHtml(j.source_url)}" target="_blank" rel="nofollow noopener">Postuler</a>` : ''}
+            ${j.source_url ? `<a class="bap" href="${escapeHtml(j.source_url)}" target="_blank" rel="nofollow noopener" onclick="mesurerClicPostuler()">Postuler</a>` : ''}
             <button class="bsh" type="button" onclick="partagerOffre()">Partager</button>
           </div>
         </div>
@@ -1508,6 +1598,7 @@ window.addEventListener('popstate', async () => {
     if (cible) {
       activeId = cible.id;
       renderFeed();
+      origineDetail = 'historique';
       await renderDetail(cible.id);
       openDetail();
     }

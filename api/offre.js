@@ -151,6 +151,19 @@ function construire(job, urlCanonique) {
   const salaire = blocSalaire(job);
   if (salaire) offre.baseSalary = salaire;
 
+  // Paramètres de mesure, sérialisés dans la page. Même vocabulaire que le
+  // board, pour que les deux surfaces se lisent dans les mêmes rapports.
+  const mesure = {
+    item_id:          String(job.id == null ? '' : job.id),
+    item_name:        job.title || '',
+    company_name:     nomSociete,
+    job_specialty:    job.jev_specialty || job.specialty || '',
+    contract_type:    contrat,
+    experience_level: job.jev_experience || '',
+    job_source:       job.source || '',
+    view_context:     'standalone',
+  };
+
   const html = `<!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -205,6 +218,7 @@ ${societe.logo_url
   gtag('js', new Date());
   gtag('config', 'G-SKQQXZW4LH');
 </script>
+<script>window.__claimMesure = ${JSON.stringify(mesure).replace(/</g, '\\u003c')};</script>
 </head>
 <body>
 <main class="enveloppe">
@@ -215,9 +229,29 @@ ${societe.logo_url
   ${corps || '<p>Description non disponible.</p>'}
   <div class="pied">
     Offre publiée sur <a href="${SITE_URL}/claim-job-board.html">Claim!</a>.
-    ${job.source_url ? `Source : <a href="${echapper(job.source_url)}" rel="nofollow noopener" target="_blank">l'annonce d'origine</a>.` : ''}
+    ${job.source_url ? `Source : <a href="${echapper(job.source_url)}" rel="nofollow noopener" target="_blank" data-sortie="annonce">l'annonce d'origine</a>.` : ''}
   </div>
 </main>
+<script>
+  (function () {
+    var d = window.__claimMesure || {};
+    if (typeof gtag !== 'function') return;
+    var p = {};
+    Object.keys(d).forEach(function (k) {
+      if (d[k] === '' || d[k] == null) return;
+      p[k] = String(d[k]).slice(0, 100);
+    });
+    // Entrée sur une page d'offre : c'est la consultation.
+    gtag('event', 'view_item', p);
+    // Le lien vers l'annonce d'origine est la seule sortie de la page. C'est
+    // lui qui porte l'intention de candidature — pas une candidature envoyée :
+    // Claim! ne voit pas ce qui se passe ensuite chez l'employeur.
+    var sortie = document.querySelector('a[data-sortie="annonce"]');
+    if (sortie) sortie.addEventListener('click', function () {
+      gtag('event', 'job_apply_click', p);
+    });
+  })();
+</script>
 </body>
 </html>`;
   return { html, resume };
