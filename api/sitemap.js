@@ -33,12 +33,16 @@ module.exports = async (req, res) => {
       { url: '/claim-observatoire.html',   priority: '0.6', changefreq: 'monthly' },
     ];
 
-    // 4. Pages de pagination du job board
+    // 4. Pages de pagination du job board.
+    //    On démarre à p=2 : la page 1 est l'accueil, déjà déclaré ci-dessus sous
+    //    '/'. La déclarer aussi sous '/claim-job-board.html' revenait à soumettre
+    //    deux adresses pour un même contenu (Vercel sert le même fichier sur les
+    //    deux routes) — un doublon que la Search Console signale.
     const paginationPages = [];
-    for (let p = 1; p <= pages; p++) {
+    for (let p = 2; p <= pages; p++) {
       paginationPages.push({
-        url:        p === 1 ? '/claim-job-board.html' : `/claim-job-board.html?page=${p}`,
-        priority:   p === 1 ? '1.0' : '0.8',
+        url:        `/claim-job-board.html?page=${p}`,
+        priority:   '0.8',
         changefreq: 'daily',
       });
     }
