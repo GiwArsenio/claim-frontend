@@ -408,6 +408,17 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
   .btn-back { display: none; }
   .btn-burger { display: none; }
   #burger-menu { display: none !important; }
+
+  /* Lecture de la fiche : le défilement efface l'en-tête et le bandeau de
+     recherche, la fiche remonte et occupe l'écran. Tout revient en haut.
+
+     Hauteur par max-height et non display:none : #app est une grille dont
+     les rangées se remplissent dans l'ordre du DOM. Un élément retiré du
+     flux ferait glisser #split sur une rangée « auto » et l'effondrerait. */
+  #hd { max-height: 70px; transition: max-height .35s cubic-bezier(.4,0,.2,1), opacity .25s ease; }
+  body.fiche-defilee #hd { max-height: 0; opacity: 0; overflow: hidden; }
+  body.fiche-defilee #hero { max-height: 0; opacity: 0; padding-top: 0; padding-bottom: 0;
+    border-bottom-width: 0; }
 }
 </style>
 </head>
@@ -729,6 +740,22 @@ const plEl    = document.querySelector('.pl');
 const prEl    = document.getElementById('pr');
 const splitEl = document.getElementById('split');
 const hero    = document.getElementById('hero');
+
+// En bureau, lire la fiche efface le haut de la page : l'en-tête du site et
+// le bandeau de recherche s'effacent, la fiche remonte et occupe l'écran.
+// Tout revient dès qu'on remonte en haut de la fiche.
+//
+// Le suivi est posé une fois ici, et non à chaque rendu : un écouteur ajouté
+// par rendu s'accumulerait, et l'ancien code le retirait au premier
+// défilement ({ once: true }), donc il ne servait qu'une fois.
+//
+// Sur téléphone, l'en-tête est déjà effacé par la classe detail-view : ce
+// suivi ne concerne que le bureau.
+const SEUIL_LECTURE_FICHE = 24;
+prEl.addEventListener('scroll', function () {
+  if (isMobile()) return;
+  document.body.classList.toggle('fiche-defilee', this.scrollTop > SEUIL_LECTURE_FICHE);
+});
 
 // ── Lecture de ?page= dans l'URL (SEO) ────────────────────────────────────
 function getUrlPage() {
@@ -1367,6 +1394,7 @@ function closeDetail() {
   splitEl.classList.remove('detail-open');
   hero.classList.remove('collapsed');
   document.body.classList.remove('detail-view');
+  document.body.classList.remove('fiche-defilee');
 }
 // Le bouton retour du navigateur : revenir à la liste ferme le détail,
 // revenir en avant le rouvre. Sans cela, l'adresse et l'écran divergeraient.
