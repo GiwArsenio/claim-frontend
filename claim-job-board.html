@@ -386,6 +386,12 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
   #split.detail-open .pl { transform: translateX(-30%); }
   #split.detail-open .pr { transform: translateX(0); }
 
+  /* La fiche occupe alors tout l'écran : l'en-tête (logo Claim! et menu
+     burger) est masqué. La grille de #app laisse la place en devenant
+     vide sur ses deux premières rangées. Le retour se fait par le bouton
+     de la fiche, qui reste en haut du contenu. */
+  body.detail-view #hd { display: none; }
+
   /* Bouton retour mobile dans le détail */
   .btn-back {
     display: flex;
@@ -1409,12 +1415,16 @@ function openDetail() {
   if (isMobile()) {
     splitEl.classList.add('detail-open');
     hero.classList.add('collapsed');
+    // L'en-tête est masqué : la classe est posée sur <body> et non sur
+    // #split, car l'en-tête est un frère de #split et non un descendant.
+    document.body.classList.add('detail-view');
     prEl.scrollTop = 0;
   }
 }
 function closeDetail() {
   splitEl.classList.remove('detail-open');
   hero.classList.remove('collapsed');
+  document.body.classList.remove('detail-view');
 }
 // Le bouton retour du navigateur : revenir à la liste ferme le détail,
 // revenir en avant le rouvre. Sans cela, l'adresse et l'écran divergeraient.
