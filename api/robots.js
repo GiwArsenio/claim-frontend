@@ -5,8 +5,9 @@ module.exports = (req, res) => {
   const content = `User-agent: *
 Allow: /
 
-# Pages de pagination (indexables)
-Allow: /claim-job-board.html?page=
+# La pagination du board (?page=N) n'est pas declaree dans le sitemap : la
+# balise canonique la consolide vers l'accueil. Elle reste explorable — un
+# Disallow empecherait Google de lire cette canonique.
 
 # Sitemap
 Sitemap: ${SITE_URL}/sitemap.xml
