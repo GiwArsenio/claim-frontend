@@ -13,9 +13,25 @@ const fin = html.indexOf('@media (min-width: 769px) {');
 assert.ok(debut >= 0 && fin > debut, 'les deux media queries doivent exister');
 const mobile = html.slice(debut, fin);
 
+// Hauteur nulle, et surtout PAS display:none : #app est une grille dont
+// les rangees se remplissent dans l ordre du DOM. Un element en display:none
+// n occupe plus de rangee, #split glisse sur la rangee « auto » au lieu de
+// « 1fr » et s effondre a zero — ecran blanc sur telephone. Regression vue
+// en production avant correction, d ou ce verrou.
+const regle = mobile.match(/body\.detail-view #hd \{[^}]*\}/);
+assert.ok(regle, "sur mobile, la fiche ouverte doit masquer l'en-tete (#hd)");
 assert.ok(
-  mobile.includes('body.detail-view #hd { display: none; }'),
-  "sur mobile, la fiche ouverte doit masquer l'en-tete (#hd)"
+  regle[0].includes('height: 0'),
+  "l'en-tete doit etre mis a hauteur nulle"
+);
+assert.ok(
+  !regle[0].includes('display: none'),
+  "display:none retirerait #hd de la grille et effondrerait #split : ecran blanc"
+);
+// La grille est la cause : si elle change un jour, ce test doit le dire.
+assert.ok(
+  html.includes('grid-template-rows: auto auto 1fr'),
+  "#app doit rester une grille de trois rangees : #hd, #hero, #split"
 );
 
 // La classe est posée sur <body> : l'en-tête est un frère de #split, une
