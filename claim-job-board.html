@@ -415,6 +415,26 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
      Hauteur par max-height et non display:none : #app est une grille dont
      les rangées se remplissent dans l'ordre du DOM. Un élément retiré du
      flux ferait glisser #split sur une rangée « auto » et l'effondrerait. */
+  /* L'en-tête de la fiche se fige au défilement : le sujet et ses repères
+     restent sous les yeux pendant la lecture, le corps défile dessous. Le
+     bloc s'arrête après les pastilles.
+
+     Le fond est étiré sur les marges de l'enveloppe (margin négatif compensé
+     par le padding) : sans cela, le texte défilerait visible dans les
+     gouttières de 1.25rem, de part et d'autre du bloc figé. */
+  .d-entete {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: #fff;
+    margin: 0 -1.25rem;
+    padding: .35rem 1.25rem .5rem;
+    transition: box-shadow .2s ease;
+  }
+  /* Une fois collé, le bloc se détache du texte qui passe dessous : sans
+     cette démarcation, il se fond dans la page (relevé à l'inspection). */
+  body.entete-collee .d-entete { box-shadow: 0 8px 12px -10px rgba(0,0,0,.28); }
+
   #hd { max-height: 70px; transition: max-height .35s cubic-bezier(.4,0,.2,1), opacity .25s ease; }
   body.fiche-defilee #hd { max-height: 0; opacity: 0; overflow: hidden; }
   body.fiche-defilee #hero { max-height: 0; opacity: 0; padding-top: 0; padding-bottom: 0;
@@ -754,7 +774,11 @@ const hero    = document.getElementById('hero');
 const SEUIL_LECTURE_FICHE = 24;
 prEl.addEventListener('scroll', function () {
   if (isMobile()) return;
-  document.body.classList.toggle('fiche-defilee', this.scrollTop > SEUIL_LECTURE_FICHE);
+  const colle = this.scrollTop > SEUIL_LECTURE_FICHE;
+  document.body.classList.toggle('fiche-defilee', colle);
+  // Le bloc se colle des que le defilement atteint son retrait du haut, soit
+  // 1.5rem : c'est le meme seuil qui marque sa demarcation.
+  document.body.classList.toggle('entete-collee', colle);
 });
 
 // ── Lecture de ?page= dans l'URL (SEO) ────────────────────────────────────
@@ -1354,9 +1378,11 @@ async function renderDetail(id) {
     document.getElementById('detail').innerHTML = `
       <div class="dc">
         <button class="btn-back" onclick="closeDetail()">← Toutes les offres</button>
-        <h1 class="dtitle">${j.title}</h1>
-        <div class="dco">${co.name || j.source}${j.ville ? ' · ' + escapeHtml(j.ville) : ''}</div>
-        <div class="pastilles">${pastillesOffreHtml(j)}</div>
+        <div class="d-entete">
+          <h1 class="dtitle">${j.title}</h1>
+          <div class="dco">${co.name || j.source}${j.ville ? ' · ' + escapeHtml(j.ville) : ''}</div>
+          <div class="pastilles">${pastillesOffreHtml(j)}</div>
+        </div>
         ${summary}
         ${skillsBloc}
         <div class="pied">
@@ -1395,6 +1421,7 @@ function closeDetail() {
   hero.classList.remove('collapsed');
   document.body.classList.remove('detail-view');
   document.body.classList.remove('fiche-defilee');
+  document.body.classList.remove('entete-collee');
 }
 // Le bouton retour du navigateur : revenir à la liste ferme le détail,
 // revenir en avant le rouvre. Sans cela, l'adresse et l'écran divergeraient.
