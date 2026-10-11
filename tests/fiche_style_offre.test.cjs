@@ -91,27 +91,48 @@ assert.ok(entete.includes('margin: 0 -1.25rem'),
 assert.ok(!html.includes('d-sticky'), "l'ancien en-tête collant n'est pas revenu");
 
 // Ce qui est figé : le titre, l'entreprise et les pastilles, rien de plus.
-const zone = html.match(/<div class="d-entete">[\s\S]*?<\/div>\s*\n\s*\$\{summary\}/);
-assert.ok(zone, "le bloc fige doit s'arreter juste apres les pastilles");
-for (const dans of ['dtitle', 'dco', 'pastilles']) {
-  assert.ok(zone[0].includes(dans), `${dans} doit etre dans la partie figee`);
+const fiche = html.slice(html.indexOf("document.getElementById('detail').innerHTML"));
+const debutEntete = fiche.indexOf('<div class="d-entete">');
+const finEntete = fiche.indexOf('${summary}');
+assert.ok(debutEntete >= 0 && finEntete > debutEntete,
+  "le bloc fige doit preceder le corps de l'annonce");
+const zone = fiche.slice(debutEntete, finEntete);
+for (const dans of ['dtitle', 'dco', 'pastilles', 'dact']) {
+  assert.ok(zone.includes(dans), `${dans} doit etre dans la partie figee`);
 }
-assert.ok(!zone[0].includes('desc-source') && !zone[0].includes('pied'),
+assert.ok(!zone.includes('desc-source') && !zone.includes('pied'),
   'le corps et le pied ne doivent pas etre figes');
 
 // ── La fiche suit l'ordre du modèle ──
-const fiche = html.slice(html.indexOf("document.getElementById('detail').innerHTML"));
 const ordre = ['dtitle', 'dco', 'pastilles', 'pied'].map(c => fiche.indexOf('class="' + c));
 assert.ok(ordre.every(i => i >= 0), 'les quatre blocs doivent être présents');
 assert.deepEqual(ordre, [...ordre].sort((a, b) => a - b),
   "l'ordre est titre, entreprise, pastilles, puis corps et pied");
 
-// ── Aucun geste qui n'existe pas sur la page d'offre ──
-for (const retire of ['class="dact"', 'class="bap"', 'class="bsh', 'Postuler maintenant',
-                      'Partager', "Lien de l'offre", '${jevProposalHtml(j)}']) {
+// ── La page blanche reprend exactement la colonne de gauche en marge droite ──
+// La fiche se recentre dans la fenêtre : autant de gris de part et d'autre.
+assert.equal(valeur(html, '.pl', 'width'), 'var(--colonne-liste)',
+  'la colonne de gauche tient sa largeur d une seule variable');
+const racine = html.match(/:root \{ --colonne-liste: ([^;]+);/);
+assert.ok(racine, 'la variable de largeur doit etre declaree');
+assert.equal(racine[1].trim(), '420px', 'et valoir la largeur mesuree de la colonne');
+
+const bande = valeur(html, '.pr', 'margin-right');
+assert.ok(bande.includes('clamp('), 'la marge droite se resorbe sur ecran etroit');
+assert.ok(bande.includes('var(--colonne-liste)') && bande.trim().endsWith('var(--colonne-liste))'),
+  'et reprend exactement la colonne de gauche');
+assert.ok(bande.includes('var(--plancher-lecture)'),
+  'sans descendre sous le plancher de lecture');
+
+// ── Les deux gestes de la fiche ──
+for (const geste of ['class="dact"', 'class="bap"', 'class="bsh', 'Postuler', 'partagerOffre()']) {
+  assert.ok(fiche.includes(geste), `la fiche doit porter « ${geste} »`);
+}
+// Le geste abandonné, lui, ne revient pas.
+for (const retire of ['Postuler maintenant', "Lien de l'offre", '${jevProposalHtml(j)}']) {
   assert.ok(!fiche.includes(retire), `la fiche ne doit plus contenir « ${retire} »`);
 }
-// ...mais les fonctions restent dans le code, prêtes à être réactivées.
+// ...et les fonctions restent dans le code.
 for (const conserve of ['function jevProposalHtml(', 'function partagerOffre(']) {
   assert.ok(html.includes(conserve), `${conserve} doit rester défini`);
 }

@@ -23,6 +23,18 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
 
 #app { display: grid; grid-template-rows: auto auto 1fr; height: 100%; overflow: hidden; }
 
+/* Largeurs de référence de la mise en page bureau.
+   --colonne-liste : la colonne des offres, à gauche.
+   --plancher-lecture : ce qui doit rester à la page blanche pour que la
+   colonne de lecture tienne (l'enveloppe du modèle fait 46rem, marges
+   comprises 48.5rem ; 37.5rem est le minimum accepté ici).
+
+   La page blanche reprend la largeur de la colonne de gauche comme marge
+   droite, tant que la fenêtre peut l'offrir : la fiche se retrouve alors
+   centrée, avec autant de gris de part et d'autre. En dessous, la bande se
+   résorbe plutôt que d'écraser la lecture. */
+:root { --colonne-liste: 420px; --plancher-lecture: 37.5rem; }
+
 /* Header */
 #hd { background: #006876; z-index: 200; }
 #hd nav { display: flex; justify-content: space-between; align-items: center; padding: .75rem 2rem; }
@@ -68,7 +80,7 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
 #split { display: flex; overflow: hidden; height: 100%; min-height: 0; }
 
 /* Colonne gauche */
-.pl { width: 420px; flex-shrink: 0; display: flex; flex-direction: column; background: #e9eef1; border-right: 1px solid rgba(187,201,204,.25); overflow-y: auto; overflow-x: hidden; }
+.pl { width: var(--colonne-liste); flex-shrink: 0; display: flex; flex-direction: column; background: #e9eef1; border-right: 1px solid rgba(187,201,204,.25); overflow-y: auto; overflow-x: hidden; }
 .pl::-webkit-scrollbar { width: 3px; }
 .pl::-webkit-scrollbar-thumb { background: #bbc9cc; border-radius: 10px; }
 .pl-hd { flex-shrink: 0; padding: .625rem 1.375rem .35rem; font-size: 0.7rem; font-weight: 700; color: #6c797c; text-transform: uppercase; letter-spacing: .1em; background: #e9eef1; }
@@ -79,7 +91,12 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
 .pr { flex: 1; min-height: 0; overflow-y: auto; background: #fff;
   /* Police, interligne et couleur du texte de la page d'offre. */
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  line-height: 1.65; color: #191c1d; }
+  line-height: 1.65; color: #191c1d;
+  /* Marge droite : exactement la colonne de gauche. La fiche se recentre
+     dans la fenêtre, avec autant de gris de part et d'autre. Le plancher
+     empêche un écran étroit de réduire la lecture à une bande : la marge
+     se résorbe avant que la page blanche ne descende sous lui. */
+  margin-right: clamp(0px, calc(100% - var(--colonne-liste) - var(--plancher-lecture)), var(--colonne-liste)); }
 .pr::-webkit-scrollbar { width: 3px; }
 .pr::-webkit-scrollbar-thumb { background: #bbc9cc; border-radius: 10px; }
 
@@ -138,6 +155,20 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
 
 /* Pastilles : reprises trait pour trait de la page d'offre. */
 .pastilles { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: 1.6rem; }
+
+/* Les deux gestes de la fiche : postuler à l'annonce d'origine, et la
+   partager. Le modèle n'en porte aucun ; ici ils sont nécessaires, et ils
+   restent dans le bloc figé pour accompagner toute la lecture. */
+.dact { display: flex; align-items: center; gap: .5rem; margin-bottom: 1.6rem; }
+.bap, .bsh { display: inline-flex; align-items: center; font-family: inherit;
+  font-size: .9rem; font-weight: 600; line-height: 1; padding: .62rem 1.1rem;
+  border-radius: .5rem; text-decoration: none; white-space: nowrap; cursor: pointer; }
+/* Postuler : teal de la maison, plein — c'est l'action attendue. */
+.bap { background: #006876; color: #fff; border: 1px solid #006876; }
+.bap:hover { background: #00545f; border-color: #00545f; }
+/* Partager : secondaire, en contour, pour ne pas concurrencer Postuler. */
+.bsh { background: #fff; color: #006876; border: 1px solid #bfe2e8; }
+.bsh:hover { background: #e9f6f8; }
 .pastille { padding: 3px 10px; border: 1px solid #dce5e9; border-radius: 9999px; background: #f5f8f9; font-size: .78rem; font-weight: 600; color: #24363d; }
 .pastille-ville { background: #e9f6f8; border-color: #bfe2e8; color: #00545f; }
 .pastille-salaire { background: #f2f8f2; border-color: #cfe6cf; color: #2d5a2d; }
@@ -430,7 +461,14 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
     margin: 0 -1.25rem;
     padding: .35rem 1.25rem .5rem;
     transition: box-shadow .2s ease;
+    /* Les gestes se placent à droite du sujet : le titre garde la main. */
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
   }
+  .d-entete-corps { flex: 1; min-width: 0; }
+  .d-entete .dact { flex-shrink: 0; margin-bottom: 0; }
   /* Une fois collé, le bloc se détache du texte qui passe dessous : sans
      cette démarcation, il se fond dans la page (relevé à l'inspection). */
   body.entete-collee .d-entete { box-shadow: 0 8px 12px -10px rgba(0,0,0,.28); }
@@ -1379,9 +1417,15 @@ async function renderDetail(id) {
       <div class="dc">
         <button class="btn-back" onclick="closeDetail()">← Toutes les offres</button>
         <div class="d-entete">
-          <h1 class="dtitle">${j.title}</h1>
-          <div class="dco">${co.name || j.source}${j.ville ? ' · ' + escapeHtml(j.ville) : ''}</div>
-          <div class="pastilles">${pastillesOffreHtml(j)}</div>
+          <div class="d-entete-corps">
+            <h1 class="dtitle">${j.title}</h1>
+            <div class="dco">${co.name || j.source}${j.ville ? ' · ' + escapeHtml(j.ville) : ''}</div>
+            <div class="pastilles">${pastillesOffreHtml(j)}</div>
+          </div>
+          <div class="dact">
+            ${j.source_url ? `<a class="bap" href="${escapeHtml(j.source_url)}" target="_blank" rel="nofollow noopener">Postuler</a>` : ''}
+            <button class="bsh" type="button" onclick="partagerOffre()">Partager</button>
+          </div>
         </div>
         ${summary}
         ${skillsBloc}

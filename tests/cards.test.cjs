@@ -190,11 +190,11 @@ assert.ok(!enc.includes('chargé'), 'aucun caractère accentué brut');
 // Le partage ne doit plus dépendre de l'adresse courante.
 assert.ok(!html.includes('navigator.clipboard?.writeText(window.location.href)'),
   'le bouton ne doit plus copier window.location.href');
-// Le bouton Partager a quitte la fiche : la page d offre n en a pas. La
-// fonction reste definie, prete a etre reactivee.
+// Le partage vit dans l'en-tete de la fiche : l'en-tete le porte, et la
+// feuille native reste tentee en premier.
 assert.ok(html.includes('function partagerOffre('), 'la fonction de partage reste definie');
-assert.ok(!html.slice(html.indexOf("document.getElementById('detail').innerHTML")).includes('partagerOffre()'),
-  'la fiche ne propose plus le bouton Partager');
+assert.ok(html.slice(html.indexOf("document.getElementById('detail').innerHTML")).includes('partagerOffre()'),
+  'la fiche propose de nouveau le partage');
 assert.ok(html.includes('id=\'toast-claim\'') || html.includes("'toast-claim'"),
   'un retour visuel est attendu apres la copie');
 assert.ok(html.includes('navigator.share'), 'la feuille de partage native doit etre tentee');
