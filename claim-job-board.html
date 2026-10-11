@@ -76,7 +76,10 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
 
 /* Colonne droite */
 /* Fond de page du modèle : la fiche est une page, pas une carte. */
-.pr { flex: 1; min-height: 0; overflow-y: auto; background: #fff; }
+.pr { flex: 1; min-height: 0; overflow-y: auto; background: #fff;
+  /* Police, interligne et couleur du texte de la page d'offre. */
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.65; color: #191c1d; }
 .pr::-webkit-scrollbar { width: 3px; }
 .pr::-webkit-scrollbar-thumb { background: #bbc9cc; border-radius: 10px; }
 
@@ -90,13 +93,6 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
 }
 
 /* ── EN-TÊTE STICKY DU DÉTAIL ── */
-/* Le modèle n'a pas d'en-tête collant : le titre défile avec la page.
-   Coller l'en-tête mangeait de la hauteur utile sur téléphone. */
-.d-sticky { background: #fff; }
-.d-sticky.scrolled { box-shadow: none; }
-
-.d-body { padding: 1.25rem 1.5rem 1.5rem; }
-
 /* ── CARDS ── */
 .jc { background: #fff; border-radius: .625rem; padding: .875rem; cursor: pointer; transition: transform .15s, box-shadow .15s; position: relative; border: 1.5px solid #d5dfe3; box-shadow: 0 2px 6px rgba(25,44,52,.08), 0 5px 14px rgba(25,44,52,.04); flex-shrink: 0; }
 .jc:hover { transform: translateY(-1px); border-color: #a9c6cc; box-shadow: 0 5px 16px rgba(25,44,52,.14); }
@@ -126,66 +122,62 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
 .tp { background: #f0fdf4; color: #15803d; border: 1px solid rgba(34,197,94,.2); }
 .tn { background: #ffdcc2; color: #6d3a00; }
 
-/* ── DÉTAIL — éléments internes ── */
-.dlogo { width: 60px; height: 60px; border-radius: .75rem; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 900; font-size: 13px; flex-shrink: 0; position: relative; overflow: hidden; }
-.dtitle { font-size: 1.375rem; font-weight: 900; color: #191c1d; letter-spacing: -.02em; margin-bottom: 2px; }
-/* Même traitement que la page d'offre : le nom de l'entreprise informe,
-   il ne doit pas rivaliser avec le titre. */
-.dco { font-size: 0.95rem; color: #515f78; font-weight: 600; }
-/* Les actions suivent les pastilles, sur une ligne. */
-.dact { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; margin-bottom: 1.6rem; }
-.bap { background: #006876; color: #fff; padding: .55rem 1rem; border-radius: .5rem; font-weight: 700; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: .3rem; font-size: 0.875rem; }
-/* Actions secondaires en liens teal : en bouton gris arrondi, « Lien de
-   l'offre » se lisait comme une sixième pastille. */
-.bsh { background: none; color: #006876; padding: 0; border: none; cursor: pointer;
-  display: inline-flex; align-items: center; gap: .25rem; font-size: .875rem;
-  font-weight: 600; font-family: inherit; text-decoration: none; }
-.bsh:hover { text-decoration: underline; }
-/* Lien direct vers l'offre, à côté du partage. */
-.lien-offre { text-decoration: none; }
-.lien-offre:hover { background: #e8f4f6; color: #006876; }
-/* Retour visuel après la copie : sur mobile, sans lui, rien ne confirme. */
-.toast-claim { position: fixed; left: 50%; bottom: 1.5rem; transform: translate(-50%, 1rem);
-  background: #191c1d; color: #fff; padding: .55rem 1.1rem; border-radius: 9999px;
-  font-size: .82rem; font-weight: 600; opacity: 0; pointer-events: none; z-index: 9999;
-  transition: opacity .2s ease, transform .2s ease; }
-.toast-claim.vu { opacity: 1; transform: translate(-50%, 0); }
-.ki { display: flex; align-items: center; gap: .4rem; }
-.kl { font-size: 10px; font-weight: 700; color: #6c797c; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 2px; }
-.kv { font-size: 0.825rem; font-weight: 700; color: #191c1d; }
-.ds { margin-bottom: 1.25rem; }
-.ds h3 { font-size: 0.9875rem; font-weight: 700; color: #191c1d; display: flex; align-items: center; gap: .35rem; margin-bottom: .5rem; }
-.ds p { color: #515f78; line-height: 1.7; margin-bottom: .45rem; font-size: 0.9rem; }
-.ds p.desc-ia { color: #3c494c; font-style: italic; padding-left: .6rem; border-left: 3px solid rgba(0,104,118,.25); }
-/* Structure éditoriale venue de la source : listes, emphases, sous-titres.
-   Même lecture que la page d'offre, dans la typographie du site. */
-.desc-source p { color: #3c494c; line-height: 1.65; margin-bottom: .7rem; font-size: .95rem; }
-.desc-source ul, .desc-source ol { margin: 0 0 .9rem; padding-left: 1.3rem; color: #3c494c; }
-.desc-source li { margin: .25rem 0; line-height: 1.65; font-size: .95rem; }
-.desc-source li > ul, .desc-source li > ol { margin: .3rem 0 .1rem; }
-.desc-source strong, .desc-source b { color: #191c1d; font-weight: 700; }
-.desc-source em, .desc-source i { font-style: italic; }
-.desc-source h3, .desc-source h4, .desc-source h5, .desc-source h6 { font-size: 0.92rem; font-weight: 700; color: #191c1d; margin: 1.1rem 0 .4rem; }
-.desc-source blockquote { margin: 0 0 .7rem; padding-left: .7rem; border-left: 3px solid rgba(0,104,118,.25); color: #515f78; }
-.desc-source a { color: #006876; }
-.desc-more { margin-top: .35rem; padding: .3rem .7rem; border-radius: 9999px; border: 1px solid rgba(0,104,118,.3);
-  background: #fff; color: #006876; font-family: inherit; font-size: .78rem; font-weight: 700; cursor: pointer; }
-.desc-more:hover { background: #e8f4f6; }
-.mi { display: flex; align-items: flex-start; gap: .4rem; color: #515f78; margin-bottom: .4rem; line-height: 1.65; font-size: 0.9rem; }
-.pb { background: #f3f4f5; padding: .875rem; border-radius: .5rem; border: 1px solid rgba(187,201,204,.1); }
-.pb ul { padding-left: 1.1rem; color: #515f78; line-height: 1.7; display: flex; flex-direction: column; gap: .2rem; font-size: 0.9rem; }
-.tl { display: flex; flex-wrap: wrap; gap: .3rem; }
-/* Pastilles et compétences : pilules du modèle, mêmes couleurs.
-   Les compétences sont des étiquettes comme les autres : même forme. */
+/* ── FICHE — alignée sur la page d'offre (/offre/{slug}) ──
+   Échelle de titres, marges, couleurs et pastilles reprennent les valeurs
+   de api/offre.js. Le lecteur doit retrouver la même page, qu'il arrive par
+   la liste ou par une adresse d'offre.
+
+   .ki/.kl/.kv et .toast-claim restent définis : ils servent la proposition
+   IA et la copie du lien, conservées dans le code pour être réactivées. */
+.dtitle { font-size: 1.6rem; font-weight: 700; line-height: 1.25; margin: 0 0 .4rem; color: #191c1d; }
+.dco { color: #515f78; font-size: 1rem; font-weight: 600; margin-bottom: .9rem; }
+.btn-back { display: inline-block; margin-bottom: 1.25rem; padding: 0; background: none;
+  border: none; color: #006876; font-weight: 600; font-size: .9rem; cursor: pointer;
+  font-family: inherit; }
+.btn-back:active { opacity: .7; }
+
+/* Pastilles : reprises trait pour trait de la page d'offre. */
 .pastilles { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: 1.6rem; }
 .pastille { padding: 3px 10px; border: 1px solid #dce5e9; border-radius: 9999px; background: #f5f8f9; font-size: .78rem; font-weight: 600; color: #24363d; }
 .pastille-ville { background: #e9f6f8; border-color: #bfe2e8; color: #00545f; }
 .pastille-salaire { background: #f2f8f2; border-color: #cfe6cf; color: #2d5a2d; }
 .pastille-specialite { background: #ffdcc2; border-color: #f0c8a6; color: #6d3a00; }
+
+/* Corps : même échelle et mêmes espacements que la page d'offre. */
+.ds { margin-bottom: 1.25rem; }
+.ds h3, .desc-source h3, .desc-source h4, .desc-source h5, .desc-source h6 { font-size: .98rem; font-weight: 700; color: #191c1d; margin: 1.2rem 0 .4rem; }
+.ds h3 { display: flex; align-items: center; gap: .35rem; }
+.ds p, .desc-source p, .mi { margin: 0 0 .7rem; color: #3c494c; }
+.desc-source ul, .desc-source ol, .pb ul { margin: 0 0 .9rem; padding-left: 1.3rem; color: #3c494c; }
+.desc-source li, .pb li { margin: .25rem 0; }
+.desc-source li > ul, .desc-source li > ol { margin: .25rem 0 .1rem; }
+.desc-source strong, .desc-source b { color: #191c1d; }
+.desc-source em, .desc-source i { font-style: italic; }
+.desc-source blockquote { margin: 0 0 .9rem; padding-left: .8rem; border-left: 3px solid #bfe2e8; color: #3c494c; }
+.desc-source a, .mi a { color: #006876; }
+.desc-more { margin-top: .35rem; padding: .3rem .7rem; border-radius: 9999px; border: 1px solid rgba(0,104,118,.3);
+  background: #fff; color: #006876; font-family: inherit; font-size: .78rem; font-weight: 700; cursor: pointer; }
+.desc-more:hover { background: #e8f4f6; }
+/* Les puces de mission ne sont plus un encadré : ce sont des listes. */
+.pb { padding: 0; }
+.mi { display: flex; align-items: flex-start; gap: .4rem; }
+.tl { display: flex; flex-wrap: wrap; gap: .3rem; }
 .tt { padding: 3px 10px; border: 1px solid #dce5e9; border-radius: 9999px; background: #f5f8f9; font-size: .78rem; font-weight: 600; color: #24363d; }
-.cb { background: linear-gradient(135deg,#f3f4f5,#e7e8e9); padding: 1.1rem; border-radius: .875rem; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem; margin-top: .25rem; }
-.cblogo { width: 44px; height: 44px; border-radius: .5rem; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 900; font-size: 10px; flex-shrink: 0; position: relative; overflow: hidden; }
-.clogo img, .dlogo img, .cblogo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; border-radius: inherit; padding: 2px; }
+
+/* Pied : filet et texte gris, comme la page d'offre. */
+.pied { margin-top: 2.5rem; padding-top: 1.2rem; border-top: 1px solid #e6edf0; font-size: .85rem; color: #515f78; }
+.pied a { color: #006876; font-weight: 600; }
+
+/* Conservés pour les fonctions non affichées (proposition IA, copie). */
+.ki { display: flex; align-items: center; gap: .4rem; }
+.kl { font-size: 10px; font-weight: 700; color: #6c797c; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 2px; }
+.kv { font-size: 0.825rem; font-weight: 700; color: #191c1d; }
+.toast-claim { position: fixed; left: 50%; bottom: 1.5rem; transform: translate(-50%, 1rem);
+  background: #191c1d; color: #fff; padding: .55rem 1.1rem; border-radius: 9999px;
+  font-size: .82rem; font-weight: 600; opacity: 0; pointer-events: none; z-index: 9999;
+  transition: opacity .2s ease, transform .2s ease; }
+.toast-claim.vu { opacity: 1; transform: translate(-50%, 0); }
+.clogo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; border-radius: inherit; padding: 2px; }
 .bcv { display: inline-flex; align-items: center; gap: .3rem; padding: .5rem .875rem; border-radius: .5rem; background: #191c1d; color: #fff; font-weight: 700; font-size: 0.8rem; text-decoration: none; }
 
 /* ── FOOTER RICHE ── */
@@ -403,30 +395,8 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
      de « 1fr » et s'effondre à zéro — écran blanc sur téléphone. */
   body.detail-view #hd { height: 0; overflow: hidden; }
 
-  /* Lien de retour du modèle : sobre, teal, sans fond. */
-  .btn-back {
-    display: inline-flex;
-    align-items: center;
-    gap: .3rem;
-    background: transparent;
-    border: none;
-    color: #006876;
-    font-weight: 600;
-    font-size: .9rem;
-    cursor: pointer;
-    padding: 1.25rem 1.25rem 0;
-    font-family: inherit;
-  }
-  .btn-back:active { opacity: .7; }
-
-  /* Ajuster le détail card en mobile */
-  .dc { padding: 1.25rem .875rem 3rem; }
-  .d-sticky { padding: .75rem 1rem .625rem; }
-  .dtitle { font-size: 1.1rem; }
-  .dact { flex-direction: row; min-width: 0; }
-  .bap { flex: 1; font-size: 0.825rem; padding: .45rem .75rem; }
-  .bsh { font-size: .825rem; padding: 0; }
-  .d-body { padding: 1rem 1rem 1.25rem; }
+  /* La fiche garde les valeurs de la page d'offre sur téléphone : la
+     mise en page ne se resserre pas avec l'écran. */
 
   /* Footer mobile simplifié */
   #ft .ft-links { display: none; }
@@ -1320,7 +1290,7 @@ function poserAdresseOffre(slug) {
 async function renderDetail(id) {
   document.getElementById('detail').innerHTML = `
     <button class="btn-back" onclick="closeDetail()">
-      <span class="ms" style="font-size:18px;">arrow_back_ios</span> Retour aux offres
+      ← Toutes les offres
     </button>
     <div class="dc" style="padding:2rem;color:#6c797c;font-size:.85rem;">Chargement du détail…</div>
   `;
@@ -1355,55 +1325,23 @@ async function renderDetail(id) {
           : '<p>Description non disponible.</p>');
 
     document.getElementById('detail').innerHTML = `
-      <button class="btn-back" onclick="closeDetail()">
-        <span class="ms" style="font-size:18px;">arrow_back_ios</span> Retour aux offres
-      </button>
       <div class="dc">
-        <div class="d-sticky">
-          <div class="dtitle">${j.title}</div>
-          <div class="dco">${co.name || j.source}</div>
-          <div class="pastilles">${pastillesOffreHtml(j)}</div>
-          <div class="dact">
-              <a href="${j.source_url || '#'}" target="_blank" rel="noopener" class="bap">
-                Postuler maintenant <span class="ms" style="font-size:14px;">open_in_new</span>
-              </a>
-              <button class="bsh" onclick="partagerOffre()">
-                <span class="ms" style="font-size:14px;">share</span> Partager
-              </button>
-              <a class="bsh lien-offre" href="${escapeHtml(urlOffre(j.slug))}" onclick="poserAdresseOffre('${escapeHtml(j.slug)}')">
-                <span class="ms" style="font-size:14px;">link</span> Lien de l'offre
-              </a>
-            </div>
-          </div>
-          ${jevProposalHtml(j)}
-          </div>
-        </div>
-        <div class="d-body">
-          ${summary}
-          ${skillsBloc}
-          <div class="cb">
-            <div style="display:flex;align-items:center;gap:.625rem;">
-              ${renderCompanyLogo(co, 'cblogo')}
-              <div>
-                <div style="font-size:.875rem;font-weight:700;color:#191c1d;margin-bottom:2px;">${co.name || j.source}</div>
-                <div style="font-size:.75rem;color:#515f78;">${specialtyLabel(j) || 'Assurance & Protection sociale'}</div>
-              </div>
-            </div>
-            ${co.website_url ? `<a href="${co.website_url}" target="_blank" rel="noopener" class="bcv">
-              Voir l'entreprise <span class="ms" style="font-size:14px;">arrow_forward</span>
-            </a>` : ''}
-          </div>
+        <button class="btn-back" onclick="closeDetail()">← Toutes les offres</button>
+        <h1 class="dtitle">${j.title}</h1>
+        <div class="dco">${co.name || j.source}${j.ville ? ' · ' + escapeHtml(j.ville) : ''}</div>
+        <div class="pastilles">${pastillesOffreHtml(j)}</div>
+        ${summary}
+        ${skillsBloc}
+        <div class="pied">
+          Offre publiée sur <a href="/claim-job-board.html">Claim!</a>.
+          ${j.source_url ? `Source : <a href="${escapeHtml(j.source_url)}" rel="nofollow noopener" target="_blank">l'annonce d'origine</a>.` : ''}
         </div>
       </div>
     `;
-    prEl.addEventListener('scroll', function () {
-      const sticky = document.querySelector('.d-sticky');
-      if (sticky) sticky.classList.toggle('scrolled', this.scrollTop > 8);
-    }, { once: true });
   } catch (e) {
     document.getElementById('detail').innerHTML = `
       <button class="btn-back" onclick="closeDetail()">
-        <span class="ms" style="font-size:18px;">arrow_back_ios</span> Retour
+        ← Toutes les offres
       </button>
       <div class="dc" style="padding:2rem;color:#c0392b;font-size:.85rem;">
         Erreur : ${e.message}

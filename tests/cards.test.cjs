@@ -34,7 +34,11 @@ console.log('Cards Jev regression tests passed');
 // Le libellé de lieu vient de l'API (champ ville) : la carte ne doit plus
 // concaténer la région, qui n'est jamais renseignée en base.
 assert.ok(!html.includes('j.region'), 'la region ne doit plus etre affichee');
-assert.ok(!html.includes("' \u00b7 ' + escapeHtml(j.ville)"), 'la ville ne doit plus suivre le nom de l entreprise');
+// La carte ne colle pas la ville au nom de l entreprise. La fiche, elle,
+// suit la page d offre qui ecrit « Societe · Ville » : l assertion porte donc
+// sur le rendu de la carte et non sur tout le fichier.
+const carte = html.match(/const el = document\.createElement\('div'\);[\s\S]*?feedEl\.appendChild\(el\);/)[0];
+assert.ok(!carte.includes('escapeHtml(j.ville)'), 'la carte ne doit pas coller la ville au nom');
 assert.ok(!html.includes('${j.city'), 'la carte ne doit plus utiliser city brut');
 console.log('Ville display tests passed');
 
@@ -186,7 +190,11 @@ assert.ok(!enc.includes('chargé'), 'aucun caractère accentué brut');
 // Le partage ne doit plus dépendre de l'adresse courante.
 assert.ok(!html.includes('navigator.clipboard?.writeText(window.location.href)'),
   'le bouton ne doit plus copier window.location.href');
-assert.ok(html.includes('onclick="partagerOffre()"'), 'le bouton partage l offre');
+// Le bouton Partager a quitte la fiche : la page d offre n en a pas. La
+// fonction reste definie, prete a etre reactivee.
+assert.ok(html.includes('function partagerOffre('), 'la fonction de partage reste definie');
+assert.ok(!html.slice(html.indexOf("document.getElementById('detail').innerHTML")).includes('partagerOffre()'),
+  'la fiche ne propose plus le bouton Partager');
 assert.ok(html.includes('id=\'toast-claim\'') || html.includes("'toast-claim'"),
   'un retour visuel est attendu apres la copie');
 assert.ok(html.includes('navigator.share'), 'la feuille de partage native doit etre tentee');
