@@ -136,8 +136,14 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
 .dh { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: .875rem; margin-bottom: .875rem; }
 .dlogo { width: 60px; height: 60px; border-radius: .75rem; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 900; font-size: 13px; flex-shrink: 0; position: relative; overflow: hidden; }
 .dtitle { font-size: 1.375rem; font-weight: 900; color: #191c1d; letter-spacing: -.02em; margin-bottom: 2px; }
-.dco { font-size: 0.925rem; color: #006876; font-weight: 600; }
-.dact { display: flex; flex-direction: column; gap: .3rem; min-width: 170px; }
+/* Même traitement que la page d'offre : le nom de l'entreprise informe,
+   il ne doit pas rivaliser avec le titre. */
+.dco { font-size: 0.95rem; color: #515f78; font-weight: 600; }
+/* Les actions tiennent sur une ligne. Empilées en colonne, elles faisaient
+   à elles seules la hauteur de l'en-tête (189 px mesurés), au détriment de
+   la lecture de l'offre. */
+.dq { min-width: 0; }
+.dact { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; }
 .bap { background: #006876; color: #fff; padding: .55rem 1rem; border-radius: .5rem; font-weight: 700; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: .3rem; font-size: 0.875rem; }
 .bsh { background: #f3f4f5; color: #3c494c; padding: .38rem 1rem; border-radius: .5rem; font-weight: 700; border: 1px solid rgba(187,201,204,.25); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: .3rem; font-size: 0.8rem; }
 /* Lien direct vers l'offre, à côté du partage. */
@@ -1334,12 +1340,9 @@ async function renderDetail(id) {
       <div class="dc">
         <div class="d-sticky">
           <div class="dh">
-            <div style="display:flex;align-items:center;gap:.75rem;">
-              ${renderCompanyLogo(co, 'dlogo')}
-              <div>
-                <div class="dtitle">${j.title}</div>
-                <div class="dco">${co.name || j.source}</div>
-              </div>
+            <div class="dq">
+              <div class="dtitle">${j.title}</div>
+              <div class="dco">${co.name || j.source}</div>
             </div>
             <div class="dact">
               <a href="${j.source_url || '#'}" target="_blank" rel="noopener" class="bap">
