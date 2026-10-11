@@ -13,7 +13,7 @@ const SITE_URL = process.env.SITE_URL || 'https://claimyourjob.fr';
 
 module.exports = async (req, res) => {
   try {
-    // 1. Récupérer le total d'offres pour calculer le nb de pages
+    // 1. Connaître le nombre total d'offres
     const r = await fetch(`${API_BASE}/jobs?per_page=1&limit=1&page=1`);
     const d = await r.json();
     const total = d.pagination?.total || 0;
@@ -28,9 +28,16 @@ module.exports = async (req, res) => {
       });
     }
 
-    // 3. Pages statiques (hors job-board, couvert par pagination p=1)
+    const today = new Date().toISOString().slice(0, 10);
+
+    // 3. Pages statiques
     const staticPages = [
-      { url: '/',                          priority: '1.0', changefreq: 'daily'   },
+      // L'accueil reflète le board, régénéré chaque jour : la date du jour y
+      // est exacte.
+      { url: '/',                          lastmod: today, priority: '1.0', changefreq: 'daily' },
+      // Ces deux pages changent rarement. Mieux vaut ne rien déclarer qu'une
+      // date du jour systématiquement fausse : Google apprend à ignorer un
+      // lastmod qui ne bouge jamais vraiment.
       { url: '/claim-entreprises.html',    priority: '0.7', changefreq: 'weekly'  },
       { url: '/claim-observatoire.html',   priority: '0.6', changefreq: 'monthly' },
     ];
@@ -46,12 +53,11 @@ module.exports = async (req, res) => {
     }));
 
     // 5. Générer le XML
-    const today = new Date().toISOString().slice(0, 10);
     const urlEntries = [...staticPages, ...jobPages]
       .map(({ url, lastmod, priority, changefreq }) => `
   <url>
     <loc>${SITE_URL}${url}</loc>
-    <lastmod>${lastmod || today}</lastmod>
+    ${lastmod ? `<lastmod>${lastmod}</lastmod>` : ''}
     <changefreq>${changefreq}</changefreq>
     <priority>${priority}</priority>
   </url>`).join('');

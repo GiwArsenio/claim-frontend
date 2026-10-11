@@ -159,11 +159,16 @@ function construire(job, urlCanonique) {
 <title>${echapper(titrePage)}</title>
 ${resume ? `<meta name="description" content="${echapper(resume)}">` : ''}
 <link rel="canonical" href="${echapper(urlCanonique)}">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon.png"/>
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"/>
 <meta property="og:type" content="article">
 <meta property="og:title" content="${echapper(job.title + ' — ' + nomSociete)}">
 <meta property="og:url" content="${echapper(urlCanonique)}">
 ${resume ? `<meta property="og:description" content="${echapper(resume)}">` : ''}
-${societe.logo_url ? `<meta property="og:image" content="${echapper(societe.logo_url)}">` : ''}
+${societe.logo_url
+  ? `<meta property="og:image" content="${echapper(societe.logo_url)}">`
+  : `<meta property="og:image" content="${SITE_URL}/assets/og-image.png">`}
+<meta name="twitter:card" content="summary_large_image">
 <script type="application/ld+json">${JSON.stringify(offre)}</script>
 <style>
  :root { --teal:#006876; --encre:#191c1d; --gris:#515f78; }
