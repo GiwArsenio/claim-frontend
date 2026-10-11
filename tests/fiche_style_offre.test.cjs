@@ -117,12 +117,22 @@ const racine = html.match(/:root \{ --colonne-liste: ([^;]+);/);
 assert.ok(racine, 'la variable de largeur doit etre declaree');
 assert.equal(racine[1].trim(), '420px', 'et valoir la largeur mesuree de la colonne');
 
+// La marge droite n'est pas la colonne : c'est la marge blanche du texte.
+// L'enveloppe se centrant dans la page, « bande = marge blanche » se resout
+// en bande = (fenetre - colonne - enveloppe + 2 x padding) / 3.
+const enveloppe = html.match(/:root \{[^}]*--enveloppe-lecture: ([^;]+);/);
+assert.ok(enveloppe, "la largeur de l'enveloppe doit etre declaree");
+assert.equal(enveloppe[1].trim(), '46rem', 'elle reprend celle de la page d offre');
+assert.ok(dc.includes('max-width: 46rem'), "et l'enveloppe du board s'y conforme");
+
 const bande = valeur(html, '.pr', 'margin-right');
-assert.ok(bande.includes('clamp('), 'la marge droite se resorbe sur ecran etroit');
-assert.ok(bande.includes('var(--colonne-liste)') && bande.trim().endsWith('var(--colonne-liste))'),
-  'et reprend exactement la colonne de gauche');
-assert.ok(bande.includes('var(--plancher-lecture)'),
-  'sans descendre sous le plancher de lecture');
+assert.ok(bande.startsWith('max(0px,'), 'la bande ne descend jamais sous zero');
+assert.ok(bande.includes('var(--colonne-liste)') && bande.includes('var(--enveloppe-lecture)'),
+  'elle se deduit de la colonne et de l enveloppe');
+assert.ok(/\)\s*\/\s*3\)/.test(bande),
+  'et vaut le tiers de ce qui reste : c est la marge du texte, des deux cotes');
+assert.ok(bande.includes('2.5rem'), 'les deux paddings de l enveloppe sont comptes');
+assert.ok(!bande.includes('clamp('), 'la bande ne copie plus la colonne de gauche');
 
 // ── Les deux gestes de la fiche ──
 for (const geste of ['class="dact"', 'class="bap"', 'class="bsh', 'Postuler', 'partagerOffre()']) {

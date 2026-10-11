@@ -25,15 +25,13 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
 
 /* Largeurs de référence de la mise en page bureau.
    --colonne-liste : la colonne des offres, à gauche.
-   --plancher-lecture : ce qui doit rester à la page blanche pour que la
-   colonne de lecture tienne (l'enveloppe du modèle fait 46rem, marges
-   comprises 48.5rem ; 37.5rem est le minimum accepté ici).
+   --enveloppe-lecture : l'enveloppe de la page d'offre, marges internes
+   comprises (46rem). La page blanche du board s'y conforme exactement.
 
-   La page blanche reprend la largeur de la colonne de gauche comme marge
-   droite, tant que la fenêtre peut l'offrir : la fiche se retrouve alors
-   centrée, avec autant de gris de part et d'autre. En dessous, la bande se
-   résorbe plutôt que d'écraser la lecture. */
-:root { --colonne-liste: 420px; --plancher-lecture: 37.5rem; }
+   La marge droite de la page blanche reprend la marge blanche qui sépare le
+   texte de la colonne des offres : le texte se retrouve avec la même marge
+   de chaque côté, et le gris n'a pas plus de place que cette marge. */
+:root { --colonne-liste: 420px; --enveloppe-lecture: 46rem; }
 
 /* Header */
 #hd { background: #006876; z-index: 200; }
@@ -92,11 +90,19 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
   /* Police, interligne et couleur du texte de la page d'offre. */
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   line-height: 1.65; color: #191c1d;
-  /* Marge droite : exactement la colonne de gauche. La fiche se recentre
-     dans la fenêtre, avec autant de gris de part et d'autre. Le plancher
-     empêche un écran étroit de réduire la lecture à une bande : la marge
-     se résorbe avant que la page blanche ne descende sous lui. */
-  margin-right: clamp(0px, calc(100% - var(--colonne-liste) - var(--plancher-lecture)), var(--colonne-liste)); }
+  /* Marge droite : exactement la marge blanche qui sépare le texte de la
+     colonne des offres. L'enveloppe se centre dans la page, donc sa
+     gouttière vaut (page − enveloppe) / 2, et la marge blanche du texte
+     vaut gouttière + le padding interne de l'enveloppe. En posant
+     « bande = marge blanche », on résout :
+
+         bande = (fenêtre − colonne − enveloppe + 2 × padding) / 3
+
+     Les deux marges du texte deviennent alors égales, à toute largeur, et
+     la colonne de lecture garde la largeur du modèle. Sur un écran étroit
+     la bande s'annule d'elle-même : la page reprend toute la largeur
+     restante après la colonne, comme avant. */
+  margin-right: max(0px, calc((100% - var(--colonne-liste) - var(--enveloppe-lecture) + 2.5rem) / 3)); }
 .pr::-webkit-scrollbar { width: 3px; }
 .pr::-webkit-scrollbar-thumb { background: #bbc9cc; border-radius: 10px; }
 
