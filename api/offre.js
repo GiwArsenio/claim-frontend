@@ -197,6 +197,14 @@ ${societe.logo_url
  .pied { margin-top:2.5rem; padding-top:1.2rem; border-top:1px solid #e6edf0; font-size:.85rem; color:var(--gris); }
  .pied a { color:var(--teal); font-weight:600; }
 </style>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-SKQQXZW4LH"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-SKQQXZW4LH');
+</script>
 </head>
 <body>
 <main class="enveloppe">
