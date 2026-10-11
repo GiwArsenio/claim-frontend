@@ -27,11 +27,20 @@ const dtitle = html.match(/\.dtitle \{[^}]*\}/)[0];
 assert.ok(dtitle.includes('font-size: 1.6rem'), 'le titre reprend la taille du h1 de la page d offre');
 assert.ok(!dtitle.includes('font-weight: 900'), 'le board ne force plus son propre gras');
 
-// La fiche ne porte plus d action propre : elle suit la page d offre, qui
-// n en a aucune. Le retour et le lien de source restent ses seuls gestes.
+// Deux gestes, et deux seulement : postuler à l'annonce d'origine, et
+// partager l'offre. Ils vivent dans l'en-tête, donc dans le bloc figé.
 const fiche = html.slice(html.indexOf("document.getElementById('detail').innerHTML"));
-for (const action of ['Postuler maintenant', 'Partager', "Lien de l'offre"]) {
-  assert.ok(!fiche.includes(action), `la fiche ne doit plus proposer « ${action} »`);
+assert.ok(fiche.includes('class="bap"'), 'la fiche propose de postuler');
+assert.ok(fiche.includes('Postuler</a>'), 'le bouton porte son libellé');
+assert.ok(/class="bap"[^`]*j\.source_url/.test(fiche),
+  "postuler mène à l'annonce d'origine, pas à une adresse inventée");
+assert.ok(fiche.includes('j.source_url ?'),
+  "sans adresse de source, le bouton ne s'affiche pas");
+assert.ok(fiche.includes('class="bsh"') && fiche.includes('partagerOffre()'),
+  'le partage reste accessible depuis la fiche');
+// L'ancien habillage, lui, ne revient pas.
+for (const retire of ['Postuler maintenant', "Lien de l'offre"]) {
+  assert.ok(!fiche.includes(retire), `la fiche ne doit plus proposer « ${retire} »`);
 }
 
 console.log('En-tete de fiche sobre tests passed');
