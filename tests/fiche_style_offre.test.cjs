@@ -77,9 +77,27 @@ const dc = bloc(html, '.dc');
 assert.ok(dc.includes('max-width: 46rem'), "l'enveloppe tient la largeur de lecture du modèle");
 assert.ok(dc.includes('padding: 1.5rem 1.25rem 4rem'), 'et ses marges');
 
-// ── Défilement : rien ne colle ──
-assert.ok(!html.includes('position: sticky'), 'aucun élément de la fiche ne colle au défilement');
-assert.ok(!html.includes('d-sticky'), "l'en-tête collant est retiré, pas seulement désactivé");
+// ── Défilement : l'en-tête de la fiche se fige, et lui seul ──
+// Le sujet et ses repères restent sous les yeux pendant la lecture. Le bloc
+// s'arrête après les pastilles : le corps défile dessous.
+const entete = bloc(html, '.d-entete');
+assert.ok(entete.includes('position: sticky'), "l'en-tête de la fiche se fige au défilement");
+assert.ok(entete.includes('top: 0'), 'il se cale en haut du volet');
+assert.ok(entete.includes('background: #fff'),
+  'un fond opaque est indispensable : le corps defile dessous');
+assert.ok(entete.includes('margin: 0 -1.25rem'),
+  'le fond doit couvrir les gouttieres, sinon le texte defilerait a cote');
+// L ancien en-tete collant du board reste retire, lui.
+assert.ok(!html.includes('d-sticky'), "l'ancien en-tête collant n'est pas revenu");
+
+// Ce qui est figé : le titre, l'entreprise et les pastilles, rien de plus.
+const zone = html.match(/<div class="d-entete">[\s\S]*?<\/div>\s*\n\s*\$\{summary\}/);
+assert.ok(zone, "le bloc fige doit s'arreter juste apres les pastilles");
+for (const dans of ['dtitle', 'dco', 'pastilles']) {
+  assert.ok(zone[0].includes(dans), `${dans} doit etre dans la partie figee`);
+}
+assert.ok(!zone[0].includes('desc-source') && !zone[0].includes('pied'),
+  'le corps et le pied ne doivent pas etre figes');
 
 // ── La fiche suit l'ordre du modèle ──
 const fiche = html.slice(html.indexOf("document.getElementById('detail').innerHTML"));
