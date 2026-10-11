@@ -75,31 +75,25 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
 .feed { padding: .35rem .875rem .875rem; display: flex; flex-direction: column; gap: .65rem; }
 
 /* Colonne droite */
-.pr { flex: 1; min-height: 0; overflow-y: auto; background: #f3f4f5; }
+/* Fond de page du modèle : la fiche est une page, pas une carte. */
+.pr { flex: 1; min-height: 0; overflow-y: auto; background: #fff; }
 .pr::-webkit-scrollbar { width: 3px; }
 .pr::-webkit-scrollbar-thumb { background: #bbc9cc; border-radius: 10px; }
 
 /* ── DETAIL CARD ── */
+/* Enveloppe de lecture reprise du modèle : largeur tenue, marges
+   généreuses. Ni bordure ni ombre — sur fond blanc, la carte se voyait. */
 .dc {
-  background: #fff;
-  border-radius: 1rem;
-  box-shadow: 0 1px 4px rgba(0,0,0,.04);
-  border: 1px solid rgba(187,201,204,.12);
-  margin: 1rem 1.25rem;
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 4rem;
 }
 
 /* ── EN-TÊTE STICKY DU DÉTAIL ── */
-.d-sticky {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  background: #fff;
-  border-bottom: 1px solid rgba(187,201,204,.18);
-  padding: 1rem 1.5rem .875rem;
-  border-radius: 1rem 1rem 0 0;
-  transition: box-shadow .2s;
-}
-.d-sticky.scrolled { box-shadow: 0 3px 14px rgba(0,0,0,.09); border-radius: 0; }
+/* Le modèle n'a pas d'en-tête collant : le titre défile avec la page.
+   Coller l'en-tête mangeait de la hauteur utile sur téléphone. */
+.d-sticky { background: #fff; }
+.d-sticky.scrolled { box-shadow: none; }
 
 .d-body { padding: 1.25rem 1.5rem 1.5rem; }
 
@@ -133,19 +127,20 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
 .tn { background: #ffdcc2; color: #6d3a00; }
 
 /* ── DÉTAIL — éléments internes ── */
-.dh { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: .875rem; margin-bottom: .875rem; }
 .dlogo { width: 60px; height: 60px; border-radius: .75rem; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 900; font-size: 13px; flex-shrink: 0; position: relative; overflow: hidden; }
 .dtitle { font-size: 1.375rem; font-weight: 900; color: #191c1d; letter-spacing: -.02em; margin-bottom: 2px; }
 /* Même traitement que la page d'offre : le nom de l'entreprise informe,
    il ne doit pas rivaliser avec le titre. */
 .dco { font-size: 0.95rem; color: #515f78; font-weight: 600; }
-/* Les actions tiennent sur une ligne. Empilées en colonne, elles faisaient
-   à elles seules la hauteur de l'en-tête (189 px mesurés), au détriment de
-   la lecture de l'offre. */
-.dq { min-width: 0; }
-.dact { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; }
+/* Les actions suivent les pastilles, sur une ligne. */
+.dact { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; margin-bottom: 1.6rem; }
 .bap { background: #006876; color: #fff; padding: .55rem 1rem; border-radius: .5rem; font-weight: 700; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: .3rem; font-size: 0.875rem; }
-.bsh { background: #f3f4f5; color: #3c494c; padding: .38rem 1rem; border-radius: .5rem; font-weight: 700; border: 1px solid rgba(187,201,204,.25); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: .3rem; font-size: 0.8rem; }
+/* Actions secondaires en liens teal : en bouton gris arrondi, « Lien de
+   l'offre » se lisait comme une sixième pastille. */
+.bsh { background: none; color: #006876; padding: 0; border: none; cursor: pointer;
+  display: inline-flex; align-items: center; gap: .25rem; font-size: .875rem;
+  font-weight: 600; font-family: inherit; text-decoration: none; }
+.bsh:hover { text-decoration: underline; }
 /* Lien direct vers l'offre, à côté du partage. */
 .lien-offre { text-decoration: none; }
 .lien-offre:hover { background: #e8f4f6; color: #006876; }
@@ -155,7 +150,6 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
   font-size: .82rem; font-weight: 600; opacity: 0; pointer-events: none; z-index: 9999;
   transition: opacity .2s ease, transform .2s ease; }
 .toast-claim.vu { opacity: 1; transform: translate(-50%, 0); }
-.dkpi { display: flex; flex-wrap: wrap; gap: .875rem 1.75rem; padding: .625rem 0 0; }
 .ki { display: flex; align-items: center; gap: .4rem; }
 .kl { font-size: 10px; font-weight: 700; color: #6c797c; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 2px; }
 .kv { font-size: 0.825rem; font-weight: 700; color: #191c1d; }
@@ -165,9 +159,9 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
 .ds p.desc-ia { color: #3c494c; font-style: italic; padding-left: .6rem; border-left: 3px solid rgba(0,104,118,.25); }
 /* Structure éditoriale venue de la source : listes, emphases, sous-titres.
    Même lecture que la page d'offre, dans la typographie du site. */
-.desc-source p { color: #515f78; line-height: 1.7; margin-bottom: .55rem; font-size: 0.9rem; }
-.desc-source ul, .desc-source ol { margin: 0 0 .7rem; padding-left: 1.25rem; color: #515f78; }
-.desc-source li { margin: .28rem 0; line-height: 1.7; font-size: 0.9rem; }
+.desc-source p { color: #3c494c; line-height: 1.65; margin-bottom: .7rem; font-size: .95rem; }
+.desc-source ul, .desc-source ol { margin: 0 0 .9rem; padding-left: 1.3rem; color: #3c494c; }
+.desc-source li { margin: .25rem 0; line-height: 1.65; font-size: .95rem; }
 .desc-source li > ul, .desc-source li > ol { margin: .3rem 0 .1rem; }
 .desc-source strong, .desc-source b { color: #191c1d; font-weight: 700; }
 .desc-source em, .desc-source i { font-style: italic; }
@@ -181,7 +175,14 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
 .pb { background: #f3f4f5; padding: .875rem; border-radius: .5rem; border: 1px solid rgba(187,201,204,.1); }
 .pb ul { padding-left: 1.1rem; color: #515f78; line-height: 1.7; display: flex; flex-direction: column; gap: .2rem; font-size: 0.9rem; }
 .tl { display: flex; flex-wrap: wrap; gap: .3rem; }
-.tt { padding: 2.5px 10px; border-radius: 5px; background: #f3f4f5; color: #515f78; font-size: 0.825rem; font-weight: 600; border: 1px solid rgba(187,201,204,.2); }
+/* Pastilles et compétences : pilules du modèle, mêmes couleurs.
+   Les compétences sont des étiquettes comme les autres : même forme. */
+.pastilles { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: 1.6rem; }
+.pastille { padding: 3px 10px; border: 1px solid #dce5e9; border-radius: 9999px; background: #f5f8f9; font-size: .78rem; font-weight: 600; color: #24363d; }
+.pastille-ville { background: #e9f6f8; border-color: #bfe2e8; color: #00545f; }
+.pastille-salaire { background: #f2f8f2; border-color: #cfe6cf; color: #2d5a2d; }
+.pastille-specialite { background: #ffdcc2; border-color: #f0c8a6; color: #6d3a00; }
+.tt { padding: 3px 10px; border: 1px solid #dce5e9; border-radius: 9999px; background: #f5f8f9; font-size: .78rem; font-weight: 600; color: #24363d; }
 .cb { background: linear-gradient(135deg,#f3f4f5,#e7e8e9); padding: 1.1rem; border-radius: .875rem; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem; margin-top: .25rem; }
 .cblogo { width: 44px; height: 44px; border-radius: .5rem; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 900; font-size: 10px; flex-shrink: 0; position: relative; overflow: hidden; }
 .clogo img, .dlogo img, .cblogo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; border-radius: inherit; padding: 2px; }
@@ -385,7 +386,7 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
     transform: translateX(100%);
     transition: transform .3s cubic-bezier(.4,0,.2,1);
     z-index: 2;
-    background: #f3f4f5;
+    background: #fff;
   }
 
   /* Quand le détail est actif : slide in */
@@ -402,29 +403,29 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
      de « 1fr » et s'effondre à zéro — écran blanc sur téléphone. */
   body.detail-view #hd { height: 0; overflow: hidden; }
 
-  /* Bouton retour mobile dans le détail */
+  /* Lien de retour du modèle : sobre, teal, sans fond. */
   .btn-back {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: .3rem;
     background: transparent;
     border: none;
     color: #006876;
-    font-weight: 700;
-    font-size: 0.875rem;
+    font-weight: 600;
+    font-size: .9rem;
     cursor: pointer;
-    padding: .75rem 1rem .25rem;
+    padding: 1.25rem 1.25rem 0;
     font-family: inherit;
   }
   .btn-back:active { opacity: .7; }
 
   /* Ajuster le détail card en mobile */
-  .dc { margin: .5rem .75rem 1rem; }
+  .dc { padding: 1.25rem .875rem 3rem; }
   .d-sticky { padding: .75rem 1rem .625rem; }
   .dtitle { font-size: 1.1rem; }
   .dact { flex-direction: row; min-width: 0; }
   .bap { flex: 1; font-size: 0.825rem; padding: .45rem .75rem; }
-  .bsh { font-size: 0.75rem; padding: .38rem .75rem; }
+  .bsh { font-size: .825rem; padding: 0; }
   .d-body { padding: 1rem 1rem 1.25rem; }
 
   /* Footer mobile simplifié */
@@ -1054,6 +1055,25 @@ function specialtyLabel(j) {
     ? JEV_SPECIALTY_LABELS[j.jev_specialty] : '';
 }
 
+// Pastilles de la fiche, dans l'ordre de la page d'offre : lieu, contrat,
+// expérience, salaire, spécialité. Ce sont les fonctions de publication du
+// board qui décident — rien n'apparaît sans fondement, comme sur la carte.
+function pastillesOffreHtml(j) {
+  const p = [`<span class="pastille pastille-ville">${escapeHtml(j.ville || 'Lieu non précisé')}</span>`];
+  const ct = j.contract_type ? (CONTRACT_LABELS[j.contract_type] || j.contract_type) : '';
+  if (ct) p.push(`<span class="pastille">${escapeHtml(ct)}</span>`);
+  const exp = experienceLabel(j);
+  if (exp) p.push(`<span class="pastille">${escapeHtml(exp)}</span>`);
+  const sal = salaryLabel(j);
+  if (sal) p.push(`<span class="pastille pastille-salaire">${escapeHtml(sal)}</span>`);
+  const sp = specialtyLabel(j);
+  if (sp) p.push(`<span class="pastille pastille-specialite">${escapeHtml(sp)}</span>`);
+  if (j.remote_policy && j.remote_policy !== 'not_specified') {
+    p.push(`<span class="pastille">${escapeHtml(j.remote_policy)}</span>`);
+  }
+  return p.join('');
+}
+
 function cardFactHtml(label, value) {
   const accessibleLabel = escapeHtml(`${label} : ${value}`);
   return `<span class="card-fact" title="${accessibleLabel}" aria-label="${accessibleLabel}"><span class="card-fact-value">${escapeHtml(value)}</span></span>`;
@@ -1308,9 +1328,6 @@ async function renderDetail(id) {
     const j = await fetchDetail(id);
     offreCourante = j;
     const co = j.companies || {};
-    const ct      = j.contract_type || '';
-    const ctLabel = escapeHtml(CONTRACT_LABELS[ct] || ct || 'Non précisé');
-    const spLabel = specialtyLabel(j);
     const skillsBloc = skillsHtml(j);
 
     // Priorité à la structure éditoriale de la source quand elle a été
@@ -1343,12 +1360,10 @@ async function renderDetail(id) {
       </button>
       <div class="dc">
         <div class="d-sticky">
-          <div class="dh">
-            <div class="dq">
-              <div class="dtitle">${j.title}</div>
-              <div class="dco">${co.name || j.source}</div>
-            </div>
-            <div class="dact">
+          <div class="dtitle">${j.title}</div>
+          <div class="dco">${co.name || j.source}</div>
+          <div class="pastilles">${pastillesOffreHtml(j)}</div>
+          <div class="dact">
               <a href="${j.source_url || '#'}" target="_blank" rel="noopener" class="bap">
                 Postuler maintenant <span class="ms" style="font-size:14px;">open_in_new</span>
               </a>
@@ -1360,25 +1375,7 @@ async function renderDetail(id) {
               </a>
             </div>
           </div>
-          <div class="dkpi">
-            <div class="ki"><span class="ms" style="color:#006876;font-size:18px;">description</span>
-              <div><div class="kl">Contrat</div><div class="kv">${ctLabel}</div></div>
-            </div>
-            ${salaryLabel(j) ? `<div class="ki"><span class="ms" style="color:#006876;font-size:18px;">payments</span>
-              <div><div class="kl">Salaire annoncé</div><div class="kv">${escapeHtml(salaryLabel(j))}</div></div></div>` : ''}
-            ${j.ville ? `<div class="ki"><span class="ms" style="color:#006876;font-size:18px;">location_on</span>
-              <div><div class="kl">Localisation</div><div class="kv">${escapeHtml(j.ville)}</div></div>
-            </div>` : ''}
-            ${(() => { const expLabel = experienceLabel(j); return expLabel ? `<div class="ki"><span class="ms" style="color:#006876;font-size:18px;">trending_up</span>
-              <div><div class="kl">Expérience</div><div class="kv">${escapeHtml(expLabel)}</div></div>
-            </div>` : ''; })()}
-            ${j.remote_policy && j.remote_policy !== 'not_specified' ? `<div class="ki"><span class="ms" style="color:#006876;font-size:18px;">home_work</span>
-              <div><div class="kl">Télétravail</div><div class="kv">${j.remote_policy}</div></div>
-            </div>` : ''}
-            ${spLabel ? `<div class="ki"><span class="ms" style="color:#006876;font-size:18px;">category</span>
-              <div><div class="kl">Spécialité</div><div class="kv">${spLabel}</div></div>
-            </div>` : ''}
-            ${jevProposalHtml(j)}
+          ${jevProposalHtml(j)}
           </div>
         </div>
         <div class="d-body">
