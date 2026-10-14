@@ -371,13 +371,10 @@ ${societe.logo_url
  .page { display: grid; grid-template-columns: minmax(0, 1fr); }
  .rail { display: none; }
 
- .rail-bloc {
-  margin-bottom: .875rem;
-  padding: 1rem;
-  border: 1px solid #e6edf0;
-  border-radius: .75rem;
-  background: #fff;
- }
+ /* Les blocs se succèdent dans la carte du rail, séparés par un filet — ils ne
+    sont plus des cartes à eux seuls. */
+ .rail-bloc { padding:1.1rem 1.25rem; border-top:1px solid #eef3f5; }
+ .rail-bloc:first-child { border-top:none; }
  .rail-titre {
   margin: 0 0 .625rem;
   font-size: .7rem;
@@ -425,13 +422,40 @@ ${societe.logo_url
  .rail-offre-sous { display: block; margin-top: .1rem; font-size: .75rem; color: #6c797c; }
 
  /* Pied du rail : fraîcheur de l'offre et employeur qui recrute. */
- .rail-pied { font-size: .75rem; line-height: 1.6; color: #6c797c; }
+ .rail-pied { padding:1.1rem 1.25rem; border-top:1px solid #eef3f5; font-size:.75rem; line-height:1.6; color:#6c797c; }
  .rail-pied strong { font-weight: 600; color: #3c494c; }
 
+ /* ── La fiche et le rail sont deux zones ──
+    Deux cartes blanches posées sur le champ gris, séparées par la gouttière.
+    C'est la délimitation du modèle : elle se voit sans qu'on trace un trait
+    entre les deux. */
+ @media (min-width: 769px) {
+  body { background: #f3f4f5; }
+  .page { padding: 1.25rem 1.25rem 3rem; }
+  .enveloppe {
+   background: #fff;
+   border-radius: .75rem;
+   box-shadow: 0 1px 2px rgba(25, 44, 52, .06), 0 4px 14px rgba(25, 44, 52, .05);
+  }
+ }
+
  @media (min-width: 1120px) {
-  .page { grid-template-columns: minmax(0, 46rem) var(--rail-largeur); gap: 1.75rem;
-    justify-content: center; align-items: start; }
-  .rail { display: block; position: sticky; top: 1.5rem; padding-top: 1.5rem; }
+  /* Sur cette page, la colonne des offres n'existe pas : rien ne pousse le
+     bloc d'un côté, il se centre. */
+  .page { grid-template-columns: minmax(0, 46rem) var(--rail-largeur); gap: 2rem;
+   justify-content: center; align-items: start; }
+  /* Le rail est une carte, comme la fiche en face : une seule, dont les blocs
+     se succèdent, séparés par un filet. */
+  .rail {
+   display: block;
+   position: sticky;
+   top: 1.25rem;
+   border: 1px solid #e2e9ec;
+   border-radius: .75rem;
+   background: #fff;
+   box-shadow: 0 1px 2px rgba(25, 44, 52, .06), 0 4px 14px rgba(25, 44, 52, .05);
+   overflow: hidden;
+  }
  }
 </style>
 <!-- Google tag (gtag.js) -->

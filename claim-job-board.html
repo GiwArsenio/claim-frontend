@@ -115,6 +115,17 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
   padding: 1.5rem 1.25rem 4rem;
 }
 
+/* ── RAIL LATÉRAL — état par défaut ──
+   Ces deux déclarations vivent ici, avant les media queries, et non avec les
+   règles du rail plus bas : à spécificité égale, c'est la dernière règle du
+   fichier qui gagne. Les poser après aurait annulé la mise en page de bureau
+   (« display: contents » l'emportait sur « display: block »).
+
+   Sans place pour lui, le rail reste donc masqué et son enveloppe ne change
+   rien : la fiche retrouve exactement sa mise en page d'origine. */
+.dc-wrap { display: contents; }
+.rail { display: none; }
+
 /* ── EN-TÊTE STICKY DU DÉTAIL ── */
 /* ── CARDS ── */
 .jc { background: #fff; border-radius: .625rem; padding: .875rem; cursor: pointer; transition: transform .15s, box-shadow .15s; position: relative; border: 1.5px solid #d5dfe3; box-shadow: 0 2px 6px rgba(25,44,52,.08), 0 5px 14px rgba(25,44,52,.04); flex-shrink: 0; }
@@ -205,90 +216,7 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
 .pied { margin-top: 2.5rem; padding-top: 1.2rem; border-top: 1px solid #e6edf0; font-size: .85rem; color: #515f78; }
 .pied a { color: #006876; font-weight: 600; }
 
-/* ── RAIL LATÉRAL DE LA FICHE ──
-   Colonne de droite de la fiche : l'employeur, ce qu'il propose, les offres
-   voisines. Elle ne parle que de cette offre — rien qui navigue ailleurs.
 
-   Le rail n'apparaît que lorsque la place existe vraiment : la colonne des
-   offres (420 px), l'enveloppe de lecture (46 rem) et le rail (18 rem)
-   demandent environ 1 480 px de contenu utile. Sous 1 560 px, .dc-wrap reste
-   en « display: contents » et le rail est masqué : la fiche retrouve
-   exactement sa mise en page d'origine, sans un pixel de différence.
-
-   Ce bloc de règles est repris à l'identique dans api/offre.js — la fiche
-   doit se lire pareil, qu'on arrive par la liste ou par une adresse d'offre. */
-.dc-wrap { display: contents; }
-.rail { display: none; }
-
-.rail-bloc {
-  margin-bottom: .875rem;
-  padding: 1rem;
-  border: 1px solid #e6edf0;
-  border-radius: .75rem;
-  background: #fff;
-}
-.rail-titre {
-  margin: 0 0 .625rem;
-  font-size: .7rem;
-  font-weight: 700;
-  color: #6c797c;
-  text-transform: uppercase;
-  letter-spacing: .08em;
-}
-.rail-texte { margin: 0 0 .5rem; font-size: .82rem; line-height: 1.6; color: #3c494c; }
-.rail-lien { font-size: .8rem; font-weight: 600; color: #006876; text-decoration: none; }
-.rail-lien:hover { text-decoration: underline; }
-
-/* L'employeur : qui recrute, et où le retrouver. */
-.rail-entete { display: flex; align-items: center; gap: .625rem; margin-bottom: .75rem; }
-.rail-logo { width: 40px; height: 40px; border-radius: .5rem; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  color: #fff; font-weight: 900; font-size: 11px; letter-spacing: -.02em; overflow: hidden; }
-.rail-nom { margin: 0; font-size: .95rem; font-weight: 700; color: #191c1d; line-height: 1.3; }
-.rail-sous { margin: .1rem 0 0; font-size: .78rem; font-weight: 500; color: #515f78; }
-.rail-faits { margin: 0 0 .75rem; padding: 0; list-style: none; font-size: .8rem; color: #3c494c; }
-.rail-faits li { padding: .3rem 0; border-top: 1px solid #f0f4f6; }
-.rail-faits li:first-child { border-top: none; }
-
-.rail-sociaux { display: flex; flex-wrap: wrap; gap: .375rem; margin-bottom: .75rem; }
-.rail-social { display: inline-flex; align-items: center; padding: .3rem .625rem;
-  border: 1px solid #dce5e9; border-radius: 9999px; background: #f5f8f9;
-  font-size: .75rem; font-weight: 600; color: #24363d; text-decoration: none; }
-.rail-social:hover { background: #e9f6f8; border-color: #bfe2e8; }
-.rail-btn { display: block; padding: .55rem .75rem; border: 1px solid #bfe2e8; border-radius: .5rem;
-  background: #fff; color: #006876; font-size: .82rem; font-weight: 700;
-  text-align: center; text-decoration: none; }
-.rail-btn:hover { background: #e9f6f8; }
-
-/* Étiquettes : les avantages de l'employeur. */
-.rail-tags { display: flex; flex-wrap: wrap; gap: .3rem; margin: 0; padding: 0; list-style: none; }
-.rail-tag { padding: 3px 9px; border-radius: 9999px; border: 1px solid #dce5e9;
-  background: #f5f8f9; font-size: .75rem; font-weight: 600; color: #24363d; }
-.rail-tag--avantage { background: #f2f8f2; border-color: #cfe6cf; color: #2d5a2d; }
-
-/* Offres voisines. */
-.rail-offre { display: block; padding: .625rem 0; border-top: 1px solid #f0f4f6; text-decoration: none; }
-.rail-offre:first-child { border-top: none; }
-.rail-offre-titre { display: block; font-size: .82rem; font-weight: 600; color: #191c1d; line-height: 1.35; }
-.rail-offre:hover .rail-offre-titre { color: #006876; }
-.rail-offre-sous { display: block; margin-top: .1rem; font-size: .75rem; color: #6c797c; }
-
-/* Pied du rail : fraîcheur de l'offre et employeur qui recrute. */
-.rail-pied { font-size: .75rem; line-height: 1.6; color: #6c797c; }
-.rail-pied strong { font-weight: 600; color: #3c494c; }
-
-@media (min-width: 1560px) {
-  .dc-wrap {
-    display: grid;
-    grid-template-columns: minmax(0, 46rem) var(--rail-largeur);
-    gap: 1.75rem;
-    justify-content: center;
-    align-items: start;
-  }
-  /* La bande de recentrage n'a plus lieu d'être : le rail occupe la place. */
-  .pr { margin-right: 0; }
-  .rail { display: block; position: sticky; top: 1rem; padding-top: 1.5rem; }
-}
 
 /* Conservés pour les fonctions non affichées (proposition IA, copie). */
 .ki { display: flex; align-items: center; gap: .4rem; }
@@ -568,6 +496,122 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
   body.fiche-defilee #hd { max-height: 0; opacity: 0; overflow: hidden; }
   body.fiche-defilee #hero { max-height: 0; opacity: 0; padding-top: 0; padding-bottom: 0;
     border-bottom-width: 0; }
+
+  /* ── LA FICHE ET LE RAIL SONT DEUX ZONES ──
+     Deux cartes blanches posées sur le champ gris, séparées par la gouttière.
+     C'est la délimitation du modèle : elle se voit sans qu'on trace un trait
+     entre les deux. Le champ reprend le gris du bandeau de recherche, si bien
+     que le haut de page et le fond du volet ne font qu'une seule teinte.
+
+     Le volet reste blanc sur téléphone : la fiche y occupe tout l'écran, il
+     n'y a rien à délimiter. */
+  .pr { background: #f3f4f5; }
+  .dc-wrap { display: block; padding: 1.25rem 1.25rem 3rem; }
+  .dc {
+    background: #fff;
+    border-radius: .75rem;
+    box-shadow: 0 1px 2px rgba(25, 44, 52, .06), 0 4px 14px rgba(25, 44, 52, .05);
+  }
+  /* L'en-tête figé devient le haut de la carte : il en reprend les angles. */
+  .d-entete { border-radius: .75rem .75rem 0 0; }
+}
+
+/* ── RAIL LATÉRAL DE LA FICHE ──
+   Colonne de droite de la fiche : l'employeur, ce qu'il propose, les offres
+   voisines. Elle ne parle que de cette offre — rien qui navigue ailleurs.
+
+   Le rail n'apparaît que lorsque la place existe vraiment : la colonne des
+   offres (420 px), l'enveloppe de lecture (46 rem) et le rail (18 rem)
+   demandent environ 1 540 px de contenu utile. Sous 1 560 px, la fiche reste
+   en « display: contents » et le rail est masqué : la fiche retrouve
+   exactement sa mise en page d'origine, sans un pixel de différence.
+
+   Ce bloc de règles est repris à l'identique dans api/offre.js — la fiche
+   doit se lire pareil, qu'on arrive par la liste ou par une adresse d'offre. */
+/* Les blocs se succèdent dans la carte du rail, séparés par un filet — ils ne
+   sont plus des cartes à eux seuls. */
+.rail-bloc { padding: 1.1rem 1.25rem; border-top: 1px solid #eef3f5; }
+.rail-bloc:first-child { border-top: none; }
+.rail-titre {
+  margin: 0 0 .625rem;
+  font-size: .7rem;
+  font-weight: 700;
+  color: #6c797c;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+.rail-texte { margin: 0 0 .5rem; font-size: .82rem; line-height: 1.6; color: #3c494c; }
+.rail-lien { font-size: .8rem; font-weight: 600; color: #006876; text-decoration: none; }
+.rail-lien:hover { text-decoration: underline; }
+
+/* L'employeur : qui recrute, et où le retrouver. */
+.rail-entete { display: flex; align-items: center; gap: .625rem; margin-bottom: .75rem; }
+.rail-logo { width: 40px; height: 40px; border-radius: .5rem; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-weight: 900; font-size: 11px; letter-spacing: -.02em; overflow: hidden; }
+.rail-nom { margin: 0; font-size: .95rem; font-weight: 700; color: #191c1d; line-height: 1.3; }
+.rail-sous { margin: .1rem 0 0; font-size: .78rem; font-weight: 500; color: #515f78; }
+.rail-faits { margin: 0 0 .75rem; padding: 0; list-style: none; font-size: .8rem; color: #3c494c; }
+.rail-faits li { padding: .3rem 0; border-top: 1px solid #f0f4f6; }
+.rail-faits li:first-child { border-top: none; }
+
+.rail-sociaux { display: flex; flex-wrap: wrap; gap: .375rem; margin-bottom: .75rem; }
+.rail-social { display: inline-flex; align-items: center; padding: .3rem .625rem;
+  border: 1px solid #dce5e9; border-radius: 9999px; background: #f5f8f9;
+  font-size: .75rem; font-weight: 600; color: #24363d; text-decoration: none; }
+.rail-social:hover { background: #e9f6f8; border-color: #bfe2e8; }
+.rail-btn { display: block; padding: .55rem .75rem; border: 1px solid #bfe2e8; border-radius: .5rem;
+  background: #fff; color: #006876; font-size: .82rem; font-weight: 700;
+  text-align: center; text-decoration: none; }
+.rail-btn:hover { background: #e9f6f8; }
+
+/* Étiquettes : les avantages de l'employeur. */
+.rail-tags { display: flex; flex-wrap: wrap; gap: .3rem; margin: 0; padding: 0; list-style: none; }
+.rail-tag { padding: 3px 9px; border-radius: 9999px; border: 1px solid #dce5e9;
+  background: #f5f8f9; font-size: .75rem; font-weight: 600; color: #24363d; }
+.rail-tag--avantage { background: #f2f8f2; border-color: #cfe6cf; color: #2d5a2d; }
+
+/* Offres voisines. */
+.rail-offre { display: block; padding: .625rem 0; border-top: 1px solid #f0f4f6; text-decoration: none; }
+.rail-offre:first-child { border-top: none; }
+.rail-offre-titre { display: block; font-size: .82rem; font-weight: 600; color: #191c1d; line-height: 1.35; }
+.rail-offre:hover .rail-offre-titre { color: #006876; }
+.rail-offre-sous { display: block; margin-top: .1rem; font-size: .75rem; color: #6c797c; }
+
+/* Pied du rail : fraîcheur de l'offre et employeur qui recrute. */
+.rail-pied { padding: 1.1rem 1.25rem; border-top: 1px solid #eef3f5; font-size: .75rem; line-height: 1.6; color: #6c797c; }
+.rail-pied strong { font-weight: 600; color: #3c494c; }
+
+@media (min-width: 1560px) {
+  /* La fiche et le rail forment un bloc compact, ancré près de la colonne des
+     offres : la gouttière de gauche est fixe (2 rem), et le rail suit la fiche
+     à 2 rem — c'est la seule séparation entre les deux zones, avec le champ
+     gris qui les porte.
+
+     Ancrée et non centrée : sur un écran large, le texte descriptif ne doit
+     pas s'éloigner de la liste. La place qui reste va à droite du rail. */
+  .dc-wrap {
+    display: grid;
+    grid-template-columns: minmax(0, 46rem) var(--rail-largeur);
+    gap: 2rem;
+    justify-content: start;
+    align-items: start;
+    padding: 1.25rem 2rem 3rem;
+  }
+  /* La bande de recentrage n'a plus lieu d'être : le rail occupe la place. */
+  .pr { margin-right: 0; }
+  /* Le rail est une carte, comme la fiche en face : une seule, dont les blocs
+     se succèdent, séparés par un filet. */
+  .rail {
+    display: block;
+    position: sticky;
+    top: 1.25rem;
+    border: 1px solid #e2e9ec;
+    border-radius: .75rem;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(25, 44, 52, .06), 0 4px 14px rgba(25, 44, 52, .05);
+    overflow: hidden;
+  }
 }
 </style>
 

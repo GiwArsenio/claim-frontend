@@ -165,10 +165,35 @@ assert.ok(offre.includes("require('../assets/companies-data.js')"),
 
 // Chaque surface a sa fenêtre : le board porte une colonne d'offres de 420 px
 // en plus, la page d'offre non. Le seuil diffère, le comportement non.
-assert.ok(/@media \(min-width: 1560px\)[\s\S]{0,400}\.rail \{ display: block/.test(board),
+assert.ok(/@media \(min-width: 1560px\)[\s\S]{0,900}\.rail \{[\s\S]{0,400}display: block/.test(board),
   'sur le board, le rail s\'affiche quand la colonne et l\'enveloppe tiennent côte à côte');
-assert.ok(/@media \(min-width: 1120px\)[\s\S]{0,400}\.rail \{ display: block/.test(offre),
+assert.ok(/@media \(min-width: 1120px\)[\s\S]{0,900}\.rail \{[\s\S]{0,400}display: block/.test(offre),
   'sur la page d\'offre, il tient plus tôt');
+
+// Le rail est une carte, comme la fiche en face. Les deux surfaces doivent
+// lui donner le même habillage : c'est lui qui délimite les deux zones.
+function carteDuRail(source) {
+  // La carte, et non le « display:none » de base : c'est la règle bureau qui
+  // porte l'habillage, et c'est elle qui doit coïncider entre les surfaces.
+  const regles = [...source.matchAll(/\.rail \{([^}]*)\}/g)].map((m) => m[1]);
+  const carte = regles.find((r) => r.includes('position: sticky'));
+  assert.ok(carte, 'le rail doit être habillé en carte au bureau');
+  const sortie = {};
+  for (const m of carte.matchAll(/([a-z-]+):\s*([^;]+)/g)) sortie[m[1]] = m[2].trim();
+  return sortie;
+}
+for (const source of [board, offre]) {
+  const rail = carteDuRail(source);
+  assert.equal(rail['display'], 'block', 'le rail s\'affiche en bureau large');
+  assert.equal(rail['position'], 'sticky', 'et suit la lecture');
+  assert.equal(rail['background'], '#fff', 'le rail est une carte blanche');
+  assert.equal(rail['border-radius'], '.75rem', 'aux angles de la fiche');
+  assert.ok(rail['box-shadow'], 'il porte la même ombre que la fiche');
+  assert.equal(rail['overflow'], 'hidden', 'ses blocs ne dépassent pas des angles');
+}
+assert.equal(carteDuRail(board)['box-shadow'], carteDuRail(offre)['box-shadow'],
+  'la fiche et le rail se détachent du même gris de la même façon');
+
 
 /* ── 6. Les deux rails portent les mêmes règles ──────────────────────────
    Le style du rail est écrit deux fois — une page est du HTML, l'autre du

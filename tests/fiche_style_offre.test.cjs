@@ -66,16 +66,25 @@ assert.equal(valeur(html, '.ds p, .desc-source p, .mi', 'color'), valeur(modele,
 assert.equal(valeur(html, '.desc-source ul, .desc-source ol, .pb ul', 'padding-left'),
   valeur(modele, 'ul, ol', 'padding-left'), 'les listes ont le retrait du modele');
 
-// ── Fond : la fiche est une page, pas une carte grise ──
+// ── Fond : la fiche est une carte sur le champ gris ──
+//
+// C'est la delimitation reprise du modele : deux cartes blanches, une
+// gouttiere entre elles, un champ gris dessous. Le volet reste blanc sur
+// telephone — la fiche y occupe tout l'ecran, il n'y a rien a delimiter.
 const pr = bloc(html, '.pr ');
-assert.ok(pr.includes('background: #fff'), 'la fiche repose sur fond blanc');
-assert.ok(!pr.includes('#f3f4f5'), 'le fond gris de carte est abandonné');
+assert.ok(pr.includes('background: #fff'), 'le volet reste blanc sur telephone');
 assert.ok(pr.includes('system-ui'), 'la fiche prend la police de la page d offre');
 assert.ok(pr.includes('line-height: 1.65'), 'et son interligne');
+assert.ok(/@media \(min-width: 769px\)[\s\S]{0,6000}\.pr \{ background: #f3f4f5; \}/.test(html),
+  'en bureau, le volet prend le gris du bandeau : la fiche et le rail s y detachent');
 
 const dc = bloc(html, '.dc');
 assert.ok(dc.includes('max-width: 46rem'), "l'enveloppe tient la largeur de lecture du modèle");
 assert.ok(dc.includes('padding: 1.5rem 1.25rem 4rem'), 'et ses marges');
+assert.ok(/\.dc \{[\s\S]{0,400}border-radius: \.75rem;/.test(html),
+  'la fiche est une carte : angles arrondis');
+assert.ok(/\.d-entete \{[\s\S]{0,900}border-radius: \.75rem \.75rem 0 0;/.test(html),
+  "l'en-tete fige reprend les angles hauts de la carte");
 
 // ── Défilement : l'en-tête de la fiche se fige, et lui seul ──
 // Le sujet et ses repères restent sous les yeux pendant la lecture. Le bloc
@@ -141,9 +150,11 @@ assert.ok(bande.includes('2.5rem'), 'les deux paddings de l enveloppe sont compt
 assert.ok(!bande.includes('clamp('), 'la bande ne copie plus la colonne de gauche');
 
 // Le rail prend la place de cette bande quand la fenetre le permet : la fiche
-// n'est alors plus centree, elle est en deux colonnes.
-assert.ok(/@media \(min-width: 1560px\)[\s\S]{0,600}\.pr \{ margin-right: 0; \}/.test(html),
+// n'est alors plus centree, elle est ancree pres de la liste.
+assert.ok(/@media \(min-width: 1560px\)[\s\S]{0,900}\.pr \{ margin-right: 0; \}/.test(html),
   "quand le rail s'affiche, la bande de recentrage s'efface");
+assert.ok(/@media \(min-width: 1560px\)[\s\S]{0,900}justify-content: start;/.test(html),
+  'et la fiche reste ancree a gauche : elle ne doit pas s eloigner de la liste');
 
 // ── Les deux gestes de la fiche ──
 for (const geste of ['class="dact"', 'class="bap"', 'class="bsh', 'Postuler', 'partagerOffre()']) {
