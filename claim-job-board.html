@@ -31,7 +31,7 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
    La marge droite de la page blanche reprend la marge blanche qui sépare le
    texte de la colonne des offres : le texte se retrouve avec la même marge
    de chaque côté, et le gris n'a pas plus de place que cette marge. */
-:root { --colonne-liste: 420px; --enveloppe-lecture: 46rem; }
+:root { --colonne-liste: 420px; --enveloppe-lecture: 46rem; --rail-largeur: 18rem; }
 
 /* Header */
 #hd { background: #006876; z-index: 200; }
@@ -204,6 +204,91 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
 /* Pied : filet et texte gris, comme la page d'offre. */
 .pied { margin-top: 2.5rem; padding-top: 1.2rem; border-top: 1px solid #e6edf0; font-size: .85rem; color: #515f78; }
 .pied a { color: #006876; font-weight: 600; }
+
+/* ── RAIL LATÉRAL DE LA FICHE ──
+   Colonne de droite de la fiche : l'employeur, ce qu'il propose, les offres
+   voisines. Elle ne parle que de cette offre — rien qui navigue ailleurs.
+
+   Le rail n'apparaît que lorsque la place existe vraiment : la colonne des
+   offres (420 px), l'enveloppe de lecture (46 rem) et le rail (18 rem)
+   demandent environ 1 480 px de contenu utile. Sous 1 560 px, .dc-wrap reste
+   en « display: contents » et le rail est masqué : la fiche retrouve
+   exactement sa mise en page d'origine, sans un pixel de différence.
+
+   Ce bloc de règles est repris à l'identique dans api/offre.js — la fiche
+   doit se lire pareil, qu'on arrive par la liste ou par une adresse d'offre. */
+.dc-wrap { display: contents; }
+.rail { display: none; }
+
+.rail-bloc {
+  margin-bottom: .875rem;
+  padding: 1rem;
+  border: 1px solid #e6edf0;
+  border-radius: .75rem;
+  background: #fff;
+}
+.rail-titre {
+  margin: 0 0 .625rem;
+  font-size: .7rem;
+  font-weight: 700;
+  color: #6c797c;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+.rail-texte { margin: 0 0 .5rem; font-size: .82rem; line-height: 1.6; color: #3c494c; }
+.rail-lien { font-size: .8rem; font-weight: 600; color: #006876; text-decoration: none; }
+.rail-lien:hover { text-decoration: underline; }
+
+/* L'employeur : qui recrute, et où le retrouver. */
+.rail-entete { display: flex; align-items: center; gap: .625rem; margin-bottom: .75rem; }
+.rail-logo { width: 40px; height: 40px; border-radius: .5rem; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-weight: 900; font-size: 11px; letter-spacing: -.02em; overflow: hidden; }
+.rail-nom { margin: 0; font-size: .95rem; font-weight: 700; color: #191c1d; line-height: 1.3; }
+.rail-sous { margin: .1rem 0 0; font-size: .78rem; font-weight: 500; color: #515f78; }
+.rail-faits { margin: 0 0 .75rem; padding: 0; list-style: none; font-size: .8rem; color: #3c494c; }
+.rail-faits li { padding: .3rem 0; border-top: 1px solid #f0f4f6; }
+.rail-faits li:first-child { border-top: none; }
+
+.rail-sociaux { display: flex; flex-wrap: wrap; gap: .375rem; margin-bottom: .75rem; }
+.rail-social { display: inline-flex; align-items: center; padding: .3rem .625rem;
+  border: 1px solid #dce5e9; border-radius: 9999px; background: #f5f8f9;
+  font-size: .75rem; font-weight: 600; color: #24363d; text-decoration: none; }
+.rail-social:hover { background: #e9f6f8; border-color: #bfe2e8; }
+.rail-btn { display: block; padding: .55rem .75rem; border: 1px solid #bfe2e8; border-radius: .5rem;
+  background: #fff; color: #006876; font-size: .82rem; font-weight: 700;
+  text-align: center; text-decoration: none; }
+.rail-btn:hover { background: #e9f6f8; }
+
+/* Étiquettes : les avantages de l'employeur. */
+.rail-tags { display: flex; flex-wrap: wrap; gap: .3rem; margin: 0; padding: 0; list-style: none; }
+.rail-tag { padding: 3px 9px; border-radius: 9999px; border: 1px solid #dce5e9;
+  background: #f5f8f9; font-size: .75rem; font-weight: 600; color: #24363d; }
+.rail-tag--avantage { background: #f2f8f2; border-color: #cfe6cf; color: #2d5a2d; }
+
+/* Offres voisines. */
+.rail-offre { display: block; padding: .625rem 0; border-top: 1px solid #f0f4f6; text-decoration: none; }
+.rail-offre:first-child { border-top: none; }
+.rail-offre-titre { display: block; font-size: .82rem; font-weight: 600; color: #191c1d; line-height: 1.35; }
+.rail-offre:hover .rail-offre-titre { color: #006876; }
+.rail-offre-sous { display: block; margin-top: .1rem; font-size: .75rem; color: #6c797c; }
+
+/* Pied du rail : fraîcheur de l'offre et employeur qui recrute. */
+.rail-pied { font-size: .75rem; line-height: 1.6; color: #6c797c; }
+.rail-pied strong { font-weight: 600; color: #3c494c; }
+
+@media (min-width: 1560px) {
+  .dc-wrap {
+    display: grid;
+    grid-template-columns: minmax(0, 46rem) var(--rail-largeur);
+    gap: 1.75rem;
+    justify-content: center;
+    align-items: start;
+  }
+  /* La bande de recentrage n'a plus lieu d'être : le rail occupe la place. */
+  .pr { margin-right: 0; }
+  .rail { display: block; position: sticky; top: 1rem; padding-top: 1.5rem; }
+}
 
 /* Conservés pour les fonctions non affichées (proposition IA, copie). */
 .ki { display: flex; align-items: center; gap: .4rem; }
@@ -596,6 +681,7 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
 
 </div>
 
+<script src="/assets/companies-data.js"></script>
 <script>
 // ── Configuration ──────────────────────────────────────────────────────────
 const API_BASE    = 'https://claim-api-production-06b3.up.railway.app/api/v1';
@@ -641,22 +727,15 @@ const COMPANY_QUERY_ALIASES = {
   apicil: 'apicil',
   alan: 'alan',
 };
-const COMPANY_COLORS = {
-  'ag2r': '#1B4F72', 'axa': '#00395D', 'allianz': '#003781',
-  'bnp-paribas-cardif': '#009966', 'covea': '#E30613', 'scor': '#1A1A2E',
-  'swiss_life': '#E4003A', 'swiss-life': '#E4003A',
-  'generali': '#C8102E', 'malakoff_humanis': '#005B8E', 'malakoff-humanis': '#005B8E',
-  'groupama_gan': '#009B3A', 'groupama-gan': '#009B3A',
-  'groupe_vyv': '#6B2D8B', 'groupe-vyv': '#6B2D8B',
-  'klesia': '#E85D04', 'cnp': '#003F7F',
-  'cm_arkea': '#E30613', 'cm-arkea': '#E30613',
-  'ca_assurances': '#007A3D', 'ca-assurances': '#007A3D',
-  'pro_btp': '#F5A623', 'groupe_agrica': '#4A7C59',
-  'matmut': '#E8001D', 'la_mutuelle_generale': '#0066CC',
-};
-function companyColor(slug) { return COMPANY_COLORS[slug] || '#006876'; }
+// Teinte et initiales d'un employeur. La table vit dans
+// assets/companies-data.js, avec les profils du rail : la même entreprise doit
+// porter la même couleur sur la carte, sur la fiche et sur la page d'offre.
+function companyColor(slug) {
+  return (typeof CLAIM_ENTREPRISES !== 'undefined') ? CLAIM_ENTREPRISES.couleurEntreprise(slug) : '#006876';
+}
 function companyInitials(name) {
-  return (name || '?').split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+  return (typeof CLAIM_ENTREPRISES !== 'undefined') ? CLAIM_ENTREPRISES.initiales(name)
+    : (name || '?').split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase();
 }
 const COMPANY_LOGO_URLS = {
   "abeille": "https://www.google.com/s2/favicons?domain=abeille-assurances.fr&sz=256",
@@ -1535,6 +1614,7 @@ async function renderDetail(id) {
           : '<p>Description non disponible.</p>');
 
     document.getElementById('detail').innerHTML = `
+      <div class="dc-wrap">
       <div class="dc">
         <button class="btn-back" onclick="closeDetail()">← Toutes les offres</button>
         <div class="d-entete">
@@ -1555,7 +1635,10 @@ async function renderDetail(id) {
           ${j.source_url ? `Source : <a href="${escapeHtml(j.source_url)}" rel="nofollow noopener" target="_blank">l'annonce d'origine</a>.` : ''}
         </div>
       </div>
+      ${railOffreHtml(j)}
+      </div>
     `;
+    remplirOffresSimilaires(j);
   } catch (e) {
     document.getElementById('detail').innerHTML = `
       <button class="btn-back" onclick="closeDetail()">
@@ -1567,6 +1650,160 @@ async function renderDetail(id) {
     `;
     console.error('[CLAIM!] renderDetail error:', e);
   }
+}
+
+// ── RAIL LATÉRAL DE LA FICHE ───────────────────────────────────────────────
+// Colonne de droite, réservée au bureau large (voir la règle de mise en page).
+// Elle ne parle que de cette offre : l'employeur, ce qu'il propose, les offres
+// voisines. Rien qui navigue ailleurs — le rail informe, il ne double pas le
+// site.
+//
+// L'API ne fournit de la société que son nom, son type et ses liens. Le reste
+// vient d'assets/companies-data.js — illustratif tant que les pages
+// d'entreprise ne sont pas publiées — et de la lecture de l'annonce elle-même.
+
+// Fraîcheur de l'offre : le repère qui décide le plus vite à cliquer, et il
+// n'apparaît nulle part ailleurs sur la fiche. La règle vit dans
+// assets/companies-data.js, avec le reste de ce que le rail sait dire :
+// la page d'offre doit dater l'annonce exactement comme la fiche.
+function publicationLabel(iso) {
+  return (typeof CLAIM_ENTREPRISES !== 'undefined') ? CLAIM_ENTREPRISES.publicationLabel(iso) : '';
+}
+
+function railOffreHtml(j) {
+  const co = j.companies || {};
+  const annuaire = (typeof CLAIM_ENTREPRISES !== 'undefined') ? CLAIM_ENTREPRISES : null;
+  const profil = annuaire ? annuaire.profilEntreprise(co.slug || j.source) : null;
+
+  const nom = (profil && profil.nom) || co.name || j.source || '';
+  const typeLibelle = (profil && profil.type && annuaire)
+    ? (annuaire.TYPES[profil.type] || profil.type) : '';
+  const sousTitre = [typeLibelle, profil && profil.secteur].filter(Boolean).join(' · ');
+
+  const accroche = (profil && profil.aPropos)
+    || (annuaire ? annuaire.accrocheEntreprise(j.description_raw) : '');
+  const avantages = annuaire ? annuaire.avantagesDe(j.description_raw, profil) : [];
+
+  // Les pages individuelles d'entreprise ne sont pas encore publiées : le
+  // bouton vise la page Entreprises, avec le repère déjà posé pour la suite.
+  const adresseEntreprise = `claim-entreprises.html?entreprise=${encodeURIComponent(co.slug || j.source || '')}`;
+  const blocs = [];
+
+  // 1. L'employeur : qui recrute, et où le retrouver.
+  const faits = [];
+  if (profil && profil.taille) faits.push(`<li>${escapeHtml(profil.taille)}</li>`);
+  if (profil && profil.siege) faits.push(`<li>Siège : ${escapeHtml(profil.siege)}</li>`);
+
+  const sociaux = [];
+  if (profil && profil.linkedin) {
+    sociaux.push(`<a class="rail-social" href="${escapeHtml(profil.linkedin)}" target="_blank" rel="noopener nofollow">LinkedIn</a>`);
+  }
+  const site = (profil && profil.site) || co.website_url;
+  if (site) {
+    sociaux.push(`<a class="rail-social" href="${escapeHtml(site)}" target="_blank" rel="noopener nofollow">Site web</a>`);
+  }
+
+  blocs.push(`<section class="rail-bloc">
+      <h2 class="rail-titre">L'employeur</h2>
+      <div class="rail-entete">
+        <div class="rail-logo" style="background:${escapeHtml(companyColor(co.slug))}">${escapeHtml(companyInitials(nom))}</div>
+        <div>
+          <p class="rail-nom">${escapeHtml(nom)}</p>
+          ${sousTitre ? `<p class="rail-sous">${escapeHtml(sousTitre)}</p>` : ''}
+        </div>
+      </div>
+      ${faits.length ? `<ul class="rail-faits">${faits.join('')}</ul>` : ''}
+      ${sociaux.length ? `<div class="rail-sociaux">${sociaux.join('')}</div>` : ''}
+      <a class="rail-btn" href="${escapeHtml(adresseEntreprise)}">Découvrir l'entreprise</a>
+    </section>`);
+
+  // 2. À propos : le mot de l'employeur sur lui-même, puis la page Entreprises.
+  if (accroche) {
+    blocs.push(`<section class="rail-bloc">
+      <h2 class="rail-titre">À propos de l'entreprise</h2>
+      <p class="rail-texte">${escapeHtml(accroche)}</p>
+      <a class="rail-lien" href="${escapeHtml(adresseEntreprise)}">Lire la suite</a>
+    </section>`);
+  }
+
+  // 3. Avantages : ce que l'employeur met sur la table.
+  if (avantages.length) {
+    blocs.push(`<section class="rail-bloc">
+      <h2 class="rail-titre">Avantages</h2>
+      <ul class="rail-tags">${avantages.map(a => `<li class="rail-tag rail-tag--avantage">${escapeHtml(a)}</li>`).join('')}</ul>
+    </section>`);
+  }
+
+  // 4. Offres voisines : remplies après coup, depuis la liste déjà chargée.
+  blocs.push(`<section class="rail-bloc" id="rail-similaires" hidden>
+      <h2 class="rail-titre">Offres similaires</h2>
+      <div id="rail-similaires-liste"></div>
+    </section>`);
+
+  // 5. Ce que les pastilles ne disent pas : la fraîcheur, et qui recrute.
+  const publication = publicationLabel(j.source_published_at);
+  if (publication || nom) {
+    blocs.push(`<div class="rail-pied">
+      ${publication ? `<p style="margin:0;">Offre ${escapeHtml(publication)}.</p>` : ''}
+      ${nom ? `<p style="margin:.25rem 0 0;">Recrutement mené par <strong>${escapeHtml(nom)}</strong>.</p>` : ''}
+    </div>`);
+  }
+
+  return `<aside class="rail" aria-label="Repères sur l'offre et l'employeur">${blocs.join('')}</aside>`;
+}
+
+// Voisinage d'une offre : la même entreprise d'abord, puis le même métier,
+// puis la même ville. Le classement se fait sur ce qui est déjà chargé —
+// aucune requête supplémentaire, et rien qui sorte de la liste en cours.
+function offresVoisines(j, max) {
+  const entreprise = (o) => (o.companies && o.companies.slug) || o.source || '';
+  const metier = (o) => (o.jev_curation_status === 'done' && (o.jev_publishable || {}).specialty)
+    ? o.jev_specialty : o.specialty;
+  const rang = (o) => {
+    let score = 0;
+    if (entreprise(o) && entreprise(o) === entreprise(j)) score += 4;
+    if (metier(o) && metier(o) === metier(j)) score += 2;
+    if (o.city && o.city === j.city) score += 1;
+    return score;
+  };
+  return ALL_JOBS
+    .filter(o => o.id !== j.id && rang(o) > 0)
+    .sort((a, b) => rang(b) - rang(a))
+    .slice(0, max);
+}
+
+function remplirOffresSimilaires(j) {
+  const bloc = document.getElementById('rail-similaires');
+  const liste = document.getElementById('rail-similaires-liste');
+  if (!bloc || !liste) return;
+  const voisines = offresVoisines(j, 4);
+  if (!voisines.length) return;
+  liste.innerHTML = voisines.map(o => `
+    <a class="rail-offre" href="${escapeHtml(urlOffre(o.slug))}" data-offre="${escapeHtml(o.id)}">
+      <span class="rail-offre-titre">${escapeHtml(o.title)}</span>
+      <span class="rail-offre-sous">${escapeHtml((o.companies && o.companies.name) || o.source || '')}${o.ville ? ' · ' + escapeHtml(o.ville) : ''}</span>
+    </a>`).join('');
+  liste.querySelectorAll('a[data-offre]').forEach(lien => {
+    lien.addEventListener('click', (e) => {
+      e.preventDefault();
+      ouvrirOffreVoisine(lien.dataset.offre);
+    });
+  });
+  bloc.hidden = false;
+}
+
+// Ouvrir une offre depuis le rail : le même geste que depuis la liste.
+async function ouvrirOffreVoisine(id) {
+  const cible = ALL_JOBS.find(x => x.id === id);
+  if (!cible) return;
+  activeId = cible.id;
+  mesurer('select_item', paramOffre(cible, 'board'));
+  origineDetail = 'liste';
+  renderFeed();
+  await renderDetail(cible.id);
+  if (!isMobile()) prEl.scrollTop = 0;
+  openDetail();
+  poserAdresseOffre(cible.slug);
 }
 
 // ── Mobile navigation ──────────────────────────────────────────────────────

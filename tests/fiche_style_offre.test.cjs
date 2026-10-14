@@ -120,6 +120,12 @@ assert.equal(racine[1].trim(), '420px', 'et valoir la largeur mesuree de la colo
 // La marge droite n'est pas la colonne : c'est la marge blanche du texte.
 // L'enveloppe se centrant dans la page, « bande = marge blanche » se resout
 // en bande = (fenetre - colonne - enveloppe + 2 x padding) / 3.
+//
+// C'est la mise en page de la fiche seule, sans rail : celui-ci ne parait que
+// lorsque la colonne, l'enveloppe ET le rail tiennent cote a cote. Des que le
+// rail s'affiche, la bande n'a plus lieu d'etre — elle disparait au profit de
+// la deuxieme colonne (les regles du rail elles-memes sont verrouillees par
+// tests/rail_fiche.test.cjs).
 const enveloppe = html.match(/:root \{[^}]*--enveloppe-lecture: ([^;]+);/);
 assert.ok(enveloppe, "la largeur de l'enveloppe doit etre declaree");
 assert.equal(enveloppe[1].trim(), '46rem', 'elle reprend celle de la page d offre');
@@ -133,6 +139,11 @@ assert.ok(/\)\s*\/\s*3\)/.test(bande),
   'et vaut le tiers de ce qui reste : c est la marge du texte, des deux cotes');
 assert.ok(bande.includes('2.5rem'), 'les deux paddings de l enveloppe sont comptes');
 assert.ok(!bande.includes('clamp('), 'la bande ne copie plus la colonne de gauche');
+
+// Le rail prend la place de cette bande quand la fenetre le permet : la fiche
+// n'est alors plus centree, elle est en deux colonnes.
+assert.ok(/@media \(min-width: 1560px\)[\s\S]{0,600}\.pr \{ margin-right: 0; \}/.test(html),
+  "quand le rail s'affiche, la bande de recentrage s'efface");
 
 // ── Les deux gestes de la fiche ──
 for (const geste of ['class="dact"', 'class="bap"', 'class="bsh', 'Postuler', 'partagerOffre()']) {
