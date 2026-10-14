@@ -333,7 +333,7 @@ ${societe.logo_url
 <meta name="twitter:card" content="summary_large_image">
 <script type="application/ld+json">${JSON.stringify(offre)}</script>
 <style>
- :root { --teal:#006876; --encre:#191c1d; --gris:#515f78; --rail-largeur:18rem; }
+ :root { --teal:#006876; --encre:#191c1d; --gris:#515f78; --rail-largeur:18rem; --rail-large:394px; }
  * { box-sizing:border-box; }
  body { margin:0; font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; color:var(--encre); line-height:1.65; }
  .enveloppe { max-width:46rem; margin:0 auto; padding:1.5rem 1.25rem 4rem; }
@@ -441,12 +441,18 @@ ${societe.logo_url
 
  @media (min-width: 1120px) {
   /* Sur cette page, la colonne des offres n'existe pas : rien ne pousse le
-     bloc d'un côté, il se centre. */
-  .page { grid-template-columns: minmax(0, 46rem) var(--rail-largeur); gap: 2rem;
-   justify-content: center; align-items: start; }
+     bloc d'un côté, il se centre. La fiche et le rail prennent les mêmes
+     largeurs hautes que sur le board : la fiche doit se lire pareil. */
+  .page { display: flex; justify-content: center; align-items: flex-start; gap: 2rem;
+   padding-left: 2rem; padding-right: 2rem; }
+  .enveloppe { flex-grow: 1; flex-shrink: 1; flex-basis: 46rem; max-width: 842px; }
   /* Le rail est une carte, comme la fiche en face : une seule, dont les blocs
      se succèdent, séparés par un filet. */
   .rail {
+   flex-grow: 1;
+   flex-shrink: 1;
+   flex-basis: 18rem;
+   max-width: var(--rail-large);
    display: block;
    position: sticky;
    top: 1.25rem;

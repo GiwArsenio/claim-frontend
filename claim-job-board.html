@@ -24,14 +24,29 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
 #app { display: grid; grid-template-rows: auto auto 1fr; height: 100%; overflow: hidden; }
 
 /* Largeurs de référence de la mise en page bureau.
-   --colonne-liste : la colonne des offres, à gauche.
-   --enveloppe-lecture : l'enveloppe de la page d'offre, marges internes
-   comprises (46rem). La page blanche du board s'y conforme exactement.
 
-   La marge droite de la page blanche reprend la marge blanche qui sépare le
-   texte de la colonne des offres : le texte se retrouve avec la même marge
-   de chaque côté, et le gris n'a pas plus de place que cette marge. */
-:root { --colonne-liste: 420px; --enveloppe-lecture: 46rem; --rail-largeur: 18rem; }
+   --colonne-liste     la colonne des offres, à gauche.
+   --enveloppe-lecture l'enveloppe de la page d'offre, marges internes
+                       comprises (46 rem). C'est la largeur de lecture.
+   --enveloppe-large   la même, une fois la place partagée avec le rail.
+   --rail-largeur      le rail quand la place est comptée au plus juste.
+   --rail-large        le rail une fois la place partagée.
+   --marge-page        les marges de page. Elles valent 100 px à 1 920 px de
+                       large — la place exacte à répartir — et absorbent tout
+                       le surplus au-delà. Le bloc garde donc 1 720 px de
+                       large : ni la fiche ni le rail ne s'étirent sans fin.
+
+   La répartition des 412 px perdus : 100 px de marge de chaque côté, puis
+   106 px pour la fiche comme pour le rail. Soit, à 1 920 px de large :
+   100 + 420 + 32 + 842 + 32 + 394 + 100 = 1 920. */
+:root {
+  --colonne-liste: 420px;
+  --enveloppe-lecture: 46rem;   /* 736 px : la largeur de lecture */
+  --enveloppe-large: 842px;     /* + 106 px quand la place existe */
+  --rail-largeur: 18rem;        /* 288 px minimum */
+  --rail-large: 394px;          /* + 106 px quand la place existe */
+  --marge-page: max(2rem, calc((100vw - 1720px) / 2));
+}
 
 /* Header */
 #hd { background: #006876; z-index: 200; }
@@ -514,6 +529,15 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
   }
   /* L'en-tête figé devient le haut de la carte : il en reprend les angles. */
   .d-entete { border-radius: .75rem .75rem 0 0; }
+
+  /* ── LES MARGES DE PAGE ──
+     Le board ne colle plus aux bords : la page prend 100 px de marge de
+     chaque côté à 1 920 px de large. L'en-tête et le bandeau de recherche
+     suivent la même marge, sinon le haut de page ne s'alignerait plus sur la
+     colonne des offres. */
+  #split { padding: 0 var(--marge-page); }
+  #hd nav { padding-left: var(--marge-page); padding-right: var(--marge-page); }
+  #hero { padding-left: var(--marge-page); padding-right: var(--marge-page); }
 }
 
 /* ── RAIL LATÉRAL DE LA FICHE ──
@@ -583,26 +607,39 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
 .rail-pied strong { font-weight: 600; color: #3c494c; }
 
 @media (min-width: 1560px) {
-  /* La fiche et le rail forment un bloc compact, ancré près de la colonne des
-     offres : la gouttière de gauche est fixe (2 rem), et le rail suit la fiche
-     à 2 rem — c'est la seule séparation entre les deux zones, avec le champ
-     gris qui les porte.
+  /* ── LA FICHE ET LE RAIL SE PARTAGENT LA PLACE ──
+     Chacun grandit à partir de sa largeur de lecture, à parts égales, et
+     s'arrête à sa largeur haute : 842 px pour la fiche, 394 px pour le rail.
+     À 1 920 px, les deux ont pris leurs 106 px — 736 → 842 et 288 → 394.
 
-     Ancrée et non centrée : sur un écran large, le texte descriptif ne doit
-     pas s'éloigner de la liste. La place qui reste va à droite du rail. */
+     Le surplus de la fenêtre part dans les marges de page. Le bloc garde donc
+     1 720 px de large : ni la fiche ni le rail ne s'étirent sans fin.
+
+     Gouttière de gauche : 2 rem, celle qui sépare la fiche de la liste. À
+     droite, aucune : le rail s'arrête à la marge de page. */
   .dc-wrap {
-    display: grid;
-    grid-template-columns: minmax(0, 46rem) var(--rail-largeur);
+    display: flex;
+    align-items: flex-start;
     gap: 2rem;
-    justify-content: start;
-    align-items: start;
-    padding: 1.25rem 2rem 3rem;
+    padding: 1.25rem 0 3rem 2rem;
+  }
+  /* La fiche quitte son centrage : elle grandit dans la place laissée. */
+  .dc {
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: var(--enveloppe-lecture);
+    max-width: var(--enveloppe-large);
+    margin: 0;
   }
   /* La bande de recentrage n'a plus lieu d'être : le rail occupe la place. */
   .pr { margin-right: 0; }
   /* Le rail est une carte, comme la fiche en face : une seule, dont les blocs
      se succèdent, séparés par un filet. */
   .rail {
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: var(--rail-largeur);
+    max-width: var(--rail-large);
     display: block;
     position: sticky;
     top: 1.25rem;

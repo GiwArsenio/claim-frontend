@@ -122,7 +122,7 @@ assert.deepEqual(ordre, [...ordre].sort((a, b) => a - b),
 // La fiche se recentre dans la fenêtre : autant de gris de part et d'autre.
 assert.equal(valeur(html, '.pl', 'width'), 'var(--colonne-liste)',
   'la colonne de gauche tient sa largeur d une seule variable');
-const racine = html.match(/:root \{ --colonne-liste: ([^;]+);/);
+const racine = html.match(/:root \{\s*--colonne-liste: ([^;]+);/);
 assert.ok(racine, 'la variable de largeur doit etre declaree');
 assert.equal(racine[1].trim(), '420px', 'et valoir la largeur mesuree de la colonne');
 
@@ -151,10 +151,43 @@ assert.ok(!bande.includes('clamp('), 'la bande ne copie plus la colonne de gauch
 
 // Le rail prend la place de cette bande quand la fenetre le permet : la fiche
 // n'est alors plus centree, elle est ancree pres de la liste.
-assert.ok(/@media \(min-width: 1560px\)[\s\S]{0,900}\.pr \{ margin-right: 0; \}/.test(html),
+assert.ok(/@media \(min-width: 1560px\)[\s\S]{0,4000}\.pr \{ margin-right: 0; \}/.test(html),
   "quand le rail s'affiche, la bande de recentrage s'efface");
-assert.ok(/@media \(min-width: 1560px\)[\s\S]{0,900}justify-content: start;/.test(html),
-  'et la fiche reste ancree a gauche : elle ne doit pas s eloigner de la liste');
+assert.ok(/\.dc \{[\s\S]{0,260}flex-grow: 1;/.test(html),
+  'la fiche grandit dans la place laissee par la liste');
+assert.ok(/\.rail \{[\s\S]{0,260}flex-grow: 1;/.test(html),
+  'le rail grandit de la meme facon, a parts egales');
+assert.ok(/\.dc-wrap \{[\s\S]{0,200}gap: 2rem;/.test(html),
+  'la gouttiere entre les deux cartes vaut 2 rem');
+
+// ── La repartition des 412 px perdus ──
+// A 1 920 px de large, la place perdue se partage ainsi : 100 px de marge de
+// chaque cote, puis 106 px pour la fiche comme pour le rail. La somme doit
+// tomber juste — sinon une zone deborde, ou il reste un trou.
+const largeurHaute = (nom) => {
+  const m = html.match(new RegExp(nom + ': (\\d+)px;'));
+  assert.ok(m, `${nom} doit etre declare en px`);
+  return Number(m[1]);
+};
+const largeurBloc = Number(html.match(/100vw - (\d+)px/)[1]);
+const margePage = (1920 - largeurBloc) / 2;
+assert.equal(margePage, 100, 'a 1 920 px, la marge de page doit valoir 100 px');
+
+const colonne = largeurHaute('--colonne-liste');
+const enveloppeLarge = largeurHaute('--enveloppe-large');
+const railLarge = largeurHaute('--rail-large');
+const ENVELOPPE_LECTURE = 736;
+const RAIL_LECTURE = 288;
+const GOUTTIERE = 32;
+
+assert.equal(
+  2 * margePage + colonne + 2 * GOUTTIERE + enveloppeLarge + railLarge, 1920,
+  'la somme doit remplir exactement la fenetre de reference');
+assert.equal(
+  2 * margePage + (enveloppeLarge - ENVELOPPE_LECTURE) + (railLarge - RAIL_LECTURE), 412,
+  'et repartir exactement les 412 px perdus');
+assert.equal(enveloppeLarge - ENVELOPPE_LECTURE, 106, 'la fiche prend 106 px');
+assert.equal(railLarge - RAIL_LECTURE, 106, 'et le rail aussi');
 
 // ── Les deux gestes de la fiche ──
 for (const geste of ['class="dact"', 'class="bap"', 'class="bsh', 'Postuler', 'partagerOffre()']) {

@@ -165,9 +165,9 @@ assert.ok(offre.includes("require('../assets/companies-data.js')"),
 
 // Chaque surface a sa fenêtre : le board porte une colonne d'offres de 420 px
 // en plus, la page d'offre non. Le seuil diffère, le comportement non.
-assert.ok(/@media \(min-width: 1560px\)[\s\S]{0,900}\.rail \{[\s\S]{0,400}display: block/.test(board),
+assert.ok(/@media \(min-width: 1560px\)[\s\S]{0,4000}\.rail \{[\s\S]{0,600}display: block/.test(board),
   'sur le board, le rail s\'affiche quand la colonne et l\'enveloppe tiennent côte à côte');
-assert.ok(/@media \(min-width: 1120px\)[\s\S]{0,900}\.rail \{[\s\S]{0,400}display: block/.test(offre),
+assert.ok(/@media \(min-width: 1120px\)[\s\S]{0,4000}\.rail \{[\s\S]{0,600}display: block/.test(offre),
   'sur la page d\'offre, il tient plus tôt');
 
 // Le rail est une carte, comme la fiche en face. Les deux surfaces doivent
