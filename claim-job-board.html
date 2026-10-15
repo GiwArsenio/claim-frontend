@@ -46,6 +46,11 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
   --rail-largeur: 18rem;        /* 288 px minimum */
   --rail-large: 394px;          /* + 106 px quand la place existe */
   --marge-page: max(2rem, calc((100vw - 1720px) / 2));
+  /* La gouttière de la fiche : une seule distance, portée partout où deux
+     blocs se touchent — entre la liste et la fiche, entre la fiche et le rail,
+     et entre le rail et le bord de défilement du volet. 1,6 rem, soit 20 % de
+     moins que les 2 rem d'origine : le bloc se resserre, l'air reste. */
+  --gouttiere-fiche: 1.6rem;
 }
 
 /* Header */
@@ -634,20 +639,22 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
 
 @media (min-width: 1280px) {
   /* ── LA FICHE ET LE RAIL SE PARTAGENT LA PLACE ──
-     Chacun grandit à partir de sa largeur de lecture, à parts égales, et
-     s'arrête à sa largeur haute : 842 px pour la fiche, 394 px pour le rail.
-     À 1 920 px, les deux ont pris leurs 106 px — 736 → 842 et 288 → 394.
+     Chacun grandit à partir de sa largeur de lecture, à parts égales, sans
+     jamais dépasser sa largeur haute : 842 px pour la fiche, 394 px pour le
+     rail. À 1 920 px, la fiche fait 836 px et le rail 388 px — les deux ont
+     grandi d'une centaine de pixels.
 
      Le surplus de la fenêtre part dans les marges de page. Le bloc garde donc
      1 720 px de large : ni la fiche ni le rail ne s'étirent sans fin.
 
-     Gouttière de gauche : 2 rem, celle qui sépare la fiche de la liste. À
-     droite, aucune : le rail s'arrête à la marge de page. */
+     La gouttière est la même partout où deux blocs se touchent : entre la
+     liste et la fiche, entre la fiche et le rail — et entre le rail et le bord
+     de défilement du volet, que le rail ne touche plus. */
   .dc-wrap {
     display: flex;
     align-items: flex-start;
-    gap: 2rem;
-    padding: 1.25rem 0 3rem 2rem;
+    gap: var(--gouttiere-fiche);
+    padding: 1.25rem var(--gouttiere-fiche) 3rem var(--gouttiere-fiche);
   }
   /* La fiche quitte son centrage : elle grandit dans la place laissée. */
   .dc {

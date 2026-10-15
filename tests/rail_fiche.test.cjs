@@ -260,8 +260,8 @@ assert.match(repliOffre[2], /margin:\s*0 auto/, 'et sur le même axe qu elle');
 // la colonne des offres, la fiche et le rail. Au seuil, ce que laisse la
 // colonne doit couvrir les deux planchers et leur gouttière — sinon le
 // débordement ne se voit pas sur la page : il se cache dans le volet, qui
-// défile. C'est ce qui est arrivé au premier essai (34 rem + 13 rem + 32 px
-// pour 764 px de place).
+// défile. C'est ce qui est arrivé au premier essai (34 rem + 13 rem + leur
+// gouttière, pour moins de 765 px de place).
 const mediaTroisColonnes = [...board.matchAll(/@media \(min-width: (\d+)px\) \{([\s\S]*?)\n\}/g)]
   .find((m) => /\.dc-wrap \{[\s\S]*?display: flex/.test(m[2]));
 assert.ok(mediaTroisColonnes, 'la mise en page à trois colonnes doit vivre dans une media query');
@@ -280,11 +280,21 @@ assert.equal(plancher('.dc'), 512, 'la fiche ne descend pas sous 32 rem');
 assert.equal(plancher('.rail'), 200, 'le rail ne descend pas sous 12,5 rem');
 
 // --marge-page vaut son minimum (2 rem) tant que la fenêtre est sous 1 720 px.
+// Trois gouttières sont à retirer de la place : celle de gauche, celle du
+// milieu, et celle de droite — le rail ne colle plus au bord de défilement.
 const colonne = Number(board.match(/--colonne-liste: (\d+)px/)[1]);
-const disponible = seuil - 2 * 32 - colonne - 32;
-assert.equal(disponible, 764, 'ce que la colonne laisse au seuil');
-assert.ok(plancher('.dc') + 32 + plancher('.rail') <= disponible,
+const gouttiere = Number(board.match(/--gouttiere-fiche: ([\d.]+)rem;/)[1]) * 16;
+const disponible = seuil - 2 * 32 - colonne - 2 * gouttiere;
+assert.equal(disponible, 744.8, 'ce que la colonne laisse au seuil');
+assert.ok(plancher('.dc') + gouttiere + plancher('.rail') <= disponible,
   'au seuil, les deux planchers et leur gouttière doivent tenir dans la place laissée');
+
+// La gouttière est la même sur les deux surfaces : la fiche et le rail ne se
+// touchent pas de plus près selon l'adresse par laquelle on arrive.
+assert.equal(
+  Number(offre.match(/--gouttiere-fiche:\s*([\d.]+)rem/)[1]),
+  Number(board.match(/--gouttiere-fiche:\s*([\d.]+)rem/)[1]),
+  'la gouttière de la fiche est celle du board');
 
 // Le replié est la même carte que le rail à côté de la fiche : un lecteur qui
 // rétrécit sa fenêtre ne doit pas voir l'habillage changer.

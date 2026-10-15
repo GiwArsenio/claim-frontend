@@ -157,13 +157,29 @@ assert.ok(/\.dc \{[\s\S]{0,260}flex-grow: 1;/.test(html),
   'la fiche grandit dans la place laissee par la liste');
 assert.ok(/\.rail \{[\s\S]{0,260}flex-grow: 1;/.test(html),
   'le rail grandit de la meme facon, a parts egales');
-assert.ok(/\.dc-wrap \{[\s\S]{0,200}gap: 2rem;/.test(html),
-  'la gouttiere entre les deux cartes vaut 2 rem');
+// ── La gouttière : une seule distance, trois endroits ──
+// Entre la liste et la fiche, entre la fiche et le rail, et entre le rail et
+// le bord de défilement du volet. L'égalité des trois se voit à l'œil nu :
+// c'est elle qui fait lire le bloc comme un ensemble. Elle se règle donc d'un
+// seul chiffre — et ce chiffre vaut 20 % de moins que les 2 rem d'origine.
+const GOUTTIERE_REM = (() => {
+  const m = html.match(/--gouttiere-fiche: ([\d.]+)rem;/);
+  assert.ok(m, 'la gouttière de la fiche doit être déclarée en rem');
+  return Number(m[1]);
+})();
+assert.equal(GOUTTIERE_REM, 1.6, 'la gouttière vaut 1,6 rem : 2 rem moins 20 %');
+const GOUTTIERE = GOUTTIERE_REM * 16;
 
-// ── La repartition des 412 px perdus ──
-// A 1 920 px de large, la place perdue se partage ainsi : 100 px de marge de
-// chaque cote, puis 106 px pour la fiche comme pour le rail. La somme doit
-// tomber juste — sinon une zone deborde, ou il reste un trou.
+assert.ok(/\.dc-wrap \{[\s\S]{0,240}gap: var\(--gouttiere-fiche\);/.test(html),
+  'la gouttière entre la fiche et le rail est la gouttière de la fiche');
+assert.ok(/\.dc-wrap \{[\s\S]{0,240}padding: 1\.25rem var\(--gouttiere-fiche\) 3rem var\(--gouttiere-fiche\);/.test(html),
+  'la même sépare la liste de la fiche, et décolle le rail du bord de défilement');
+
+// ── La répartition à la largeur de référence ──
+// À 1 920 px : 100 px de marge de chaque côté, la colonne des offres, trois
+// gouttières, puis la fiche et le rail qui grandissent à parts égales depuis
+// leurs largeurs de lecture. La somme doit tomber juste — sinon une zone
+// déborde, ou il reste un trou.
 const largeurHaute = (nom) => {
   const m = html.match(new RegExp(nom + ': (\\d+)px;'));
   assert.ok(m, `${nom} doit etre declare en px`);
@@ -178,15 +194,23 @@ const enveloppeLarge = largeurHaute('--enveloppe-large');
 const railLarge = largeurHaute('--rail-large');
 const ENVELOPPE_LECTURE = 736;
 const RAIL_LECTURE = 288;
-const GOUTTIERE = 32;
+const arrondi = (n) => Number(n.toFixed(1));
 
-assert.equal(
-  2 * margePage + colonne + 2 * GOUTTIERE + enveloppeLarge + railLarge, 1920,
-  'la somme doit remplir exactement la fenetre de reference');
-assert.equal(
-  2 * margePage + (enveloppeLarge - ENVELOPPE_LECTURE) + (railLarge - RAIL_LECTURE), 412,
-  'et repartir exactement les 412 px perdus');
-assert.equal(enveloppeLarge - ENVELOPPE_LECTURE, 106, 'la fiche prend 106 px');
+// Ce que la colonne laisse à la fiche et au rail : trois gouttières en moins.
+const place = arrondi(1920 - (2 * margePage + colonne + 3 * GOUTTIERE));
+assert.equal(place, 1223.2, 'ce qui reste pour la fiche et le rail');
+
+// Le flexbox partage le surplus à parts égales depuis les largeurs de lecture.
+const surplus = arrondi(place - (ENVELOPPE_LECTURE + RAIL_LECTURE));
+assert.equal(arrondi(ENVELOPPE_LECTURE + surplus / 2), 835.6,
+  'la fiche grandit de la moitié du surplus');
+assert.equal(arrondi(RAIL_LECTURE + surplus / 2), 387.6, 'le rail aussi');
+assert.equal(arrondi(ENVELOPPE_LECTURE + surplus / 2 + RAIL_LECTURE + surplus / 2), place,
+  'et les deux remplissent exactement la place laissée');
+assert.ok(ENVELOPPE_LECTURE + surplus / 2 <= enveloppeLarge,
+  'la fiche reste sous sa largeur haute');
+assert.ok(RAIL_LECTURE + surplus / 2 <= railLarge, 'le rail aussi');
+assert.equal(enveloppeLarge - ENVELOPPE_LECTURE, 106, 'la fiche dispose de 106 px de plus');
 assert.equal(railLarge - RAIL_LECTURE, 106, 'et le rail aussi');
 
 // ── Les deux gestes de la fiche ──

@@ -333,7 +333,7 @@ ${societe.logo_url
 <meta name="twitter:card" content="summary_large_image">
 <script type="application/ld+json">${JSON.stringify(offre)}</script>
 <style>
- :root { --teal:#006876; --encre:#191c1d; --gris:#515f78; --rail-largeur:18rem; --rail-large:394px; }
+ :root { --teal:#006876; --encre:#191c1d; --gris:#515f78; --rail-largeur:18rem; --rail-large:394px; --gouttiere-fiche:1.6rem; }
  * { box-sizing:border-box; }
  body { margin:0; font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; color:var(--encre); line-height:1.65; }
  .enveloppe { max-width:46rem; margin:0 auto; padding:1.5rem 1.25rem 4rem; }
@@ -461,7 +461,9 @@ ${societe.logo_url
   /* Sur cette page, la colonne des offres n'existe pas : rien ne pousse le
      bloc d'un côté, il se centre. La fiche et le rail prennent les mêmes
      largeurs hautes que sur le board : la fiche doit se lire pareil. */
-  .page { display: flex; justify-content: center; align-items: flex-start; gap: 2rem;
+  /* La même gouttière que sur le board : la fiche et le rail ne se touchent
+     pas de plus près selon l'adresse par laquelle on arrive. */
+  .page { display: flex; justify-content: center; align-items: flex-start; gap: var(--gouttiere-fiche);
    padding-left: 2rem; padding-right: 2rem; }
   .enveloppe { flex-grow: 1; flex-shrink: 1; flex-basis: 46rem; max-width: 842px; }
   /* Le rail est une carte, comme la fiche en face : une seule, dont les blocs
