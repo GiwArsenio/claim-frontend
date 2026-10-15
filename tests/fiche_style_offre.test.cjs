@@ -208,4 +208,18 @@ for (const propriete of ['margin-top', 'padding-top', 'font-size', 'color']) {
     `.pied → ${propriete} doit être identique au modèle`);
 }
 
+
+// ── Sous son seuil, le rail ne quitte pas la page ──
+// Il se replie sous la fiche, à la même largeur de lecture et sur le même axe.
+// C'est la leçon de l'incident du 15/10/2026 : la fiche et le rail demandaient
+// 1 560 px pour tenir côte à côte, et une mise à l'échelle de 125 % suffisait à
+// faire disparaître le second — sans que rien ne le signale.
+const railReplie = html.match(
+  /@media \(min-width: 769px\) and \(max-width: 1559\.98px\) \{\s*\.rail \{([^}]*)\}/);
+assert.ok(railReplie, 'le rail se replie sous la fiche en dessous de son seuil');
+assert.match(railReplie[1], /max-width: var\(--enveloppe-lecture\)/,
+  "il garde la largeur de lecture de la fiche, pas celle de la bande perdue");
+assert.match(railReplie[1], /margin: 1\.25rem auto 0/, 'et se centre sur son axe');
+assert.match(railReplie[1], /display: block/, 'il reste lu : il n est plus masqué');
+
 console.log("Fiche alignee sur le style de la page d'offre tests passed");

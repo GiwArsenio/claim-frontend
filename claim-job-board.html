@@ -606,6 +606,32 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
 .rail-pied { padding: 1.1rem 1.25rem; border-top: 1px solid #eef3f5; font-size: .75rem; line-height: 1.6; color: #6c797c; }
 .rail-pied strong { font-weight: 600; color: #3c494c; }
 
+/* ── SOUS 1 560 px, LE RAIL SE REPLIE SOUS LA FICHE ──
+   Le rail demandait 1 560 px pour tenir a cote de la fiche. En dessous, il
+   disparaissait purement et simplement, sans que rien ne le signale : une mise
+   a l'echelle de 125 % sur un ecran de 1 920 px suffisait a le faire
+   s'evaporer. Le lecteur perdait l'employeur, ses avantages et les offres
+   voisines sans jamais savoir qu'ils existaient.
+
+   Il ne s'efface plus. Il passe sous la fiche, a la meme largeur de lecture,
+   et la page s'allonge : l'offre d'abord, son employeur ensuite. C'est l'ordre
+   de lecture naturel, et il ne depend plus de la largeur de la fenetre.
+
+   Seul le telephone le garde masque (768 px et moins) : la fiche y occupe tout
+   l'ecran, et l'empilement n'y aurait plus de fin. */
+@media (min-width: 769px) and (max-width: 1559.98px) {
+  .rail {
+    display: block;
+    max-width: var(--enveloppe-lecture);
+    margin: 1.25rem auto 0;
+    border: 1px solid #e2e9ec;
+    border-radius: .75rem;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(25, 44, 52, .06), 0 4px 14px rgba(25, 44, 52, .05);
+    overflow: hidden;
+  }
+}
+
 @media (min-width: 1560px) {
   /* ── LA FICHE ET LE RAIL SE PARTAGENT LA PLACE ──
      Chacun grandit à partir de sa largeur de lecture, à parts égales, et

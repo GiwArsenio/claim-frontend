@@ -439,6 +439,24 @@ ${societe.logo_url
   }
  }
 
+ /* ── SOUS 1 120 px, LE RAIL SE REPLIE SOUS LA FICHE ──
+    Meme regle que sur le board : faute de place, le rail ne s'efface pas, il
+    passe sous la fiche. Ici la colonne des offres n'existe pas, le seuil tombe
+    donc plus bas. Seul le telephone le garde masque. */
+ @media (min-width: 769px) and (max-width: 1119.98px) {
+  .page { row-gap: 1.25rem; }
+  .rail {
+   display: block;
+   max-width: 46rem;
+   margin: 0 auto;
+   border: 1px solid #e2e9ec;
+   border-radius: .75rem;
+   background: #fff;
+   box-shadow: 0 1px 2px rgba(25, 44, 52, .06), 0 4px 14px rgba(25, 44, 52, .05);
+   overflow: hidden;
+  }
+ }
+
  @media (min-width: 1120px) {
   /* Sur cette page, la colonne des offres n'existe pas : rien ne pousse le
      bloc d'un côté, il se centre. La fiche et le rail prennent les mêmes

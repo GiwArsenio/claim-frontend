@@ -230,4 +230,56 @@ for (const selecteur of SELECTEURS) {
   }
 }
 
+
+/* ── 7. Le rail ne disparaît jamais faute de place ────────────────────────
+   C'est l'incident du 15/10/2026 : une mise à l'échelle de 125 % ramène un
+   écran de 1 920 px à 1 536 px de large, et le rail — pourtant bien là —
+   passait en « display: none ». Le lecteur perdait l'employeur, ses avantages
+   et les offres voisines sans jamais savoir qu'ils existaient.
+
+   Un contenu écrit ne doit pas s'évaporer parce que la fenêtre est étroite.
+   Sous son seuil, le rail se replie sous la fiche. */
+const repliBoard = board.match(
+  /@media \(min-width: 769px\) and \(max-width: 1559\.98px\) \{\s*\.rail \{([^}]*)\}/);
+assert.ok(repliBoard, 'le board doit replier le rail sous la fiche');
+assert.match(repliBoard[1], /display:\s*block/, 'le rail replié reste visible');
+assert.match(repliBoard[1], /max-width:\s*var\(--enveloppe-lecture\)/,
+  'il reprend la largeur de lecture de la fiche');
+assert.match(repliBoard[1], /margin:\s*1\.25rem auto 0/, 'et se pose sous elle, sur le même axe');
+
+const repliOffre = offre.match(
+  /@media \(min-width: 769px\) and \(max-width: 1119\.98px\) \{\s*\.page \{([^}]*)\}\s*\.rail \{([^}]*)\}/);
+assert.ok(repliOffre, "la page d'offre doit replier le rail sous la fiche");
+assert.match(repliOffre[1], /row-gap:\s*1\.25rem/, 'la gouttière sépare les deux zones');
+assert.match(repliOffre[2], /display:\s*block/, 'le rail replié reste visible');
+assert.match(repliOffre[2], /max-width:\s*46rem/, 'à la largeur de lecture de la fiche');
+assert.match(repliOffre[2], /margin:\s*0 auto/, 'et sur le même axe qu elle');
+
+// Le replié est la même carte que le rail à côté de la fiche : un lecteur qui
+// rétrécit sa fenêtre ne doit pas voir l'habillage changer.
+for (const [nom, source, corps] of [
+  ['le board', board, repliBoard[1]],
+  ["la page d'offre", offre, repliOffre[2]],
+]) {
+  const sansEspaces = (s) => s.replace(/\s+/g, '');
+  assert.ok(sansEspaces(corps).includes(sansEspaces(carteDuRail(source)['box-shadow'])),
+    `${nom} : le rail replié porte l'ombre de la carte`);
+  assert.match(corps, /background:\s*#fff/, `${nom} : et son fond blanc`);
+  assert.match(corps, /border-radius:\s*\.75rem/, `${nom} : et ses angles arrondis`);
+  assert.match(corps, /overflow:\s*hidden/, `${nom} : ses blocs ne dépassent pas des angles`);
+}
+
+// Ce qui reste masqué, et à quelle condition. Le seul « display: none » est
+// celui du téléphone, posé avant toute media query : là, la fiche occupe tout
+// l'écran et l'empilement n'aurait plus de fin. Aucune largeur de bureau n'a
+// le droit de remasquer le rail.
+for (const [nom, source] of [['le board', board], ["la page d'offre", offre]]) {
+  const premiere = source.indexOf('@media');
+  assert.ok(premiere > 0, `${nom} : le fichier déclare ses media queries`);
+  assert.ok(/\.rail \{\s*display:\s*none;\s*\}/.test(source.slice(0, premiere)),
+    `${nom} : le rail n'est masqué que par défaut`);
+  assert.ok(!/\.rail \{[^}]*display:\s*none/.test(source.slice(premiere)),
+    `${nom} : aucune largeur de bureau ne doit le masquer`);
+}
+
 console.log('Rail de la fiche tests passed —', annuaire.PROFILS.length, 'profils,', SELECTEURS.length, 'sélecteurs comparés');
