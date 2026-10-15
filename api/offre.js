@@ -92,9 +92,14 @@ function blocSalaire(job) {
 /* ── Rail latéral ──────────────────────────────────────────────────────────
    Même contenu, mêmes règles de style et même vocabulaire que le rail de la
    fiche du job board : le lecteur ne doit pas changer de page en changeant
-   d'adresse. Ce qui vient de l'API est repris tel quel ; ce qui vient de
-   l'annuaire est illustratif, en attendant les pages d'entreprise. */
-function railOffre(job, similaires) {
+   d'adresse.
+
+   Il s'arrête au bouton. Les blocs « À propos », « Avantages », « Offres
+   similaires » et le pied ont été retirés, ainsi que le siège et les liens
+   sociaux. La page Entreprises prend le relais ; ce qui vient de l'API est
+   repris tel quel, ce qui vient de l'annuaire est illustratif tant que les
+   pages d'entreprise ne sont pas publiées. */
+function railOffre(job) {
   const societe = job.companies || {};
   const profil = ANNUAIRE ? ANNUAIRE.profilEntreprise(societe.slug || job.source) : null;
 
@@ -103,32 +108,16 @@ function railOffre(job, similaires) {
     ? (ANNUAIRE.TYPES[profil.type] || profil.type) : '';
   const sousTitre = [typeLibelle, profil && profil.secteur].filter(Boolean).join(' · ');
 
-  const accroche = (profil && profil.aPropos)
-    || ((ANNUAIRE && job.description_raw) ? ANNUAIRE.accrocheEntreprise(job.description_raw) : '');
-  const avantages = ANNUAIRE ? ANNUAIRE.avantagesDe(job.description_raw, profil) : [];
-  const adresseEntreprise = `/claim-entreprises.html?entreprise=${encodeURIComponent(societe.slug || job.source || '')}`;
-
-  const blocs = [];
-
-  // 1. L'employeur : qui recrute, et où le retrouver.
+  // Seul l'effectif reste sous le nom.
   const faits = [];
   if (profil && profil.taille) faits.push(`<li>${echapper(profil.taille)}</li>`);
-  if (profil && profil.siege) faits.push(`<li>Siège : ${echapper(profil.siege)}</li>`);
 
-  const sociaux = [];
-  if (profil && profil.linkedin) {
-    sociaux.push(`<a class="rail-social" href="${echapper(profil.linkedin)}" target="_blank" rel="noopener nofollow">LinkedIn</a>`);
-  }
-  const site = (profil && profil.site) || societe.website_url;
-  if (site) {
-    sociaux.push(`<a class="rail-social" href="${echapper(site)}" target="_blank" rel="noopener nofollow">Site web</a>`);
-  }
-
+  const adresseEntreprise = `/claim-entreprises.html?entreprise=${encodeURIComponent(societe.slug || job.source || '')}`;
   const teinte = ANNUAIRE ? ANNUAIRE.couleurEntreprise(societe.slug) : '#006876';
   const sigle = ANNUAIRE ? ANNUAIRE.initiales(nom) : '';
 
-  blocs.push(`<section class="rail-bloc">
-      <h2 class="rail-titre">L'employeur</h2>
+  return `<aside class="rail" aria-label="L'employeur qui recrute">
+    <section class="rail-bloc">
       <div class="rail-entete">
         <div class="rail-logo" style="background:${echapper(teinte)}">${echapper(sigle)}</div>
         <div>
@@ -137,87 +126,9 @@ function railOffre(job, similaires) {
         </div>
       </div>
       ${faits.length ? `<ul class="rail-faits">${faits.join('')}</ul>` : ''}
-      ${sociaux.length ? `<div class="rail-sociaux">${sociaux.join('')}</div>` : ''}
       <a class="rail-btn" href="${echapper(adresseEntreprise)}">Découvrir l'entreprise</a>
-    </section>`);
-
-  // 2. À propos : le mot de l'employeur sur lui-même.
-  if (accroche) {
-    blocs.push(`<section class="rail-bloc">
-      <h2 class="rail-titre">À propos de l'entreprise</h2>
-      <p class="rail-texte">${echapper(accroche)}</p>
-      <a class="rail-lien" href="${echapper(adresseEntreprise)}">Lire la suite</a>
-    </section>`);
-  }
-
-  // 3. Avantages : ce que l'employeur met sur la table.
-  if (avantages.length) {
-    blocs.push(`<section class="rail-bloc">
-      <h2 class="rail-titre">Avantages</h2>
-      <ul class="rail-tags">${avantages.map((a) => `<li class="rail-tag rail-tag--avantage">${echapper(a)}</li>`).join('')}</ul>
-    </section>`);
-  }
-
-  // 4. Offres voisines : c'est aussi ce qui fait tenir le maillage interne.
-  if (similaires.length) {
-    blocs.push(`<section class="rail-bloc">
-      <h2 class="rail-titre">Offres similaires</h2>
-      ${similaires.map((o) => `<a class="rail-offre" href="/offre/${encodeURIComponent(o.slug)}">
-        <span class="rail-offre-titre">${echapper(o.title)}</span>
-        <span class="rail-offre-sous">${echapper((o.companies && o.companies.name) || o.source || '')}${o.ville ? ' · ' + echapper(o.ville) : ''}</span>
-      </a>`).join('')}
-    </section>`);
-  }
-
-  // 5. Ce que les pastilles ne disent pas : la fraîcheur, et qui recrute.
-  const publication = ANNUAIRE ? ANNUAIRE.publicationLabel(job.source_published_at) : '';
-  if (publication || nom) {
-    blocs.push(`<div class="rail-pied">
-      ${publication ? `<p style="margin:0;">Offre ${echapper(publication)}.</p>` : ''}
-      ${nom ? `<p style="margin:.25rem 0 0;">Recrutement mené par <strong>${echapper(nom)}</strong>.</p>` : ''}
-    </div>`);
-  }
-
-  return `<aside class="rail" aria-label="Repères sur l'offre et l'employeur">${blocs.join('')}</aside>`;
-}
-
-/* ── Offres voisines ───────────────────────────────────────────────────────
-   L'API sait filtrer par entreprise, par métier et par ville. On demande
-   d'abord le même employeur, puis le même métier, et on s'arrête dès qu'on a
-   de quoi remplir le bloc. Une panne de l'API ne doit pas emporter la page :
-   au pire, le bloc reste absent. */
-async function offresVoisines(job, max) {
-  const societe = job.companies || {};
-  const trouvees = [];
-  const vus = new Set([String(job.id == null ? '' : job.id)]);
-  const metier = (job.jev_curation_status === 'done' && (job.jev_publishable || {}).specialty)
-    ? job.jev_specialty : job.specialty;
-  const ville = job.ville || job.city || '';
-
-  const pistes = [];
-  if (societe.slug) pistes.push({ company: societe.slug });
-  if (metier) pistes.push({ specialty: metier });
-  if (ville) pistes.push({ city: ville });
-
-  for (const piste of pistes) {
-    if (trouvees.length >= max) break;
-    const requete = new URLSearchParams({ limit: String(max * 3), france_only: 'true' });
-    Object.keys(piste).forEach((nom) => { if (piste[nom]) requete.set(nom, piste[nom]); });
-    try {
-      const reponse = await fetch(`${API_BASE}/jobs?${requete}`, { signal: AbortSignal.timeout(4000) });
-      if (!reponse.ok) continue;
-      const corps = await reponse.json();
-      (Array.isArray(corps.data) ? corps.data : []).forEach((autre) => {
-        const identifiant = String(autre.id == null ? '' : autre.id);
-        if (!identifiant || vus.has(identifiant) || trouvees.length >= max) return;
-        vus.add(identifiant);
-        trouvees.push(autre);
-      });
-    } catch (erreur) {
-      console.error('[offre] voisinage indisponible :', erreur.message);
-    }
-  }
-  return trouvees;
+    </section>
+  </aside>`;
 }
 
 async function construire(job, urlCanonique) {
@@ -308,10 +219,9 @@ async function construire(job, urlCanonique) {
     view_context:     'standalone',
   };
 
-  // Rail latéral : l'employeur, ce qu'il propose, les offres voisines. Le
-  // voisinage demande un aller-retour vers l'API — la page ne doit pas
-  // attendre plus longtemps que nécessaire, d'où la limite et le délai.
-  const rail = railOffre(job, await offresVoisines(job, 4));
+  // Rail latéral : qui recrute, et le geste pour en savoir plus. Aucun
+  // aller-retour vers l'API — la page n'attend que sa propre offre.
+  const rail = railOffre(job);
 
   const html = `<!DOCTYPE html>
 <html lang="fr">
@@ -365,27 +275,14 @@ ${societe.logo_url
     liste ou par cette adresse.
 
     Ici la colonne des offres n'existe pas : le rail tient donc dès 1 120 px,
-    au lieu des 1 560 px qu'il demande sur le board. En dessous, .page reste en
-    une seule colonne et le rail est masqué — la page retrouve exactement sa
-    mise en page d'origine. */
+    quand le board attend 1 280 px. En dessous, il se replie sous la fiche. */
  .page { display: grid; grid-template-columns: minmax(0, 1fr); }
  .rail { display: none; }
 
- /* Les blocs se succèdent dans la carte du rail, séparés par un filet — ils ne
-    sont plus des cartes à eux seuls. */
+ /* La carte du rail : un seul bloc, de l'employeur au bouton. Rien ne se
+    succède — les filets restent au cas où un second bloc reviendrait. */
  .rail-bloc { padding:1.1rem 1.25rem; border-top:1px solid #eef3f5; }
  .rail-bloc:first-child { border-top:none; }
- .rail-titre {
-  margin: 0 0 .625rem;
-  font-size: .7rem;
-  font-weight: 700;
-  color: #6c797c;
-  text-transform: uppercase;
-  letter-spacing: .08em;
- }
- .rail-texte { margin: 0 0 .5rem; font-size: .82rem; line-height: 1.6; color: #3c494c; }
- .rail-lien { font-size: .8rem; font-weight: 600; color: var(--teal); text-decoration: none; }
- .rail-lien:hover { text-decoration: underline; }
 
  /* L'employeur : qui recrute, et où le retrouver. */
  .rail-entete { display: flex; align-items: center; gap: .625rem; margin-bottom: .75rem; }
@@ -398,32 +295,10 @@ ${societe.logo_url
  .rail-faits li { padding: .3rem 0; border-top: 1px solid #f0f4f6; }
  .rail-faits li:first-child { border-top: none; }
 
- .rail-sociaux { display: flex; flex-wrap: wrap; gap: .375rem; margin-bottom: .75rem; }
- .rail-social { display: inline-flex; align-items: center; padding: .3rem .625rem;
-  border: 1px solid #dce5e9; border-radius: 9999px; background: #f5f8f9;
-  font-size: .75rem; font-weight: 600; color: #24363d; text-decoration: none; }
- .rail-social:hover { background: #e9f6f8; border-color: #bfe2e8; }
  .rail-btn { display: block; padding: .55rem .75rem; border: 1px solid #bfe2e8; border-radius: .5rem;
   background: #fff; color: var(--teal); font-size: .82rem; font-weight: 700;
   text-align: center; text-decoration: none; }
  .rail-btn:hover { background: #e9f6f8; }
-
- /* Étiquettes : les avantages de l'employeur. */
- .rail-tags { display: flex; flex-wrap: wrap; gap: .3rem; margin: 0; padding: 0; list-style: none; }
- .rail-tag { padding: 3px 9px; border-radius: 9999px; border: 1px solid #dce5e9;
-  background: #f5f8f9; font-size: .75rem; font-weight: 600; color: #24363d; }
- .rail-tag--avantage { background: #f2f8f2; border-color: #cfe6cf; color: #2d5a2d; }
-
- /* Offres voisines. */
- .rail-offre { display: block; padding: .625rem 0; border-top: 1px solid #f0f4f6; text-decoration: none; }
- .rail-offre:first-child { border-top: none; }
- .rail-offre-titre { display: block; font-size: .82rem; font-weight: 600; color: var(--encre); line-height: 1.35; }
- .rail-offre:hover .rail-offre-titre { color: var(--teal); }
- .rail-offre-sous { display: block; margin-top: .1rem; font-size: .75rem; color: #6c797c; }
-
- /* Pied du rail : fraîcheur de l'offre et employeur qui recrute. */
- .rail-pied { padding:1.1rem 1.25rem; border-top:1px solid #eef3f5; font-size:.75rem; line-height:1.6; color:#6c797c; }
- .rail-pied strong { font-weight: 600; color: #3c494c; }
 
  /* ── La fiche et le rail sont deux zones ──
     Deux cartes blanches posées sur le champ gris, séparées par la gouttière.

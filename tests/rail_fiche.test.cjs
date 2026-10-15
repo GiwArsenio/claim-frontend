@@ -91,7 +91,10 @@ assert.ok(declares.includes('PEE') && declares.length <= 6, 'le profil doit alim
 assert.equal(annuaire.publicationLabel(new Date().toISOString()), "publiée aujourd'hui");
 assert.equal(annuaire.publicationLabel(''), '');
 
-/* ── 4. Le rail rendu par le board ───────────────────────────────────────── */
+/* ── 4. Le rail rendu par le board ─────────────────────────────────────────
+   Le rail s'arrête au bouton « Découvrir l'entreprise ». Au-dessus : le logo,
+   le nom, ce que l'employeur est, et son effectif. Rien d'autre — et surtout
+   pas le siège, les liens sociaux, ni aucun des blocs retirés. */
 
 function extraireFonction(source, nom) {
   const debut = source.indexOf('function ' + nom + '(');
@@ -109,9 +112,6 @@ const contexte = vm.createContext({
   companyInitials: (n) => annuaire.initiales(n),
 });
 vm.runInContext(extraireFonction(board, 'railOffreHtml'), contexte);
-// La fraîcheur est déléguée à l'annuaire : la page d'offre doit dater l'annonce
-// exactement comme la fiche.
-vm.runInContext(extraireFonction(board, 'publicationLabel'), contexte);
 
 function railDe(offreTestee) {
   contexte.offreTestee = offreTestee;
@@ -127,21 +127,45 @@ const railProfilé = railDe({
   companies: { name: 'AXA France', slug: 'axa' },
 });
 
-// Le bloc « Offres similaires » est posé vide puis rempli depuis la liste déjà
-// chargée : son contenu se vérifie dans le code, pas dans le rendu initial.
-for (const bloc of ['rail-bloc', 'rail-titre', 'rail-social', 'rail-tag', 'rail-pied', 'rail-similaires']) {
+// Ce qu'il dit : qui recrute.
+for (const bloc of ['rail-bloc', 'rail-entete', 'rail-logo', 'rail-nom', 'rail-btn']) {
   assert.ok(railProfilé.includes(bloc), `le rail doit porter « ${bloc} »`);
 }
-assert.ok(board.includes('class="rail-offre"'), 'le board doit savoir lister les offres voisines');
-assert.ok(offre.includes('class="rail-offre"'), "la page d'offre aussi");
-for (const titre of ["L'employeur", "À propos de l'entreprise", 'Avantages', 'Offres similaires']) {
-  assert.ok(railProfilé.includes(titre), `le rail doit porter le bloc « ${titre} »`);
-}
-assert.ok(railProfilé.includes('https://www.linkedin.com/company/axa-france'),
-  "l'employeur doit pouvoir être retrouvé sur LinkedIn");
+assert.ok(railProfilé.includes('AXA France'), "le rail doit nommer l'employeur");
+assert.ok(railProfilé.includes('rail-sous'), "et dire ce que l'employeur est");
+assert.ok(railProfilé.includes("aria-label=\"L'employeur qui recrute\""),
+  "son intitulé doit décrire ce qu'il contient");
 assert.ok(railProfilé.includes('claim-entreprises.html?entreprise=axa'),
   "« Découvrir l'entreprise » mène à la page Entreprises");
-assert.ok(railProfilé.includes('publiée il y a 3 jours'), "l'offre doit être datée");
+
+// L'effectif, quand l'annuaire le connaît.
+const profilAxa = annuaire.profilEntreprise('axa');
+if (profilAxa && profilAxa.taille) {
+  assert.ok(railProfilé.includes(profilAxa.taille), "l'effectif connu doit être affiché");
+  assert.ok(railProfilé.includes('rail-faits'), "et rangé avec ses repères");
+}
+
+// Ce qu'il ne dit plus. Le contrat, c'est autant ce qui a disparu que ce qui
+// reste : ces blocs ne doivent pas revenir par une porte de derrière.
+const RETIRES = [
+  ">L'employeur<", 'À propos', 'Avantages', 'Offres similaires',
+  'LinkedIn', 'Site web', 'Siège', 'Recrutement mené',
+  'rail-titre', 'rail-social', 'rail-tag', 'rail-offre', 'rail-pied', 'rail-similaires',
+];
+for (const retire of RETIRES) {
+  assert.ok(!railProfilé.includes(retire), `le rail ne doit plus porter « ${retire} »`);
+}
+
+// Le rail s'arrête au bouton : rien n'est rendu après lui.
+const apres = railProfilé.slice(railProfilé.indexOf('Découvrir l'));
+assert.ok(apres.length > 0, 'le bouton doit être rendu');
+assert.ok(!/<(p|ul|h2|a|div|section)\b/.test(apres), 'rien ne doit suivre le bouton dans le rail');
+
+// Le rail ne lit plus l'annonce : il parle de l'employeur, pas de l'offre.
+// Sans date de publication ni description, le rendu est identique.
+const sansAnnonce = railDe({ id: 'j1', title: 'Actuaire ALM', slug: 'actuaire-alm',
+  companies: { name: 'AXA France', slug: 'axa' } });
+assert.equal(sansAnnonce, railProfilé, "le rail ne dépend plus du texte de l'annonce");
 
 // Le rail informe : il ne propose ni filtre, ni navigation, ni autre liste.
 for (const interdit of ['chip', 'filter', 'nav-links', 'burger', 'Postuler']) {
@@ -158,10 +182,10 @@ assert.ok(board.includes('${railOffreHtml(j)}'), 'la fiche du board doit rendre 
 assert.ok(board.includes('.rail { display: none; }'), 'le rail est masqué par défaut');
 assert.ok(board.includes('display: contents'), 'sans place, le rail ne doit rien changer à la fiche');
 
-assert.ok(offre.includes('railOffre(job, await offresVoisines(job, 4))'), 'la page d\'offre doit rendre le rail');
+assert.ok(offre.includes('railOffre(job)'), "la page d'offre doit rendre le rail");
 assert.ok(offre.includes('${rail}'), "le rail doit être posé dans la page d'offre");
 assert.ok(offre.includes("require('../assets/companies-data.js')"),
-  'la page d\'offre partage la source du board');
+  "la page d'offre partage la source du board");
 
 // Chaque surface a sa fenêtre : le board porte une colonne d'offres de 420 px
 // en plus, la page d'offre non. Le seuil diffère, le comportement non.
@@ -169,6 +193,16 @@ assert.ok(/@media \(min-width: 1280px\)[\s\S]{0,4000}\.rail \{[\s\S]{0,600}displ
   'sur le board, le rail s\'affiche quand la colonne et l\'enveloppe tiennent côte à côte');
 assert.ok(/@media \(min-width: 1120px\)[\s\S]{0,4000}\.rail \{[\s\S]{0,600}display: block/.test(offre),
   'sur la page d\'offre, il tient plus tôt');
+
+// Aucune des deux n'a gardé le code ni le style des blocs retirés : un bloc
+// disparu qui laisse ses règles derrière lui se réinstalle tout seul.
+for (const [nom, source] of [['le board', board], ["la page d'offre", offre]]) {
+  for (const mort of ['offresVoisines', 'remplirOffresSimilaires', 'ouvrirOffreVoisine',
+                      'rail-similaires', 'rail-pied', 'rail-tag', 'rail-social',
+                      'rail-offre', 'rail-titre', 'rail-texte', 'rail-lien']) {
+    assert.ok(!source.includes(mort), `${nom} ne doit plus porter « ${mort} »`);
+  }
+}
 
 // Le rail est une carte, comme la fiche en face. Les deux surfaces doivent
 // lui donner le même habillage : c'est lui qui délimite les deux zones.
@@ -213,11 +247,10 @@ function valeurs(source, selecteur) {
   return sortie;
 }
 
+// Le rail ne porte plus qu'un bloc : l'employeur et son bouton.
 const SELECTEURS = [
-  '.rail-bloc', '.rail-titre', '.rail-texte', '.rail-lien', '.rail-entete', '.rail-logo',
-  '.rail-nom', '.rail-sous', '.rail-faits', '.rail-sociaux', '.rail-social', '.rail-btn',
-  '.rail-tags', '.rail-tag', '.rail-tag--avantage', '.rail-offre', '.rail-offre-titre',
-  '.rail-offre-sous', '.rail-pied',
+  '.rail-bloc', '.rail-entete', '.rail-logo', '.rail-nom', '.rail-sous',
+  '.rail-faits', '.rail-btn',
 ];
 
 for (const selecteur of SELECTEURS) {
@@ -229,7 +262,6 @@ for (const selecteur of SELECTEURS) {
       `${selecteur} → ${propriete} doit être identique sur la fiche et sur la page d'offre`);
   }
 }
-
 
 /* ── 7. Le rail ne disparaît jamais faute de place ────────────────────────
    C'est l'incident du 15/10/2026 : une mise à l'échelle de 125 % ramène un
