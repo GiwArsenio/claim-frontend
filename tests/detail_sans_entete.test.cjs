@@ -5,7 +5,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const assert = require('node:assert/strict');
 
-const html = fs.readFileSync(path.join(__dirname, '../claim-job-board.html'), 'utf8');
+const html = fs.readFileSync(path.join(__dirname, '../job-board.html'), 'utf8');
 
 // Le bloc mobile : entre son ouverture et la media query suivante.
 const debut = html.indexOf('@media (max-width: 768px) {');

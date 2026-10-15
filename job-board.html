@@ -655,13 +655,13 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
 
 <!-- Balises SEO : titre enrichi, description, URL canonique, partage social -->
 <meta name="description" content="Toutes les offres d'emploi en actuariat, data science et IA en assurance : CDI, stages, alternances et V.I.E, en France et à l'international."/>
-<link rel="canonical" href="https://claimyourjob.fr/"/>
+<link rel="canonical" href="https://claimyourjob.fr/job-board.html"/>
 <meta property="og:type" content="website"/>
 <meta property="og:site_name" content="Claim your job"/>
 <meta property="og:locale" content="fr_FR"/>
 <meta property="og:title" content="Offres d'emploi Actuariat & IA en assurance — Claim your job"/>
 <meta property="og:description" content="Toutes les offres d'emploi en actuariat, data science et IA en assurance : CDI, stages, alternances et V.I.E, en France et à l'international."/>
-<meta property="og:url" content="https://claimyourjob.fr/"/>
+<meta property="og:url" content="https://claimyourjob.fr/job-board.html"/>
 <link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon.png"/>
 <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"/>
 <meta property="og:image" content="https://claimyourjob.fr/assets/og-image.png"/>
@@ -1077,6 +1077,33 @@ prEl.addEventListener('scroll', function () {
 function getUrlPage() {
   const p = parseInt(new URLSearchParams(window.location.search).get('page') || '1', 10);
   return isNaN(p) || p < 1 ? 1 : p;
+}
+
+// ── Les filtres peuvent venir de l'adresse ────────────────────────────────
+// C'est par là que l'accueil transmet sa recherche : /job-board.html?q=…
+// Les deux écritures sont acceptées — la française et celle de l'API — pour que
+// les adresses déjà partagées continuent de fonctionner.
+//
+// Les paramètres sont posés sur les champs, pas passés à la requête : les
+// selects affichent alors le filtre appliqué, et la liste se charge par le même
+// chemin que si l'internaute l'avait choisi lui-même. Une seule logique.
+const PARAMETRES_URL = {
+  q: 'q-input',
+  ville: 'city-input', city: 'city-input',
+  contrat: 'contract-filter', contract: 'contract-filter',
+  specialite: 'specialty-filter', specialty: 'specialty-filter',
+  experience: 'experience-filter',
+  ats: 'ats-filter',
+};
+
+function remplirDepuisAdresse() {
+  const params = new URLSearchParams(window.location.search);
+  Object.entries(PARAMETRES_URL).forEach(([cle, id]) => {
+    const valeur = params.get(cle);
+    if (!valeur) return;
+    const champ = document.getElementById(id);
+    if (champ) champ.value = valeur;
+  });
 }
 
 // ── Fetch une page serveur ─────────────────────────────────────────────────
@@ -1713,7 +1740,7 @@ async function renderDetail(id) {
         ${summary}
         ${skillsBloc}
         <div class="pied">
-          Offre publiée sur <a href="/claim-job-board.html">Claim!</a>.
+          Offre publiée sur <a href="/job-board.html">Claim!</a>.
           ${j.source_url ? `Source : <a href="${escapeHtml(j.source_url)}" rel="nofollow noopener" target="_blank">l'annonce d'origine</a>.` : ''}
         </div>
       </div>
@@ -1845,6 +1872,7 @@ document.getElementById('q-input')?.addEventListener('keydown', e => { if (e.key
 document.getElementById('city-input')?.addEventListener('keydown', e => { if (e.key === 'Enter') applySearch(); });
 
 // ── Init ───────────────────────────────────────────────────────────────────
+remplirDepuisAdresse();
 loadJobs();
 </script>
 <!-- ══ BURGER MENU DRAWER ══ -->

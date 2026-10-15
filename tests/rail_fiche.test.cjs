@@ -11,7 +11,7 @@ const path = require('node:path');
 const vm = require('node:vm');
 const assert = require('node:assert/strict');
 
-const board = fs.readFileSync(path.join(__dirname, '../claim-job-board.html'), 'utf8');
+const board = fs.readFileSync(path.join(__dirname, '../job-board.html'), 'utf8');
 const offre = fs.readFileSync(path.join(__dirname, '../api/offre.js'), 'utf8');
 const annuaire = require('../assets/companies-data.js');
 

@@ -1,7 +1,7 @@
 const fs = require('node:fs');
 const vm = require('node:vm');
 const assert = require('node:assert/strict');
-const html = fs.readFileSync(require('node:path').join(__dirname, '../claim-job-board.html'), 'utf8');
+const html = fs.readFileSync(require('node:path').join(__dirname, '../job-board.html'), 'utf8');
 const funcs = ['specialtyLabel', 'experienceLabel', 'cardExperienceHtml', 'cardFactHtml', 'cardSalaryHtml', 'cardMetadataHtml', 'salaryLabel', 'cardLocationHtml', 'descriptionBlocks', 'descriptionHtml', 'decodeBasicEntities', 'descriptionSectionsHtml', 'urlOffre', 'skillLabels', 'skillChips', 'skillsHtml'].map(name => {
  const start = html.indexOf('function ' + name + '(');
  const end = html.indexOf('\n}', start) + 2;
@@ -9,7 +9,7 @@ const funcs = ['specialtyLabel', 'experienceLabel', 'cardExperienceHtml', 'cardF
  return html.slice(start, end);
 }).join('\n');
 const context = vm.createContext({});
-vm.runInContext(`const JEV_SPECIALTY_LABELS = {"actuariat": "Actuariat", "ia_data": "IA / Data", "souscription_technique": "Souscription technique", "autre": "Autre"}; const JEV_EXPERIENCE_LABELS = {senior:"Senior"}; const CONTRACT_LABELS = {cdi:"CDI"}; const DESCRIPTION_PREVIEW_CHARS = 600; let descExpanded = {}; let descSections = []; const SECTION_ICONS = { "Le poste": "work", "Missions": "checklist", "Profil recherché": "person" }; function escapeHtml(x){return x;} const location={origin:"https://claimyourjob.fr",href:"https://claimyourjob.fr/claim-job-board.html",pathname:"/claim-job-board.html"}; ${funcs}`, context);
+vm.runInContext(`const JEV_SPECIALTY_LABELS = {"actuariat": "Actuariat", "ia_data": "IA / Data", "souscription_technique": "Souscription technique", "autre": "Autre"}; const JEV_EXPERIENCE_LABELS = {senior:"Senior"}; const CONTRACT_LABELS = {cdi:"CDI"}; const DESCRIPTION_PREVIEW_CHARS = 600; let descExpanded = {}; let descSections = []; const SECTION_ICONS = { "Le poste": "work", "Missions": "checklist", "Profil recherché": "person" }; function escapeHtml(x){return x;} const location={origin:"https://claimyourjob.fr",href:"https://claimyourjob.fr/job-board.html",pathname:"/job-board.html"}; ${funcs}`, context);
 
 function label(row){context.row = row;return vm.runInContext('specialtyLabel(row)', context);}
 assert.equal(label({specialty:'actuariat_iard',jev_specialty:'ia_data',jev_curation_status:'done',jev_publishable:{specialty:true}}), 'IA / Data');
@@ -204,7 +204,7 @@ console.log('Offer link tests passed');
 
 // Structure editoriale dans le board : la page d'offre la rendait, pas le
 // detail du board. La mise a jour n'y apparaissait donc pas.
-const boardHtml = require('node:fs').readFileSync(__dirname + '/../claim-job-board.html', 'utf8');
+const boardHtml = require('node:fs').readFileSync(__dirname + '/../job-board.html', 'utf8');
 assert.ok(boardHtml.includes('descHtmlSource'), 'le board doit suivre la structure d origine');
 assert.ok(boardHtml.includes('desc-source'), 'un conteneur dedie est attendu');
 assert.ok(

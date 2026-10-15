@@ -5,7 +5,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const assert = require('node:assert/strict');
 
-const html = fs.readFileSync(path.join(__dirname, '../claim-job-board.html'), 'utf8');
+const html = fs.readFileSync(path.join(__dirname, '../job-board.html'), 'utf8');
 const modele = fs.readFileSync(path.join(__dirname, '../api/offre.js'), 'utf8');
 
 // Le modèle nomme ses couleurs par variable (--gris, --teal, --encre). On les

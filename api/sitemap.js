@@ -6,7 +6,7 @@
 // Les pages de pagination du job board (?page=N) ne sont pas declarees. Le
 // board est rendu en JavaScript : ces adresses servent le meme document et ne
 // se distinguent que par leur etat cote client. La balise canonique de la page
-// les consolide vers l'accueil — les declarer ici enverrait le signal inverse.
+// les consolide vers le board — les declarer ici enverrait le signal inverse.
 
 const API_BASE = process.env.API_URL || 'https://claim-api-production-06b3.up.railway.app/api/v1';
 const SITE_URL = process.env.SITE_URL || 'https://claimyourjob.fr';
@@ -32,9 +32,10 @@ module.exports = async (req, res) => {
 
     // 3. Pages statiques
     const staticPages = [
-      // L'accueil reflète le board, régénéré chaque jour : la date du jour y
-      // est exacte.
+      // L'accueil porte les chiffres du jour, et le board la liste : les deux
+      // changent tous les matins, la date du jour y est exacte.
       { url: '/',                          lastmod: today, priority: '1.0', changefreq: 'daily' },
+      { url: '/job-board.html',            lastmod: today, priority: '0.9', changefreq: 'daily' },
       // Ces deux pages changent rarement. Mieux vaut ne rien déclarer qu'une
       // date du jour systématiquement fausse : Google apprend à ignorer un
       // lastmod qui ne bouge jamais vraiment.

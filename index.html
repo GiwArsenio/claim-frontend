@@ -1,16 +1,556 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta http-equiv="refresh" content="0; url=claim-job-board.html">
-  <title>Claim! — Redirection</title>
-  <style>
-    body { margin: 0; background: #006876; display: flex; align-items: center; justify-content: center; height: 100vh; font-family: Inter, sans-serif; }
-    p { color: #fff; font-size: 1rem; }
-    a { color: #fff; font-weight: 600; }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Claim! — Les offres en Actuariat, Data & IA en assurance</title>
+<meta name="description" content="Agrégateur des offres d'emploi en actuariat, data science et IA dans l'assurance. Les sites carrières des employeurs sont relevés un par un, chaque matin — y compris ceux que les job boards laissent de côté."/>
+<link rel="canonical" href="https://claimyourjob.fr/"/>
+<meta property="og:type" content="website"/>
+<meta property="og:site_name" content="Claim your job"/>
+<meta property="og:locale" content="fr_FR"/>
+<meta property="og:title" content="Claim! — Les offres en Actuariat, Data & IA en assurance"/>
+<meta property="og:description" content="Les offres d'emploi en actuariat, data science et IA dans l'assurance, relevées chaque matin sur les sites carrières des employeurs."/>
+<meta property="og:url" content="https://claimyourjob.fr/"/>
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon.png"/>
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"/>
+<meta property="og:image" content="https://claimyourjob.fr/assets/og-image.png"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
+<meta property="og:image:alt" content="Claim! — offres d'emploi Actuariat, Data et IA en assurance"/>
+<meta name="twitter:card" content="summary_large_image"/>
+
+<style>
+  :root {
+    --teal: #006876;
+    --teal-clair: #e9f6f8;
+    --teal-bord: #bfe2e8;
+    --encre: #191c1d;
+    --gris: #515f78;
+    --gris-doux: #6c797c;
+    --champ: #f3f4f5;
+    --bord: #e2e9ec;
+    --bord-doux: rgba(187, 201, 204, .35);
+    --ombre: 0 1px 2px rgba(25, 44, 52, .06), 0 4px 14px rgba(25, 44, 52, .05);
+    --gouttiere: 1.6rem;
+    --enveloppe: 1180px;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    color: var(--encre);
+    line-height: 1.65;
+    background: #fff;
+  }
+  a { color: var(--teal); }
+  .env { max-width: var(--enveloppe); margin: 0 auto; padding: 0 2rem; }
+
+  /* ── BANDEAU ── */
+  .hd { background: var(--teal); position: sticky; top: 0; z-index: 50; }
+  .hd nav { display: flex; justify-content: space-between; align-items: center;
+            padding: .75rem 2rem; max-width: var(--enveloppe); margin: 0 auto; }
+  .logo { font-size: 1.5rem; font-weight: 900; color: #fff; letter-spacing: -.05em; text-decoration: none; }
+  .nav { display: flex; gap: 2rem; align-items: center; }
+  .nav a { color: rgba(255, 255, 255, .8); text-decoration: none; font-size: .925rem; font-weight: 600; }
+  .nav a:hover { color: #fff; }
+  .nav .cta { background: #fff; color: var(--teal); padding: .45rem 1.2rem; border-radius: .5rem;
+              font-weight: 700; font-size: .925rem; }
+  .nav .cta:hover { color: var(--teal); }
+
+  /* ── HERO ── */
+  .hero { background: var(--champ); border-bottom: 1px solid var(--bord-doux); padding: 3.5rem 0 2.5rem; }
+  .hero h1 { font-size: clamp(1.9rem, 3.4vw, 2.9rem); font-weight: 900; letter-spacing: -.03em;
+             line-height: 1.1; margin: 0 0 .9rem; max-width: 20ch; }
+  .hero h1 em { color: var(--teal); font-style: normal; }
+  .hero .sub { color: var(--gris); font-size: 1.05rem; max-width: 62ch; margin: 0 0 1.75rem; }
+  .hero .sub strong { color: var(--encre); font-weight: 700; }
+
+  .sbar { display: flex; align-items: center; background: #fff; border-radius: 9999px;
+          padding: .3rem; max-width: 50rem; box-shadow: 0 1px 4px rgba(0, 0, 0, .07);
+          margin-bottom: .75rem; }
+  .sf { flex: 1; display: flex; align-items: center; padding: 0 1rem; gap: .45rem; min-width: 0; }
+  .sf svg { flex-shrink: 0; color: var(--gris-doux); }
+  .sf input { width: 100%; border: none; outline: none; background: transparent; font-family: inherit;
+              font-size: .95rem; color: var(--encre); padding: .55rem 0; }
+  .sf input::placeholder { color: rgba(108, 121, 124, .6); }
+  .sdiv { width: 1px; height: 1.4rem; background: var(--bord-doux); flex-shrink: 0; }
+  .bsrch { background: linear-gradient(135deg, #006876, #00bcd4); color: #fff; border: none;
+           cursor: pointer; padding: .62rem 1.6rem; border-radius: 9999px; font-weight: 700;
+           font-size: .925rem; font-family: inherit; white-space: nowrap; }
+  .bsrch:hover { filter: brightness(1.08); }
+
+  .lignechips { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; }
+  .chip { display: inline-flex; align-items: center; gap: .3rem; padding: .3rem .8rem;
+          border-radius: 9999px; background: #fff; color: var(--gris); font-size: .78rem;
+          font-weight: 600; border: 1px solid var(--bord-doux); text-decoration: none;
+          transition: background .15s, color .15s, border-color .15s; }
+  .chip:hover { background: #e8f4f6; color: var(--teal); }
+  .etiquette { font-size: .68rem; font-weight: 700; color: var(--gris-doux);
+               text-transform: uppercase; letter-spacing: .08em; margin-right: .2rem; }
+
+  /* ── CHIFFRES ── */
+  .chiffres { border-bottom: 1px solid var(--bord); background: #fff; }
+  .chiffres dl { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--gouttiere);
+                 margin: 0; padding: 1.6rem 0; }
+  .chiffres div { border-left: 2px solid var(--teal-clair); padding-left: .9rem; }
+  .chiffres dt { font-size: 1.6rem; font-weight: 900; letter-spacing: -.03em; line-height: 1.1; }
+  .chiffres dd { margin: .1rem 0 0; font-size: .78rem; color: var(--gris-doux); }
+
+  /* ── SECTIONS ── */
+  section { padding: 3rem 0; }
+  .champ { background: var(--champ); border-top: 1px solid var(--bord); border-bottom: 1px solid var(--bord); }
+  .tete { display: flex; justify-content: space-between; align-items: baseline; gap: var(--gouttiere);
+          margin-bottom: 1.5rem; }
+  h2 { font-size: 1.35rem; font-weight: 800; letter-spacing: -.02em; margin: 0; }
+  .tete p { margin: .25rem 0 0; color: var(--gris); font-size: .92rem; }
+  .lien { font-size: .88rem; font-weight: 700; text-decoration: none; white-space: nowrap; }
+  .lien:hover { text-decoration: underline; }
+
+  /* ── OFFRES ── */
+  .grille { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--gouttiere); }
+  .oc { background: #fff; border-radius: .75rem; box-shadow: var(--ombre); padding: 1.15rem 1.25rem;
+        display: flex; flex-direction: column; text-decoration: none; color: inherit;
+        border: 1px solid transparent; transition: transform .15s, box-shadow .15s; }
+  .oc:hover { transform: translateY(-2px); box-shadow: 0 2px 4px rgba(25, 44, 52, .07), 0 10px 24px rgba(25, 44, 52, .08); }
+  .oc .ent { display: flex; align-items: center; gap: .6rem; margin-bottom: .7rem; }
+  .sigle { width: 34px; height: 34px; border-radius: .5rem; flex-shrink: 0; display: flex;
+           align-items: center; justify-content: center; color: #fff; font-weight: 900;
+           font-size: 11px; letter-spacing: -.02em; }
+  .oc .soc { font-size: .82rem; font-weight: 600; color: var(--gris); }
+  .oc h3 { font-size: 1rem; font-weight: 700; line-height: 1.35; margin: 0 0 .7rem; }
+  .oc:hover h3 { color: var(--teal); }
+  .pastilles { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: auto; }
+  .pastille { padding: 3px 10px; border: 1px solid #dce5e9; border-radius: 9999px;
+              background: #f5f8f9; font-size: .75rem; font-weight: 600; color: #24363d; }
+  .p-ville { background: var(--teal-clair); border-color: var(--teal-bord); color: #00545f; }
+  .p-spec { background: #ffdcc2; border-color: #f0c8a6; color: #6d3a00; }
+  .oc .fraicheur { margin-top: .8rem; padding-top: .7rem; border-top: 1px solid #f0f4f6;
+                   font-size: .75rem; color: var(--gris-doux); display: flex;
+                   justify-content: space-between; align-items: center; }
+  .vide { grid-column: 1 / -1; background: #fff; border-radius: .75rem; padding: 1.4rem 1.25rem;
+          color: var(--gris); font-size: .9rem; box-shadow: var(--ombre); }
+
+  /* ── RAISONS ── */
+  .raisons { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--gouttiere); }
+  .rc { background: #fff; border-radius: .75rem; box-shadow: var(--ombre); padding: 1.25rem; }
+  .rc .ico { width: 38px; height: 38px; border-radius: .5rem; background: var(--teal-clair);
+             display: flex; align-items: center; justify-content: center; margin-bottom: .9rem; }
+  .rc h3 { font-size: 1rem; margin: 0 0 .4rem; }
+  .rc p { margin: 0; font-size: .88rem; color: var(--gris); }
+
+  /* ── OBSERVATOIRE ── */
+  .obs { background: #fff; border-radius: .75rem; box-shadow: var(--ombre); padding: 1.4rem 1.5rem; }
+  .barres { display: grid; gap: .7rem; }
+  .barre { display: grid; grid-template-columns: 13rem 1fr 3.5rem; align-items: center; gap: .9rem;
+           font-size: .85rem; }
+  .barre .jauge { height: 10px; border-radius: 9999px; background: var(--teal-clair); overflow: hidden; }
+  .barre .jauge span { display: block; height: 100%; border-radius: 9999px; background: var(--teal); }
+  .barre .n { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .obs .src { margin: 1rem 0 0; font-size: .78rem; color: var(--gris-doux); }
+
+  /* ── EMPLOYEURS ── */
+  .employeurs { display: flex; flex-wrap: wrap; gap: .55rem; }
+  .firme { display: inline-flex; align-items: center; gap: .55rem; padding: .35rem .85rem .35rem .35rem;
+           background: #fff; border: 1px solid var(--bord); border-radius: 9999px; font-size: .82rem;
+           font-weight: 600; text-decoration: none; color: inherit; }
+  .firme:hover { border-color: var(--teal-bord); background: var(--teal-clair); }
+  .firme .sigle { width: 26px; height: 26px; border-radius: .4rem; font-size: 9px; }
+
+  /* ── CONTACT ── */
+  .contact { background: var(--teal); color: #fff; }
+  .contact .env { display: flex; justify-content: space-between; align-items: center; gap: 2rem;
+                  flex-wrap: wrap; }
+  .contact h2 { color: #fff; font-size: 1.3rem; }
+  .contact p { margin: .35rem 0 0; color: rgba(255, 255, 255, .85); font-size: .92rem; max-width: 58ch; }
+  .bblanc { background: #fff; color: var(--teal); padding: .6rem 1.4rem; border-radius: .5rem;
+            font-weight: 700; font-size: .925rem; text-decoration: none; white-space: nowrap; }
+
+  /* ── PIED ── */
+  .pied { background: #fff; padding: 2.5rem 0 3rem; }
+  .pied .haut { display: flex; justify-content: space-between; gap: 2rem; flex-wrap: wrap; }
+  .pied a { color: var(--gris); text-decoration: none; font-size: .88rem; font-weight: 600; }
+  .pied a:hover { color: var(--teal); }
+  .pied .nav2 { display: flex; gap: 1.6rem; flex-wrap: wrap; }
+  .pied .mentions { margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--bord);
+                    font-size: .78rem; color: var(--gris-doux); max-width: 70ch; }
+
+  @media (max-width: 900px) {
+    .env { padding: 0 1.25rem; }
+    .hd nav { padding: .7rem 1.25rem; }
+    .nav a:not(.cta) { display: none; }
+    .chiffres dl { grid-template-columns: repeat(2, 1fr); }
+    .grille, .raisons { grid-template-columns: 1fr; }
+    .barre { grid-template-columns: 9rem 1fr 2.5rem; }
+    .hero { padding: 2.25rem 0 1.75rem; }
+    .sbar { border-radius: 1rem; flex-wrap: wrap; gap: .4rem; padding: .5rem; }
+    .sdiv { display: none; }
+    .sf { flex-basis: 100%; padding: 0 .5rem; }
+    .bsrch { width: 100%; }
+  }
+</style>
 </head>
 <body>
-  <p>Redirection en cours… <a href="claim-job-board.html">Cliquez ici</a> si rien ne se passe.</p>
+
+<div class="hd">
+  <nav>
+    <a class="logo" href="/">Claim!</a>
+    <div class="nav">
+      <a href="/job-board.html">Offres</a>
+      <a href="claim-entreprises.html">Entreprises</a>
+      <a href="claim-observatoire.html">Observatoire de l'assurance</a>
+      <a class="cta" href="#contact">Contactez-nous</a>
+    </div>
+  </nav>
+</div>
+
+<div class="hero">
+  <div class="env">
+    <h1>Toutes les offres en <em>actuariat</em>, <em>data</em> et <em>IA</em> en assurance.</h1>
+    <p class="sub">
+      <strong id="chiffre-hero">Les offres</strong> en ligne, relevées chaque matin sur
+      <strong id="chiffre-sources">les sites carrières</strong> des employeurs — assureurs, mutuelles,
+      courtiers, cabinets de conseil et réassurance. Le périmètre est étroit, c'est le principe :
+      rien à trier, rien qui sorte du métier.
+    </p>
+
+    <form class="sbar" action="/job-board.html" method="get">
+      <div class="sf">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+        <input id="q" name="q" type="text" placeholder="Métier, entreprise, mot-clé" autocomplete="off">
+      </div>
+      <div class="sdiv"></div>
+      <div class="sf">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round"><path d="M12 21s7-6.3 7-11a7 7 0 1 0-14 0c0 4.7 7 11 7 11z"></path>
+             <circle cx="12" cy="10" r="2.5"></circle></svg>
+        <input id="ville" name="ville" type="text" placeholder="Ville ou pays" autocomplete="off">
+      </div>
+      <button class="bsrch" type="submit">Rechercher</button>
+    </form>
+
+    <div class="lignechips">
+      <span class="etiquette">Contrat</span>
+      <a class="chip" href="/job-board.html?contrat=cdi">CDI</a>
+      <a class="chip" href="/job-board.html?contrat=stage">Stage</a>
+      <a class="chip" href="/job-board.html?contrat=alternance">Alternance</a>
+      <a class="chip" href="/job-board.html?contrat=vie">V.I.E</a>
+      <span class="etiquette" style="margin-left:.6rem">Spécialité</span>
+      <a class="chip" href="/job-board.html?specialite=actuariat">Actuariat</a>
+      <a class="chip" href="/job-board.html?specialite=ia_data">IA / Data</a>
+      <a class="chip" href="/job-board.html?specialite=souscription_technique">Souscription technique</a>
+    </div>
+  </div>
+</div>
+
+<div class="chiffres">
+  <div class="env">
+    <dl>
+      <div><dt id="f-offres">—</dt><dd>OFFRES EN LIGNE</dd></div>
+      <div><dt id="f-sources">—</dt><dd>SOURCES RELEVÉES</dd></div>
+      <div><dt id="f-employeurs">—</dt><dd>EMPLOYEURS QUI RECRUTENT</dd></div>
+      <div><dt id="f-releve">—</dt><dd id="f-releve-libelle">DERNIER RELEVÉ</dd></div>
+    </dl>
+  </div>
+</div>
+
+<section class="champ">
+  <div class="env">
+    <div class="tete">
+      <div>
+        <h2>Les dernières offres</h2>
+        <p id="compte-offres">Chargement…</p>
+      </div>
+      <a class="lien" href="/job-board.html" id="lien-board">Toutes les offres →</a>
+    </div>
+    <div class="grille" id="liste">
+      <div class="vide">Chargement des offres…</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="env">
+    <div class="tete">
+      <div>
+        <h2>Pourquoi Claim!</h2>
+        <p>Trois partis pris, et ils tiennent toute la page.</p>
+      </div>
+    </div>
+    <div class="raisons">
+      <div class="rc">
+        <div class="ico">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#006876" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 5-9 5-9-5 9-5z"></path>
+               <path d="M3 13l9 5 9-5"></path></svg>
+        </div>
+        <h3>Là où les autres ne vont pas</h3>
+        <p>Les sources sont relevées une par une, y compris les sites carrières que les agrégateurs
+           laissent de côté. Une offre publiée chez un assureur régional y est, comme celle d'un grand groupe.</p>
+      </div>
+      <div class="rc">
+        <div class="ico">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#006876" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"></circle>
+               <path d="M12 8v4.5l3 1.8"></path></svg>
+        </div>
+        <h3>Relevé chaque matin</h3>
+        <p>La collecte tourne tous les jours avant l'ouverture. Une offre retirée le lendemain quitte le
+           board le lendemain — pas dans trois semaines.</p>
+      </div>
+      <div class="rc">
+        <div class="ico">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#006876" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7.5 3v6c0 4.3-3 7.6-7.5 9-4.5-1.4-7.5-4.7-7.5-9V6L12 3z"></path>
+               <path d="M9 12l2 2 4-4"></path></svg>
+        </div>
+        <h3>Le métier, et lui seul</h3>
+        <p>Actuariat, data, IA, souscription : rien d'autre. Pas d'« informatique » noyée dans
+           1 200 annonces — le tri est fait à la collecte, pas à la main par le candidat.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="champ" id="observatoire">
+  <div class="env">
+    <div class="tete">
+      <div>
+        <h2>L'Observatoire de l'assurance</h2>
+        <p>Le marché vu depuis les annonces : ce que les employeurs cherchent vraiment.</p>
+      </div>
+      <a class="lien" href="claim-observatoire.html">Explorer l'Observatoire →</a>
+    </div>
+    <div class="obs">
+      <div class="barres" id="barres"><div class="vide" style="box-shadow:none;padding:0;">Chargement…</div></div>
+      <p class="src" id="obs-src"></p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="env">
+    <div class="tete">
+      <div>
+        <h2>Ils recrutent en ce moment</h2>
+        <p id="compte-employeurs">Ces employeurs ont leur fiche sur Claim!</p>
+      </div>
+      <a class="lien" href="claim-entreprises.html">Toutes les entreprises →</a>
+    </div>
+    <div class="employeurs" id="employeurs"></div>
+  </div>
+</section>
+
+<section class="contact" id="contact" style="padding:2.25rem 0">
+  <div class="env">
+    <div>
+      <h2>Une offre manque ? Une source à ajouter ?</h2>
+      <p>Claim! est un relevé, pas un mur d'annonces. Dites-nous quel employeur ou quel site
+         carrières nous ne suivons pas encore — il sera dans le relevé du lendemain.</p>
+    </div>
+    <!-- À CONFIRMER : cette adresse doit exister, sinon les messages se perdent. -->
+    <a class="bblanc" href="mailto:contact@claimyourjob.fr">Écrivez-nous</a>
+  </div>
+</section>
+
+<div class="pied">
+  <div class="env">
+    <div class="haut">
+      <div>
+        <a class="logo" href="/" style="color:#191c1d;font-size:1.2rem">Claim!</a>
+        <div class="nav2" style="margin-top:.9rem">
+          <a href="/job-board.html">Offres</a>
+          <a href="claim-entreprises.html">Entreprises</a>
+          <a href="claim-observatoire.html">Observatoire de l'assurance</a>
+        </div>
+      </div>
+    </div>
+    <p class="mentions">
+      Les offres sont relevées sur les sites carrières des employeurs et les plateformes de recrutement ;
+      chaque annonce renvoie à sa source d'origine. Claim! ne collecte aucune candidature et ne stocke
+      aucune donnée de candidat.
+    </p>
+  </div>
+</div>
+
+<script src="/assets/companies-data.js"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Claim!",
+  "alternateName": "Claim your job",
+  "url": "https://claimyourjob.fr/",
+  "inLanguage": "fr-FR",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": { "@type": "EntryPoint", "urlTemplate": "https://claimyourjob.fr/job-board.html?q={search_term_string}" },
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
+<script>
+// ── Configuration ──────────────────────────────────────────────────────────
+const API_BASE = 'https://claim-api-production-06b3.up.railway.app/api/v1';
+
+const CONTRATS = { cdi: 'CDI', cdd: 'CDD', alternance: 'Alternance', stage: 'Stage',
+                   freelance: 'Freelance', interim: 'Intérim', vie: 'V.I.E', autre: 'Non précisé' };
+const SPECIALITES = { actuariat: 'Actuariat', ia_data: 'IA / Data',
+                      souscription_technique: 'Souscription tech.', autre: 'Autre' };
+
+const annuaire = (typeof CLAIM_ENTREPRISES !== 'undefined') ? CLAIM_ENTREPRISES : null;
+const echapper = (v) => String(v == null ? '' : v).replace(/[&<>"']/g,
+  (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+const couleur = (slug) => (annuaire ? annuaire.couleurEntreprise(slug) : '#006876');
+const initiales = (nom) => (annuaire ? annuaire.initiales(nom) : '');
+
+// ── Les chiffres de la collecte ────────────────────────────────────────────
+// Un appel : /stats/published. S'il tombe, la page reste lisible — les chiffres
+// s'effacent, rien ne casse.
+async function chargerChiffres() {
+  let stats;
+  try {
+    const r = await fetch(`${API_BASE}/stats/published`);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    stats = await r.json();
+  } catch (e) {
+    console.error('[accueil] chiffres indisponibles :', e.message);
+    return null;
+  }
+
+  document.getElementById('f-offres').textContent = stats.jobs_online;
+  document.getElementById('f-employeurs').textContent = stats.companies_hiring;
+  if (stats.sources_tracked) document.getElementById('f-sources').textContent = stats.sources_tracked;
+
+  // Le relevé se dit en français, dans l'heure de Paris.
+  if (stats.last_collection_at) {
+    const quand = new Date(stats.last_collection_at);
+    const heure = quand.toLocaleTimeString('fr-FR', { timeZone: 'Europe/Paris',
+      hour: '2-digit', minute: '2-digit' });
+    const jour = quand.toLocaleDateString('fr-FR', { timeZone: 'Europe/Paris',
+      day: 'numeric', month: 'long' });
+    document.getElementById('f-releve').textContent = heure;
+    document.getElementById('f-releve-libelle').textContent = `RELEVÉ DU ${jour.toUpperCase()}`;
+  }
+
+  document.getElementById('chiffre-hero').textContent = `${stats.jobs_online} offres`;
+  if (stats.sources_tracked) {
+    document.getElementById('chiffre-sources').textContent = `${stats.sources_tracked} sources`;
+  }
+  const compte = document.getElementById('compte-employeurs');
+  if (compte) {
+    compte.textContent = `${stats.companies_hiring} employeurs recrutent en ligne aujourd'hui ; `
+      + 'ces vingt-là ont leur fiche sur Claim!.';
+  }
+  const lien = document.getElementById('lien-board');
+  if (lien) lien.textContent = `Voir les ${stats.jobs_online} offres →`;
+
+  dessinerObservatoire(stats);
+  return stats;
+}
+
+// La répartition ne totalise pas les offres en ligne : une offre publiée dont
+// la spécialité n'est pas curée compte dans le total, dans aucune spécialité.
+// L'écart est montré, pas masqué.
+function dessinerObservatoire(stats) {
+  const lignes = Object.entries(stats.by_specialty || {})
+    .map(([code, total]) => ({ libelle: SPECIALITES[code] || code, total }));
+  const reste = Math.max(0, stats.jobs_online - (stats.classified_jobs || 0));
+  if (reste) lignes.push({ libelle: 'Autres / non classées', total: reste });
+  if (!lignes.length) return;
+
+  const max = Math.max(...lignes.map((l) => l.total), 1);
+  document.getElementById('barres').innerHTML = lignes
+    .sort((a, b) => b.total - a.total)
+    .map((l) => `
+      <div class="barre">
+        <span>${echapper(l.libelle)}</span>
+        <span class="jauge"><span style="width:${Math.round((l.total / max) * 100)}%"></span></span>
+        <span class="n">${l.total}</span>
+      </div>`).join('');
+
+  const quand = stats.last_collection_at
+    ? new Date(stats.last_collection_at).toLocaleDateString('fr-FR',
+        { timeZone: 'Europe/Paris', day: 'numeric', month: 'long' })
+    : null;
+  document.getElementById('obs-src').textContent =
+    `Répartition des ${stats.jobs_online} offres en ligne par spécialité`
+    + (quand ? `, relevé du ${quand}` : '') + '. L\'Observatoire détaille les contrats, les régions, '
+    + 'les salaires annoncés et les tendances semaine après semaine.';
+}
+
+// ── Les dernières offres ───────────────────────────────────────────────────
+async function chargerOffres() {
+  const liste = document.getElementById('liste');
+  try {
+    // Les mêmes paramètres que le board : l'accueil montre ce que le board
+    // montre, dans le même ordre.
+    const params = new URLSearchParams({ per_page: '6', limit: '6', page: '1',
+                                         france_only: 'true', order: 'desc' });
+    const r = await fetch(`${API_BASE}/jobs?${params}`);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const d = await r.json();
+    const offres = d.data || [];
+
+    document.getElementById('compte-offres').textContent =
+      offres.length > 1 ? `Les ${offres.length} dernières offres publiées` : 'La dernière offre publiée';
+
+    if (!offres.length) {
+      liste.innerHTML = '<div class="vide">Aucune offre en ligne pour le moment.</div>';
+      return;
+    }
+
+    liste.innerHTML = offres.map((j) => {
+      const co = j.companies || {};
+      const nom = co.name || j.source || '';
+      const ville = j.ville || j.city || '';
+      const contrat = CONTRATS[j.contract_type] || '';
+      const spec = SPECIALITES[j.jev_specialty] || '';
+      const quand = (annuaire && annuaire.publicationLabel)
+        ? annuaire.publicationLabel(j.source_published_at) : '';
+      return `
+        <a class="oc" href="/offre/${encodeURIComponent(j.slug || '')}">
+          <div class="ent">
+            <div class="sigle" style="background:${echapper(couleur(co.slug || j.source))}">${echapper(initiales(nom))}</div>
+            <div class="soc">${echapper(nom)}</div>
+          </div>
+          <h3>${echapper(j.title)}</h3>
+          <div class="pastilles">
+            ${ville ? `<span class="pastille p-ville">${echapper(ville)}</span>` : ''}
+            ${contrat ? `<span class="pastille">${echapper(contrat)}</span>` : ''}
+            ${spec ? `<span class="pastille p-spec">${echapper(spec)}</span>` : ''}
+          </div>
+          <div class="fraicheur"><span>${echapper(quand)}</span><span>Voir l'annonce →</span></div>
+        </a>`;
+    }).join('');
+  } catch (e) {
+    console.error('[accueil] offres indisponibles :', e.message);
+    liste.innerHTML = `
+      <div class="vide">
+        Les offres ne se chargent pas pour l'instant.
+        <a href="/job-board.html">Ouvrir le board</a>.
+      </div>`;
+  }
+}
+
+// ── Les employeurs suivis ─────────────────────────────────────────────────
+// La liste vient de l'annuaire partagé — celui qui porte les couleurs et les
+// fiches d'entreprise. Rien n'est recopié ici.
+function dessinerEmployeurs() {
+  const cible = document.getElementById('employeurs');
+  if (!cible || !annuaire || !Array.isArray(annuaire.PROFILS)) return;
+  cible.innerHTML = annuaire.PROFILS.map((p) => `
+    <a class="firme" href="claim-entreprises.html?entreprise=${encodeURIComponent(p.slug)}">
+      <span class="sigle" style="background:${echapper(couleur(p.slug))}">${echapper(initiales(p.nom))}</span>${echapper(p.nom)}
+    </a>`).join('');
+}
+
+dessinerEmployeurs();
+chargerOffres();
+chargerChiffres();
+</script>
 </body>
 </html>

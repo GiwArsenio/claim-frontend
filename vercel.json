@@ -33,8 +33,13 @@
       "dest": "/api/offre.js?slug=$1"
     },
     {
+      "src": "/claim-job-board.html",
+      "status": 301,
+      "headers": { "Location": "/job-board.html" }
+    },
+    {
       "src": "/",
-      "dest": "/claim-job-board.html"
+      "dest": "/index.html"
     },
     {
       "src": "/(.*)",

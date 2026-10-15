@@ -271,7 +271,7 @@ ${societe.logo_url
 
  /* ── RAIL LATÉRAL ──
     Mêmes règles que le rail de la fiche du job board (voir
-    claim-job-board.html) : la fiche doit se lire pareil, qu'on arrive par la
+    job-board.html) : la fiche doit se lire pareil, qu'on arrive par la
     liste ou par cette adresse.
 
     Ici la colonne des offres n'existe pas : le rail tient donc dès 1 120 px,
@@ -372,13 +372,13 @@ ${societe.logo_url
 <body>
 <div class="page">
 <main class="enveloppe">
-  <a class="retour" href="/claim-job-board.html">← Toutes les offres</a>
+  <a class="retour" href="/job-board.html">← Toutes les offres</a>
   <h1>${echapper(job.title)}</h1>
   <div class="societe">${echapper(nomSociete)}${ville ? ' · ' + echapper(ville) : ''}</div>
   <div class="pastilles">${pastilles.join('')}</div>
   ${corps || '<p>Description non disponible.</p>'}
   <div class="pied">
-    Offre publiée sur <a href="${SITE_URL}/claim-job-board.html">Claim!</a>.
+    Offre publiée sur <a href="${SITE_URL}/job-board.html">Claim!</a>.
     ${job.source_url ? `Source : <a href="${echapper(job.source_url)}" rel="nofollow noopener" target="_blank" data-sortie="annonce">l'annonce d'origine</a>.` : ''}
   </div>
 </main>
@@ -409,7 +409,7 @@ ${rail}
   return { html, resume };
 }
 
-const PAGE_ABSENTE = (titre, message) => `<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><title>${titre}</title><meta name="robots" content="noindex"><link rel="canonical" href="${SITE_URL}/claim-job-board.html"></head><body style="font-family:system-ui;padding:2rem"><h1>${titre}</h1><p>${message}</p></body></html>`;
+const PAGE_ABSENTE = (titre, message) => `<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><title>${titre}</title><meta name="robots" content="noindex"><link rel="canonical" href="${SITE_URL}/job-board.html"></head><body style="font-family:system-ui;padding:2rem"><h1>${titre}</h1><p>${message}</p></body></html>`;
 
 module.exports = async (req, res) => {
   const brut = (req.query && req.query.slug) || '';
@@ -426,7 +426,7 @@ module.exports = async (req, res) => {
     if (!reponse.ok) {
       // Une offre retirée doit répondre 404 : c'est ce que le sitemap garantit.
       res.status(404).send(PAGE_ABSENTE('Offre introuvable',
-        `Cette offre n'est plus en ligne. <a href="${SITE_URL}/claim-job-board.html">Voir les offres actuelles</a>.`));
+        `Cette offre n'est plus en ligne. <a href="${SITE_URL}/job-board.html">Voir les offres actuelles</a>.`));
       return;
     }
     const job = await reponse.json();
@@ -439,6 +439,6 @@ module.exports = async (req, res) => {
     // Ne jamais rendre une page vide en silence : une panne doit se voir.
     console.error('[offre] echec pour', slug, erreur);
     res.status(502).send(PAGE_ABSENTE('Service momentanément indisponible',
-      `<a href="${SITE_URL}/claim-job-board.html">Retour aux offres</a>`));
+      `<a href="${SITE_URL}/job-board.html">Retour aux offres</a>`));
   }
 };
