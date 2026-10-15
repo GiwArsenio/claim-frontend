@@ -619,7 +619,7 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
 
    Seul le telephone le garde masque (768 px et moins) : la fiche y occupe tout
    l'ecran, et l'empilement n'y aurait plus de fin. */
-@media (min-width: 769px) and (max-width: 1559.98px) {
+@media (min-width: 769px) and (max-width: 1279.98px) {
   .rail {
     display: block;
     max-width: var(--enveloppe-lecture);
@@ -632,7 +632,7 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
   }
 }
 
-@media (min-width: 1560px) {
+@media (min-width: 1280px) {
   /* ── LA FICHE ET LE RAIL SE PARTAGENT LA PLACE ──
      Chacun grandit à partir de sa largeur de lecture, à parts égales, et
      s'arrête à sa largeur haute : 842 px pour la fiche, 394 px pour le rail.
@@ -655,6 +655,7 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
     flex-shrink: 1;
     flex-basis: var(--enveloppe-lecture);
     max-width: var(--enveloppe-large);
+    min-width: 32rem;
     margin: 0;
   }
   /* La bande de recentrage n'a plus lieu d'être : le rail occupe la place. */
@@ -666,6 +667,7 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
     flex-shrink: 1;
     flex-basis: var(--rail-largeur);
     max-width: var(--rail-large);
+    min-width: 12.5rem;
     display: block;
     position: sticky;
     top: 1.25rem;

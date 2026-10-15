@@ -165,7 +165,7 @@ assert.ok(offre.includes("require('../assets/companies-data.js')"),
 
 // Chaque surface a sa fenêtre : le board porte une colonne d'offres de 420 px
 // en plus, la page d'offre non. Le seuil diffère, le comportement non.
-assert.ok(/@media \(min-width: 1560px\)[\s\S]{0,4000}\.rail \{[\s\S]{0,600}display: block/.test(board),
+assert.ok(/@media \(min-width: 1280px\)[\s\S]{0,4000}\.rail \{[\s\S]{0,600}display: block/.test(board),
   'sur le board, le rail s\'affiche quand la colonne et l\'enveloppe tiennent côte à côte');
 assert.ok(/@media \(min-width: 1120px\)[\s\S]{0,4000}\.rail \{[\s\S]{0,600}display: block/.test(offre),
   'sur la page d\'offre, il tient plus tôt');
@@ -240,7 +240,7 @@ for (const selecteur of SELECTEURS) {
    Un contenu écrit ne doit pas s'évaporer parce que la fenêtre est étroite.
    Sous son seuil, le rail se replie sous la fiche. */
 const repliBoard = board.match(
-  /@media \(min-width: 769px\) and \(max-width: 1559\.98px\) \{\s*\.rail \{([^}]*)\}/);
+  /@media \(min-width: 769px\) and \(max-width: 1279\.98px\) \{\s*\.rail \{([^}]*)\}/);
 assert.ok(repliBoard, 'le board doit replier le rail sous la fiche');
 assert.match(repliBoard[1], /display:\s*block/, 'le rail replié reste visible');
 assert.match(repliBoard[1], /max-width:\s*var\(--enveloppe-lecture\)/,
@@ -254,6 +254,37 @@ assert.match(repliOffre[1], /row-gap:\s*1\.25rem/, 'la gouttière sépare les de
 assert.match(repliOffre[2], /display:\s*block/, 'le rail replié reste visible');
 assert.match(repliOffre[2], /max-width:\s*46rem/, 'à la largeur de lecture de la fiche');
 assert.match(repliOffre[2], /margin:\s*0 auto/, 'et sur le même axe qu elle');
+
+
+// Pourquoi le seuil s'arrête là, et pas plus bas. Trois colonnes doivent tenir :
+// la colonne des offres, la fiche et le rail. Au seuil, ce que laisse la
+// colonne doit couvrir les deux planchers et leur gouttière — sinon le
+// débordement ne se voit pas sur la page : il se cache dans le volet, qui
+// défile. C'est ce qui est arrivé au premier essai (34 rem + 13 rem + 32 px
+// pour 764 px de place).
+const mediaTroisColonnes = [...board.matchAll(/@media \(min-width: (\d+)px\) \{([\s\S]*?)\n\}/g)]
+  .find((m) => /\.dc-wrap \{[\s\S]*?display: flex/.test(m[2]));
+assert.ok(mediaTroisColonnes, 'la mise en page à trois colonnes doit vivre dans une media query');
+const seuil = Number(mediaTroisColonnes[1]);
+assert.equal(seuil, 1280, 'trois colonnes tiennent à partir de 1 280 px');
+
+const plancher = (selecteur) => {
+  const motif = selecteur.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ' \\{([^}]*)\\}';
+  const regle = mediaTroisColonnes[2].match(new RegExp(motif));
+  assert.ok(regle, `${selecteur} doit poser son plancher dans le bloc à trois colonnes`);
+  const m = regle[1].match(/min-width:\s*([\d.]+)rem/);
+  assert.ok(m, `${selecteur} doit déclarer un plancher en rem`);
+  return Number(m[1]) * 16;
+};
+assert.equal(plancher('.dc'), 512, 'la fiche ne descend pas sous 32 rem');
+assert.equal(plancher('.rail'), 200, 'le rail ne descend pas sous 12,5 rem');
+
+// --marge-page vaut son minimum (2 rem) tant que la fenêtre est sous 1 720 px.
+const colonne = Number(board.match(/--colonne-liste: (\d+)px/)[1]);
+const disponible = seuil - 2 * 32 - colonne - 32;
+assert.equal(disponible, 764, 'ce que la colonne laisse au seuil');
+assert.ok(plancher('.dc') + 32 + plancher('.rail') <= disponible,
+  'au seuil, les deux planchers et leur gouttière doivent tenir dans la place laissée');
 
 // Le replié est la même carte que le rail à côté de la fiche : un lecteur qui
 // rétrécit sa fenêtre ne doit pas voir l'habillage changer.

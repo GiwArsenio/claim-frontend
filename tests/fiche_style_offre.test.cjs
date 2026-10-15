@@ -151,7 +151,7 @@ assert.ok(!bande.includes('clamp('), 'la bande ne copie plus la colonne de gauch
 
 // Le rail prend la place de cette bande quand la fenetre le permet : la fiche
 // n'est alors plus centree, elle est ancree pres de la liste.
-assert.ok(/@media \(min-width: 1560px\)[\s\S]{0,4000}\.pr \{ margin-right: 0; \}/.test(html),
+assert.ok(/@media \(min-width: 1280px\)[\s\S]{0,4000}\.pr \{ margin-right: 0; \}/.test(html),
   "quand le rail s'affiche, la bande de recentrage s'efface");
 assert.ok(/\.dc \{[\s\S]{0,260}flex-grow: 1;/.test(html),
   'la fiche grandit dans la place laissee par la liste');
@@ -211,11 +211,11 @@ for (const propriete of ['margin-top', 'padding-top', 'font-size', 'color']) {
 
 // ── Sous son seuil, le rail ne quitte pas la page ──
 // Il se replie sous la fiche, à la même largeur de lecture et sur le même axe.
-// C'est la leçon de l'incident du 15/10/2026 : la fiche et le rail demandaient
-// 1 560 px pour tenir côte à côte, et une mise à l'échelle de 125 % suffisait à
-// faire disparaître le second — sans que rien ne le signale.
+// C'est la leçon du 15/10/2026 : sous le seuil des trois colonnes, le rail
+// s'empilait sous la fiche — et une mise à l'échelle de 125 % suffisait à
+// déclencher ce seuil sans que rien ne le signale.
 const railReplie = html.match(
-  /@media \(min-width: 769px\) and \(max-width: 1559\.98px\) \{\s*\.rail \{([^}]*)\}/);
+  /@media \(min-width: 769px\) and \(max-width: 1279\.98px\) \{\s*\.rail \{([^}]*)\}/);
 assert.ok(railReplie, 'le rail se replie sous la fiche en dessous de son seuil');
 assert.match(railReplie[1], /max-width: var\(--enveloppe-lecture\)/,
   "il garde la largeur de lecture de la fiche, pas celle de la bande perdue");
