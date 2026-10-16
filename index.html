@@ -20,6 +20,13 @@
 <meta property="og:image:alt" content="Claim! — offres d'emploi Actuariat, Data et IA en assurance"/>
 <meta name="twitter:card" content="summary_large_image"/>
 
+<!-- Même typographie et mêmes icônes que le board : le lecteur doit
+     retrouver la même page, qu'il arrive par l'accueil ou par la liste. -->
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+
 <style>
   :root {
     --teal: #006876;
@@ -37,9 +44,18 @@
   }
   * { box-sizing: border-box; }
   html { -webkit-text-size-adjust: 100%; }
+  /* Icônes Material Symbols — la famille du board. */
+  .ms {
+    font-family: 'Material Symbols Outlined';
+    font-weight: normal; font-style: normal;
+    line-height: 1; letter-spacing: normal; text-transform: none;
+    display: inline-block; white-space: nowrap;
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    vertical-align: middle;
+  }
   body {
     margin: 0;
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     color: var(--encre);
     line-height: 1.65;
     background: #fff;
@@ -47,17 +63,37 @@
   a { color: var(--teal); }
   .env { max-width: var(--enveloppe); margin: 0 auto; padding: 0 2rem; }
 
-  /* ── BANDEAU ── */
-  .hd { background: var(--teal); position: sticky; top: 0; z-index: 50; }
+  /* ── BANDEAU ──
+     Repris du board : le logo et les liens forment un seul groupe à gauche,
+     l'action reste à droite. La densité, les couleurs et les espacements sont
+     ceux de la liste des offres. */
+  .hd { background: var(--teal); position: sticky; top: 0; z-index: 200; }
   .hd nav { display: flex; justify-content: space-between; align-items: center;
-            padding: .75rem 2rem; max-width: var(--enveloppe); margin: 0 auto; }
+            padding: .75rem 2rem; }
   .logo { font-size: 1.5rem; font-weight: 900; color: #fff; letter-spacing: -.05em; text-decoration: none; }
-  .nav { display: flex; gap: 2rem; align-items: center; }
-  .nav a { color: rgba(255, 255, 255, .8); text-decoration: none; font-size: .925rem; font-weight: 600; }
-  .nav a:hover { color: #fff; }
-  .nav .cta { background: #fff; color: var(--teal); padding: .45rem 1.2rem; border-radius: .5rem;
-              font-weight: 700; font-size: .925rem; }
-  .nav .cta:hover { color: var(--teal); }
+  .nav-links { display: flex; gap: 2rem; }
+  .nav-links a { color: rgba(255, 255, 255, .8); text-decoration: none;
+                 font-size: .925rem; font-weight: 600; }
+  .nav-links a:hover { color: #fff; }
+  .btn-cta { background: #fff; color: var(--teal); padding: .45rem 1.2rem; border-radius: .5rem;
+             font-weight: 700; font-size: .925rem; border: none; cursor: pointer;
+             font-family: inherit; white-space: nowrap; }
+
+  /* Bouton burger — masqué hors téléphone, comme sur le board. */
+  .btn-burger {
+    display: none;
+    flex-direction: column; justify-content: center; gap: 5px;
+    width: 36px; height: 36px;
+    background: rgba(255, 255, 255, .15);
+    border: none; border-radius: .4rem; cursor: pointer;
+    padding: 7px 8px; flex-shrink: 0;
+  }
+  .btn-burger span { display: block; height: 2px; background: #fff; border-radius: 2px;
+                     transition: transform .25s, opacity .2s; }
+  .btn-burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .btn-burger.open span:nth-child(2) { opacity: 0; }
+  .btn-burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+  #burger-menu { display: none; }
 
   /* ── HERO ── */
   .hero { background: var(--champ); border-bottom: 1px solid var(--bord-doux); padding: 3.5rem 0 2.5rem; }
@@ -67,29 +103,31 @@
   .hero .sub { color: var(--gris); font-size: 1.05rem; max-width: 62ch; margin: 0 0 1.75rem; }
   .hero .sub strong { color: var(--encre); font-weight: 700; }
 
-  /* Barre de recherche — reprise du board, dimensions adaptées à l'accueil. */
-  .sbar { display: flex; align-items: center; background: #fff; border-radius: 14px;
+  /* ── RECHERCHE ET FILTRES ──
+     Repris trait pour trait du board : mêmes icônes, même pilule, même bouton,
+     mêmes listes déroulantes. Seule la largeur s'adapte — l'accueil n'a pas de
+     colonne d'offres à droite, la barre reste donc bornée à 50 rem. */
+  .sbar { display: flex; align-items: center; background: #fff; border-radius: 9999px;
           padding: .3rem; max-width: 50rem; box-shadow: 0 1px 4px rgba(0, 0, 0, .07);
-          margin-bottom: .75rem; }
-  .sf { flex: 1; display: flex; align-items: center; padding: 0 1rem; gap: .45rem; min-width: 0; }
-  .sf svg { flex-shrink: 0; color: var(--gris-doux); }
-  .sf input { width: 100%; border: none; outline: none; background: transparent; font-family: inherit;
-              font-size: .95rem; color: var(--encre); padding: .55rem 0; }
+          margin-bottom: .5rem; }
+  .sf { flex: 1; display: flex; align-items: center; padding: 0 1rem; gap: .4rem; min-width: 0; }
+  .sf input { width: 100%; border: none; outline: none; background: transparent;
+              font-family: inherit; font-size: .925rem; color: var(--encre); }
   .sf input::placeholder { color: rgba(108, 121, 124, .6); }
   .sdiv { width: 1px; height: 1.4rem; background: var(--bord-doux); flex-shrink: 0; }
-  .bsrch { background: linear-gradient(135deg, #006876, #00bcd4); color: #fff; border: none;
-           cursor: pointer; padding: .5rem 1.5rem; border-radius: 9999px; font-weight: 700;
-           font-size: .925rem; font-family: inherit; white-space: nowrap; }
-  .bsrch:hover { filter: brightness(1.08); }
+  .btn-srch { background: linear-gradient(135deg, #006876, #00bcd4); color: #fff; border: none;
+              cursor: pointer; padding: .5rem 1.5rem; border-radius: 9999px; font-weight: 700;
+              font-size: .925rem; font-family: inherit; white-space: nowrap; }
+  .btn-srch:hover { filter: brightness(1.08); }
 
-  .lignechips { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
-  .chip { display: inline-flex; align-items: center; gap: .3rem; padding: .38rem .85rem;
+  .chips { display: flex; gap: .5rem; overflow-x: auto; padding-bottom: .15rem; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip { display: flex; align-items: center; gap: .3rem; padding: .38rem .85rem;
           border-radius: 9999px; background: #fff; color: var(--gris); font-size: .925rem;
-          font-weight: 500; border: 1px solid var(--bord-doux); text-decoration: none;
-          transition: background .15s, color .15s, border-color .15s; }
-  .chip:hover { background: #e8f4f6; color: var(--teal); }
-  .etiquette { font-size: .68rem; font-weight: 700; color: var(--gris-doux);
-               text-transform: uppercase; letter-spacing: .08em; margin-right: .2rem; }
+          font-weight: 500; border: 1px solid var(--bord-doux); cursor: pointer;
+          white-space: nowrap; flex-shrink: 0; transition: background .15s; font-family: inherit; }
+  .chip:hover { background: #e8f4f6; }
+  select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
 
   /* ── CHIFFRES ── */
   .chiffres { border-bottom: 1px solid var(--bord); background: #fff; }
@@ -110,38 +148,56 @@
              max-width: 100%; overflow-wrap: anywhere; }
   .lien:hover { text-decoration: underline; }
 
-  /* ── OFFRES ── */
+  /* ── OFFRES ──
+     Les cartes reprennent celles du board, trait pour trait : tuile de logo,
+     titre et employeur, badges rectangulaires, étiquettes, date en bas à
+     droite. Seule la grille change — trois colonnes ici, une sur le board.
+     La réserve droite des étiquettes les empêche de passer sous la date, qui
+     est posée en absolu comme sur le board. */
   .grille { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--gouttiere); }
   .oc { background: #fff; border-radius: .625rem; padding: .875rem;
         display: flex; flex-direction: column; text-decoration: none; color: inherit;
-        cursor: pointer; transition: transform .15s, box-shadow .15s;
-        border: 1.5px solid #d5dfe3; box-shadow: 0 2px 6px rgba(25,44,52,.08), 0 5px 14px rgba(25,44,52,.04);
+        cursor: pointer; transition: transform .15s, box-shadow .15s; position: relative;
+        border: 1.5px solid #d5dfe3;
+        box-shadow: 0 2px 6px rgba(25, 44, 52, .08), 0 5px 14px rgba(25, 44, 52, .04);
         min-width: 0; overflow: hidden; }
   .oc:hover { transform: translateY(-1px); border-color: #a9c6cc;
-              box-shadow: 0 5px 16px rgba(25,44,52,.14); }
-  .oc .ent { display: flex; align-items: flex-start; margin-bottom: .45rem; }
-  .sigle { width: 38px; height: 38px; border-radius: 6px; flex-shrink: 0; display: flex;
-           align-items: center; justify-content: center; color: #fff; font-weight: 900;
-           font-size: 9.5px; letter-spacing: -.02em; }
+              box-shadow: 0 5px 16px rgba(25, 44, 52, .14); }
+  .oc .ct { display: flex; align-items: flex-start; margin-bottom: .45rem; }
+  /* Tuile de logo : la teinte de l'employeur dessous, le logo de la source
+     dessus, les initiales entre les deux. Le repli n'a jamais de trou. */
+  .clogo { width: 38px; height: 38px; border-radius: 6px; display: flex; align-items: center;
+           justify-content: center; color: #fff; font-weight: 900; font-size: 9.5px;
+           flex-shrink: 0; position: relative; overflow: hidden; }
+  .clogo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain;
+               border-radius: inherit; padding: 2px; }
   .oc .ci { flex: 1; min-width: 0; padding-left: .5rem; }
-  .oc .ctitle { font-size: .875rem; font-weight: 700; color: var(--encre); line-height: 1.35;
-                min-width: 0; overflow: hidden; text-overflow: ellipsis; }
-  .oc .soc { font-size: .75rem; color: var(--gris); font-weight: 500;
-             min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  .oc .ctitle { font-size: .875rem; font-weight: 700; color: var(--encre);
+                white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .oc .csub { font-size: .75rem; color: var(--gris); font-weight: 500;
+              white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .oc:hover .ctitle { color: var(--teal); }
   .oc .cm { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin: 9px 0; }
   .card-fact { display: inline-flex; align-items: center; flex: 0 0 auto; max-width: 100%;
                padding: 2px 8px; border: 1px solid #dce5e9; border-radius: 4px; background: #f5f8f9; }
-  .card-fact-value { color: #24363d; font-size: 12px; font-weight: 600; line-height: 16px; }
+  .card-fact-value { color: #24363d; font-size: 12px; font-weight: 600; line-height: 16px;
+                     overflow-wrap: anywhere; }
+  .card-fact .ms { font-size: 14px; color: #65747c; margin-right: 3px; }
   .card-fact--loc { background: #e9f6f8; border-color: #bfe2e8; }
   .card-fact--loc .card-fact-value { color: #00545f; }
-  .oc .ctags { display: flex; flex-wrap: wrap; gap: 3px; min-width: 0; }
-  .tag { display: inline-block; padding: 3px 6px; border-radius: 3px; font-size: 9px;
+  .card-fact--loc .ms { color: #006876; }
+  .oc .ctags { display: flex; flex-wrap: wrap; gap: 3px; min-width: 0; padding-right: 4rem; }
+  .oc .ctags .tag { font-size: 9px; padding: 3px 6px; }
+  .tag { display: inline-block; padding: 1.5px 5px; border-radius: 3px; font-size: 8px;
          font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
-  .tn { background: #e9f6f8; border: 1px solid #bfe2e8; color: #00545f; }
   .tm { background: #a1efff; color: #004e59; }
-  .oc .cdate { margin-top: auto; padding-top: .7rem; border-top: 1px solid #f0f4f6;
-               font-size: 9px; color: #6c797c; font-weight: 500; }
+  .tn { background: #ffdcc2; color: #6d3a00; }
+  .oc .cdate { position: absolute; bottom: .5rem; right: .875rem; font-size: 9px;
+               color: var(--gris-doux); font-weight: 500; }
+  /* La tuile des employeurs garde sa propre échelle : elle est plus petite. */
+  .sigle { width: 34px; height: 34px; border-radius: .5rem; flex-shrink: 0; display: flex;
+           align-items: center; justify-content: center; color: #fff; font-weight: 900;
+           font-size: 11px; letter-spacing: -.02em; }
   .vide { grid-column: 1 / -1; background: #fff; border-radius: .75rem; padding: 1.4rem 1.25rem;
           color: var(--gris); font-size: .9rem; box-shadow: var(--ombre); }
 
@@ -191,30 +247,60 @@
 
   @media (max-width: 900px) {
     .env { padding: 0 1.25rem; }
-    .hd nav { padding: .7rem 1.25rem; }
-    .nav a:not(.cta) { display: none; }
     .chiffres dl { grid-template-columns: repeat(2, 1fr); }
     .grille, .raisons { grid-template-columns: 1fr; }
     .barre { grid-template-columns: 9rem 1fr 2.5rem; }
     .hero { padding: 2.25rem 0 1.75rem; }
-    .sbar { border-radius: 1rem; flex-wrap: wrap; gap: .4rem; padding: .5rem; }
-    .sdiv { display: none; }
-    .sf { flex-basis: 100%; padding: 0 .5rem; }
-    .bsrch { width: 100%; }
   }
+
+  /* ── TÉLÉPHONE ──
+     Bandeau et recherche suivent le board : les liens et l'action cèdent la
+     place au menu burger, et la barre de recherche passe sur deux lignes. Le
+     seuil est celui du board (768 px) pour que les deux pages basculent
+     ensemble. */
+  @media (max-width: 768px) {
+    .hd nav { padding: .6rem 1rem; }
+    .nav-links { display: none; }
+    .btn-cta { display: none; }
+    .btn-burger { display: flex; }
+    #burger-menu { display: block; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+                   z-index: 300; pointer-events: none; }
+
+    .hero { padding: 1.5rem 0 1.25rem; }
+    .sbar { flex-direction: column; border-radius: .875rem; padding: .25rem;
+            gap: 0; align-items: stretch; }
+    .sf { padding: .3rem .75rem; }
+    .sf.loc-field { border-top: 1px solid rgba(187, 201, 204, .3); }
+    .sdiv { display: none; }
+    .btn-srch { border-radius: .625rem; padding: .5rem 1rem; font-size: .85rem;
+                margin: .2rem .1rem .1rem; width: calc(100% - .2rem); text-align: center; }
+    .chips { gap: .3rem; }
+    .chip { font-size: .825rem; padding: .28rem .7rem; }
+  }
+
+
 </style>
 </head>
 <body>
 
 <div class="hd">
   <nav>
-    <a class="logo" href="/">Claim!</a>
-    <div class="nav">
-      <a href="/job-board.html">Offres d'emploi</a>
-      <a href="claim-entreprises.html">Entreprises</a>
-      <a href="claim-observatoire.html">Observatoire de l'assurance</a>
-      <a class="cta" href="#contact">Contactez-nous</a>
+    <div style="display:flex;align-items:center;gap:2.5rem;">
+      <a class="logo" href="/">Claim!</a>
+      <div class="nav-links">
+        <a href="/job-board.html">Offres d'emploi</a>
+        <a href="claim-entreprises.html">Entreprises</a>
+        <a href="claim-observatoire.html">Observatoire de l'assurance</a>
+      </div>
     </div>
+    <div style="display:flex;align-items:center;gap:.75rem;">
+      <button class="btn-cta" onclick="allerContact()">Contactez-nous</button>
+      <button class="btn-burger" id="btn-burger" onclick="toggleBurger()" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+</div>
   </nav>
 </div>
 
@@ -228,32 +314,61 @@
       rien à trier, rien qui sorte du métier.
     </p>
 
-    <form class="sbar" action="/job-board.html" method="get">
+        <form class="sbar" action="/job-board.html" method="get">
       <div class="sf">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-             stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
-        <input id="q" name="q" type="text" placeholder="Métier, entreprise, mot-clé" autocomplete="off">
+        <span class="ms" style="color:#6c797c;font-size:17px;">search</span>
+        <input id="q" name="q" type="text" placeholder="Mots-clés (e.g. Actuaire, Data Scientist)" autocomplete="off"/>
       </div>
       <div class="sdiv"></div>
-      <div class="sf">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-             stroke-linecap="round"><path d="M12 21s7-6.3 7-11a7 7 0 1 0-14 0c0 4.7 7 11 7 11z"></path>
-             <circle cx="12" cy="10" r="2.5"></circle></svg>
-        <input id="ville" name="ville" type="text" placeholder="Ville ou pays" autocomplete="off">
+      <div class="sf loc-field">
+        <span class="ms" style="color:#6c797c;font-size:17px;">location_on</span>
+        <input id="ville" name="ville" type="text" placeholder="Localisation" autocomplete="off"/>
       </div>
-      <button class="bsrch" type="submit">Rechercher</button>
+      <button class="btn-srch" type="submit">Rechercher</button>
     </form>
 
-    <div class="lignechips">
-      <span class="etiquette">Contrat</span>
-      <a class="chip" href="/job-board.html?contrat=cdi">CDI</a>
-      <a class="chip" href="/job-board.html?contrat=stage">Stage</a>
-      <a class="chip" href="/job-board.html?contrat=alternance">Alternance</a>
-      <a class="chip" href="/job-board.html?contrat=vie">V.I.E</a>
-      <span class="etiquette" style="margin-left:.6rem">Spécialité</span>
-      <a class="chip" href="/job-board.html?specialite=actuariat">Actuariat</a>
-      <a class="chip" href="/job-board.html?specialite=ia_data">IA / Data</a>
-      <a class="chip" href="/job-board.html?specialite=souscription_technique">Souscription technique</a>
+    <!-- Les mêmes filtres que le board : ils ouvrent la liste sur le critère
+         choisi plutôt que de filtrer une grille qui n'en montre que six. -->
+    <div class="chips">
+      <select id="acc-contrat" class="chip" onchange="versBoard('contrat', this.value)" aria-label="Type de contrat">
+        <option value="">Type de contrat</option>
+        <option value="cdi">CDI</option>
+        <option value="cdd">CDD</option>
+        <option value="alternance">Alternance</option>
+        <option value="stage">Stage</option>
+        <option value="vie">V.I.E</option>
+        <option value="freelance">Freelance</option>
+      </select>
+      <select id="acc-specialite" class="chip" onchange="versBoard('specialite', this.value)" aria-label="Spécialité">
+        <option value="">Spécialité</option>
+        <option value="actuariat">Actuariat</option>
+        <option value="souscription_technique">Souscription technique</option>
+        <option value="ia_data">IA / Data</option>
+      </select>
+      <select id="acc-experience" class="chip" onchange="versBoard('experience', this.value)" aria-label="Expérience">
+        <option value="">Expérience</option>
+        <option value="junior">Junior</option>
+        <option value="confirmed">Confirmé</option>
+        <option value="senior">Senior</option>
+        <option value="lead">Lead</option>
+      </select>
+      <select id="acc-ats" class="chip" onchange="versBoard('ats', this.value)" aria-label="Source ATS">
+        <option value="">Source ATS</option>
+        <option value="workday">Workday</option>
+        <option value="smartrecruiters">SmartRecruiters</option>
+        <option value="talentsoft">TalentSoft</option>
+        <option value="custom">Custom</option>
+        <option value="magnet">Magnet</option>
+        <option value="greenhouse">Greenhouse</option>
+        <option value="ashby">Ashby</option>
+        <option value="successfactors">SuccessFactors</option>
+        <option value="radancy">Radancy</option>
+        <option value="groupama">Groupama</option>
+        <option value="oracle_hcm">Oracle HCM</option>
+      </select>
+      <button class="chip" onclick="location.href='/job-board.html'">
+        <span class="ms" style="font-size:13px;">restart_alt</span>Réinitialiser
+      </button>
     </div>
   </div>
 </div>
@@ -418,6 +533,112 @@ const echapper = (v) => String(v == null ? '' : v).replace(/[&<>"']/g,
   (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
 const couleur = (slug) => (annuaire ? annuaire.couleurEntreprise(slug) : '#006876');
+
+// ── Cartes : le rendu du board ─────────────────────────────────────────────
+// La carte de l'accueil est celle du board, au paramètre de grille près. Les
+// règles de publication sont les mêmes : une valeur que la curation ne juge
+// pas publiable n'est jamais présentée comme un attribut de l'offre.
+const SPECIALITES_CARTE = { actuariat: 'Actuariat', ia_data: 'IA / Data',
+                            souscription_technique: 'Souscription technique', autre: 'Autre' };
+const EXPERIENCES_CARTE = { junior: 'Junior', confirmed: 'Confirmé', senior: 'Senior', lead: 'Lead' };
+const FAMILLES_COMPETENCES = { outils: 'Outils', reglementation: 'Réglementation' };
+
+function labelSpecialite(j) {
+  if (j.jev_curation_status !== 'done' || !(j.jev_publishable || {}).specialty) return '';
+  const code = j.jev_specialty;
+  return code && code !== 'autre' ? (SPECIALITES_CARTE[code] || code) : '';
+}
+
+function labelExperience(j) {
+  const publie = (j.jev_publishable || {}).experience;
+  if (j.jev_curation_status === 'done' && publie && j.jev_experience) {
+    return EXPERIENCES_CARTE[j.jev_experience] || j.jev_experience;
+  }
+  if (j.experience_level && j.experience_level !== 'not_specified') return j.experience_level;
+  return '';
+}
+
+function labelSalaire(j) {
+  const publie = (j.jev_publishable || {}).salaire === true;
+  return publie && j.jev_salaire_libelle ? j.jev_salaire_libelle : '';
+}
+
+function badge(libelle, valeur) {
+  const titre = echapper(libelle + ' : ' + valeur);
+  return '<span class="card-fact" title="' + titre + '" aria-label="' + titre + '">'
+    + '<span class="card-fact-value">' + echapper(valeur) + '</span></span>';
+}
+
+// Seule la localisation porte une icône : « CDI » ou « Senior » se lisent seuls.
+function badgeLieu(ville) {
+  if (!ville) return '';
+  const titre = echapper('Localisation : ' + ville);
+  return '<span class="card-fact card-fact--loc" title="' + titre + '" aria-label="' + titre + '">'
+    + '<span class="ms">location_on</span>'
+    + '<span class="card-fact-value">' + echapper(ville) + '</span></span>';
+}
+
+function bandeauMetadonnees(j) {
+  const contrat = CONTRATS[j.contract_type] || j.contract_type || 'Non précisé';
+  const exp = labelExperience(j);
+  const sal = labelSalaire(j);
+  return '<div class="cm">' + badgeLieu(j.ville) + badge('Contrat', contrat)
+    + (exp ? badge('Expérience', exp) : '') + (sal ? badge('Salaire', sal) : '') + '</div>';
+}
+
+function pucesCompetences(j, max) {
+  const s = j.skills || {};
+  return Object.keys(FAMILLES_COMPETENCES)
+    .flatMap((f) => (s[f] || []).map((l) => '<span class="tag tm">' + echapper(l) + '</span>'))
+    .slice(0, max).join('');
+}
+
+// Tuile de logo : la même cascade que le board — le logo publié par la source,
+// puis la table partagée, puis les initiales sur la teinte de l'employeur.
+// Le repli existe toujours : jamais de trou.
+function tuileLogo(co) {
+  const fond = echapper(couleur(co.slug || ''));
+  const inits = echapper(initiales(co.name || '?'));
+  const logo = co.logo_url
+    || (annuaire && annuaire.logoEntreprise ? annuaire.logoEntreprise(co.slug) : null);
+  if (!logo) return '<div class="clogo" style="background:' + fond + ';">' + inits + '</div>';
+  return '<div class="clogo" style="background:' + fond + ';">'
+    + '<span>' + inits + '</span>'
+    + '<img src="' + echapper(logo) + '" alt="Logo ' + echapper(co.name || '') + '" '
+    + 'onerror="this.remove()" onload="this.previousElementSibling.remove()"/>'
+    + '</div>';
+}
+
+// ── Navigation ─────────────────────────────────────────────────────────────
+// Le bouton d'action du bandeau mène au bloc de contact, qui vit plus bas.
+function allerContact() {
+  const bloc = document.getElementById('contact');
+  if (bloc) bloc.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// Les filtres de l'accueil ne filtrent pas : ils ouvrent le board sur le
+// critère choisi. Le board sait déjà lire ces paramètres dans l'adresse.
+function versBoard(param, valeur) {
+  location.href = valeur
+    ? '/job-board.html?' + param + '=' + encodeURIComponent(valeur)
+    : '/job-board.html';
+}
+
+// Menu burger — même comportement que sur le board.
+function toggleBurger() {
+  const menu = document.getElementById('burger-menu');
+  const btn = document.getElementById('btn-burger');
+  const ouvert = menu.classList.toggle('open');
+  btn.classList.toggle('open', ouvert);
+  document.body.style.overflow = ouvert ? 'hidden' : '';
+}
+function closeBurger() {
+  document.getElementById('burger-menu').classList.remove('open');
+  document.getElementById('btn-burger').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeBurger(); });
+
 const initiales = (nom) => (annuaire ? annuaire.initiales(nom) : '');
 
 // ── Les chiffres de la collecte ────────────────────────────────────────────
@@ -518,27 +739,22 @@ async function chargerOffres() {
 
     liste.innerHTML = offres.map((j) => {
       const co = j.companies || {};
-      const nom = co.name || j.source || '';
-      const ville = j.ville || j.city || '';
-      const contrat = CONTRATS[j.contract_type] || '';
-      const spec = SPECIALITES[j.jev_specialty] || '';
       const quand = (annuaire && annuaire.publicationLabel)
         ? annuaire.publicationLabel(j.source_published_at) : '';
-      // Badges rectangulaires — même vocabulaire que le board : ville, contrat, spécialité.
-      const badges = [];
-      if (ville) badges.push(`<span class="card-fact card-fact--loc"><span class="card-fact-value">${echapper(ville)}</span></span>`);
-      if (contrat) badges.push(`<span class="card-fact"><span class="card-fact-value">${echapper(contrat)}</span></span>`);
+      const specialite = labelSpecialite(j);
+      const etiquettes = (specialite ? '<span class="tag tn">' + echapper(specialite) + '</span>' : '')
+        + pucesCompetences(j, 3);
       return `
         <a class="oc" href="/offre/${encodeURIComponent(j.slug || '')}">
-          <div class="ent">
-            <div class="sigle" style="background:${echapper(couleur(co.slug || j.source))}">${echapper(initiales(nom))}</div>
+          <div class="ct">
+            ${tuileLogo(co)}
             <div class="ci">
               <div class="ctitle">${echapper(j.title)}</div>
-              <div class="soc">${echapper(nom)}</div>
+              <div class="csub">${echapper(co.name || j.source || '')}</div>
             </div>
           </div>
-          <div class="cm">${badges.join('')}</div>
-          ${spec ? `<div class="ctags"><span class="tag tn">${echapper(spec)}</span></div>` : ''}
+          ${bandeauMetadonnees(j)}
+          ${etiquettes ? '<div class="ctags">' + etiquettes + '</div>' : ''}
           <div class="cdate">${echapper(quand)}</div>
         </a>`;
     }).join('');
@@ -568,5 +784,28 @@ dessinerEmployeurs();
 chargerOffres();
 chargerChiffres();
 </script>
+<!-- ══ TIROIR DU MENU (téléphone) ══ -->
+<div id="burger-menu">
+  <div class="bm-overlay" onclick="closeBurger()"></div>
+  <div class="bm-panel">
+    <div class="bm-header">
+      <span class="bm-logo">Claim!</span>
+      <button class="bm-close" onclick="closeBurger()" aria-label="Fermer">
+        <span class="ms" style="font-size:18px;">close</span>
+      </button>
+    </div>
+    <nav class="bm-nav">
+      <a href="/" class="on" onclick="closeBurger()"><span class="ms">home</span>Accueil</a>
+      <a href="/job-board.html" onclick="closeBurger()"><span class="ms">work</span>Offres d'emploi</a>
+      <a href="claim-entreprises.html" onclick="closeBurger()"><span class="ms">business</span>Entreprises</a>
+      <a href="claim-observatoire.html" onclick="closeBurger()"><span class="ms">bar_chart</span>Observatoire de l'assurance</a>
+    </nav>
+    <div class="bm-footer">
+      <button class="btn-cta" onclick="closeBurger(); allerContact()">Contactez-nous</button>
+    </div>
+  </div>
+</div>
+
+
 </body>
 </html>
