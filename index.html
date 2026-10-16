@@ -67,7 +67,8 @@
   .hero .sub { color: var(--gris); font-size: 1.05rem; max-width: 62ch; margin: 0 0 1.75rem; }
   .hero .sub strong { color: var(--encre); font-weight: 700; }
 
-  .sbar { display: flex; align-items: center; background: #fff; border-radius: 9999px;
+  /* Barre de recherche — reprise du board, dimensions adaptées à l'accueil. */
+  .sbar { display: flex; align-items: center; background: #fff; border-radius: 14px;
           padding: .3rem; max-width: 50rem; box-shadow: 0 1px 4px rgba(0, 0, 0, .07);
           margin-bottom: .75rem; }
   .sf { flex: 1; display: flex; align-items: center; padding: 0 1rem; gap: .45rem; min-width: 0; }
@@ -77,14 +78,14 @@
   .sf input::placeholder { color: rgba(108, 121, 124, .6); }
   .sdiv { width: 1px; height: 1.4rem; background: var(--bord-doux); flex-shrink: 0; }
   .bsrch { background: linear-gradient(135deg, #006876, #00bcd4); color: #fff; border: none;
-           cursor: pointer; padding: .62rem 1.6rem; border-radius: 9999px; font-weight: 700;
+           cursor: pointer; padding: .5rem 1.5rem; border-radius: 9999px; font-weight: 700;
            font-size: .925rem; font-family: inherit; white-space: nowrap; }
   .bsrch:hover { filter: brightness(1.08); }
 
-  .lignechips { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; }
-  .chip { display: inline-flex; align-items: center; gap: .3rem; padding: .3rem .8rem;
-          border-radius: 9999px; background: #fff; color: var(--gris); font-size: .78rem;
-          font-weight: 600; border: 1px solid var(--bord-doux); text-decoration: none;
+  .lignechips { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+  .chip { display: inline-flex; align-items: center; gap: .3rem; padding: .38rem .85rem;
+          border-radius: 9999px; background: #fff; color: var(--gris); font-size: .925rem;
+          font-weight: 500; border: 1px solid var(--bord-doux); text-decoration: none;
           transition: background .15s, color .15s, border-color .15s; }
   .chip:hover { background: #e8f4f6; color: var(--teal); }
   .etiquette { font-size: .68rem; font-weight: 700; color: var(--gris-doux);
@@ -110,25 +111,35 @@
 
   /* ── OFFRES ── */
   .grille { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--gouttiere); }
-  .oc { background: #fff; border-radius: .75rem; box-shadow: var(--ombre); padding: 1.15rem 1.25rem;
+  .oc { background: #fff; border-radius: .625rem; padding: .875rem;
         display: flex; flex-direction: column; text-decoration: none; color: inherit;
-        border: 1px solid transparent; transition: transform .15s, box-shadow .15s; }
-  .oc:hover { transform: translateY(-2px); box-shadow: 0 2px 4px rgba(25, 44, 52, .07), 0 10px 24px rgba(25, 44, 52, .08); }
-  .oc .ent { display: flex; align-items: center; gap: .6rem; margin-bottom: .7rem; }
-  .sigle { width: 34px; height: 34px; border-radius: .5rem; flex-shrink: 0; display: flex;
+        cursor: pointer; transition: transform .15s, box-shadow .15s;
+        border: 1.5px solid #d5dfe3; box-shadow: 0 2px 6px rgba(25,44,52,.08), 0 5px 14px rgba(25,44,52,.04); }
+  .oc:hover { transform: translateY(-1px); border-color: #a9c6cc;
+              box-shadow: 0 5px 16px rgba(25,44,52,.14); }
+  .oc .ent { display: flex; align-items: flex-start; margin-bottom: .45rem; }
+  .sigle { width: 38px; height: 38px; border-radius: 6px; flex-shrink: 0; display: flex;
            align-items: center; justify-content: center; color: #fff; font-weight: 900;
-           font-size: 11px; letter-spacing: -.02em; }
-  .oc .soc { font-size: .82rem; font-weight: 600; color: var(--gris); }
-  .oc h3 { font-size: 1rem; font-weight: 700; line-height: 1.35; margin: 0 0 .7rem; }
-  .oc:hover h3 { color: var(--teal); }
-  .pastilles { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: auto; }
-  .pastille { padding: 3px 10px; border: 1px solid #dce5e9; border-radius: 9999px;
-              background: #f5f8f9; font-size: .75rem; font-weight: 600; color: #24363d; }
-  .p-ville { background: var(--teal-clair); border-color: var(--teal-bord); color: #00545f; }
-  .p-spec { background: #ffdcc2; border-color: #f0c8a6; color: #6d3a00; }
-  .oc .fraicheur { margin-top: .8rem; padding-top: .7rem; border-top: 1px solid #f0f4f6;
-                   font-size: .75rem; color: var(--gris-doux); display: flex;
-                   justify-content: space-between; align-items: center; }
+           font-size: 9.5px; letter-spacing: -.02em; }
+  .oc .ci { flex: 1; min-width: 0; padding-left: .5rem; }
+  .oc .ctitle { font-size: .875rem; font-weight: 700; color: var(--encre); line-height: 1.35;
+                white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .oc .soc { font-size: .75rem; color: var(--gris); font-weight: 500;
+             white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .oc:hover .ctitle { color: var(--teal); }
+  .oc .cm { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin: 9px 0; }
+  .card-fact { display: inline-flex; align-items: center; flex: 0 0 auto; max-width: 100%;
+               padding: 2px 8px; border: 1px solid #dce5e9; border-radius: 4px; background: #f5f8f9; }
+  .card-fact-value { color: #24363d; font-size: 12px; font-weight: 600; line-height: 16px; }
+  .card-fact--loc { background: #e9f6f8; border-color: #bfe2e8; }
+  .card-fact--loc .card-fact-value { color: #00545f; }
+  .oc .ctags { display: flex; flex-wrap: wrap; gap: 3px; }
+  .tag { display: inline-block; padding: 3px 6px; border-radius: 3px; font-size: 9px;
+         font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+  .tn { background: #e9f6f8; border: 1px solid #bfe2e8; color: #00545f; }
+  .tm { background: #a1efff; color: #004e59; }
+  .oc .cdate { margin-top: auto; padding-top: .7rem; border-top: 1px solid #f0f4f6;
+               font-size: 9px; color: #6c797c; font-weight: 500; }
   .vide { grid-column: 1 / -1; background: #fff; border-radius: .75rem; padding: 1.4rem 1.25rem;
           color: var(--gris); font-size: .9rem; box-shadow: var(--ombre); }
 
@@ -511,19 +522,22 @@ async function chargerOffres() {
       const spec = SPECIALITES[j.jev_specialty] || '';
       const quand = (annuaire && annuaire.publicationLabel)
         ? annuaire.publicationLabel(j.source_published_at) : '';
+      // Badges rectangulaires — même vocabulaire que le board : ville, contrat, spécialité.
+      const badges = [];
+      if (ville) badges.push(`<span class="card-fact card-fact--loc"><span class="card-fact-value">${echapper(ville)}</span></span>`);
+      if (contrat) badges.push(`<span class="card-fact"><span class="card-fact-value">${echapper(contrat)}</span></span>`);
       return `
         <a class="oc" href="/offre/${encodeURIComponent(j.slug || '')}">
           <div class="ent">
             <div class="sigle" style="background:${echapper(couleur(co.slug || j.source))}">${echapper(initiales(nom))}</div>
-            <div class="soc">${echapper(nom)}</div>
+            <div class="ci">
+              <div class="ctitle">${echapper(j.title)}</div>
+              <div class="soc">${echapper(nom)}</div>
+            </div>
           </div>
-          <h3>${echapper(j.title)}</h3>
-          <div class="pastilles">
-            ${ville ? `<span class="pastille p-ville">${echapper(ville)}</span>` : ''}
-            ${contrat ? `<span class="pastille">${echapper(contrat)}</span>` : ''}
-            ${spec ? `<span class="pastille p-spec">${echapper(spec)}</span>` : ''}
-          </div>
-          <div class="fraicheur"><span>${echapper(quand)}</span><span>Voir l'annonce →</span></div>
+          <div class="cm">${badges.join('')}</div>
+          ${spec ? `<div class="ctags"><span class="tag tn">${echapper(spec)}</span></div>` : ''}
+          <div class="cdate">${echapper(quand)}</div>
         </a>`;
     }).join('');
   } catch (e) {
