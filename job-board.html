@@ -28,29 +28,19 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
    --colonne-liste     la colonne des offres, à gauche.
    --enveloppe-lecture l'enveloppe de la page d'offre, marges internes
                        comprises (46 rem). C'est la largeur de lecture.
-   --enveloppe-large   la même, une fois la place partagée avec le rail.
-   --rail-largeur      le rail quand la place est comptée au plus juste.
-   --rail-large        le rail une fois la place partagée.
+   --enveloppe-large   la même, une fois la place pour la prendre.
    --marge-page        les marges de page. Elles valent 100 px à 1 920 px de
                        large — la place exacte à répartir — et absorbent tout
                        le surplus au-delà. Le bloc garde donc 1 720 px de
-                       large : ni la fiche ni le rail ne s'étirent sans fin.
+                       large : ni la colonne ni la fiche ne s'étirent sans fin.
 
-   La répartition des 412 px perdus : 100 px de marge de chaque côté, puis
-   106 px pour la fiche comme pour le rail. Soit, à 1 920 px de large :
-   100 + 420 + 32 + 842 + 32 + 394 + 100 = 1 920. */
+   A 1 920 px : 100 + 420 + 32 + 842 + 100 = 1 494, et la fiche prend le reste
+   jusqu'a son plafond. */
 :root {
   --colonne-liste: 420px;
   --enveloppe-lecture: 46rem;   /* 736 px : la largeur de lecture */
   --enveloppe-large: 842px;     /* + 106 px quand la place existe */
-  --rail-largeur: 18rem;        /* 288 px minimum */
-  --rail-large: 394px;          /* + 106 px quand la place existe */
   --marge-page: max(2rem, calc((100vw - 1720px) / 2));
-  /* La gouttière de la fiche : une seule distance, portée partout où deux
-     blocs se touchent — entre la liste et la fiche, entre la fiche et le rail,
-     et entre le rail et le bord de défilement du volet. 1,6 rem, soit 20 % de
-     moins que les 2 rem d'origine : le bloc se resserre, l'air reste. */
-  --gouttiere-fiche: 1.6rem;
 }
 
 /* Header */
@@ -135,16 +125,10 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
   padding: 1.5rem 1.25rem 4rem;
 }
 
-/* ── RAIL LATÉRAL — état par défaut ──
-   Ces deux déclarations vivent ici, avant les media queries, et non avec les
-   règles du rail plus bas : à spécificité égale, c'est la dernière règle du
-   fichier qui gagne. Les poser après aurait annulé la mise en page de bureau
-   (« display: contents » l'emportait sur « display: block »).
-
-   Sur téléphone, le rail reste donc masqué : la fiche y occupe tout l'écran,
-   et l'empilement n'aurait plus de fin. */
+/* Enveloppe de la fiche : au telephone, elle ne sert qu'a porter le padding
+   du bloc 769 px — sans 'display: contents', elle ajouterait une boite en trop
+   autour de la fiche et l'espacement serait doublé. */
 .dc-wrap { display: contents; }
-.rail { display: none; }
 
 /* ── EN-TÊTE STICKY DU DÉTAIL ── */
 /* ── CARDS ── */
@@ -517,11 +501,10 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
   body.fiche-defilee #hero { max-height: 0; opacity: 0; padding-top: 0; padding-bottom: 0;
     border-bottom-width: 0; }
 
-  /* ── LA FICHE ET LE RAIL SONT DEUX ZONES ──
-     Deux cartes blanches posées sur le champ gris, séparées par la gouttière.
-     C'est la délimitation du modèle : elle se voit sans qu'on trace un trait
-     entre les deux. Le champ reprend le gris du bandeau de recherche, si bien
-     que le haut de page et le fond du volet ne font qu'une seule teinte.
+  /* ── LA FICHE EST UNE CARTE SUR LE CHAMP GRIS ──
+     Le champ reprend le gris du bandeau de recherche, si bien que le haut de
+     page et le fond du volet ne font qu'une seule teinte. C'est la délimitation
+     du modèle : la fiche se détache sans qu'on trace un trait autour.
 
      Le volet reste blanc sur téléphone : la fiche y occupe tout l'écran, il
      n'y a rien à délimiter. */
@@ -545,112 +528,6 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
   #hero { padding-left: var(--marge-page); padding-right: var(--marge-page); }
 }
 
-/* ── RAIL LATÉRAL DE LA FICHE ──
-   Colonne de droite de la fiche : qui recrute, et le geste pour en savoir
-   plus. Elle ne parle que de cette offre — rien qui navigue ailleurs.
-
-   Il ne tient à côté de la fiche que lorsque la place existe : la colonne des
-   offres (420 px) laisse alors assez pour la fiche et le rail (voir la règle
-   de mise en page, plus bas). En dessous, il se replie sous la fiche. Sur
-   téléphone il reste masqué : la fiche y occupe tout l'écran.
-
-   Ce bloc de règles est repris à l'identique dans api/offre.js — la fiche
-   doit se lire pareil, qu'on arrive par la liste ou par une adresse d'offre. */
-/* La carte du rail : un seul bloc, de l'employeur au bouton. Rien ne se
-   succède — les filets restent au cas où un second bloc reviendrait. */
-.rail-bloc { padding: 1.1rem 1.25rem; border-top: 1px solid #eef3f5; }
-.rail-bloc:first-child { border-top: none; }
-
-/* L'employeur : qui recrute, et où le retrouver. */
-.rail-entete { display: flex; align-items: center; gap: .625rem; margin-bottom: .75rem; }
-.rail-logo { width: 40px; height: 40px; border-radius: .5rem; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  color: #fff; font-weight: 900; font-size: 11px; letter-spacing: -.02em; overflow: hidden; }
-.rail-nom { margin: 0; font-size: .95rem; font-weight: 700; color: #191c1d; line-height: 1.3; }
-.rail-sous { margin: .1rem 0 0; font-size: .78rem; font-weight: 500; color: #515f78; }
-.rail-faits { margin: 0 0 .75rem; padding: 0; list-style: none; font-size: .8rem; color: #3c494c; }
-.rail-faits li { padding: .3rem 0; border-top: 1px solid #f0f4f6; }
-.rail-faits li:first-child { border-top: none; }
-
-/* Le geste du rail : la page Entreprises, avec le repère déjà posé. */
-.rail-btn { display: block; padding: .55rem .75rem; border: 1px solid #bfe2e8; border-radius: .5rem;
-  background: #fff; color: #006876; font-size: .82rem; font-weight: 700;
-  text-align: center; text-decoration: none; }
-.rail-btn:hover { background: #e9f6f8; }
-
-/* ── SOUS 1 280 px, LE RAIL SE REPLIE SOUS LA FICHE ──
-   Sous le seuil des trois colonnes, le rail disparaissait purement et
-   simplement, sans que rien ne le signale : une mise a l'echelle de 125 % sur
-   un ecran de 1 920 px suffisait a le faire s'evaporer. Le lecteur perdait
-   l'employeur sans jamais savoir qu'il existait.
-
-   Il ne s'efface plus. Il passe sous la fiche, a la meme largeur de lecture,
-   et la page s'allonge : l'offre d'abord, son employeur ensuite. C'est l'ordre
-   de lecture naturel, et il ne depend plus de la largeur de la fenetre.
-
-   Seul le telephone le garde masque (768 px et moins) : la fiche y occupe tout
-   l'ecran, et l'empilement n'y aurait plus de fin. */
-@media (min-width: 769px) and (max-width: 1279.98px) {
-  .rail {
-    display: block;
-    max-width: var(--enveloppe-lecture);
-    margin: 1.25rem auto 0;
-    border: 1px solid #e2e9ec;
-    border-radius: .75rem;
-    background: #fff;
-    box-shadow: 0 1px 2px rgba(25, 44, 52, .06), 0 4px 14px rgba(25, 44, 52, .05);
-    overflow: hidden;
-  }
-}
-
-@media (min-width: 1280px) {
-  /* ── LA FICHE ET LE RAIL SE PARTAGENT LA PLACE ──
-     Chacun grandit à partir de sa largeur de lecture, à parts égales, sans
-     jamais dépasser sa largeur haute : 842 px pour la fiche, 394 px pour le
-     rail. À 1 920 px, la fiche fait 836 px et le rail 388 px — les deux ont
-     grandi d'une centaine de pixels.
-
-     Le surplus de la fenêtre part dans les marges de page. Le bloc garde donc
-     1 720 px de large : ni la fiche ni le rail ne s'étirent sans fin.
-
-     La gouttière est la même partout où deux blocs se touchent : entre la
-     liste et la fiche, entre la fiche et le rail — et entre le rail et le bord
-     de défilement du volet, que le rail ne touche plus. */
-  .dc-wrap {
-    display: flex;
-    align-items: flex-start;
-    gap: var(--gouttiere-fiche);
-    padding: 1.25rem var(--gouttiere-fiche) 3rem var(--gouttiere-fiche);
-  }
-  /* La fiche quitte son centrage : elle grandit dans la place laissée. */
-  .dc {
-    flex-grow: 1;
-    flex-shrink: 1;
-    flex-basis: var(--enveloppe-lecture);
-    max-width: var(--enveloppe-large);
-    min-width: 32rem;
-    margin: 0;
-  }
-  /* La bande de recentrage n'a plus lieu d'être : le rail occupe la place. */
-  .pr { margin-right: 0; }
-  /* Le rail est une carte, comme la fiche en face : une seule, dont les blocs
-     se succèdent, séparés par un filet. */
-  .rail {
-    flex-grow: 1;
-    flex-shrink: 1;
-    flex-basis: var(--rail-largeur);
-    max-width: var(--rail-large);
-    min-width: 12.5rem;
-    display: block;
-    position: sticky;
-    top: 1.25rem;
-    border: 1px solid #e2e9ec;
-    border-radius: .75rem;
-    background: #fff;
-    box-shadow: 0 1px 2px rgba(25, 44, 52, .06), 0 4px 14px rgba(25, 44, 52, .05);
-    overflow: hidden;
-  }
-}
 </style>
 
 <!-- Balises SEO : titre enrichi, description, URL canonique, partage social -->
@@ -810,7 +687,7 @@ const COMPANY_QUERY_ALIASES = {
   alan: 'alan',
 };
 // Teinte et initiales d'un employeur. La table vit dans
-// assets/companies-data.js, avec les profils du rail : la même entreprise doit
+// assets/companies-data.js, avec ses profils : la même entreprise doit
 // porter la même couleur sur la carte, sur la fiche et sur la page d'offre.
 function companyColor(slug) {
   return (typeof CLAIM_ENTREPRISES !== 'undefined') ? CLAIM_ENTREPRISES.couleurEntreprise(slug) : '#006876';
@@ -1744,7 +1621,6 @@ async function renderDetail(id) {
           ${j.source_url ? `Source : <a href="${escapeHtml(j.source_url)}" rel="nofollow noopener" target="_blank">l'annonce d'origine</a>.` : ''}
         </div>
       </div>
-      ${railOffreHtml(j)}
       </div>
     `;
   } catch (e) {
@@ -1758,51 +1634,6 @@ async function renderDetail(id) {
     `;
     console.error('[CLAIM!] renderDetail error:', e);
   }
-}
-
-// ── RAIL LATÉRAL DE LA FICHE ───────────────────────────────────────────────
-// Colonne de droite, réservée au bureau large (voir la règle de mise en page).
-// Il dit l'essentiel : qui recrute, et le geste pour en savoir plus. Rien de ce
-// qui navigue ailleurs — le rail informe, il ne double pas le site.
-//
-// Il s'arrête au bouton. Les blocs « À propos », « Avantages », « Offres
-// similaires » et le pied ont été retirés, ainsi que le siège et les liens
-// sociaux : la page Entreprises prend le relais.
-//
-// L'API ne fournit de la société que son nom, son type et son site. Le reste
-// vient d'assets/companies-data.js — illustratif tant que les pages
-// d'entreprise ne sont pas publiées.
-function railOffreHtml(j) {
-  const co = j.companies || {};
-  const annuaire = (typeof CLAIM_ENTREPRISES !== 'undefined') ? CLAIM_ENTREPRISES : null;
-  const profil = annuaire ? annuaire.profilEntreprise(co.slug || j.source) : null;
-
-  const nom = (profil && profil.nom) || co.name || j.source || '';
-  const typeLibelle = (profil && profil.type && annuaire)
-    ? (annuaire.TYPES[profil.type] || profil.type) : '';
-  const sousTitre = [typeLibelle, profil && profil.secteur].filter(Boolean).join(' · ');
-
-  // Seul l'effectif reste sous le nom.
-  const faits = [];
-  if (profil && profil.taille) faits.push(`<li>${escapeHtml(profil.taille)}</li>`);
-
-  // Les pages individuelles d'entreprise ne sont pas encore publiées : le
-  // bouton vise la page Entreprises, avec le repère déjà posé pour la suite.
-  const adresseEntreprise = `claim-entreprises.html?entreprise=${encodeURIComponent(co.slug || j.source || '')}`;
-
-  return `<aside class="rail" aria-label="L'employeur qui recrute">
-    <section class="rail-bloc">
-      <div class="rail-entete">
-        <div class="rail-logo" style="background:${escapeHtml(companyColor(co.slug))}">${escapeHtml(companyInitials(nom))}</div>
-        <div>
-          <p class="rail-nom">${escapeHtml(nom)}</p>
-          ${sousTitre ? `<p class="rail-sous">${escapeHtml(sousTitre)}</p>` : ''}
-        </div>
-      </div>
-      ${faits.length ? `<ul class="rail-faits">${faits.join('')}</ul>` : ''}
-      <a class="rail-btn" href="${escapeHtml(adresseEntreprise)}">Découvrir l'entreprise</a>
-    </section>
-  </aside>`;
 }
 
 // ── Mobile navigation ──────────────────────────────────────────────────────

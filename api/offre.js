@@ -12,12 +12,9 @@
 const API_BASE = process.env.API_URL || 'https://claim-api-production-06b3.up.railway.app/api/v1';
 const SITE_URL = process.env.SITE_URL || 'https://claimyourjob.fr';
 
-// Profils d'entreprise du rail latéral : présentation, avantages, liens
-// sociaux. Même source que le job board — la fiche se lit pareil, qu'on
-// arrive par la liste ou par une adresse d'offre.
-//
-// La page ne doit pas tomber si ce fichier manque au déploiement : sans lui,
-// le rail se réduit à ce que l'API publie et le reste de la page tient.
+// Profils d'entreprise : présentation, avantages, liens sociaux. Même source
+// que le job board. La page ne doit pas tomber si ce fichier manque au
+// déploiement : sans lui, la page se lit avec ce que l'API publie.
 let ANNUAIRE = null;
 try {
   ANNUAIRE = require('../assets/companies-data.js');
@@ -87,48 +84,6 @@ function blocSalaire(job) {
   if (Number.isFinite(bas)) valeur.minValue = bas;
   if (Number.isFinite(haut)) valeur.maxValue = haut;
   return { '@type': 'MonetaryAmount', currency: 'EUR', value: valeur };
-}
-
-/* ── Rail latéral ──────────────────────────────────────────────────────────
-   Même contenu, mêmes règles de style et même vocabulaire que le rail de la
-   fiche du job board : le lecteur ne doit pas changer de page en changeant
-   d'adresse.
-
-   Il s'arrête au bouton. Les blocs « À propos », « Avantages », « Offres
-   similaires » et le pied ont été retirés, ainsi que le siège et les liens
-   sociaux. La page Entreprises prend le relais ; ce qui vient de l'API est
-   repris tel quel, ce qui vient de l'annuaire est illustratif tant que les
-   pages d'entreprise ne sont pas publiées. */
-function railOffre(job) {
-  const societe = job.companies || {};
-  const profil = ANNUAIRE ? ANNUAIRE.profilEntreprise(societe.slug || job.source) : null;
-
-  const nom = (profil && profil.nom) || societe.name || job.source || '';
-  const typeLibelle = (profil && profil.type && ANNUAIRE)
-    ? (ANNUAIRE.TYPES[profil.type] || profil.type) : '';
-  const sousTitre = [typeLibelle, profil && profil.secteur].filter(Boolean).join(' · ');
-
-  // Seul l'effectif reste sous le nom.
-  const faits = [];
-  if (profil && profil.taille) faits.push(`<li>${echapper(profil.taille)}</li>`);
-
-  const adresseEntreprise = `/claim-entreprises.html?entreprise=${encodeURIComponent(societe.slug || job.source || '')}`;
-  const teinte = ANNUAIRE ? ANNUAIRE.couleurEntreprise(societe.slug) : '#006876';
-  const sigle = ANNUAIRE ? ANNUAIRE.initiales(nom) : '';
-
-  return `<aside class="rail" aria-label="L'employeur qui recrute">
-    <section class="rail-bloc">
-      <div class="rail-entete">
-        <div class="rail-logo" style="background:${echapper(teinte)}">${echapper(sigle)}</div>
-        <div>
-          <p class="rail-nom">${echapper(nom)}</p>
-          ${sousTitre ? `<p class="rail-sous">${echapper(sousTitre)}</p>` : ''}
-        </div>
-      </div>
-      ${faits.length ? `<ul class="rail-faits">${faits.join('')}</ul>` : ''}
-      <a class="rail-btn" href="${echapper(adresseEntreprise)}">Découvrir l'entreprise</a>
-    </section>
-  </aside>`;
 }
 
 async function construire(job, urlCanonique) {
@@ -219,9 +174,8 @@ async function construire(job, urlCanonique) {
     view_context:     'standalone',
   };
 
-  // Rail latéral : qui recrute, et le geste pour en savoir plus. Aucun
-  // aller-retour vers l'API — la page n'attend que sa propre offre.
-  const rail = railOffre(job);
+  // La page ne depend que de sa propre offre : aucun aller-retour vers l'API
+  // au-dela de l'annonce elle-meme.
 
   const html = `<!DOCTYPE html>
 <html lang="fr">
@@ -243,7 +197,7 @@ ${societe.logo_url
 <meta name="twitter:card" content="summary_large_image">
 <script type="application/ld+json">${JSON.stringify(offre)}</script>
 <style>
- :root { --teal:#006876; --encre:#191c1d; --gris:#515f78; --rail-largeur:18rem; --rail-large:394px; --gouttiere-fiche:1.6rem; }
+ :root { --teal:#006876; --encre:#191c1d; --gris:#515f78; }
  * { box-sizing:border-box; }
  body { margin:0; font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; color:var(--encre); line-height:1.65; }
  .enveloppe { max-width:46rem; margin:0 auto; padding:1.5rem 1.25rem 4rem; }
@@ -269,41 +223,9 @@ ${societe.logo_url
  .pied { margin-top:2.5rem; padding-top:1.2rem; border-top:1px solid #e6edf0; font-size:.85rem; color:var(--gris); }
  .pied a { color:var(--teal); font-weight:600; }
 
- /* ── RAIL LATÉRAL ──
-    Mêmes règles que le rail de la fiche du job board (voir
-    job-board.html) : la fiche doit se lire pareil, qu'on arrive par la
-    liste ou par cette adresse.
-
-    Ici la colonne des offres n'existe pas : le rail tient donc dès 1 120 px,
-    quand le board attend 1 280 px. En dessous, il se replie sous la fiche. */
- .page { display: grid; grid-template-columns: minmax(0, 1fr); }
- .rail { display: none; }
-
- /* La carte du rail : un seul bloc, de l'employeur au bouton. Rien ne se
-    succède — les filets restent au cas où un second bloc reviendrait. */
- .rail-bloc { padding:1.1rem 1.25rem; border-top:1px solid #eef3f5; }
- .rail-bloc:first-child { border-top:none; }
-
- /* L'employeur : qui recrute, et où le retrouver. */
- .rail-entete { display: flex; align-items: center; gap: .625rem; margin-bottom: .75rem; }
- .rail-logo { width: 40px; height: 40px; border-radius: .5rem; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  color: #fff; font-weight: 900; font-size: 11px; letter-spacing: -.02em; overflow: hidden; }
- .rail-nom { margin: 0; font-size: .95rem; font-weight: 700; color: var(--encre); line-height: 1.3; }
- .rail-sous { margin: .1rem 0 0; font-size: .78rem; font-weight: 500; color: var(--gris); }
- .rail-faits { margin: 0 0 .75rem; padding: 0; list-style: none; font-size: .8rem; color: #3c494c; }
- .rail-faits li { padding: .3rem 0; border-top: 1px solid #f0f4f6; }
- .rail-faits li:first-child { border-top: none; }
-
- .rail-btn { display: block; padding: .55rem .75rem; border: 1px solid #bfe2e8; border-radius: .5rem;
-  background: #fff; color: var(--teal); font-size: .82rem; font-weight: 700;
-  text-align: center; text-decoration: none; }
- .rail-btn:hover { background: #e9f6f8; }
-
- /* ── La fiche et le rail sont deux zones ──
-    Deux cartes blanches posées sur le champ gris, séparées par la gouttière.
-    C'est la délimitation du modèle : elle se voit sans qu'on trace un trait
-    entre les deux. */
+ /* ── La fiche est une carte sur le champ gris ──
+    Le volet n'est plus blanc : la fiche se détache, comme sur le board.
+    C'est la délimitation du modèle — elle se voit sans qu'on trace un trait. */
  @media (min-width: 769px) {
   body { background: #f3f4f5; }
   .page { padding: 1.25rem 1.25rem 3rem; }
@@ -314,49 +236,13 @@ ${societe.logo_url
   }
  }
 
- /* ── SOUS 1 120 px, LE RAIL SE REPLIE SOUS LA FICHE ──
-    Meme regle que sur le board : faute de place, le rail ne s'efface pas, il
-    passe sous la fiche. Ici la colonne des offres n'existe pas, le seuil tombe
-    donc plus bas. Seul le telephone le garde masque. */
- @media (min-width: 769px) and (max-width: 1119.98px) {
-  .page { row-gap: 1.25rem; }
-  .rail {
-   display: block;
-   max-width: 46rem;
-   margin: 0 auto;
-   border: 1px solid #e2e9ec;
-   border-radius: .75rem;
-   background: #fff;
-   box-shadow: 0 1px 2px rgba(25, 44, 52, .06), 0 4px 14px rgba(25, 44, 52, .05);
-   overflow: hidden;
-  }
- }
-
  @media (min-width: 1120px) {
   /* Sur cette page, la colonne des offres n'existe pas : rien ne pousse le
-     bloc d'un côté, il se centre. La fiche et le rail prennent les mêmes
-     largeurs hautes que sur le board : la fiche doit se lire pareil. */
-  /* La même gouttière que sur le board : la fiche et le rail ne se touchent
-     pas de plus près selon l'adresse par laquelle on arrive. */
-  .page { display: flex; justify-content: center; align-items: flex-start; gap: var(--gouttiere-fiche);
+     bloc d'un côté, il se centre, et la fiche prend sa largeur haute — la
+     même que sur le board : elle doit se lire pareil partout. */
+  .page { display: flex; justify-content: center; align-items: flex-start;
    padding-left: 2rem; padding-right: 2rem; }
   .enveloppe { flex-grow: 1; flex-shrink: 1; flex-basis: 46rem; max-width: 842px; }
-  /* Le rail est une carte, comme la fiche en face : une seule, dont les blocs
-     se succèdent, séparés par un filet. */
-  .rail {
-   flex-grow: 1;
-   flex-shrink: 1;
-   flex-basis: 18rem;
-   max-width: var(--rail-large);
-   display: block;
-   position: sticky;
-   top: 1.25rem;
-   border: 1px solid #e2e9ec;
-   border-radius: .75rem;
-   background: #fff;
-   box-shadow: 0 1px 2px rgba(25, 44, 52, .06), 0 4px 14px rgba(25, 44, 52, .05);
-   overflow: hidden;
-  }
  }
 </style>
 <!-- Google tag (gtag.js) -->
@@ -382,7 +268,6 @@ ${societe.logo_url
     ${job.source_url ? `Source : <a href="${echapper(job.source_url)}" rel="nofollow noopener" target="_blank" data-sortie="annonce">l'annonce d'origine</a>.` : ''}
   </div>
 </main>
-${rail}
 </div>
 <script>
   (function () {

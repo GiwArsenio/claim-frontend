@@ -91,268 +91,46 @@ assert.ok(declares.includes('PEE') && declares.length <= 6, 'le profil doit alim
 assert.equal(annuaire.publicationLabel(new Date().toISOString()), "publiée aujourd'hui");
 assert.equal(annuaire.publicationLabel(''), '');
 
-/* ── 4. Le rail rendu par le board ─────────────────────────────────────────
-   Le rail s'arrête au bouton « Découvrir l'entreprise ». Au-dessus : le logo,
-   le nom, ce que l'employeur est, et son effectif. Rien d'autre — et surtout
-   pas le siège, les liens sociaux, ni aucun des blocs retirés. */
+/* ── 4. Le rail n'existe plus ────────────────────────────────────────────
+   Retire des deux surfaces le 16/10/2026. Ce test est le contraire de ce
+   qu'il etait : il ne verrouille plus ce que le rail porte, mais ce qu'il
+   ne doit plus laisser derriere lui. Un bloc supprime qui laisse ses
+   regles se reinstalle tout seul. */
 
-function extraireFonction(source, nom) {
-  const debut = source.indexOf('function ' + nom + '(');
-  assert.ok(debut >= 0, `function ${nom} doit exister`);
-  const fin = source.indexOf('\n}', debut) + 2;
-  assert.ok(fin > debut, `function ${nom} doit être fermée`);
-  return source.slice(debut, fin);
-}
-
-const contexte = vm.createContext({
-  CLAIM_ENTREPRISES: annuaire,
-  escapeHtml: (v) => String(v == null ? '' : v).replace(/[&<>"']/g,
-    (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])),
-  companyColor: (s) => annuaire.couleurEntreprise(s),
-  companyInitials: (n) => annuaire.initiales(n),
-});
-vm.runInContext(extraireFonction(board, 'railOffreHtml'), contexte);
-
-function railDe(offreTestee) {
-  contexte.offreTestee = offreTestee;
-  return vm.runInContext('railOffreHtml(offreTestee)', contexte);
-}
-
-const railProfilé = railDe({
-  id: 'j1',
-  title: 'Actuaire ALM',
-  slug: 'actuaire-alm',
-  source_published_at: new Date(Date.now() - 3 * 86400000).toISOString(),
-  description_raw: PRESENTATION,
-  companies: { name: 'AXA France', slug: 'axa' },
-});
-
-// Ce qu'il dit : qui recrute.
-for (const bloc of ['rail-bloc', 'rail-entete', 'rail-logo', 'rail-nom', 'rail-btn']) {
-  assert.ok(railProfilé.includes(bloc), `le rail doit porter « ${bloc} »`);
-}
-assert.ok(railProfilé.includes('AXA France'), "le rail doit nommer l'employeur");
-assert.ok(railProfilé.includes('rail-sous'), "et dire ce que l'employeur est");
-assert.ok(railProfilé.includes("aria-label=\"L'employeur qui recrute\""),
-  "son intitulé doit décrire ce qu'il contient");
-assert.ok(railProfilé.includes('claim-entreprises.html?entreprise=axa'),
-  "« Découvrir l'entreprise » mène à la page Entreprises");
-
-// L'effectif, quand l'annuaire le connaît.
-const profilAxa = annuaire.profilEntreprise('axa');
-if (profilAxa && profilAxa.taille) {
-  assert.ok(railProfilé.includes(profilAxa.taille), "l'effectif connu doit être affiché");
-  assert.ok(railProfilé.includes('rail-faits'), "et rangé avec ses repères");
-}
-
-// Ce qu'il ne dit plus. Le contrat, c'est autant ce qui a disparu que ce qui
-// reste : ces blocs ne doivent pas revenir par une porte de derrière.
-const RETIRES = [
-  ">L'employeur<", 'À propos', 'Avantages', 'Offres similaires',
-  'LinkedIn', 'Site web', 'Siège', 'Recrutement mené',
-  'rail-titre', 'rail-social', 'rail-tag', 'rail-offre', 'rail-pied', 'rail-similaires',
-];
-for (const retire of RETIRES) {
-  assert.ok(!railProfilé.includes(retire), `le rail ne doit plus porter « ${retire} »`);
-}
-
-// Le rail s'arrête au bouton : rien n'est rendu après lui.
-const apres = railProfilé.slice(railProfilé.indexOf('Découvrir l'));
-assert.ok(apres.length > 0, 'le bouton doit être rendu');
-assert.ok(!/<(p|ul|h2|a|div|section)\b/.test(apres), 'rien ne doit suivre le bouton dans le rail');
-
-// Le rail ne lit plus l'annonce : il parle de l'employeur, pas de l'offre.
-// Sans date de publication ni description, le rendu est identique.
-const sansAnnonce = railDe({ id: 'j1', title: 'Actuaire ALM', slug: 'actuaire-alm',
-  companies: { name: 'AXA France', slug: 'axa' } });
-assert.equal(sansAnnonce, railProfilé, "le rail ne dépend plus du texte de l'annonce");
-
-// Le rail informe : il ne propose ni filtre, ni navigation, ni autre liste.
-for (const interdit of ['chip', 'filter', 'nav-links', 'burger', 'Postuler']) {
-  assert.ok(!railProfilé.includes(interdit), `le rail ne doit pas contenir « ${interdit} »`);
-}
-
-// Une offre sans société connue ne doit pas faire tomber le rail.
-const railNu = railDe({ id: 'j2', title: 'Offre', companies: {} });
-assert.ok(railNu.includes('rail-bloc'), 'le rail tient même sans société');
-
-/* ── 5. Le rail apparaît dans les deux surfaces ──────────────────────────── */
-
-assert.ok(board.includes('${railOffreHtml(j)}'), 'la fiche du board doit rendre le rail');
-assert.ok(board.includes('.rail { display: none; }'), 'le rail est masqué par défaut');
-assert.ok(board.includes('display: contents'), 'sans place, le rail ne doit rien changer à la fiche');
-
-assert.ok(offre.includes('railOffre(job)'), "la page d'offre doit rendre le rail");
-assert.ok(offre.includes('${rail}'), "le rail doit être posé dans la page d'offre");
-assert.ok(offre.includes("require('../assets/companies-data.js')"),
-  "la page d'offre partage la source du board");
-
-// Chaque surface a sa fenêtre : le board porte une colonne d'offres de 420 px
-// en plus, la page d'offre non. Le seuil diffère, le comportement non.
-assert.ok(/@media \(min-width: 1280px\)[\s\S]{0,4000}\.rail \{[\s\S]{0,600}display: block/.test(board),
-  'sur le board, le rail s\'affiche quand la colonne et l\'enveloppe tiennent côte à côte');
-assert.ok(/@media \(min-width: 1120px\)[\s\S]{0,4000}\.rail \{[\s\S]{0,600}display: block/.test(offre),
-  'sur la page d\'offre, il tient plus tôt');
-
-// Aucune des deux n'a gardé le code ni le style des blocs retirés : un bloc
-// disparu qui laisse ses règles derrière lui se réinstalle tout seul.
 for (const [nom, source] of [['le board', board], ["la page d'offre", offre]]) {
-  for (const mort of ['offresVoisines', 'remplirOffresSimilaires', 'ouvrirOffreVoisine',
-                      'rail-similaires', 'rail-pied', 'rail-tag', 'rail-social',
-                      'rail-offre', 'rail-titre', 'rail-texte', 'rail-lien']) {
-    assert.ok(!source.includes(mort), `${nom} ne doit plus porter « ${mort} »`);
+  // Ni rendu, ni gabarit.
+  for (const trace of ['railOffreHtml', 'railOffre(', 'class="rail', '<aside class="rail',
+                       '${rail}', 'rail-similaires']) {
+    assert.ok(!source.includes(trace), `${nom} ne doit plus contenir « ${trace} »`);
   }
+  // Ni style : aucune regle du rail ne doit survivre.
+  assert.ok(!/\.rail\s*\{/.test(source), `${nom} : plus aucune regle .rail`);
+  assert.ok(!/\.rail-[a-z-]+\s*\{/.test(source), `${nom} : plus aucune regle .rail-*`);
+  // Ni media query qui l'habillait.
+  assert.ok(!/@media \(min-width: 1280px\)/.test(board), "le seuil des trois colonnes est retire");
+  assert.ok(!/@media \(min-width: 1120px\)[\s\S]{0,4000}\.rail/.test(offre),
+    "la media query du bureau n'habille plus de rail");
+  // Ni variable morte.
+  assert.ok(!/--rail-large/.test(source), `${nom} : plus de variable --rail-large`);
 }
 
-// Le rail est une carte, comme la fiche en face. Les deux surfaces doivent
-// lui donner le même habillage : c'est lui qui délimite les deux zones.
-function carteDuRail(source) {
-  // La carte, et non le « display:none » de base : c'est la règle bureau qui
-  // porte l'habillage, et c'est elle qui doit coïncider entre les surfaces.
-  const regles = [...source.matchAll(/\.rail \{([^}]*)\}/g)].map((m) => m[1]);
-  const carte = regles.find((r) => r.includes('position: sticky'));
-  assert.ok(carte, 'le rail doit être habillé en carte au bureau');
-  const sortie = {};
-  for (const m of carte.matchAll(/([a-z-]+):\s*([^;]+)/g)) sortie[m[1]] = m[2].trim();
-  return sortie;
-}
-for (const source of [board, offre]) {
-  const rail = carteDuRail(source);
-  assert.equal(rail['display'], 'block', 'le rail s\'affiche en bureau large');
-  assert.equal(rail['position'], 'sticky', 'et suit la lecture');
-  assert.equal(rail['background'], '#fff', 'le rail est une carte blanche');
-  assert.equal(rail['border-radius'], '.75rem', 'aux angles de la fiche');
-  assert.ok(rail['box-shadow'], 'il porte la même ombre que la fiche');
-  assert.equal(rail['overflow'], 'hidden', 'ses blocs ne dépassent pas des angles');
-}
-assert.equal(carteDuRail(board)['box-shadow'], carteDuRail(offre)['box-shadow'],
-  'la fiche et le rail se détachent du même gris de la même façon');
-
-
-/* ── 6. Les deux rails portent les mêmes règles ──────────────────────────
-   Le style du rail est écrit deux fois — une page est du HTML, l'autre du
-   JavaScript. Ces règles comparent les valeurs une à une pour qu'aucune ne
-   dérive en silence. */
-const VARIABLES = { '--teal': '#006876', '--encre': '#191c1d', '--gris': '#515f78' };
-const resoudre = (v) => v.replace(/var\((--[a-z]+)\)/g, (_, nom) => VARIABLES[nom] || nom);
-
-function valeurs(source, selecteur) {
+// La fiche, elle, n'a pas bouge : les deux surfaces gardent chacune leur
+// enveloppe, les pastilles et le pied. Ce sont les derniers points qu'elles
+// partagent — le rail etait le reste.
+const PARTAGE = ['.pastilles', '.pastille', '.pied'];
+for (const selecteur of PARTAGE) {
   const motif = selecteur.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*\\{[^}]*\\}';
-  const trouve = source.match(new RegExp(motif));
-  assert.ok(trouve, `${selecteur} doit être défini`);
-  const sortie = {};
-  for (const m of trouve[0].matchAll(/([a-z-]+):\s*([^;]+)/g)) {
-    if (m[1] !== 'border') sortie[m[1]] = resoudre(m[2].trim());
-  }
-  return sortie;
+  assert.ok(board.match(new RegExp(motif)), `${selecteur} doit etre defini sur le board`);
+  assert.ok(offre.match(new RegExp(motif)), `${selecteur} doit etre defini sur la page d'offre`);
 }
 
-// Le rail ne porte plus qu'un bloc : l'employeur et son bouton.
-const SELECTEURS = [
-  '.rail-bloc', '.rail-entete', '.rail-logo', '.rail-nom', '.rail-sous',
-  '.rail-faits', '.rail-btn',
-];
+// La fiche reste une carte blanche, angles arrondis, et son en-tete se fige.
+assert.ok(/\.dc \{[\s\S]{0,300}border-radius: \.75rem;/.test(board),
+  'la fiche reste une carte, angles arrondis');
+assert.ok(/\.d-entete \{[\s\S]{0,400}position: sticky;/.test(board),
+  "et son en-tete se fige toujours au defilement");
+assert.ok(/\.enveloppe \{[\s\S]{0,300}border-radius: \.75rem;/.test(offre),
+  "la page d'offre garde sa carte");
 
-for (const selecteur of SELECTEURS) {
-  const duBoard = valeurs(board, selecteur);
-  const deLaPage = valeurs(offre, selecteur);
-  assert.ok(Object.keys(duBoard).length >= 2, `${selecteur} doit déclarer ses règles`);
-  for (const propriete of Object.keys(duBoard)) {
-    assert.equal(deLaPage[propriete], duBoard[propriete],
-      `${selecteur} → ${propriete} doit être identique sur la fiche et sur la page d'offre`);
-  }
-}
-
-/* ── 7. Le rail ne disparaît jamais faute de place ────────────────────────
-   C'est l'incident du 15/10/2026 : une mise à l'échelle de 125 % ramène un
-   écran de 1 920 px à 1 536 px de large, et le rail — pourtant bien là —
-   passait en « display: none ». Le lecteur perdait l'employeur, ses avantages
-   et les offres voisines sans jamais savoir qu'ils existaient.
-
-   Un contenu écrit ne doit pas s'évaporer parce que la fenêtre est étroite.
-   Sous son seuil, le rail se replie sous la fiche. */
-const repliBoard = board.match(
-  /@media \(min-width: 769px\) and \(max-width: 1279\.98px\) \{\s*\.rail \{([^}]*)\}/);
-assert.ok(repliBoard, 'le board doit replier le rail sous la fiche');
-assert.match(repliBoard[1], /display:\s*block/, 'le rail replié reste visible');
-assert.match(repliBoard[1], /max-width:\s*var\(--enveloppe-lecture\)/,
-  'il reprend la largeur de lecture de la fiche');
-assert.match(repliBoard[1], /margin:\s*1\.25rem auto 0/, 'et se pose sous elle, sur le même axe');
-
-const repliOffre = offre.match(
-  /@media \(min-width: 769px\) and \(max-width: 1119\.98px\) \{\s*\.page \{([^}]*)\}\s*\.rail \{([^}]*)\}/);
-assert.ok(repliOffre, "la page d'offre doit replier le rail sous la fiche");
-assert.match(repliOffre[1], /row-gap:\s*1\.25rem/, 'la gouttière sépare les deux zones');
-assert.match(repliOffre[2], /display:\s*block/, 'le rail replié reste visible');
-assert.match(repliOffre[2], /max-width:\s*46rem/, 'à la largeur de lecture de la fiche');
-assert.match(repliOffre[2], /margin:\s*0 auto/, 'et sur le même axe qu elle');
-
-
-// Pourquoi le seuil s'arrête là, et pas plus bas. Trois colonnes doivent tenir :
-// la colonne des offres, la fiche et le rail. Au seuil, ce que laisse la
-// colonne doit couvrir les deux planchers et leur gouttière — sinon le
-// débordement ne se voit pas sur la page : il se cache dans le volet, qui
-// défile. C'est ce qui est arrivé au premier essai (34 rem + 13 rem + leur
-// gouttière, pour moins de 765 px de place).
-const mediaTroisColonnes = [...board.matchAll(/@media \(min-width: (\d+)px\) \{([\s\S]*?)\n\}/g)]
-  .find((m) => /\.dc-wrap \{[\s\S]*?display: flex/.test(m[2]));
-assert.ok(mediaTroisColonnes, 'la mise en page à trois colonnes doit vivre dans une media query');
-const seuil = Number(mediaTroisColonnes[1]);
-assert.equal(seuil, 1280, 'trois colonnes tiennent à partir de 1 280 px');
-
-const plancher = (selecteur) => {
-  const motif = selecteur.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ' \\{([^}]*)\\}';
-  const regle = mediaTroisColonnes[2].match(new RegExp(motif));
-  assert.ok(regle, `${selecteur} doit poser son plancher dans le bloc à trois colonnes`);
-  const m = regle[1].match(/min-width:\s*([\d.]+)rem/);
-  assert.ok(m, `${selecteur} doit déclarer un plancher en rem`);
-  return Number(m[1]) * 16;
-};
-assert.equal(plancher('.dc'), 512, 'la fiche ne descend pas sous 32 rem');
-assert.equal(plancher('.rail'), 200, 'le rail ne descend pas sous 12,5 rem');
-
-// --marge-page vaut son minimum (2 rem) tant que la fenêtre est sous 1 720 px.
-// Trois gouttières sont à retirer de la place : celle de gauche, celle du
-// milieu, et celle de droite — le rail ne colle plus au bord de défilement.
-const colonne = Number(board.match(/--colonne-liste: (\d+)px/)[1]);
-const gouttiere = Number(board.match(/--gouttiere-fiche: ([\d.]+)rem;/)[1]) * 16;
-const disponible = seuil - 2 * 32 - colonne - 2 * gouttiere;
-assert.equal(disponible, 744.8, 'ce que la colonne laisse au seuil');
-assert.ok(plancher('.dc') + gouttiere + plancher('.rail') <= disponible,
-  'au seuil, les deux planchers et leur gouttière doivent tenir dans la place laissée');
-
-// La gouttière est la même sur les deux surfaces : la fiche et le rail ne se
-// touchent pas de plus près selon l'adresse par laquelle on arrive.
-assert.equal(
-  Number(offre.match(/--gouttiere-fiche:\s*([\d.]+)rem/)[1]),
-  Number(board.match(/--gouttiere-fiche:\s*([\d.]+)rem/)[1]),
-  'la gouttière de la fiche est celle du board');
-
-// Le replié est la même carte que le rail à côté de la fiche : un lecteur qui
-// rétrécit sa fenêtre ne doit pas voir l'habillage changer.
-for (const [nom, source, corps] of [
-  ['le board', board, repliBoard[1]],
-  ["la page d'offre", offre, repliOffre[2]],
-]) {
-  const sansEspaces = (s) => s.replace(/\s+/g, '');
-  assert.ok(sansEspaces(corps).includes(sansEspaces(carteDuRail(source)['box-shadow'])),
-    `${nom} : le rail replié porte l'ombre de la carte`);
-  assert.match(corps, /background:\s*#fff/, `${nom} : et son fond blanc`);
-  assert.match(corps, /border-radius:\s*\.75rem/, `${nom} : et ses angles arrondis`);
-  assert.match(corps, /overflow:\s*hidden/, `${nom} : ses blocs ne dépassent pas des angles`);
-}
-
-// Ce qui reste masqué, et à quelle condition. Le seul « display: none » est
-// celui du téléphone, posé avant toute media query : là, la fiche occupe tout
-// l'écran et l'empilement n'aurait plus de fin. Aucune largeur de bureau n'a
-// le droit de remasquer le rail.
-for (const [nom, source] of [['le board', board], ["la page d'offre", offre]]) {
-  const premiere = source.indexOf('@media');
-  assert.ok(premiere > 0, `${nom} : le fichier déclare ses media queries`);
-  assert.ok(/\.rail \{\s*display:\s*none;\s*\}/.test(source.slice(0, premiere)),
-    `${nom} : le rail n'est masqué que par défaut`);
-  assert.ok(!/\.rail \{[^}]*display:\s*none/.test(source.slice(premiere)),
-    `${nom} : aucune largeur de bureau ne doit le masquer`);
-}
-
-console.log('Rail de la fiche tests passed —', annuaire.PROFILS.length, 'profils,', SELECTEURS.length, 'sélecteurs comparés');
+console.log('Rail de la fiche tests passed —', annuaire.PROFILS.length,
+  'profils,', PARTAGE.length, 'selecteurs partages, rail retire');

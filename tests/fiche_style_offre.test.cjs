@@ -130,11 +130,10 @@ assert.equal(racine[1].trim(), '420px', 'et valoir la largeur mesuree de la colo
 // L'enveloppe se centrant dans la page, « bande = marge blanche » se resout
 // en bande = (fenetre - colonne - enveloppe + 2 x padding) / 3.
 //
-// C'est la mise en page de la fiche seule, sans rail : celui-ci ne parait que
-// lorsque la colonne, l'enveloppe ET le rail tiennent cote a cote. Des que le
-// rail s'affiche, la bande n'a plus lieu d'etre — elle disparait au profit de
-// la deuxieme colonne (les regles du rail elles-memes sont verrouillees par
-// tests/rail_fiche.test.cjs).
+// C'est la mise en page de la fiche seule : la colonne des offres a gauche,
+// la fiche recentree dans la place qui reste. La bande ne descend jamais sous
+// zero — quand la fenetre se resserre, la fiche s'arrete plutot que de
+// deborder sur la colonne.
 const enveloppe = html.match(/:root \{[^}]*--enveloppe-lecture: ([^;]+);/);
 assert.ok(enveloppe, "la largeur de l'enveloppe doit etre declaree");
 assert.equal(enveloppe[1].trim(), '46rem', 'elle reprend celle de la page d offre');
@@ -149,37 +148,24 @@ assert.ok(/\)\s*\/\s*3\)/.test(bande),
 assert.ok(bande.includes('2.5rem'), 'les deux paddings de l enveloppe sont comptes');
 assert.ok(!bande.includes('clamp('), 'la bande ne copie plus la colonne de gauche');
 
-// Le rail prend la place de cette bande quand la fenetre le permet : la fiche
-// n'est alors plus centree, elle est ancree pres de la liste.
-assert.ok(/@media \(min-width: 1280px\)[\s\S]{0,4000}\.pr \{ margin-right: 0; \}/.test(html),
-  "quand le rail s'affiche, la bande de recentrage s'efface");
-assert.ok(/\.dc \{[\s\S]{0,260}flex-grow: 1;/.test(html),
-  'la fiche grandit dans la place laissee par la liste');
-assert.ok(/\.rail \{[\s\S]{0,260}flex-grow: 1;/.test(html),
-  'le rail grandit de la meme facon, a parts egales');
-// ── La gouttière : une seule distance, trois endroits ──
-// Entre la liste et la fiche, entre la fiche et le rail, et entre le rail et
-// le bord de défilement du volet. L'égalité des trois se voit à l'œil nu :
-// c'est elle qui fait lire le bloc comme un ensemble. Elle se règle donc d'un
-// seul chiffre — et ce chiffre vaut 20 % de moins que les 2 rem d'origine.
-const GOUTTIERE_REM = (() => {
-  const m = html.match(/--gouttiere-fiche: ([\d.]+)rem;/);
-  assert.ok(m, 'la gouttière de la fiche doit être déclarée en rem');
-  return Number(m[1]);
-})();
-assert.equal(GOUTTIERE_REM, 1.6, 'la gouttière vaut 1,6 rem : 2 rem moins 20 %');
-const GOUTTIERE = GOUTTIERE_REM * 16;
+// Le rail a ete retire : la fiche garde son recentrage, et plus rien ne se
+// detache en deux zones de ce cote. Ce qu'il ne doit pas laisser derriere lui
+// : une regle orpheline.
+assert.ok(!/\.rail\s*\{/.test(html),
+  'plus aucune regle du rail ne doit subsister dans le board');
+// ── L'espacement de la fiche ──
+// Le padding de l'enveloppe n'a jamais été réglé par une variable : il vaut
+// 1.25rem de part et d'autre, sur le board comme sur la page d'offre. C'est
+// la seule distance qui compte encore depuis que le rail a été retiré.
+assert.ok(/\.dc-wrap \{[^}]*padding: 1\.25rem 1\.25rem 3rem;/.test(html),
+  "le padding de l'enveloppe reste 1.25rem, et n'a pas changé");
+assert.ok(!/--gouttiere-fiche/.test(html),
+  'plus aucune variable de gouttiere : le rail, seul a la consommer, est retire');
 
-assert.ok(/\.dc-wrap \{[\s\S]{0,240}gap: var\(--gouttiere-fiche\);/.test(html),
-  'la gouttière entre la fiche et le rail est la gouttière de la fiche');
-assert.ok(/\.dc-wrap \{[\s\S]{0,240}padding: 1\.25rem var\(--gouttiere-fiche\) 3rem var\(--gouttiere-fiche\);/.test(html),
-  'la même sépare la liste de la fiche, et décolle le rail du bord de défilement');
-
-// ── La répartition à la largeur de référence ──
-// À 1 920 px : 100 px de marge de chaque côté, la colonne des offres, trois
-// gouttières, puis la fiche et le rail qui grandissent à parts égales depuis
-// leurs largeurs de lecture. La somme doit tomber juste — sinon une zone
-// déborde, ou il reste un trou.
+// ── Les marges de page ──
+// A 1 920 px, la page prend 100 px de marge de chaque cote. Le reste est la
+// colonne des offres, la fiche, et la marge blanche du texte : la fiche se
+// recentre plutot que de s'etirer sans fin.
 const largeurHaute = (nom) => {
   const m = html.match(new RegExp(nom + ': (\\d+)px;'));
   assert.ok(m, `${nom} doit etre declare en px`);
@@ -190,28 +176,13 @@ const margePage = (1920 - largeurBloc) / 2;
 assert.equal(margePage, 100, 'a 1 920 px, la marge de page doit valoir 100 px');
 
 const colonne = largeurHaute('--colonne-liste');
-const enveloppeLarge = largeurHaute('--enveloppe-large');
-const railLarge = largeurHaute('--rail-large');
-const ENVELOPPE_LECTURE = 736;
-const RAIL_LECTURE = 288;
-const arrondi = (n) => Number(n.toFixed(1));
+assert.equal(colonne, 420, 'la colonne des offres tient sa largeur mesuree');
 
-// Ce que la colonne laisse à la fiche et au rail : trois gouttières en moins.
-const place = arrondi(1920 - (2 * margePage + colonne + 3 * GOUTTIERE));
-assert.equal(place, 1223.2, 'ce qui reste pour la fiche et le rail');
+const enveloppeLecture = html.match(/--enveloppe-lecture: ([^;]+);/);
+assert.ok(enveloppeLecture, "la largeur de lecture de la fiche doit etre declaree");
+assert.ok(enveloppeLecture[1].trim().endsWith('rem'),
+  "elle est exprimee en rem, comme la page d'offre");
 
-// Le flexbox partage le surplus à parts égales depuis les largeurs de lecture.
-const surplus = arrondi(place - (ENVELOPPE_LECTURE + RAIL_LECTURE));
-assert.equal(arrondi(ENVELOPPE_LECTURE + surplus / 2), 835.6,
-  'la fiche grandit de la moitié du surplus');
-assert.equal(arrondi(RAIL_LECTURE + surplus / 2), 387.6, 'le rail aussi');
-assert.equal(arrondi(ENVELOPPE_LECTURE + surplus / 2 + RAIL_LECTURE + surplus / 2), place,
-  'et les deux remplissent exactement la place laissée');
-assert.ok(ENVELOPPE_LECTURE + surplus / 2 <= enveloppeLarge,
-  'la fiche reste sous sa largeur haute');
-assert.ok(RAIL_LECTURE + surplus / 2 <= railLarge, 'le rail aussi');
-assert.equal(enveloppeLarge - ENVELOPPE_LECTURE, 106, 'la fiche dispose de 106 px de plus');
-assert.equal(railLarge - RAIL_LECTURE, 106, 'et le rail aussi');
 
 // ── Les deux gestes de la fiche ──
 for (const geste of ['class="dact"', 'class="bap"', 'class="bsh', 'Postuler', 'partagerOffre()']) {
@@ -233,17 +204,12 @@ for (const propriete of ['margin-top', 'padding-top', 'font-size', 'color']) {
 }
 
 
-// ── Sous son seuil, le rail ne quitte pas la page ──
-// Il se replie sous la fiche, à la même largeur de lecture et sur le même axe.
-// C'est la leçon du 15/10/2026 : sous le seuil des trois colonnes, le rail
-// s'empilait sous la fiche — et une mise à l'échelle de 125 % suffisait à
-// déclencher ce seuil sans que rien ne le signale.
-const railReplie = html.match(
-  /@media \(min-width: 769px\) and \(max-width: 1279\.98px\) \{\s*\.rail \{([^}]*)\}/);
-assert.ok(railReplie, 'le rail se replie sous la fiche en dessous de son seuil');
-assert.match(railReplie[1], /max-width: var\(--enveloppe-lecture\)/,
-  "il garde la largeur de lecture de la fiche, pas celle de la bande perdue");
-assert.match(railReplie[1], /margin: 1\.25rem auto 0/, 'et se centre sur son axe');
-assert.match(railReplie[1], /display: block/, 'il reste lu : il n est plus masqué');
+// ── Le rail a disparu, et n'a rien laisse ──
+// Retire des deux surfaces. Ce qu'il ne doit pas laisser derriere lui : des
+// media queries qui n'habillent plus rien, des variables mortes, un rendu.
+assert.ok(!/@media \(min-width: 1280px\)/.test(html),
+  "la media query des trois colonnes n'a plus de raison d'etre");
+assert.ok(!/--rail-large/.test(html), 'les variables du rail sont retirees');
+assert.ok(!/railOffreHtml/.test(html), 'la fonction de rendu du rail est retiree');
 
 console.log("Fiche alignee sur le style de la page d'offre tests passed");

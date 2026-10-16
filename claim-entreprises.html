@@ -468,6 +468,48 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
   .btn-burger { display: none; }
   #burger-menu { display: none !important; }
 }
+
+  /* ── BANDEAU « EN CONSTRUCTION » ── */
+  .chantier {
+    background: repeating-linear-gradient(45deg, #fff7e6, #fff7e6 14px, #ffeec2 14px, #ffeec2 28px);
+    border-bottom: 1px solid #f0d89a;
+    padding: .85rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .75rem;
+    flex-wrap: wrap;
+    text-align: center;
+  }
+  .chantier .icone {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 26px; height: 26px; border-radius: 50%;
+    background: #b26a00; color: #fff; flex-shrink: 0;
+    font-size: 15px; font-weight: 900;
+    animation: chantier-tour 3.2s ease-in-out infinite;
+  }
+  .chantier .texte { font-size: .88rem; font-weight: 600; color: #6b4400; }
+  .chantier .texte strong { color: #4a2f00; }
+  .chantier .etiquette {
+    font-size: .68rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
+    background: #b26a00; color: #fff; border-radius: 9999px; padding: .2rem .7rem;
+    animation: chantier-clignote 2.4s steps(1, end) infinite;
+  }
+  @keyframes chantier-tour {
+    0%, 45%   { transform: rotate(0deg); }
+    55%, 100% { transform: rotate(360deg); }
+  }
+  @keyframes chantier-clignote {
+    0%, 70%   { opacity: 1; }
+    85%, 100% { opacity: .45; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .chantier .icone, .chantier .etiquette { animation: none; }
+  }
+  @media (max-width: 640px) {
+    .chantier { padding: .75rem 1.25rem; gap: .5rem; }
+    .chantier .texte { font-size: .82rem; }
+  }
 </style>
 
 <!-- Balises SEO : titre enrichi, description, URL canonique, partage social -->
@@ -494,9 +536,18 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
   gtag('js', new Date());
   gtag('config', 'G-SKQQXZW4LH');
 </script>
+
+}
 </head>
 <body>
 <div id="app">
+
+  <!-- ══ EN CONSTRUCTION ══ -->
+  <div class="chantier" role="status">
+    <span class="icone" aria-hidden="true">⚠</span>
+    <span class="texte"><strong>La page Entreprises est en chantier.</strong> L'annuaire des employeurs arrive bientôt : vos filtres et vos fiches seront là, une par une.</span>
+    <span class="etiquette">En construction</span>
+  </div>
 
   <!-- ══ HEADER ══ -->
   <div id="hd">
@@ -649,6 +700,7 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
 
     </div>
   </div>
+
 
   <!-- ══ GRILLE ══ -->
   <div id="grid-wrap">
