@@ -511,7 +511,8 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
   .chantier .form button:hover { background: #005663; }
   .chantier .form:focus-within { outline: 3px solid var(--teal, #006876); outline-offset: 2px; }
   .chantier .note { font-size: .78rem; color: var(--gris-doux, #6c797c); margin-top: .75rem; }
-  .chantier .retour { font-size: .9rem; color: var(--gris, #515f78); margin-top: 2.5rem; }
+  .chantier .retour { font-size: .9rem; color: var(--gris, #515f78); margin-top: 2.5rem;
+    display: flex; flex-direction: column; align-items: center; gap: .4rem; }
   .chantier .retour a { color: var(--teal, #006876); font-weight: 700; }
   .chantier .retour a:hover { text-decoration: underline; }
   @keyframes chantier-clignote {
@@ -552,7 +553,6 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
   gtag('config', 'G-SKQQXZW4LH');
 </script>
 
-}
 </head>
 <body>
 <div id="app">
@@ -573,8 +573,7 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
     </form>
     <p class="note">Aucun spam. Un seul message le jour de l'ouverture.</p>
     <p class="retour">D'ici là, tout le reste du site est ouvert :
-      <a href="/job-board.html">offres d'emploi</a> ·
-      <a href="/">accueil</a>.</p>
+      <a href="/job-board.html">offres d'emploi</a> · <a href="/">accueil</a>.</p>
   </section>
 
   <!-- ══ HEADER ══ -->
