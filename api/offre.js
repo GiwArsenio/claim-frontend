@@ -96,6 +96,9 @@ async function construire(job, urlCanonique) {
   // selon la surface.
   const logoSociete = societe.logo_url
     || (ANNUAIRE && societe.slug ? ANNUAIRE.logoEntreprise(societe.slug) : null);
+  // Hunter fournit le logo de certains employeurs : son usage gratuit demande
+  // un lien de retour, posé en pied de page — et seulement quand il a servi.
+  const logoParHunter = Boolean(logoSociete && logoSociete.indexOf('logos.hunter.io') === 0);
   const initialesSociete = ANNUAIRE ? ANNUAIRE.initiales(nomSociete) : '';
   const teinteSociete = (ANNUAIRE && societe.slug)
     ? ANNUAIRE.couleurEntreprise(societe.slug) : '#006876';
@@ -295,6 +298,7 @@ ${societe.logo_url
   ${corps || '<p>Description non disponible.</p>'}
   <div class="pied">
     Offre publiée sur <a href="${SITE_URL}/">Claim!</a>.
+    ${logoParHunter ? `Logo : <a href="https://hunter.io" rel="noopener" target="_blank">Hunter.io</a>.` : ''}
     ${job.source_url ? `Source : <a href="${echapper(job.source_url)}" rel="nofollow noopener" target="_blank" data-sortie="annonce">l'annonce d'origine</a>.` : ''}
   </div>
 </main>

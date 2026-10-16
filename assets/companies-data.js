@@ -581,94 +581,91 @@
   }
 
 
-  /* ── Logos des employeurs ────────────────────────────────────────────────
-     Un slug, une URL d'image. C'est la source unique : la carte du board, la
-     carte de l'accueil et la fiche de poste lisent la même table. Le jour où
-     l'on change de fournisseur de logos, seul ce bloc change.
+  /* ── Domaines des employeurs ─────────────────────────────────────────────
+     Un slug, un domaine. C'est la donnée vraie. Le service qui fournit
+     l'image est une politique, décidée juste après — les deux ne se
+     mélangent plus.
 
-     L'API ne publie un logo que si l'ATS de la source en expose un
-     (companies.logo_url) : c'est rare. Cette table tient le reste. Elle pointe
-     aujourd'hui vers le favicon Google, seul service gratuit, sans clé et
-     universel — au prix d'une résolution très inégale selon les marques.
-
-     Une entreprise absente n'affiche aucun trou : ses initiales, sur la
-     teinte de sa fiche, prennent le relais. */
-  var LOGOS = {
-    "abeille": "https://www.google.com/s2/favicons?domain=abeille-assurances.fr&sz=256",
-    "acm": "https://www.google.com/s2/favicons?domain=acm.fr&sz=256",
-    "actelior": "https://www.google.com/s2/favicons?domain=actelior.fr&sz=256",
-    "addactis": "https://www.google.com/s2/favicons?domain=addactis.com&sz=256",
-    "aesio": "https://www.google.com/s2/favicons?domain=aesio.fr&sz=256",
-    "ag2r": "https://www.google.com/s2/favicons?domain=ag2rlamondiale.fr&sz=256",
-    "aig": "https://www.google.com/s2/favicons?domain=aig.fr&sz=256",
-    "akur8": "https://www.google.com/s2/favicons?domain=akur8.com&sz=256",
-    "alan": "https://www.google.com/s2/favicons?domain=alan.com&sz=256",
-    "allianz": "https://www.google.com/s2/favicons?domain=allianz.fr&sz=256",
-    "alptis": "https://www.google.com/s2/favicons?domain=alptis.fr&sz=256",
-    "aon": "https://www.google.com/s2/favicons?domain=aon.com&sz=256",
-    "apicil": "https://www.google.com/s2/favicons?domain=apicil.fr&sz=256",
-    "april": "https://www.google.com/s2/favicons?domain=april.fr&sz=256",
-    "axa": "https://www.google.com/s2/favicons?domain=axa.fr&sz=256",
-    "bdo": "https://www.google.com/s2/favicons?domain=bdo.fr&sz=256",
-    "bnp_cardif": "https://www.google.com/s2/favicons?domain=bnpparibascardif.com&sz=256",
+     Trois entrées font exception et portent une adresse complète, parce que
+     leur logo n'est pas un favicon : BPCE vient de Wikimedia, Shift et Sia
+     sont des fichiers du dépôt. Une valeur contenant « :// » est une adresse
+     directe, servie telle quelle. */
+  var DOMAINES = {
+    "abeille": "abeille-assurances.fr",
+    "acm": "acm.fr",
+    "actelior": "actelior.fr",
+    "addactis": "addactis.com",
+    "aesio": "aesio.fr",
+    "ag2r": "ag2rlamondiale.fr",
+    "aig": "aig.fr",
+    "akur8": "akur8.com",
+    "alan": "alan.com",
+    "allianz": "allianz.fr",
+    "alptis": "alptis.fr",
+    "aon": "aon.com",
+    "apicil": "apicil.fr",
+    "april": "april.fr",
+    "axa": "axa.fr",
+    "bdo": "bdo.fr",
+    "bnp_cardif": "bnpparibascardif.com",
+    "carac": "carac.fr",
+    "cm_arkea": "cm-arkea.com",
+    "cnp": "cnp.fr",
+    "coface": "coface.fr",
+    "covea": "covea.eu",
+    "deloitte": "deloitte.com",
+    "descartes_underwriting": "descartesunderwriting.com",
+    "diot_siaci": "diot-siaci.com",
+    "exiom": "exiompartners.com",
+    "ey": "ey.com",
+    "forsides": "forsides.fr",
+    "galea": "galea-associes.eu",
+    "garance": "garance.fr",
+    "generali": "generali.fr",
+    "groupama_gan": "groupama.fr",
+    "groupe_agrica": "groupagrica.com",
+    "groupe_vyv": "groupe-vyv.fr",
+    "klesia": "klesia.fr",
+    "kpmg": "kpmg.fr",
+    "la_france_mutualiste": "la-france-mutualiste.fr",
+    "la_mutuelle_generale": "lamutuellegenerale.fr",
+    "luko": "luko.eu",
+    "macif": "macif.fr",
+    "macsf": "macsf.fr",
+    "maif": "maif.fr",
+    "malakoff-humanis": "malakoffhumanis.com",
+    "matmut": "matmut.fr",
+    "mazars": "mazars.fr",
+    "milliman": "milliman.com",
+    "mutuelle_motards": "mutuelledesmotards.fr",
+    "natixis-assurances": "natixis.com",
+    "nexialog": "nexialog.com",
+    "oliver_wyman": "oliverwyman.com",
+    "onepoint": "groupeonepoint.com",
+    "partnerre": "partnerre.com",
+    "prevoir": "prevoir.fr",
+    "primact": "primact.fr",
+    "pro_btp": "probtp.com",
+    "pwc": "pwc.fr",
+    "scor": "scor.com",
+    "seabird": "seabirdconseil.com",
+    "seyna": "seyna.eu",
+    "sg-assurances": "assurances.societegenerale.com",
+    "smabtp": "smabtp.fr",
+    "smacl": "smacl.fr",
+    "suravenir": "suravenir.fr",
+    "swiss-re": "swissre.com",
+    "swiss_life": "swisslife.fr",
+    "umr": "umr-retraite.fr",
+    "verlingue": "verlingue.fr",
+    "viasante": "viasante.fr",
+    "wakam": "wakam.com",
+    "wp_ca_assurances": "ca-assurances.com",
+    "wtw": "wtwco.com",
+    "zelros": "zelros.com",
     "bpce": "https://upload.wikimedia.org/wikipedia/fr/0/0a/Groupe_BPCE_%28logo%29.svg",
-    "carac": "https://www.google.com/s2/favicons?domain=carac.fr&sz=256",
-    "cm_arkea": "https://www.google.com/s2/favicons?domain=cm-arkea.com&sz=256",
-    "cnp": "https://www.google.com/s2/favicons?domain=cnp.fr&sz=256",
-    "coface": "https://www.google.com/s2/favicons?domain=coface.fr&sz=256",
-    "covea": "https://www.google.com/s2/favicons?domain=covea.eu&sz=256",
-    "deloitte": "https://www.google.com/s2/favicons?domain=deloitte.com&sz=256",
-    "descartes_underwriting": "https://www.google.com/s2/favicons?domain=descartesunderwriting.com&sz=256",
-    "diot_siaci": "https://www.google.com/s2/favicons?domain=diot-siaci.com&sz=256",
-    "exiom": "https://www.google.com/s2/favicons?domain=exiompartners.com&sz=256",
-    "ey": "https://www.google.com/s2/favicons?domain=ey.com&sz=256",
-    "forsides": "https://www.google.com/s2/favicons?domain=forsides.fr&sz=256",
-    "galea": "https://www.google.com/s2/favicons?domain=galea-associes.eu&sz=256",
-    "garance": "https://www.google.com/s2/favicons?domain=garance.fr&sz=256",
-    "generali": "https://www.google.com/s2/favicons?domain=generali.fr&sz=256",
-    "groupama_gan": "https://www.google.com/s2/favicons?domain=groupama.fr&sz=256",
-    "groupe_agrica": "https://www.google.com/s2/favicons?domain=groupagrica.com&sz=256",
-    "groupe_vyv": "https://www.google.com/s2/favicons?domain=groupe-vyv.fr&sz=256",
-    "klesia": "https://www.google.com/s2/favicons?domain=klesia.fr&sz=256",
-    "kpmg": "https://www.google.com/s2/favicons?domain=kpmg.fr&sz=256",
-    "la_france_mutualiste": "https://www.google.com/s2/favicons?domain=la-france-mutualiste.fr&sz=256",
-    "la_mutuelle_generale": "https://www.google.com/s2/favicons?domain=lamutuellegenerale.fr&sz=256",
-    "luko": "https://www.google.com/s2/favicons?domain=luko.eu&sz=256",
-    "macif": "https://www.google.com/s2/favicons?domain=macif.fr&sz=256",
-    "macsf": "https://www.google.com/s2/favicons?domain=macsf.fr&sz=256",
-    "maif": "https://www.google.com/s2/favicons?domain=maif.fr&sz=256",
-    "malakoff-humanis": "https://www.google.com/s2/favicons?domain=malakoffhumanis.com&sz=256",
-    "matmut": "https://www.google.com/s2/favicons?domain=matmut.fr&sz=256",
-    "mazars": "https://www.google.com/s2/favicons?domain=mazars.fr&sz=256",
-    "milliman": "https://www.google.com/s2/favicons?domain=milliman.com&sz=256",
-    "mutuelle_motards": "https://www.google.com/s2/favicons?domain=mutuelledesmotards.fr&sz=256",
-    "natixis-assurances": "https://www.google.com/s2/favicons?domain=natixis.com&sz=256",
-    "nexialog": "https://www.google.com/s2/favicons?domain=nexialog.com&sz=256",
-    "oliver_wyman": "https://www.google.com/s2/favicons?domain=oliverwyman.com&sz=256",
-    "onepoint": "https://www.google.com/s2/favicons?domain=groupeonepoint.com&sz=256",
-    "partnerre": "https://www.google.com/s2/favicons?domain=partnerre.com&sz=256",
-    "prevoir": "https://www.google.com/s2/favicons?domain=prevoir.fr&sz=256",
-    "primact": "https://www.google.com/s2/favicons?domain=primact.fr&sz=256",
-    "pro_btp": "https://www.google.com/s2/favicons?domain=probtp.com&sz=256",
-    "pwc": "https://www.google.com/s2/favicons?domain=pwc.fr&sz=256",
-    "scor": "https://www.google.com/s2/favicons?domain=scor.com&sz=256",
-    "seabird": "https://www.google.com/s2/favicons?domain=seabirdconseil.com&sz=256",
-    "seyna": "https://www.google.com/s2/favicons?domain=seyna.eu&sz=256",
-    "sg-assurances": "https://www.google.com/s2/favicons?domain=assurances.societegenerale.com&sz=256",
     "shift_technology": "https://raw.githubusercontent.com/GiwArsenio/claim-frontend/main/logos/shift-technology.svg",
     "sia": "https://raw.githubusercontent.com/GiwArsenio/claim-frontend/main/logos/sia-partners.svg",
-    "smabtp": "https://www.google.com/s2/favicons?domain=smabtp.fr&sz=256",
-    "smacl": "https://www.google.com/s2/favicons?domain=smacl.fr&sz=256",
-    "suravenir": "https://www.google.com/s2/favicons?domain=suravenir.fr&sz=256",
-    "swiss-re": "https://www.google.com/s2/favicons?domain=swissre.com&sz=256",
-    "swiss_life": "https://www.google.com/s2/favicons?domain=swisslife.fr&sz=256",
-    "umr": "https://www.google.com/s2/favicons?domain=umr-retraite.fr&sz=256",
-    "verlingue": "https://www.google.com/s2/favicons?domain=verlingue.fr&sz=256",
-    "viasante": "https://www.google.com/s2/favicons?domain=viasante.fr&sz=256",
-    "wakam": "https://www.google.com/s2/favicons?domain=wakam.com&sz=256",
-    "wp_ca_assurances": "https://www.google.com/s2/favicons?domain=ca-assurances.com&sz=256",
-    "wtw": "https://www.google.com/s2/favicons?domain=wtwco.com&sz=256",
-    "zelros": "https://www.google.com/s2/favicons?domain=zelros.com&sz=256",
   };
 
   /* ── Alias ───────────────────────────────────────────────────────────────
@@ -694,21 +691,60 @@
     "suravenir_assurances": "suravenir",
   };
 
+  /* ── Qui fournit l'image ─────────────────────────────────────────────────
+     Deux services gratuits, sans compte : Google rend le favicon du site,
+     Hunter le logo de la marque depuis sa propre base. Aucun des deux ne
+     fabrique d'image — vérifié par empreinte sur les 72 domaines, les
+     fichiers sont tous distincts.
+
+     Le choix est mesuré, employeur par employeur, et Hunter n'est retenu que
+     lorsqu'il apporte au moins le double de résolution, ou que Google n'a
+     rien. Ailleurs il dégraderait la tuile : AIG passe de 48 px à 16 px,
+     SMABTP reste à 48. On ne change pas ce qui va bien.
+
+     Mutuelle des Motards n'a de logo nulle part : sa tuile retombe sur les
+     initiales, ce qui est le comportement prévu.
+
+     Hunter exige un lien de retour en contrepartie : il figure en pied de
+     page, sur chaque surface qui affiche un logo. */
+  var FOURNISSEUR_HUNTER = { "actelior.fr": true, "addactis.com": true, "ag2rlamondiale.fr": true, "alan.com": true, "aon.com": true, "april.fr": true, "cm-arkea.com": true, "coface.fr": true, "covea.eu": true, "deloitte.com": true, "diot-siaci.com": true, "ey.com": true, "garance.fr": true, "generali.fr": true, "groupagrica.com": true, "kpmg.fr": true, "la-france-mutualiste.fr": true, "macsf.fr": true, "matmut.fr": true, "mazars.fr": true, "milliman.com": true, "natixis.com": true, "suravenir.fr": true, "verlingue.fr": true, "ca-assurances.com": true, "wtwco.com": true, "zelros.com": true };
+
+  /* ── Ceux dont aucun fournisseur n'a le logo ─────────────────────────────
+     Google ne signale pas une absence : faute de favicon, il sert une icône
+     générique de 16 px — la même pour un domaine inconnu que pour un domaine
+     réel. Mesuré : empreinte « b8a0bf372c76 », 726 octets, HTTP 404, mais une
+     balise <img> la charge sans erreur. Le repli sur les initiales ne se
+     déclenche donc jamais tout seul : il faut le décider ici.
+
+     Criblage des 45 domaines confiés à Google, en navigateur : un seul reçoit
+     cette icône, Mutuelle des Motards. Hunter n'en a pas non plus. Mieux vaut
+     ses initiales qu'un globe gris. */
+  var SANS_LOGO = { "mutuelledesmotards.fr": true };
+
   /* ── Recherche ───────────────────────────────────────────────────────────
      Trois essais, du plus précis au plus tolérant : le slug exact, l'alias
-     déclaré, puis la forme normalisée — pour qu'une ponctuation changée côté
-     API ne fasse pas disparaître un logo. */
-  var LOGOS_INDEX = {};
-  Object.keys(LOGOS).forEach(function (nom) { LOGOS_INDEX[cle(nom)] = LOGOS[nom]; });
-  function logoEntreprise(slug) {
-    var exact = LOGOS[slug];
+     déclaré — en suivant la chaîne s'il en existe une —, puis la forme
+     normalisée. */
+  var DOMAINES_INDEX = {};
+  Object.keys(DOMAINES).forEach(function (nom) { DOMAINES_INDEX[cle(nom)] = DOMAINES[nom]; });
+  function domaineEntreprise(slug) {
+    var exact = DOMAINES[slug];
     if (exact) return exact;
-    // L'alias peut lui-même renvoyer sur une autre écriture : on suit la
-    // chaîne. La garde s'arrête net si un cycle s'y glissait un jour.
     var nom = ALIAS_LOGOS[slug], garde = 0;
-    while (nom && !LOGOS[nom] && garde++ < 4) nom = ALIAS_LOGOS[nom];
-    if (nom && LOGOS[nom]) return LOGOS[nom];
-    return LOGOS_INDEX[cle(slug)] || null;
+    while (nom && !DOMAINES[nom] && garde++ < 4) nom = ALIAS_LOGOS[nom];
+    if (nom && DOMAINES[nom]) return DOMAINES[nom];
+    return DOMAINES_INDEX[cle(slug)] || null;
+  }
+
+  // L'adresse de l'image, ou null : la tuile affiche alors les initiales.
+  function logoEntreprise(slug) {
+    var cible = domaineEntreprise(slug);
+    if (!cible) return null;
+    if (cible.indexOf('://') !== -1) return cible;
+    if (SANS_LOGO[cible]) return null;
+    return FOURNISSEUR_HUNTER[cible]
+      ? 'https://logos.hunter.io/' + cible
+      : 'https://www.google.com/s2/favicons?domain=' + cible + '&sz=256';
   }
 
   return {
@@ -722,8 +758,11 @@
     accrocheEntreprise: accrocheEntreprise,
     avantagesDe: avantagesDe,
     texteNu: texteNu,
-    LOGOS: LOGOS,
+    DOMAINES: DOMAINES,
+    FOURNISSEUR_HUNTER: FOURNISSEUR_HUNTER,
+    SANS_LOGO: SANS_LOGO,
     ALIAS_LOGOS: ALIAS_LOGOS,
+    domaineEntreprise: domaineEntreprise,
     logoEntreprise: logoEntreprise
   };
 }));
