@@ -205,10 +205,10 @@ ${societe.logo_url
  h1 { font-size:1.6rem; margin:0 0 .4rem; line-height:1.25; }
  .societe { color:var(--gris); font-size:1rem; font-weight:600; margin-bottom:.9rem; }
  .pastilles { display:flex; flex-wrap:wrap; gap:.4rem; margin-bottom:1.6rem; }
- .pastille { padding:3px 10px; border:1px solid #dce5e9; border-radius:9999px; background:#f5f8f9; font-size:.78rem; font-weight:600; color:#24363d; }
+  .pastille { padding:3px 10px; border:1px solid #dce5e9; border-radius:9999px; background:#f5f8f9; font-size:.78rem; font-weight:600; color:#24363d; display:inline-block; max-width:100%; overflow-wrap:anywhere; }
  .pastille-ville { background:#e9f6f8; border-color:#bfe2e8; color:#00545f; }
  .pastille-salaire { background:#f2f8f2; border-color:#cfe6cf; color:#2d5a2d; }
- .pastille-specialite { background:#ffdcc2; border-color:#f0c8a6; color:#6d3a00; }
+ .pastille-specialite { background:#e9f6f8; border-color:#bfe2e8; color:#00545f; }
  h2 { font-size:1.05rem; margin:1.8rem 0 .5rem; }
  p { margin:0 0 .7rem; color:#3c494c; }
  /* Structure éditoriale venue de la source : listes, emphases, sous-titres. */
