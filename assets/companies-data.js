@@ -392,9 +392,17 @@
     return COULEURS_INDEX[cle(slug)] || TEAL;
   }
 
+  // Les initiales se lisent sur la tuile de repli, quand le logo manque ou
+  // n'a pas encore été chargé. On ne garde que des mots portant une lettre
+  // ou un chiffre : « Groupama / Gan » doit donner « GG », pas « G/ ».
   function initiales(nom) {
-    return String(nom == null ? '?' : nom).split(/\s+/).filter(Boolean).slice(0, 2)
-      .map(function (mot) { return mot.charAt(0); }).join('').toUpperCase();
+    return String(nom == null ? '?' : nom)
+      .split(/[\s/|,–—-]+/)
+      .map(function (mot) { return mot.replace(/[^0-9A-Za-zÀ-ÿ]/g, ''); })
+      .filter(function (mot) { return mot.length > 0; })
+      .slice(0, 2)
+      .map(function (mot) { return mot.charAt(0); })
+      .join('').toUpperCase();
   }
 
   /* ── Lecture d'une annonce ──────────────────────────────────────────────── */
@@ -585,99 +593,121 @@
 
      Une entreprise absente n'affiche aucun trou : ses initiales, sur la
      teinte de sa fiche, prennent le relais. */
-  var LOGOS = {"abeille": "https://www.google.com/s2/favicons?domain=abeille-assurances.fr&sz=256",
-  "abeille-assurances": "https://www.google.com/s2/favicons?domain=abeille-assurances.fr&sz=256",
-  "acm": "https://www.google.com/s2/favicons?domain=acm-assurance.fr&sz=256",
-  "actelior": "https://www.google.com/s2/favicons?domain=actelior.fr&sz=256",
-  "addactis": "https://www.google.com/s2/favicons?domain=addactis.com&sz=256",
-  "aesio": "https://www.google.com/s2/favicons?domain=aesio.fr&sz=256",
-  "ag2r": "https://www.google.com/s2/favicons?domain=ag2rlamondiale.fr&sz=256",
-  "aig": "https://www.google.com/s2/favicons?domain=aig.fr&sz=256",
-  "akur8": "https://www.google.com/s2/favicons?domain=akur8.com&sz=256",
-  "alan": "https://www.google.com/s2/favicons?domain=alan.com&sz=256",
-  "allianz": "https://www.google.com/s2/favicons?domain=allianz.fr&sz=256",
-  "alptis": "https://www.google.com/s2/favicons?domain=alptis.fr&sz=256",
-  "aon": "https://www.google.com/s2/favicons?domain=aon.com&sz=256",
-  "apicil": "https://www.google.com/s2/favicons?domain=apicil.fr&sz=256",
-  "april": "https://www.google.com/s2/favicons?domain=april.fr&sz=256",
-  "axa": "https://www.google.com/s2/favicons?domain=axa.fr&sz=256",
-  "bdo": "https://www.google.com/s2/favicons?domain=bdo.fr&sz=256",
-  "bnp-paribas-cardif": "https://www.google.com/s2/favicons?domain=bnpparibascardif.com&sz=256",
-  "bnp_cardif": "https://www.google.com/s2/favicons?domain=bnpparibascardif.com&sz=256",
-  "bpce": "https://upload.wikimedia.org/wikipedia/fr/0/0a/Groupe_BPCE_%28logo%29.svg",
-  "ca-assurances": "https://www.google.com/s2/favicons?domain=ca-assurances.com&sz=256",
-  "ca_assurances": "https://www.google.com/s2/favicons?domain=ca-assurances.com&sz=256",
-  "carac": "https://www.google.com/s2/favicons?domain=carac.fr&sz=256",
-  "cm_arkea": "https://www.google.com/s2/favicons?domain=cm-arkea.com&sz=256",
-  "cnp": "https://www.google.com/s2/favicons?domain=cnp.fr&sz=256",
-  "cnp-assurances": "https://www.google.com/s2/favicons?domain=cnp.fr&sz=256",
-  "coface": "https://www.google.com/s2/favicons?domain=coface.fr&sz=256",
-  "covea": "https://www.google.com/s2/favicons?domain=covea.eu&sz=256",
-  "deloitte": "https://www.google.com/s2/favicons?domain=deloitte.com&sz=256",
-  "descartes_underwriting": "https://www.google.com/s2/favicons?domain=descartesunderwriting.com&sz=256",
-  "diot_siaci": "https://www.google.com/s2/favicons?domain=diot-siaci.com&sz=256",
-  "exiom": "https://www.google.com/s2/favicons?domain=exiom-partners.com&sz=256",
-  "ey": "https://www.google.com/s2/favicons?domain=ey.com&sz=256",
-  "forsides": "https://www.google.com/s2/favicons?domain=forsides.fr&sz=256",
-  "galea": "https://www.google.com/s2/favicons?domain=galea-associes.fr&sz=256",
-  "garance": "https://www.google.com/s2/favicons?domain=garance.fr&sz=256",
-  "generali": "https://www.google.com/s2/favicons?domain=generali.fr&sz=256",
-  "groupama": "https://www.google.com/s2/favicons?domain=groupama.fr&sz=256",
-  "groupama_gan": "https://www.google.com/s2/favicons?domain=groupama.fr&sz=256",
-  "groupe_agrica": "https://www.google.com/s2/favicons?domain=groupagrica.fr&sz=256",
-  "groupe_vyv": "https://www.google.com/s2/favicons?domain=groupe-vyv.fr&sz=256",
-  "klesia": "https://www.google.com/s2/favicons?domain=klesia.fr&sz=256",
-  "kpmg": "https://www.google.com/s2/favicons?domain=kpmg.fr&sz=256",
-  "la_france_mutualiste": "https://www.google.com/s2/favicons?domain=lafrancemutualiste.fr&sz=256",
-  "la_mutuelle_generale": "https://www.google.com/s2/favicons?domain=lamutuellegenerale.fr&sz=256",
-  "luko": "https://www.google.com/s2/favicons?domain=luko.eu&sz=256",
-  "macsf": "https://www.google.com/s2/favicons?domain=macsf.fr&sz=256",
-  "maif": "https://www.google.com/s2/favicons?domain=maif.fr&sz=256",
-  "malakoff-humanis": "https://www.google.com/s2/favicons?domain=malakoffhumanis.com&sz=256",
-  "malakoff_humanis": "https://www.google.com/s2/favicons?domain=malakoffhumanis.com&sz=256",
-  "matmut": "https://www.google.com/s2/favicons?domain=matmut.fr&sz=256",
-  "mazars": "https://www.google.com/s2/favicons?domain=mazars.fr&sz=256",
-  "milliman": "https://www.google.com/s2/favicons?domain=milliman.com&sz=256",
-  "mutuelle_motards": "https://www.google.com/s2/favicons?domain=mutuellemotards.fr&sz=256",
-  "natixis-assurances": "https://www.google.com/s2/favicons?domain=natixis.com&sz=256",
-  "nexialog": "https://www.google.com/s2/favicons?domain=nexialog.com&sz=256",
-  "oliver_wyman": "https://www.google.com/s2/favicons?domain=oliverwyman.com&sz=256",
-  "onepoint": "https://www.google.com/s2/favicons?domain=groupeonepoint.com&sz=256",
-  "partnerre": "https://www.google.com/s2/favicons?domain=partnerre.com&sz=256",
-  "prevoir": "https://www.google.com/s2/favicons?domain=prevoir.fr&sz=256",
-  "primact": "https://www.google.com/s2/favicons?domain=primact.fr&sz=256",
-  "pro_btp": "https://www.google.com/s2/favicons?domain=probtp.com&sz=256",
-  "pwc": "https://www.google.com/s2/favicons?domain=pwc.fr&sz=256",
-  "scor": "https://www.google.com/s2/favicons?domain=scor.com&sz=256",
-  "seabird": "https://www.google.com/s2/favicons?domain=seabird-int.com&sz=256",
-  "seyna": "https://www.google.com/s2/favicons?domain=seyna.eu&sz=256",
-  "sg-assurances": "https://www.google.com/s2/favicons?domain=assurances.societegenerale.com&sz=256",
-  "sg_assurances": "https://www.google.com/s2/favicons?domain=assurances.societegenerale.com&sz=256",
-  "shift-technology": "https://raw.githubusercontent.com/GiwArsenio/claim-frontend/main/logos/shift-technology.svg",
-  "shift_technology": "https://raw.githubusercontent.com/GiwArsenio/claim-frontend/main/logos/shift-technology.svg",
-  "sia": "https://raw.githubusercontent.com/GiwArsenio/claim-frontend/main/logos/sia-partners.svg",
-  "smabtp": "https://www.google.com/s2/favicons?domain=smabtp.fr&sz=256",
-  "smacl": "https://www.google.com/s2/favicons?domain=smacl.fr&sz=256",
-  "suravenir": "https://www.google.com/s2/favicons?domain=suravenir.fr&sz=256",
-  "suravenir_assurances": "https://www.google.com/s2/favicons?domain=suravenir.fr&sz=256",
-  "swiss-re": "https://www.google.com/s2/favicons?domain=swissre.com&sz=256",
-  "swiss_life": "https://www.google.com/s2/favicons?domain=swisslife.fr&sz=256",
-  "umr": "https://www.google.com/s2/favicons?domain=umr-retraite.fr&sz=256",
-  "verlingue": "https://www.google.com/s2/favicons?domain=verlingue.fr&sz=256",
-  "viasante": "https://www.google.com/s2/favicons?domain=viasante.fr&sz=256",
-  "wakam": "https://www.google.com/s2/favicons?domain=wakam.com&sz=256",
-  "wp_ca_assurances": "https://www.google.com/s2/favicons?domain=ca-assurances.com&sz=256",
-  "wtw": "https://www.google.com/s2/favicons?domain=wtwco.com&sz=256",
-  "zelros": "https://www.google.com/s2/favicons?domain=zelros.com&sz=256",
+  var LOGOS = {
+    "abeille": "https://www.google.com/s2/favicons?domain=abeille-assurances.fr&sz=256",
+    "acm": "https://www.google.com/s2/favicons?domain=acm-assurance.fr&sz=256",
+    "actelior": "https://www.google.com/s2/favicons?domain=actelior.fr&sz=256",
+    "addactis": "https://www.google.com/s2/favicons?domain=addactis.com&sz=256",
+    "aesio": "https://www.google.com/s2/favicons?domain=aesio.fr&sz=256",
+    "ag2r": "https://www.google.com/s2/favicons?domain=ag2rlamondiale.fr&sz=256",
+    "aig": "https://www.google.com/s2/favicons?domain=aig.fr&sz=256",
+    "akur8": "https://www.google.com/s2/favicons?domain=akur8.com&sz=256",
+    "alan": "https://www.google.com/s2/favicons?domain=alan.com&sz=256",
+    "allianz": "https://www.google.com/s2/favicons?domain=allianz.fr&sz=256",
+    "alptis": "https://www.google.com/s2/favicons?domain=alptis.fr&sz=256",
+    "aon": "https://www.google.com/s2/favicons?domain=aon.com&sz=256",
+    "apicil": "https://www.google.com/s2/favicons?domain=apicil.fr&sz=256",
+    "april": "https://www.google.com/s2/favicons?domain=april.fr&sz=256",
+    "axa": "https://www.google.com/s2/favicons?domain=axa.fr&sz=256",
+    "bdo": "https://www.google.com/s2/favicons?domain=bdo.fr&sz=256",
+    "bnp_cardif": "https://www.google.com/s2/favicons?domain=bnpparibascardif.com&sz=256",
+    "bpce": "https://upload.wikimedia.org/wikipedia/fr/0/0a/Groupe_BPCE_%28logo%29.svg",
+    "carac": "https://www.google.com/s2/favicons?domain=carac.fr&sz=256",
+    "cm_arkea": "https://www.google.com/s2/favicons?domain=cm-arkea.com&sz=256",
+    "cnp": "https://www.google.com/s2/favicons?domain=cnp.fr&sz=256",
+    "coface": "https://www.google.com/s2/favicons?domain=coface.fr&sz=256",
+    "covea": "https://www.google.com/s2/favicons?domain=covea.eu&sz=256",
+    "deloitte": "https://www.google.com/s2/favicons?domain=deloitte.com&sz=256",
+    "descartes_underwriting": "https://www.google.com/s2/favicons?domain=descartesunderwriting.com&sz=256",
+    "diot_siaci": "https://www.google.com/s2/favicons?domain=diot-siaci.com&sz=256",
+    "exiom": "https://www.google.com/s2/favicons?domain=exiom-partners.com&sz=256",
+    "ey": "https://www.google.com/s2/favicons?domain=ey.com&sz=256",
+    "forsides": "https://www.google.com/s2/favicons?domain=forsides.fr&sz=256",
+    "galea": "https://www.google.com/s2/favicons?domain=galea-associes.fr&sz=256",
+    "garance": "https://www.google.com/s2/favicons?domain=garance.fr&sz=256",
+    "generali": "https://www.google.com/s2/favicons?domain=generali.fr&sz=256",
+    "groupama_gan": "https://www.google.com/s2/favicons?domain=groupama.fr&sz=256",
+    "groupe_agrica": "https://www.google.com/s2/favicons?domain=groupagrica.fr&sz=256",
+    "groupe_vyv": "https://www.google.com/s2/favicons?domain=groupe-vyv.fr&sz=256",
+    "klesia": "https://www.google.com/s2/favicons?domain=klesia.fr&sz=256",
+    "kpmg": "https://www.google.com/s2/favicons?domain=kpmg.fr&sz=256",
+    "la_france_mutualiste": "https://www.google.com/s2/favicons?domain=lafrancemutualiste.fr&sz=256",
+    "la_mutuelle_generale": "https://www.google.com/s2/favicons?domain=lamutuellegenerale.fr&sz=256",
+    "luko": "https://www.google.com/s2/favicons?domain=luko.eu&sz=256",
+    "macif": "https://www.google.com/s2/favicons?domain=macif.fr&sz=256",
+    "macsf": "https://www.google.com/s2/favicons?domain=macsf.fr&sz=256",
+    "maif": "https://www.google.com/s2/favicons?domain=maif.fr&sz=256",
+    "malakoff-humanis": "https://www.google.com/s2/favicons?domain=malakoffhumanis.com&sz=256",
+    "matmut": "https://www.google.com/s2/favicons?domain=matmut.fr&sz=256",
+    "mazars": "https://www.google.com/s2/favicons?domain=mazars.fr&sz=256",
+    "milliman": "https://www.google.com/s2/favicons?domain=milliman.com&sz=256",
+    "mutuelle_motards": "https://www.google.com/s2/favicons?domain=mutuellemotards.fr&sz=256",
+    "natixis-assurances": "https://www.google.com/s2/favicons?domain=natixis.com&sz=256",
+    "nexialog": "https://www.google.com/s2/favicons?domain=nexialog.com&sz=256",
+    "oliver_wyman": "https://www.google.com/s2/favicons?domain=oliverwyman.com&sz=256",
+    "onepoint": "https://www.google.com/s2/favicons?domain=groupeonepoint.com&sz=256",
+    "partnerre": "https://www.google.com/s2/favicons?domain=partnerre.com&sz=256",
+    "prevoir": "https://www.google.com/s2/favicons?domain=prevoir.fr&sz=256",
+    "primact": "https://www.google.com/s2/favicons?domain=primact.fr&sz=256",
+    "pro_btp": "https://www.google.com/s2/favicons?domain=probtp.com&sz=256",
+    "pwc": "https://www.google.com/s2/favicons?domain=pwc.fr&sz=256",
+    "scor": "https://www.google.com/s2/favicons?domain=scor.com&sz=256",
+    "seabird": "https://www.google.com/s2/favicons?domain=seabird-int.com&sz=256",
+    "seyna": "https://www.google.com/s2/favicons?domain=seyna.eu&sz=256",
+    "sg-assurances": "https://www.google.com/s2/favicons?domain=assurances.societegenerale.com&sz=256",
+    "shift_technology": "https://raw.githubusercontent.com/GiwArsenio/claim-frontend/main/logos/shift-technology.svg",
+    "sia": "https://raw.githubusercontent.com/GiwArsenio/claim-frontend/main/logos/sia-partners.svg",
+    "smabtp": "https://www.google.com/s2/favicons?domain=smabtp.fr&sz=256",
+    "smacl": "https://www.google.com/s2/favicons?domain=smacl.fr&sz=256",
+    "suravenir": "https://www.google.com/s2/favicons?domain=suravenir.fr&sz=256",
+    "swiss-re": "https://www.google.com/s2/favicons?domain=swissre.com&sz=256",
+    "swiss_life": "https://www.google.com/s2/favicons?domain=swisslife.fr&sz=256",
+    "umr": "https://www.google.com/s2/favicons?domain=umr-retraite.fr&sz=256",
+    "verlingue": "https://www.google.com/s2/favicons?domain=verlingue.fr&sz=256",
+    "viasante": "https://www.google.com/s2/favicons?domain=viasante.fr&sz=256",
+    "wakam": "https://www.google.com/s2/favicons?domain=wakam.com&sz=256",
+    "wp_ca_assurances": "https://www.google.com/s2/favicons?domain=ca-assurances.com&sz=256",
+    "wtw": "https://www.google.com/s2/favicons?domain=wtwco.com&sz=256",
+    "zelros": "https://www.google.com/s2/favicons?domain=zelros.com&sz=256",
   };
 
-  // Recherche tolérante : le slug exact d'abord, puis sa forme normalisée —
-  // les alias de la table ne s'écrivent pas tous comme ceux de l'API.
+  /* ── Alias ───────────────────────────────────────────────────────────────
+     L'API n'écrit pas toujours un employeur de la même façon : « bnp_cardif »
+     ici, « bnp-paribas-cardif » ailleurs, « wp_ca_assurances » ou
+     « ca-assurances ». Une seule écriture vit dans LOGOS ; les autres
+     renvoient dessus. Rien n'est dupliqué, et changer un logo reste une
+     seule ligne à toucher.
+
+     Les deux écritures de Suravenir sont, elles, réellement émises par l'API :
+     l'alias n'est pas un doublon à nettoyer, c'est un cas à couvrir. */
+  var ALIAS_LOGOS = {
+    "abeille-assurances": "abeille",
+    "bnp-paribas-cardif": "bnp_cardif",
+    "ca-assurances": "wp_ca_assurances",
+    "ca_assurances": "wp_ca_assurances",
+    "cnp-assurances": "cnp",
+    "groupama": "groupama_gan",
+    "malakoff_humanis": "malakoff-humanis",
+    "sg_assurances": "sg-assurances",
+    "shift-technology": "shift_technology",
+    "societe-generale-assurances": "sg-assurances",
+    "suravenir_assurances": "suravenir",
+  };
+
+  /* ── Recherche ───────────────────────────────────────────────────────────
+     Trois essais, du plus précis au plus tolérant : le slug exact, l'alias
+     déclaré, puis la forme normalisée — pour qu'une ponctuation changée côté
+     API ne fasse pas disparaître un logo. */
   var LOGOS_INDEX = {};
   Object.keys(LOGOS).forEach(function (nom) { LOGOS_INDEX[cle(nom)] = LOGOS[nom]; });
   function logoEntreprise(slug) {
     var exact = LOGOS[slug];
     if (exact) return exact;
+    // L'alias peut lui-même renvoyer sur une autre écriture : on suit la
+    // chaîne. La garde s'arrête net si un cycle s'y glissait un jour.
+    var nom = ALIAS_LOGOS[slug], garde = 0;
+    while (nom && !LOGOS[nom] && garde++ < 4) nom = ALIAS_LOGOS[nom];
+    if (nom && LOGOS[nom]) return LOGOS[nom];
     return LOGOS_INDEX[cle(slug)] || null;
   }
 
@@ -693,6 +723,7 @@
     avantagesDe: avantagesDe,
     texteNu: texteNu,
     LOGOS: LOGOS,
+    ALIAS_LOGOS: ALIAS_LOGOS,
     logoEntreprise: logoEntreprise
   };
 }));

@@ -701,15 +701,21 @@ function companyInitials(name) {
     : (name || '?').split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase();
 }
 // La table des logos vit dans assets/companies-data.js : une seule source
-// pour la carte, la fiche et la page d'offre. Le repli sur un objet vide
-// garde le rendu intact si le fichier partagé n'est pas chargé.
-const COMPANY_LOGO_URLS = (typeof CLAIM_ENTREPRISES !== 'undefined' && CLAIM_ENTREPRISES.LOGOS) || {};
+// pour les cartes, les fiches d'entreprise et la page d'offre. On passe par
+// sa fonction et non par la table brute — elle essaie le slug exact, son
+// alias déclaré, puis sa forme normalisée, là où la table seule exigeait
+// l'écriture exacte. Le repli sur null garde le rendu intact si le fichier
+// partagé n'est pas chargé.
+function logoEntreprise(slug) {
+  return (typeof CLAIM_ENTREPRISES !== 'undefined' && CLAIM_ENTREPRISES.logoEntreprise)
+    ? CLAIM_ENTREPRISES.logoEntreprise(slug) : null;
+}
 
 function renderCompanyLogo(company, cssClass) {
   const color = companyColor((company && company.slug) || '');
   const initials = companyInitials((company && company.name) || '?');
   // Priorité 1: logo_url de l'API, Priorité 2: mapping statique
-  const logoUrl = (company && company.logo_url) || COMPANY_LOGO_URLS[(company && company.slug) || ''] || null;
+  const logoUrl = (company && company.logo_url) || logoEntreprise((company && company.slug) || '');
   if (logoUrl) {
     return '<div class="' + cssClass + '" style="background:' + color + ';">' +
       '<span>' + initials + '</span>' +

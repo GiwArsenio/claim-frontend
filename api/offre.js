@@ -89,6 +89,16 @@ function blocSalaire(job) {
 async function construire(job, urlCanonique) {
   const societe = job.companies || {};
   const nomSociete = societe.name || job.source || '';
+
+  // Identité de l'employeur : la même cascade que sur les cartes — le logo
+  // publié par la source, puis la table partagée, puis les initiales sur la
+  // teinte de sa fiche. Jamais de trou, et jamais deux rendus différents
+  // selon la surface.
+  const logoSociete = societe.logo_url
+    || (ANNUAIRE && societe.slug ? ANNUAIRE.logoEntreprise(societe.slug) : null);
+  const initialesSociete = ANNUAIRE ? ANNUAIRE.initiales(nomSociete) : '';
+  const teinteSociete = (ANNUAIRE && societe.slug)
+    ? ANNUAIRE.couleurEntreprise(societe.slug) : '#006876';
   const ville = job.ville || job.city || '';
   const contrat = job.contract_type || '';
   const description = job.description_raw || '';
@@ -177,6 +187,18 @@ async function construire(job, urlCanonique) {
   // La page ne depend que de sa propre offre : aucun aller-retour vers l'API
   // au-dela de l'annonce elle-meme.
 
+  // Discret par construction : la tuile accompagne le nom de l'entreprise,
+  // elle ne dispute pas la vedette au titre. L'initiale reste dessous : elle
+  // s'efface dès que l'image est chargée, et reprend la main si elle échoue.
+  const tuileSociete = (() => {
+    const fond = echapper(teinteSociete);
+    const inits = echapper(initialesSociete);
+    if (!logoSociete) return `<span class="slogo" style="background:${fond}">${inits}</span>`;
+    return `<span class="slogo" style="background:${fond}"><span>${inits}</span>`
+      + `<img src="${echapper(logoSociete)}" alt="Logo ${echapper(nomSociete)}" `
+      + `onerror="this.remove()" onload="this.previousElementSibling.remove()"/></span>`;
+  })();
+
   const html = `<!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -203,7 +225,14 @@ ${societe.logo_url
  .enveloppe { max-width:46rem; margin:0 auto; padding:1.5rem 1.25rem 4rem; }
  .retour { display:inline-block; margin-bottom:1.25rem; color:var(--teal); text-decoration:none; font-weight:600; font-size:.9rem; }
  h1 { font-size:1.6rem; margin:0 0 .4rem; line-height:1.25; }
- .societe { color:var(--gris); font-size:1rem; font-weight:600; margin-bottom:.9rem; }
+ .societe { display:flex; align-items:center; gap:.55rem; color:var(--gris); font-size:1rem; font-weight:600; margin-bottom:.9rem; }
+ /* Tuile d'identité de l'employeur. Même dessin que les cartes, à l'échelle
+    de la page de lecture : elle situe l'entreprise sans concurrencer le titre. */
+ .slogo { width:26px; height:26px; border-radius:.375rem; flex-shrink:0; position:relative; overflow:hidden;
+   display:inline-flex; align-items:center; justify-content:center; color:#fff; font-weight:900;
+   font-size:9px; letter-spacing:-.02em; }
+ .slogo img { position:absolute; inset:0; width:100%; height:100%; object-fit:contain;
+   border-radius:inherit; padding:2px; }
  .pastilles { display:flex; flex-wrap:wrap; gap:.4rem; margin-bottom:1.6rem; }
 /* Pastilles : chaque badge tient sur sa ligne, sans jamais déborder. */
  .pastille { display:inline-block !important; width:fit-content; max-width:100%; padding:3px 10px; border:1px solid #dce5e9; border-radius:9999px; background:#f5f8f9; font-size:.78rem; font-weight:600; color:#24363d; overflow-wrap:anywhere; white-space:normal; line-height:1.4; }
@@ -261,7 +290,7 @@ ${societe.logo_url
 <main class="enveloppe">
   <a class="retour" href="/job-board.html">← Toutes les offres</a>
   <h1>${echapper(job.title)}</h1>
-  <div class="societe">${echapper(nomSociete)}${ville ? ' · ' + echapper(ville) : ''}</div>
+  <div class="societe">${tuileSociete}<span>${echapper(nomSociete)}${ville ? ' · ' + echapper(ville) : ''}</span></div>
   <div class="pastilles">${pastilles.join('')}</div>
   ${corps || '<p>Description non disponible.</p>'}
   <div class="pied">
