@@ -471,48 +471,48 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
 
 
   /* ── L'AFFICHE DE CHANTIER ──
-     Le bandeau devient la page : titre, explication, moyen de se tenir
-     informé. Le contenu existant reste dans le HTML, masqué (hidden) —
-     il se reactive en changeant un seul attribut. */
+     Sur la charte du site : le teal du bandeau, le champ gris du hero, la
+     meme ombre que les cartes. Le contenu existant reste dans le HTML,
+     masque (hidden) — il se reactive en changeant un seul attribut. */
   .chantier {
     min-height: calc(100vh - 6rem);
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     text-align: center; padding: 3rem 1.5rem;
-    background: repeating-linear-gradient(45deg, #fff7e6, #fff7e6 14px, #ffeec2 14px, #ffeec2 28px);
-    border-bottom: 1px solid #f0d89a;
+    background: var(--champ, #f3f4f5);
+    border-bottom: 1px solid var(--bord, #e2e9ec);
   }
   .chantier .etiquette {
     display: inline-block; font-size: .68rem; font-weight: 800; letter-spacing: .1em;
-    text-transform: uppercase; background: #b26a00; color: #fff; border-radius: 9999px;
-    padding: .3rem .9rem; margin-bottom: 1rem;
+    text-transform: uppercase; background: var(--teal, #006876); color: #fff;
+    border-radius: 9999px; padding: .3rem .9rem; margin-bottom: 1rem;
     animation: chantier-clignote 2.4s steps(1, end) infinite;
   }
   .chantier .h1 {
     font-size: clamp(1.7rem, 3.6vw, 2.6rem); font-weight: 900; letter-spacing: -.03em;
-    color: #4a2f00; margin: 0 0 .9rem; max-width: 22ch; line-height: 1.12;
+    color: var(--encre, #191c1d); margin: 0 0 .9rem; max-width: 22ch; line-height: 1.12;
   }
-  .chantier .h1 em { font-style: normal; color: #b26a00; }
-  .chantier .lede { font-size: 1.05rem; color: #6b4400; max-width: 54ch; margin: 0 0 2rem; line-height: 1.6; }
+  .chantier .h1 em { font-style: normal; color: var(--teal, #006876); }
+  .chantier .lede { font-size: 1.05rem; color: var(--gris, #515f78); max-width: 54ch; margin: 0 0 2rem; line-height: 1.6; }
   .chantier .form {
     display: flex; gap: .5rem; background: #fff; padding: .4rem; border-radius: 9999px;
-    box-shadow: 0 2px 10px rgba(107, 68, 0, .18); max-width: 480px; width: 100%;
-    border: 1px solid #f0d89a;
+    box-shadow: var(--ombre, 0 1px 2px rgba(25, 44, 52, .06), 0 4px 14px rgba(25, 44, 52, .05));
+    max-width: 480px; width: 100%; border: 1px solid var(--bord, #e2e9ec);
   }
   .chantier .form input {
     flex: 1; border: none; outline: none; background: transparent; font-family: inherit;
-    font-size: .95rem; color: #4a2f00; padding: .65rem .75rem; min-width: 0;
+    font-size: .95rem; color: var(--encre, #191c1d); padding: .65rem .75rem; min-width: 0;
   }
-  .chantier .form input::placeholder { color: rgba(107, 68, 0, .55); }
+  .chantier .form input::placeholder { color: var(--gris-doux, #6c797c); }
   .chantier .form button {
-    background: #b26a00; color: #fff; border: none; border-radius: 9999px; padding: .65rem 1.3rem;
-    font-weight: 700; font-size: .925rem; font-family: inherit; cursor: pointer; white-space: nowrap;
-    min-height: 44px; transition: background .15s;
+    background: var(--teal, #006876); color: #fff; border: none; border-radius: 9999px;
+    padding: .65rem 1.3rem; font-weight: 700; font-size: .925rem; font-family: inherit;
+    cursor: pointer; white-space: nowrap; min-height: 44px; transition: background .15s;
   }
-  .chantier .form button:hover { background: #8f5400; }
-  .chantier .form:focus-within { outline: 3px solid #b26a00; outline-offset: 2px; }
-  .chantier .note { font-size: .78rem; color: #8a6a2f; margin-top: .75rem; }
-  .chantier .retour { font-size: .9rem; color: #6b4400; margin-top: 2.5rem; }
-  .chantier .retour a { color: #8f5400; font-weight: 700; }
+  .chantier .form button:hover { background: #005663; }
+  .chantier .form:focus-within { outline: 3px solid var(--teal, #006876); outline-offset: 2px; }
+  .chantier .note { font-size: .78rem; color: var(--gris-doux, #6c797c); margin-top: .75rem; }
+  .chantier .retour { font-size: .9rem; color: var(--gris, #515f78); margin-top: 2.5rem; }
+  .chantier .retour a { color: var(--teal, #006876); font-weight: 700; }
   .chantier .retour a:hover { text-decoration: underline; }
   @keyframes chantier-clignote {
     0%, 70%   { opacity: 1; }
