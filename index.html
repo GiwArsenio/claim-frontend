@@ -93,6 +93,9 @@
   .btn-burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
   .btn-burger.open span:nth-child(2) { opacity: 0; }
   .btn-burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+  /* Le tiroir n'existe qu'au téléphone : rien à peindre, et aucune règle
+     enfant qui pourrait fuir sur les grands écrans. Sa mise en forme vit
+     entièrement dans le palier 768 px, plus bas. */
   #burger-menu { display: none; }
 
   /* ── HERO ── */
@@ -265,6 +268,38 @@
     .btn-burger { display: flex; }
     #burger-menu { display: block; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
                    z-index: 300; pointer-events: none; }
+
+    /* Volet du menu : glisse depuis la droite, par-dessus la page. */
+    .bm-overlay { position: absolute; inset: 0; background: rgba(0, 0, 0, .45);
+                  opacity: 0; transition: opacity .3s; }
+    .bm-panel { position: absolute; top: 0; right: 0; bottom: 0;
+                width: 78vw; max-width: 300px; background: var(--teal);
+                transform: translateX(100%);
+                transition: transform .3s cubic-bezier(.4, 0, .2, 1);
+                display: flex; flex-direction: column; padding: 0;
+                box-shadow: -4px 0 24px rgba(0, 0, 0, .18); }
+    #burger-menu.open { pointer-events: all; }
+    #burger-menu.open .bm-overlay { opacity: 1; }
+    #burger-menu.open .bm-panel { transform: translateX(0); }
+
+    .bm-header { display: flex; align-items: center; justify-content: space-between;
+                 padding: .875rem 1.25rem; border-bottom: 1px solid rgba(255, 255, 255, .12); }
+    .bm-logo { font-size: 1.3rem; font-weight: 900; color: #fff; letter-spacing: -.05em; }
+    .bm-close { background: rgba(255, 255, 255, .12); border: none; color: #fff;
+                width: 32px; height: 32px; border-radius: .375rem; cursor: pointer;
+                display: flex; align-items: center; justify-content: center; }
+
+    .bm-nav { flex: 1; display: flex; flex-direction: column; padding: .75rem 0; gap: .1rem; }
+    .bm-nav a { display: flex; align-items: center; gap: .75rem; color: rgba(255, 255, 255, .85);
+                text-decoration: none; font-size: .95rem; font-weight: 600;
+                padding: .875rem 1.25rem; transition: background .15s, color .15s; }
+    .bm-nav a.on { color: #fff; background: rgba(255, 255, 255, .12); }
+    .bm-nav a .ms { font-size: 20px; color: rgba(255, 255, 255, .6); }
+    .bm-nav a.on .ms { color: rgba(255, 255, 255, .9); }
+
+    .bm-footer { padding: 1rem 1.25rem 1.5rem; border-top: 1px solid rgba(255, 255, 255, .12); }
+    .bm-footer .btn-cta { display: flex; width: 100%; justify-content: center;
+                          padding: .65rem 1rem; font-size: .925rem; border-radius: .5rem; }
 
     .hero { padding: 1.5rem 0 1.25rem; }
     .sbar { flex-direction: column; border-radius: .875rem; padding: .25rem;
