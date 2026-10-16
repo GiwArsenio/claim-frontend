@@ -553,11 +553,11 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
   <div id="hd">
     <nav>
       <div style="display:flex;align-items:center;gap:2.5rem;">
-        <span class="logo">Claim!</span>
+        <a class="logo" href="/">Claim!</a>
         <div class="nav-links">
-          <a href="#">Offres</a>
-          <a href="#" class="on">Entreprises</a>
-          <a href="#">Observatoire de l'assurance</a>
+          <a href="/job-board.html">Offres d'emploi</a>
+          <a href="/claim-entreprises.html" class="on">Entreprises</a>
+          <a href="/claim-observatoire.html">Observatoire de l'assurance</a>
         </div>
       </div>
       <div style="display:flex;align-items:center;gap:.75rem;">
@@ -1032,9 +1032,9 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeBurger(
     </div>
     <nav class="bm-nav">
       <a href="job-board.html" onclick="closeBurger()">
-        <span class="ms">work</span>Offres
+        <span class="ms">work</span>Offres d'emploi
       </a>
-      <a href="#" class="on" onclick="closeBurger()">
+      <a href="/claim-entreprises.html" class="on" onclick="closeBurger()">
         <span class="ms">business</span>Entreprises
       </a>
       <a href="claim-observatoire.html" onclick="closeBurger()">

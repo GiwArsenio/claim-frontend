@@ -264,7 +264,7 @@ ${societe.logo_url
   <div class="pastilles">${pastilles.join('')}</div>
   ${corps || '<p>Description non disponible.</p>'}
   <div class="pied">
-    Offre publiée sur <a href="${SITE_URL}/job-board.html">Claim!</a>.
+    Offre publiée sur <a href="${SITE_URL}/">Claim!</a>.
     ${job.source_url ? `Source : <a href="${echapper(job.source_url)}" rel="nofollow noopener" target="_blank" data-sortie="annonce">l'annonce d'origine</a>.` : ''}
   </div>
 </main>

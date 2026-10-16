@@ -562,11 +562,11 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
   <div id="hd">
     <nav>
       <div style="display:flex;align-items:center;gap:2.5rem;">
-        <span class="logo">Claim!</span>
+        <a class="logo" href="/">Claim!</a>
         <div class="nav-links">
-          <a href="#" class="on">Offres</a>
-          <a href="#">Entreprises</a>
-          <a href="#">Observatoire de l'assurance</a>
+          <a href="/job-board.html" class="on">Offres d'emploi</a>
+          <a href="/claim-entreprises.html">Entreprises</a>
+          <a href="/claim-observatoire.html">Observatoire de l'assurance</a>
         </div>
       </div>
       <div style="display:flex;align-items:center;gap:.75rem;">
@@ -1717,8 +1717,8 @@ loadJobs();
       </button>
     </div>
     <nav class="bm-nav">
-      <a href="#" class="on" onclick="closeBurger()">
-        <span class="ms">work</span>Offres
+      <a href="/job-board.html" class="on" onclick="closeBurger()">
+        <span class="ms">work</span>Offres d'emploi
       </a>
       <a href="claim-entreprises.html" onclick="closeBurger()">
         <span class="ms">business</span>Entreprises
