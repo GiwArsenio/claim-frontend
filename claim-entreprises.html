@@ -23,7 +23,7 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
 /* ── HEADER ── */
 #hd { flex-shrink: 0; background: #006876; z-index: 200; }
 #hd nav { display: flex; justify-content: space-between; align-items: center; padding: .75rem 2rem; }
-.logo { font-size: 1.5rem; font-weight: 900; color: #fff; letter-spacing: -.05em; cursor: pointer; }
+.logo { font-size: 1.5rem; font-weight: 900; color: #fff; letter-spacing: -.05em; cursor: pointer; text-decoration: none; }
 .nav-links { display: flex; gap: 2rem; }
 .nav-links a { color: rgba(255,255,255,.8); text-decoration: none; font-size: .875rem; font-weight: 600; transition: color .15s; }
 .nav-links a:hover { color: #fff; }
@@ -469,47 +469,62 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
   #burger-menu { display: none !important; }
 }
 
-  /* ── BANDEAU « EN CONSTRUCTION » ── */
+
+  /* ── L'AFFICHE DE CHANTIER ──
+     Le bandeau devient la page : titre, explication, moyen de se tenir
+     informé. Le contenu existant reste dans le HTML, masqué (hidden) —
+     il se reactive en changeant un seul attribut. */
   .chantier {
+    min-height: calc(100vh - 6rem);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 3rem 1.5rem;
     background: repeating-linear-gradient(45deg, #fff7e6, #fff7e6 14px, #ffeec2 14px, #ffeec2 28px);
     border-bottom: 1px solid #f0d89a;
-    padding: .85rem 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: .75rem;
-    flex-wrap: wrap;
-    text-align: center;
   }
-  .chantier .icone {
-    display: inline-flex; align-items: center; justify-content: center;
-    width: 26px; height: 26px; border-radius: 50%;
-    background: #b26a00; color: #fff; flex-shrink: 0;
-    font-size: 15px; font-weight: 900;
-    animation: chantier-tour 3.2s ease-in-out infinite;
-  }
-  .chantier .texte { font-size: .88rem; font-weight: 600; color: #6b4400; }
-  .chantier .texte strong { color: #4a2f00; }
   .chantier .etiquette {
-    font-size: .68rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
-    background: #b26a00; color: #fff; border-radius: 9999px; padding: .2rem .7rem;
+    display: inline-block; font-size: .68rem; font-weight: 800; letter-spacing: .1em;
+    text-transform: uppercase; background: #b26a00; color: #fff; border-radius: 9999px;
+    padding: .3rem .9rem; margin-bottom: 1rem;
     animation: chantier-clignote 2.4s steps(1, end) infinite;
   }
-  @keyframes chantier-tour {
-    0%, 45%   { transform: rotate(0deg); }
-    55%, 100% { transform: rotate(360deg); }
+  .chantier .h1 {
+    font-size: clamp(1.7rem, 3.6vw, 2.6rem); font-weight: 900; letter-spacing: -.03em;
+    color: #4a2f00; margin: 0 0 .9rem; max-width: 22ch; line-height: 1.12;
   }
+  .chantier .h1 em { font-style: normal; color: #b26a00; }
+  .chantier .lede { font-size: 1.05rem; color: #6b4400; max-width: 54ch; margin: 0 0 2rem; line-height: 1.6; }
+  .chantier .form {
+    display: flex; gap: .5rem; background: #fff; padding: .4rem; border-radius: 9999px;
+    box-shadow: 0 2px 10px rgba(107, 68, 0, .18); max-width: 480px; width: 100%;
+    border: 1px solid #f0d89a;
+  }
+  .chantier .form input {
+    flex: 1; border: none; outline: none; background: transparent; font-family: inherit;
+    font-size: .95rem; color: #4a2f00; padding: .65rem .75rem; min-width: 0;
+  }
+  .chantier .form input::placeholder { color: rgba(107, 68, 0, .55); }
+  .chantier .form button {
+    background: #b26a00; color: #fff; border: none; border-radius: 9999px; padding: .65rem 1.3rem;
+    font-weight: 700; font-size: .925rem; font-family: inherit; cursor: pointer; white-space: nowrap;
+    min-height: 44px; transition: background .15s;
+  }
+  .chantier .form button:hover { background: #8f5400; }
+  .chantier .form:focus-within { outline: 3px solid #b26a00; outline-offset: 2px; }
+  .chantier .note { font-size: .78rem; color: #8a6a2f; margin-top: .75rem; }
+  .chantier .retour { font-size: .9rem; color: #6b4400; margin-top: 2.5rem; }
+  .chantier .retour a { color: #8f5400; font-weight: 700; }
+  .chantier .retour a:hover { text-decoration: underline; }
   @keyframes chantier-clignote {
     0%, 70%   { opacity: 1; }
     85%, 100% { opacity: .45; }
   }
-  @media (prefers-reduced-motion: reduce) {
-    .chantier .icone, .chantier .etiquette { animation: none; }
+  @media (prefers-reduced-motion: reduce) { .chantier .etiquette { animation: none; } }
+  @media (max-width: 560px) {
+    .chantier .form { flex-direction: column; border-radius: 1rem; }
+    .chantier .form button { width: 100%; }
+    .chantier { padding: 2rem 1rem; }
   }
-  @media (max-width: 640px) {
-    .chantier { padding: .75rem 1.25rem; gap: .5rem; }
-    .chantier .texte { font-size: .82rem; }
-  }
+
 </style>
 
 <!-- Balises SEO : titre enrichi, description, URL canonique, partage social -->
@@ -542,14 +557,28 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
 <body>
 <div id="app">
 
-  <!-- ══ EN CONSTRUCTION ══ -->
-  <div class="chantier" role="status">
-    <span class="icone" aria-hidden="true">⚠</span>
-    <span class="texte"><strong>La page Entreprises est en chantier.</strong> L'annuaire des employeurs arrive bientôt : vos filtres et vos fiches seront là, une par une.</span>
+  <!-- ══ AFFICHE DE CHANTIER ══
+       Le contenu de la page est archive ci-dessous (contenu-archive, hidden).
+       Pour reactiver : retirer `hidden` sur #contenu-archive, et commenter
+       ce bloc affiche. -->
+  <section class="chantier" role="status" aria-live="polite">
     <span class="etiquette">En construction</span>
-  </div>
+    <h1 class="h1">L'annuaire des entreprises est <em>en construction</em>.</h1>
+    <p class="lede">Les fiches employeurs, les filtres et les avantages arrivent bientôt. Laissez votre email : vous serez prévenu dès l'ouverture.</p>
+    <form class="form" action="mailto:contact@claimyourjob.fr" method="post" enctype="text/plain">
+      <label class="sr-only" for="chantier-email">Votre adresse email</label>
+      <input id="chantier-email" name="email" type="email" required
+             placeholder="vous@exemple.fr" autocomplete="email">
+      <button type="submit">Me prévenir</button>
+    </form>
+    <p class="note">Aucun spam. Un seul message le jour de l'ouverture.</p>
+    <p class="retour">D'ici là, tout le reste du site est ouvert :
+      <a href="/job-board.html">offres d'emploi</a> ·
+      <a href="/">accueil</a>.</p>
+  </section>
 
   <!-- ══ HEADER ══ -->
+  <div id="contenu-archive" hidden>
   <div id="hd">
     <nav>
       <div style="display:flex;align-items:center;gap:2.5rem;">
@@ -730,7 +759,8 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
     <span class="ft-copy">© 2026 Claim your job · Fait avec ♥ pour les actuaires, data scientists &amp; profils IA</span>
   </div>
 
-</div>
+</div><!-- /contenu-archive -->
+  </div>
 
 <script>
 /* ══════════════════════════════════════════════
