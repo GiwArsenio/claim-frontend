@@ -1299,6 +1299,18 @@ function renderFeed() {
 
     const el = document.createElement('div');
     el.className = 'jc' + (j.id === activeId ? ' on' : '');
+
+    // Préchargement : le survol donne à l'API le temps de répondre avant le
+    // clic. Sur écran tactile, pointerdown joue ce rôle.
+    el.addEventListener('pointerenter', () => {
+      clearTimeout(minuteurPrechargement);
+      minuteurPrechargement = setTimeout(() => prechargerDetail(j.id), 80);
+    });
+    el.addEventListener('pointerleave', () => clearTimeout(minuteurPrechargement));
+    el.addEventListener('pointerdown', () => {
+      clearTimeout(minuteurPrechargement);
+      prechargerDetail(j.id);
+    });
     el.onclick = async () => {
       activeId = j.id;
       // Sélection dans la liste. Distincte de l'ouverture automatique de la
@@ -1507,77 +1519,125 @@ function poserAdresseOffre(slug) {
   try { history.pushState({ offre: slug }, '', cible); } catch (e) { /* sans history */ }
 }
 
-async function renderDetail(id) {
+// ── Dessin de la fiche ─────────────────────────────────────────────────────
+// Le contenu de la fiche ne dépend pas de la requête de détail : celle-ci
+// n'apporte que la structure éditoriale (description_html, sections), que la
+// liste ne porte pas. Le texte, lui, est déjà là — description_raw est dans
+// la réponse de liste.
+//
+// On dessine donc immédiatement ce que la liste contient, et on remplace
+// quand le détail arrive. L'écran « Chargement du détail… » ne sert plus qu'au
+// cas où l'on n'a vraiment rien : un lien direct, par exemple.
+function dessinerDetail(j) {
+  offreCourante = j;
+  const co = j.companies || {};
+  const skillsBloc = skillsHtml(j);
+
+  // Priorité à la structure éditoriale de la source quand elle a été
+  // conservée à la collecte : paragraphes, puces et emphases sont ceux de la
+  // rédaction d'origine. Le HTML a été nettoyé à la collecte ; il n'est
+  // jamais évalué, seulement inséré.
+  const htmlSource = typeof j.description_html === 'string' ? j.description_html.trim() : '';
+  descHtmlSource = (htmlSource && /<(p|ul|ol|li|h[2-6]|blockquote)\b/i.test(htmlSource))
+    ? htmlSource : '';
+
+  // Sans structure d'origine : découpe automatique quand les intitulés sont
+  // reconnaissables, sinon le texte entier. Rien n'est perdu.
+  const sectionsApi = (Array.isArray(j.sections) ? j.sections : [])
+    .filter(s => (s.paragraphes || []).length);
+  const blocsTexte = descriptionBlocks(j.description_raw);
+  descSections = sectionsApi.length
+    ? sectionsApi.map(s => ({ titre: s.titre, paragraphes: s.paragraphes }))
+    : (blocsTexte.length ? [{ titre: 'Aperçu du poste', paragraphes: blocsTexte }] : []);
+  descExpanded = {};
+  const resumeIa = j.ai_summary ? `<p class="desc-ia">${escapeHtml(j.ai_summary)}</p>` : '';
+  const summary = descHtmlSource
+    ? resumeIa + `<div class="desc-source">${descHtmlSource}</div>`
+    : (descSections.length
+        ? resumeIa + descriptionSectionsHtml()
+        : '<p>Description non disponible.</p>');
+
   document.getElementById('detail').innerHTML = `
-    <button class="btn-back" onclick="closeDetail()">
-      ← Toutes les offres
-    </button>
-    <div class="dc" style="padding:2rem;color:#6c797c;font-size:.85rem;">Chargement du détail…</div>
+    <div class="dc-wrap">
+    <div class="dc">
+      <button class="btn-back" onclick="closeDetail()">← Toutes les offres</button>
+      <div class="d-entete">
+        <div class="d-entete-corps">
+          <h1 class="dtitle">${j.title}</h1>
+          <div class="dco">${co.name || j.source}${j.ville ? ' · ' + escapeHtml(j.ville) : ''}</div>
+          <div class="pastilles">${pastillesOffreHtml(j)}</div>
+        </div>
+        <div class="dact">
+          ${j.source_url ? `<a class="bap" href="${escapeHtml(j.source_url)}" target="_blank" rel="nofollow noopener" onclick="mesurerClicPostuler()">Postuler</a>` : ''}
+          <button class="bsh" type="button" onclick="partagerOffre()">Partager</button>
+        </div>
+      </div>
+      ${summary}
+      ${skillsBloc}
+      <div class="pied">
+        Offre publiée sur <a href="/job-board.html">Claim!</a>.
+        ${j.source_url ? `Source : <a href="${escapeHtml(j.source_url)}" rel="nofollow noopener" target="_blank">l'annonce d'origine</a>.` : ''}
+      </div>
+    </div>
+    </div>
   `;
-  try {
-    const j = await fetchDetail(id);
-    offreCourante = j;
-    if (origineDetail !== 'auto') mesurer('view_item', paramOffre(j, 'board'));
-    const co = j.companies || {};
-    const skillsBloc = skillsHtml(j);
+}
 
-    // Priorité à la structure éditoriale de la source quand elle a été
-    // conservée à la collecte : paragraphes, puces et emphases sont ceux de la
-    // rédaction d'origine. Le HTML a été nettoyé à la collecte ; il n'est
-    // jamais évalué, seulement inséré.
-    const htmlSource = typeof j.description_html === 'string' ? j.description_html.trim() : '';
-    descHtmlSource = (htmlSource && /<(p|ul|ol|li|h[2-6]|blockquote)\b/i.test(htmlSource))
-      ? htmlSource : '';
+// ── Préchargement ──────────────────────────────────────────────────────────
+// L'API met de 300 ms à plus de 1 500 ms à répondre. Le survol d'une carte
+// donne cet intervalle : la requête part avant le clic, et la fiche s'ouvre
+// alors sans attente. Un délai de 80 ms évite de déclencher une requête pour
+// chaque carte traversée au passage de la souris.
+let minuteurPrechargement = null;
+function prechargerDetail(id) {
+  if (detailCache[id]) return;
+  fetchDetail(id).catch(() => { /* l'erreur sera vue au clic */ });
+}
 
-    // Sans structure d'origine : découpe automatique quand les intitulés sont
-    // reconnaissables, sinon le texte entier. Rien n'est perdu.
-    const sectionsApi = (Array.isArray(j.sections) ? j.sections : [])
-      .filter(s => (s.paragraphes || []).length);
-    const blocsTexte = descriptionBlocks(j.description_raw);
-    descSections = sectionsApi.length
-      ? sectionsApi.map(s => ({ titre: s.titre, paragraphes: s.paragraphes }))
-      : (blocsTexte.length ? [{ titre: 'Aperçu du poste', paragraphes: blocsTexte }] : []);
-    descExpanded = {};
-    const resumeIa = j.ai_summary ? `<p class="desc-ia">${escapeHtml(j.ai_summary)}</p>` : '';
-    const summary = descHtmlSource
-      ? resumeIa + `<div class="desc-source">${descHtmlSource}</div>`
-      : (descSections.length
-          ? resumeIa + descriptionSectionsHtml()
-          : '<p>Description non disponible.</p>');
+// ── Rendu de la fiche ──────────────────────────────────────────────────────
+async function renderDetail(id) {
+  const enListe = ALL_JOBS.find(x => x.id === id);
+  const enCache = detailCache[id];
+  const depart = enCache || enListe;
 
-    document.getElementById('detail').innerHTML = `
-      <div class="dc-wrap">
-      <div class="dc">
-        <button class="btn-back" onclick="closeDetail()">← Toutes les offres</button>
-        <div class="d-entete">
-          <div class="d-entete-corps">
-            <h1 class="dtitle">${j.title}</h1>
-            <div class="dco">${co.name || j.source}${j.ville ? ' · ' + escapeHtml(j.ville) : ''}</div>
-            <div class="pastilles">${pastillesOffreHtml(j)}</div>
-          </div>
-          <div class="dact">
-            ${j.source_url ? `<a class="bap" href="${escapeHtml(j.source_url)}" target="_blank" rel="nofollow noopener" onclick="mesurerClicPostuler()">Postuler</a>` : ''}
-            <button class="bsh" type="button" onclick="partagerOffre()">Partager</button>
-          </div>
-        </div>
-        ${summary}
-        ${skillsBloc}
-        <div class="pied">
-          Offre publiée sur <a href="/job-board.html">Claim!</a>.
-          ${j.source_url ? `Source : <a href="${escapeHtml(j.source_url)}" rel="nofollow noopener" target="_blank">l'annonce d'origine</a>.` : ''}
-        </div>
-      </div>
-      </div>
-    `;
-  } catch (e) {
+  if (depart) {
+    dessinerDetail(depart);
+  } else {
     document.getElementById('detail').innerHTML = `
       <button class="btn-back" onclick="closeDetail()">
         ← Toutes les offres
       </button>
-      <div class="dc" style="padding:2rem;color:#c0392b;font-size:.85rem;">
-        Erreur : ${e.message}
-      </div>
+      <div class="dc" style="padding:2rem;color:#6c797c;font-size:.85rem;">Chargement du détail…</div>
     `;
+  }
+
+  try {
+    const j = await fetchDetail(id);
+    offreCourante = j;
+    if (origineDetail !== 'auto') mesurer('view_item', paramOffre(j, 'board'));
+
+    // Le cache a servi : ce qui est à l'écran est déjà la bonne version.
+    if (j === depart) return;
+
+    // Sinon la fiche affichée vient de la liste, sans la structure d'origine.
+    // On la remplace sans déplacer le lecteur : le texte est le même, seule
+    // sa mise en forme s'affine.
+    const lecture = prEl.scrollTop;
+    dessinerDetail(j);
+    if (!isMobile() && lecture > 0) prEl.scrollTop = lecture;
+  } catch (e) {
+    // Si la liste a déjà fourni de quoi lire, on la garde : mieux vaut une
+    // fiche sans structure qu'un écran d'erreur.
+    if (!depart) {
+      document.getElementById('detail').innerHTML = `
+        <button class="btn-back" onclick="closeDetail()">
+          ← Toutes les offres
+        </button>
+        <div class="dc" style="padding:2rem;color:#c0392b;font-size:.85rem;">
+          Erreur : ${e.message}
+        </div>
+      `;
+    }
     console.error('[CLAIM!] renderDetail error:', e);
   }
 }
