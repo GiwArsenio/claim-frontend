@@ -180,9 +180,11 @@ async function construire(job, urlCanonique) {
     item_id:          String(job.id == null ? '' : job.id),
     item_name:        job.title || '',
     company_name:     nomSociete,
-    job_specialty:    job.jev_specialty || job.specialty || '',
+    // Même règle que les pastilles : une valeur non publiable n'est jamais
+    // transmise. Sans cela, une offre « autre » envoyait job_specialty=autre.
+    job_specialty:    (job.jev_publishable || {}).specialty ? job.jev_specialty : '',
     contract_type:    contrat,
-    experience_level: job.jev_experience || '',
+    experience_level: (job.jev_publishable || {}).experience ? job.jev_experience : '',
     job_source:       job.source || '',
     view_context:     'standalone',
   };
