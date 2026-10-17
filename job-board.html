@@ -1305,9 +1305,24 @@ function renderFeed() {
       // première offre au chargement : celle-ci n'est pas un choix.
       mesurer('select_item', paramOffre(j, 'board'));
       origineDetail = 'liste';
+
+      // La lecture en cours ne se perd pas. Changer d'offre ne doit pas
+      // ramener la fiche en haut : l'en-tête reste collé, et la fiche suivante
+      // se lit à la même hauteur. On relève donc les deux défilements avant
+      // le rendu — ils retombent à zéro pendant le temps de chargement, puis
+      // on les remet en place.
+      const lectureFiche = prEl.scrollTop;
+      const lectureListe = plEl.scrollTop;
+
       renderFeed();
+      if (lectureListe) plEl.scrollTop = lectureListe;
+
       await renderDetail(j.id);
-      if (!isMobile()) prEl.scrollTop = 0;
+
+      // Après le rendu, pas avant : c'est renderDetail qui remplace le contenu
+      // par un écran de chargement, et c'est ce contenu court qui ramène le
+      // défilement à zéro. Restaurer ici le repose sur le texte définitif.
+      if (!isMobile() && lectureFiche) prEl.scrollTop = lectureFiche;
       openDetail();
       poserAdresseOffre(j.slug);
     };
