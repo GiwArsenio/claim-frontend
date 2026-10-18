@@ -938,7 +938,8 @@ function buildJobsUrl(page) {
   if (f.specialty) params.set('specialty', f.specialty);
   if (f.experience) params.set('experience', f.experience);
   if (f.ats) params.set('ats', f.ats);
-  params.set('france_only', 'true');
+  // Plus de filtre France côté navigateur : la portée géographique est
+  // appliquée à la collecte (cabinets de conseil uniquement).
   if (!isSearch) params.set('order', 'desc');
   return `${API_BASE}/${isSearch ? 'jobs/search' : 'jobs'}?${params.toString()}`;
 }

@@ -758,8 +758,10 @@ async function chargerOffres() {
   try {
     // Les mêmes paramètres que le board : l'accueil montre ce que le board
     // montre, dans le même ordre.
+    // Périmètre géographique décidé côté collecte : le board affiche tout ce
+    // que l'API publie, sans re-filtrer la France ici.
     const params = new URLSearchParams({ per_page: '6', limit: '6', page: '1',
-                                         france_only: 'true', order: 'desc' });
+                                         order: 'desc' });
     const r = await fetch(`${API_BASE}/jobs?${params}`);
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const d = await r.json();
