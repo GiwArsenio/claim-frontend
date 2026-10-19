@@ -19,7 +19,9 @@
 }
 
 /* ── LAYOUT PRINCIPAL ── */
-html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; color: #191c1d; background: #f3f4f5; margin: 0; }
+/* L'interligne de l'accueil, repris : sans lui le navigateur en choisit un,
+   et l'en-tête mesurait 56 px au lieu des 64 de la page d'accueil. */
+html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; color: #191c1d; background: #f3f4f5; margin: 0; line-height: 1.65; }
 
 #app { display: grid; grid-template-rows: auto auto 1fr; height: 100%; overflow: hidden; }
 
@@ -34,23 +36,29 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
                        le surplus au-delà. Le bloc garde donc 1 720 px de
                        large : ni la colonne ni la fiche ne s'étirent sans fin.
 
-   A 1 920 px : 100 + 420 + 32 + 842 + 100 = 1 494, et la fiche prend le reste
+   A 1 920 px : 100 + 420 + 32 + 920 + 100 = 1 572, et la fiche prend le reste
    jusqu'a son plafond. */
 :root {
   --colonne-liste: 420px;
-  --enveloppe-lecture: 46rem;   /* 736 px : la largeur de lecture */
-  --enveloppe-large: 842px;     /* + 106 px quand la place existe */
+  --enveloppe-lecture: 57.5rem; /* 920 px : la largeur de lecture, +25 % */
+  --enveloppe-large: 1032px;    /* + 112 px quand la place existe */
   --marge-page: max(2rem, calc((100vw - 1720px) / 2));
+  --teal: #006876;              /* la teinte de l'accueil, pour l'en-tête */
 }
 
 /* Header */
-#hd { background: #006876; z-index: 200; }
+/* L'en-tête est celui de l'accueil, repris à l'identique : teinte, hauteur,
+   typographie et bouton. Seules diffèrent les deux marques d'état — le lien
+   courant, que l'accueil n'a pas à marquer, et le comportement du bouton
+   Contact, sans section contact ici. */
+#hd { background: var(--teal); position: sticky; top: 0; z-index: 200; }
 #hd nav { display: flex; justify-content: space-between; align-items: center; padding: .75rem 2rem; }
 .logo { font-size: 1.5rem; font-weight: 900; color: #fff; letter-spacing: -.05em; text-decoration: none; }
 .nav-links { display: flex; gap: 2rem; }
-.nav-links a { color: rgba(255,255,255,.8); text-decoration: none; font-size: 0.925rem; font-weight: 600; }
+.nav-links a { color: rgba(255, 255, 255, .8); text-decoration: none; font-size: .925rem; font-weight: 600; }
+.nav-links a:hover { color: #fff; }
 .nav-links a.on { color: #fff; border-bottom: 2px solid #fff; padding-bottom: 2px; }
-.btn-cta { background: #fff; color: #006876; padding: .45rem 1.2rem; border-radius: .5rem; font-weight: 700; font-size: 0.925rem; border: none; cursor: pointer; }
+.btn-cta { background: #fff; color: var(--teal); padding: .45rem 1.2rem; border-radius: .5rem; font-weight: 700; font-size: .925rem; border: none; cursor: pointer; font-family: inherit; white-space: nowrap; }
 
 /* ── HERO ── */
 #hero {
@@ -120,7 +128,7 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
 /* Enveloppe de lecture reprise du modèle : largeur tenue, marges
    généreuses. Ni bordure ni ombre — sur fond blanc, la carte se voyait. */
 .dc {
-  max-width: 46rem;
+  max-width: var(--enveloppe-lecture);
   margin: 0 auto;
   padding: 1.5rem 1.25rem 4rem;
 }
@@ -487,6 +495,9 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
     top: 0;
     z-index: 5;
     background: #fff;
+    /* Marge négative compensée par le padding : le fond du bloc figé est
+       étiré sur toute la largeur de la fiche, et suit l'enveloppe quand
+       celle-ci change. */
     margin: 0 -1.25rem;
     padding: .35rem 1.25rem .5rem;
     transition: box-shadow .2s ease;

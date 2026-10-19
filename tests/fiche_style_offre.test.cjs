@@ -79,7 +79,14 @@ assert.ok(/@media \(min-width: 769px\)[\s\S]{0,6000}\.pr \{ background: #f3f4f5;
   'en bureau, le volet prend le gris du bandeau : la fiche et le rail s y detachent');
 
 const dc = bloc(html, '.dc');
-assert.ok(dc.includes('max-width: 46rem'), "l'enveloppe tient la largeur de lecture du modèle");
+// L'enveloppe suit la variable de lecture, et non une valeur recopiée :
+// c'est elle qui décide de la largeur, et le calcul des marges s'y appuie.
+assert.ok(dc.includes('max-width: var(--enveloppe-lecture)'),
+  "l'enveloppe prend la largeur de lecture posée par la page");
+const variable = html.match(/--enveloppe-lecture: ([\d.]+)rem/);
+assert.ok(variable, 'la page déclare sa largeur de lecture');
+assert.ok(parseFloat(variable[1]) >= 46 * 1.25 - 0.01,
+  `la fiche garde au moins la largeur du modèle, majorée de 25 % (lu: ${variable[1]}rem)`);
 assert.ok(dc.includes('padding: 1.5rem 1.25rem 4rem'), 'et ses marges');
 assert.ok(/\.dc \{[\s\S]{0,400}border-radius: \.75rem;/.test(html),
   'la fiche est une carte : angles arrondis');
@@ -134,10 +141,13 @@ assert.equal(racine[1].trim(), '420px', 'et valoir la largeur mesuree de la colo
 // la fiche recentree dans la place qui reste. La bande ne descend jamais sous
 // zero — quand la fenetre se resserre, la fiche s'arrete plutot que de
 // deborder sur la colonne.
-const enveloppe = html.match(/:root \{[^}]*--enveloppe-lecture: ([^;]+);/);
+// La largeur n'est pas recopiée ici : elle est déclarée une fois, en rem,
+// et la fiche la prend telle quelle. Le calcul des marges s'appuie sur la
+// même variable, donc les deux ne peuvent pas diverger.
+const enveloppe = html.match(/--enveloppe-lecture:\s*([\d.]+)rem/);
 assert.ok(enveloppe, "la largeur de l'enveloppe doit etre declaree");
-assert.equal(enveloppe[1].trim(), '46rem', 'elle reprend celle de la page d offre');
-assert.ok(dc.includes('max-width: 46rem'), "et l'enveloppe du board s'y conforme");
+assert.ok(parseFloat(enveloppe[1]) > 46, 'elle couvre au moins la largeur de lecture du modele');
+assert.ok(dc.includes('max-width: var(--enveloppe-lecture)'), "et l'enveloppe du board s'y conforme");
 
 const bande = valeur(html, '.pr', 'margin-right');
 assert.ok(bande.startsWith('max(0px,'), 'la bande ne descend jamais sous zero');
