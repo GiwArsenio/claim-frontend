@@ -178,7 +178,73 @@ async function construire(job, urlCanonique) {
   const salaire = blocSalaire(job);
   if (salaire) offre.baseSalary = salaire;
 
-  // Paramètres de mesure, sérialisés dans la page. Même vocabulaire que le
+  // ── Consentement CNIL ──
+// Même bandeau que les pages statiques, en copie locale : le gabarit ne
+// peut pas lire un fichier au moment de la réponse. En mode dégradé la
+// mesure reste active — choix assumé, consigné en documentation.
+const BLOC_CONSENTEMENT = `
+<!-- ── Consentement CNIL ──
+Trois issues, sans SDK ni tiers : rien n'est déposé ni lu depuis un
+domaine étranger. « Personnaliser » est un bouton discret — la CNIL refuse
+les boutons d'égale importance — sans que les deux autres choices soient
+masquées. En mode dégradé, la mesure reste active : le bandeau informe,
+il ne bloque rien (choix assumé, consigné en documentation).
+-->
+<div id="claim-consentement" class="consent" role="dialog" aria-live="polite"
+     aria-label="Choix des cookies" hidden>
+  <p class="consent-texte">Claim! utilise Google Analytics pour mesurer l'audience.
+     Aucun cookie publicitaire n'est déposé.</p>
+  <div class="consent-boutons">
+    <button type="button" class="consent-accepter" data-consent="tout">Tout accepter</button>
+    <button type="button" class="consent-refuser" data-consent="rien">Refuser</button>
+    <button type="button" class="consent-personnaliser" data-consent="perso"
+            aria-expanded="false" aria-controls="consent-panneau">Personnaliser</button>
+  </div>
+  <div id="consent-panneau" class="consent-panneau" hidden>
+    <p>Seul l'audience est concerné. Il n'y a pas de traceur publicitaire,
+       ni de partage de données avec des tiers.</p>
+    <p class="consent-note">Mesure d'audience : active quelle que soit votre réponse.</p>
+  </div>
+</div>
+
+<script>
+(function () {
+  var CLE = 'claim-consentement';
+  var racine = document.getElementById('claim-consentement');
+  if (!racine) return;
+  var panneau = document.getElementById('consent-panneau');
+
+  function lire() { try { return localStorage.getItem(CLE); } catch (e) { return null; } }
+  function ecrire(v) { try { localStorage.setItem(CLE, v); } catch (e) { /* stockage refusé */ } }
+
+  function fermer(valeur) {
+    ecrire(valeur);
+    racine.hidden = true;
+    racine.setAttribute('aria-hidden', 'true');
+  }
+
+  if (lire()) return;             // choix déjà exprimé : le bandeau ne revient pas
+  racine.hidden = false;          // aucune traceur tiers : rien à bloquer au chargement
+
+  racine.addEventListener('click', function (e) {
+    var bouton = e.target.closest('button[data-consent]');
+    if (!bouton) return;
+    var choix = bouton.getAttribute('data-consent');
+    if (choix === 'perso') {
+      var ouvert = !panneau.hidden;
+      panneau.hidden = ouvert;
+      bouton.setAttribute('aria-expanded', String(!ouvert));
+      return;
+    }
+    // Choix enregistré. En mode dégradé la mesure reste active : c'est un
+    // choix assumé, pas un oubli.
+    fermer(choix);
+  });
+})();
+</script>
+`;
+
+// Paramètres de mesure, sérialisés dans la page. Même vocabulaire que le
   // board, pour que les deux surfaces se lisent dans les mêmes rapports.
   // item_id et item_name ne sont pas des paramètres ordinaires : ils
   // n'existent que dans le tableau items[] du e-commerce. Au premier
@@ -301,6 +367,7 @@ ${societe.logo_url
 <script>window.__claimMesure = ${JSON.stringify(mesure).replace(/</g, '\\u003c')};</script>
 </head>
 <body>
+${BLOC_CONSENTEMENT}
 <div class="page">
 <main class="enveloppe">
   <a class="retour" href="/job-board.html">← Toutes les offres</a>
