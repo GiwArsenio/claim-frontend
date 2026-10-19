@@ -98,21 +98,24 @@ assert.ok(/\.d-entete \{[\s\S]{0,900}border-radius: \.75rem \.75rem 0 0;/.test(h
 // s'arrête après les pastilles : le corps défile dessous.
 const entete = bloc(html, '.d-entete');
 assert.ok(entete.includes('position: sticky'), "l'en-tête de la fiche se fige au défilement");
-// L'air au-dessus du bloc est posé en padding, et non en top. En top,
-// la bande de vide laissait défiler le texte dessous, visible dans
-// l'interstice ; le padding fait partie du bloc et en couvre toute la
-// hauteur, donc le texte passe derrière sans plus se voir.
-assert.ok(/top: 0;/.test(entete), 'le bloc se cale au bord du volet');
-assert.ok(entete.includes('padding: .85rem 1.25rem .5rem'),
-  'et garde un demi-rem d air au-dessus de son contenu');
+// Le bloc laisse un demi-rem de vide au-dessus de lui : collé au bord, la
+// fiche semblait plaquée contre le haut de la fenêtre. Ce vide doit être un
+// décalage, et non un blanc qui s'étend jusqu'au bord — le blanc ne se voit
+// pas, et l'espace disparaissait.
+assert.ok(entete.includes('top: .5rem'),
+  'le bloc se decale d un demi-rem sous le bord du volet');
+assert.ok(entete.includes('padding: .35rem 1.25rem .5rem'),
+  'et garde ses marges interieures, sans quoi le bloc grandirait');
 assert.ok(entete.includes('background: #fff'),
   'un fond opaque est indispensable : le corps defile dessous');
-// La marge négative couvre les gouttières latérales, et le demi-rem
-// d'air au-dessus du bloc : sans lui, le texte défilait dans l'interstice.
-// Le fond s'étend donc sur les trois côtés sans toucher à la position du
-// bloc, qui se cale toujours au bord du volet.
-assert.ok(entete.includes('margin: -.5rem -1.25rem 0'),
-  'le fond couvre les gouttieres et le demi-rem d air au dessus');
+assert.ok(entete.includes('margin: 0 -1.25rem'),
+  'le fond couvre les gouttieres, sinon le texte defilerait a cote');
+// Le vide est refermé par un aplat : sans lui, le texte de l'annonce
+// traversait la bande en défilant.
+assert.ok(/\.d-entete::before \{[\s\S]{0,300}bottom: 100%;/.test(html),
+  'un aplat au dessus du bloc referme le vide laisse decouvert');
+assert.ok(/\.d-entete::before \{[\s\S]{0,300}background: #f3f4f5;/.test(html),
+  "l'aplat prend la teinte du champ, invisible au repos");
 // L ancien en-tete collant du board reste retire, lui.
 assert.ok(!html.includes('d-sticky'), "l'ancien en-tête collant n'est pas revenu");
 

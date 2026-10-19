@@ -490,22 +490,22 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
      Le fond est étiré sur les marges de l'enveloppe (margin négatif compensé
      par le padding) : sans cela, le texte défilerait visible dans les
      gouttières de 1.25rem, de part et d'autre du bloc figé. */
-  /* L'air au-dessus du bloc figé est posé par un fond, et non par un
-     décalage. Collé au bord sans marge, la fiche semblait plaquée contre
-     le haut de la fenêtre. Deux tentatives ont échoué : top: .5rem laissait
-     défiler le texte dans la bande vide, et un padding au-dessus du bloc
-     remontait le contenu, effaçant l'air. Le fond, lui, s'étend au-delà du
-     bord du bloc — d'un demi-rem au-dessus et sur les gouttières — sans
-     toucher ni à sa position ni à son contenu. */
+  /* Le bloc figé laisse un demi-rem de vide au-dessus de lui : collé au
+     bord, la fiche semblait plaquée contre le haut de la fenêtre. Ce vide
+     doit être un vrai vide — un décalage — et non un blanc qui s'étend
+     jusqu'au bord : le blanc ne se voit pas, et l'espace disparaissait.
+     Mais une bande laissée ouverte laissait traverser le texte de
+     l'annonce, qui défilait dessous. Les deux ensemble : le décalage creuse
+     le vide, l'aplat le referme. */
   .d-entete {
     position: sticky;
-    top: 0;
+    top: .5rem;
     z-index: 5;
     /* Marge négative compensée par le padding : le fond du bloc figé est
        étiré sur toute la largeur de la fiche, et suit l'enveloppe quand
-       celle-ci change. La marge haute fait de même en hauteur. */
-    margin: -.5rem -1.25rem 0;
-    padding: .85rem 1.25rem .5rem;
+       celle-ci change. */
+    margin: 0 -1.25rem;
+    padding: .35rem 1.25rem .5rem;
     background: #fff;
     transition: box-shadow .2s ease;
     /* Les gestes se placent à droite du sujet : le titre garde la main. */
@@ -519,6 +519,19 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
   /* Une fois collé, le bloc se détache du texte qui passe dessous : sans
      cette démarcation, il se fond dans la page (relevé à l'inspection). */
   body.entete-collee .d-entete { box-shadow: 0 8px 12px -10px rgba(0,0,0,.28); }
+  /* Le vide laissé au-dessus du bloc collé est refermé à la teinte du
+     champ : sans lui, le texte de l'annonce traversait la bande en
+     défilant. Il n'existe que collé — au repos, le bloc est au haut de la
+     carte et il n'y a aucun vide à couvrir. */
+  body.entete-collee .d-entete::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 100%;
+    height: .5rem;
+    background: #f3f4f5;
+  }
 
   #hd { max-height: 70px; transition: max-height .35s cubic-bezier(.4,0,.2,1), opacity .25s ease; }
   body.fiche-defilee #hd { max-height: 0; opacity: 0; overflow: hidden; }
