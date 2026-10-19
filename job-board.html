@@ -546,6 +546,35 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
      enfants suivent. La barre de recherche et les filtres gardent leur
      largeur tenue — c'est leur marge intérieure qui les place. */
   #hero { padding-left: var(--marge-page); padding-right: var(--marge-page); text-align: center; }
+
+  /* ── TROIS REGLAGES DE VERSION BUREAU ──
+     Trois demandes portent sur les mêmes éléments que la version téléphone,
+     qu'elles ne doivent pas toucher : toute la croissance est posée ici,
+     dans le palier 769 px, jamais dans la règle de base. */
+
+  /* 1. La barre de recherche et les pastilles de filtre de +10 %, avec les
+     écritures qu'elles portent — c'est un bloc à lire au premier coup
+     d'oeil, il n'est pas censé être aussi compact que sur un téléphone. */
+  .sbar { padding: .3rem 0; min-height: 46px; }
+  .sf { padding: 0 1.1rem; }
+  .sf input { font-size: 1.0175rem; }
+  .btn-srch { padding: .5rem 1.65rem; font-size: 1.0175rem; }
+  .chips { gap: .55rem; }
+  .chip { padding: .38rem .935rem; font-size: 1.0175rem; min-height: 33px; }
+
+  /* 2. La proposition de valeur, sous le titre, de +20 %. */
+  #hero .sub { font-size: 1.11rem; }
+
+  /* 3. Le menu de gauche de +15 % et décalé de 20 % vers la droite, le bouton
+     de droite de +15 % lui aussi. Le décalage est une marge intérieure, pas
+     un transform : les gouttières continuent d'être mesurées à partir du
+     bord de page, et l'entête garde son alignement sur la colonne. */
+  #hd nav { padding-left: calc(var(--marge-page) + var(--marge-page) / 5); }
+  .logo { font-size: 1.725rem; }
+  .nav-links { gap: 2.3rem; }
+  .nav-links a { font-size: 1.06375rem; }
+  .btn-cta { padding: .5175rem 1.38rem; font-size: 1.06375rem; }
+  #hd nav { padding-right: calc(var(--marge-page) + var(--marge-page) / 5); }
   #hero h1 { text-align: center; }
   #hero .sub { text-align: center; }
   .sbar { margin-left: auto; margin-right: auto; }
