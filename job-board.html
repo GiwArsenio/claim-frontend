@@ -542,7 +542,14 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
      colonne des offres. */
   #split { padding: 0 var(--marge-page); }
   #hd nav { padding-left: var(--marge-page); padding-right: var(--marge-page); }
-  #hero { padding-left: var(--marge-page); padding-right: var(--marge-page); }
+  /* Le bandeau ne s'aligne plus sur la colonne : il se centre, et ses
+     enfants suivent. La barre de recherche et les filtres gardent leur
+     largeur tenue — c'est leur marge intérieure qui les place. */
+  #hero { padding-left: var(--marge-page); padding-right: var(--marge-page); text-align: center; }
+  #hero h1 { text-align: center; }
+  #hero .sub { text-align: center; }
+  .sbar { margin-left: auto; margin-right: auto; }
+  .chips { justify-content: center; }
 }
 
 </style>
