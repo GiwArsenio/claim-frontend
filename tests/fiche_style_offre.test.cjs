@@ -98,11 +98,13 @@ assert.ok(/\.d-entete \{[\s\S]{0,900}border-radius: \.75rem \.75rem 0 0;/.test(h
 // s'arrête après les pastilles : le corps défile dessous.
 const entete = bloc(html, '.d-entete');
 assert.ok(entete.includes('position: sticky'), "l'en-tête de la fiche se fige au défilement");
-// Un demi-rem d'air au-dessus : collé au bord sans marge, la fiche
-// semblait plaquée contre le haut de la fenêtre. Le même espace que le
-// padding latéral, pour que l'air soit égal sur les trois côtés.
-assert.ok(/top: \.5rem;/.test(entete),
-  'le bloc figé laisse un demi-rem d air au-dessus de lui');
+// L'air au-dessus du bloc est posé en padding, et non en top. En top,
+// la bande de vide laissait défiler le texte dessous, visible dans
+// l'interstice ; le padding fait partie du bloc et en couvre toute la
+// hauteur, donc le texte passe derrière sans plus se voir.
+assert.ok(/top: 0;/.test(entete), 'le bloc se cale au bord du volet');
+assert.ok(entete.includes('padding: .85rem 1.25rem .5rem'),
+  'et garde un demi-rem d air au-dessus de son contenu');
 assert.ok(entete.includes('background: #fff'),
   'un fond opaque est indispensable : le corps defile dessous');
 assert.ok(entete.includes('margin: 0 -1.25rem'),

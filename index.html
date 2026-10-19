@@ -224,8 +224,10 @@
 
   /* ── EMPLOYEURS ── */
   .employeurs { display: flex; flex-wrap: wrap; gap: .55rem; }
-  .firme { display: inline-flex; align-items: center; gap: .55rem; padding: .35rem .85rem .35rem .35rem;
-           background: #fff; border: 1px solid var(--bord); border-radius: 9999px; font-size: .82rem;
+  /* La tuile ne porte plus que le logo : le nom a été retiré, et le padding
+     droit qui lui laissait la place se resserre au format de la pastille. */
+  .firme { display: inline-flex; align-items: center; padding: .35rem;
+           background: #fff; border: 1px solid var(--bord); border-radius: .5rem; font-size: .82rem;
            font-weight: 600; text-decoration: none; color: inherit; }
   .firme:hover { border-color: var(--teal-bord); background: var(--teal-clair); }
   .firme .sigle { width: 26px; height: 26px; border-radius: .4rem; font-size: 9px; }
@@ -812,10 +814,17 @@ async function chargerOffres() {
 function dessinerEmployeurs() {
   const cible = document.getElementById('employeurs');
   if (!cible || !annuaire || !Array.isArray(annuaire.PROFILS)) return;
-  cible.innerHTML = annuaire.PROFILS.map((p) => `
-    <a class="firme" href="claim-entreprises.html?entreprise=${encodeURIComponent(p.slug)}">
-      <span class="sigle" style="background:${echapper(couleur(p.slug))}">${echapper(initiales(p.nom))}</span>${echapper(p.nom)}
-    </a>`).join('');
+  // Le nom n'est plus rendu : la bande ne montre que les logos. Il reste
+  // porté par le lien — c'est lui qui donne le nom à un lecteur d'écran —
+  // et par le titre, qui s'affiche au survol.
+  cible.innerHTML = annuaire.PROFILS.map((p) => {
+    const nom = echapper(p.nom);
+    return `
+    <a class="firme" href="claim-entreprises.html?entreprise=${encodeURIComponent(p.slug)}"
+       aria-label="${nom}" title="${nom}">
+      <span class="sigle" style="background:${echapper(couleur(p.slug))}" aria-hidden="true">${echapper(initiales(p.nom))}</span>
+    </a>`;
+  }).join('');
 }
 
 dessinerEmployeurs();
