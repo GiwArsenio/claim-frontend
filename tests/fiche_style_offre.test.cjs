@@ -107,8 +107,12 @@ assert.ok(entete.includes('padding: .85rem 1.25rem .5rem'),
   'et garde un demi-rem d air au-dessus de son contenu');
 assert.ok(entete.includes('background: #fff'),
   'un fond opaque est indispensable : le corps defile dessous');
-assert.ok(entete.includes('margin: 0 -1.25rem'),
-  'le fond doit couvrir les gouttieres, sinon le texte defilerait a cote');
+// La marge négative couvre les gouttières latérales, et le demi-rem
+// d'air au-dessus du bloc : sans lui, le texte défilait dans l'interstice.
+// Le fond s'étend donc sur les trois côtés sans toucher à la position du
+// bloc, qui se cale toujours au bord du volet.
+assert.ok(entete.includes('margin: -.5rem -1.25rem 0'),
+  'le fond couvre les gouttieres et le demi-rem d air au dessus');
 // L ancien en-tete collant du board reste retire, lui.
 assert.ok(!html.includes('d-sticky'), "l'ancien en-tête collant n'est pas revenu");
 

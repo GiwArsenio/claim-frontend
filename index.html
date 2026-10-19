@@ -825,12 +825,25 @@ function dessinerEmployeurs() {
   // Le nom n'est plus rendu : la bande ne montre que les logos. Il reste
   // porté par le lien — c'est lui qui donne le nom à un lecteur d'écran —
   // et par le titre, qui s'affiche au survol.
+  // Le logo vient de la même cascade que partout ailleurs : le logo publié
+  // par la source, puis la table partagée, puis les initiales sur la teinte.
+  // Le repli existe toujours : jamais de trou.
   cible.innerHTML = annuaire.PROFILS.map((p) => {
     const nom = echapper(p.nom);
+    const fond = echapper(couleur(p.slug));
+    const inits = echapper(initiales(p.nom));
+    const logo = annuaire.logoEntreprise ? annuaire.logoEntreprise(p.slug) : null;
+    // Sans logo, la tuile affiche ses initiales sur la teinte — c'est le
+    // repli de toutes les surfaces. Avec un logo, les initiales ne servent
+    // que d'attente et disparaissent dès que l'image est là.
+    const dedans = logo
+      ? '<span>' + inits + '</span><img src="' + echapper(logo) + '" alt="" aria-hidden="true" '
+        + 'onerror="this.remove()" onload="this.previousElementSibling.remove()"/>'
+      : inits;
     return `
     <a class="firme" href="claim-entreprises.html?entreprise=${encodeURIComponent(p.slug)}"
        aria-label="${nom}" title="${nom}">
-      <span class="sigle" style="background:${echapper(couleur(p.slug))}" aria-hidden="true">${echapper(initiales(p.nom))}</span>
+      <span class="sigle" style="background:${fond}" aria-hidden="true">${dedans}</span>
     </a>`;
   }).join('');
 }
