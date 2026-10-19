@@ -108,7 +108,11 @@ async function construire(job, urlCanonique) {
   const sections = Array.isArray(job.sections) ? job.sections : [];
 
   const premierParagraphe = paragraphesDe(description)[0] || '';
-  const resume = premierParagraphe.slice(0, 155).trim();
+  // La description du document dépend d'un seul champ. Si le corps de
+  // l'annonce est vide, la page serait publiée sans aucune meta description :
+  // invisible dans les résultats de Google, sans que rien ne se plaigne.
+  // Le titre sert de repli — il existe toujours.
+  const resume = (premierParagraphe || job.title || '').slice(0, 155).trim();
   const titrePage = ville
     ? `${job.title} — ${nomSociete} (${ville}) | Claim!`
     : `${job.title} — ${nomSociete} | Claim!`;
@@ -176,9 +180,15 @@ async function construire(job, urlCanonique) {
 
   // Paramètres de mesure, sérialisés dans la page. Même vocabulaire que le
   // board, pour que les deux surfaces se lisent dans les mêmes rapports.
+  // item_id et item_name ne sont pas des paramètres ordinaires : ils
+  // n'existent que dans le tableau items[] du e-commerce. Au premier
+  // niveau, GA4 les ignore en silence — et aucun tableau n'y est accepté
+  // en dehors de items[].
   const mesure = {
-    item_id:          String(job.id == null ? '' : job.id),
-    item_name:        job.title || '',
+    items: [{
+      item_id:   String(job.id == null ? '' : job.id),
+      item_name: job.title || '',
+    }],
     company_name:     nomSociete,
     // Même règle que les pastilles : une valeur non publiable n'est jamais
     // transmise. Sans cela, une offre « autre » envoyait job_specialty=autre.
