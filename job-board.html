@@ -492,7 +492,11 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
      gouttières de 1.25rem, de part et d'autre du bloc figé. */
   .d-entete {
     position: sticky;
-    top: 0;
+    /* Un demi-rem d'air au-dessus du bloc figé : collé au bord supérieur
+       sans marge, la fiche semblait plaquée contre le haut de la fenêtre.
+       Le décalage vaut le même espace que le padding latéral, pour que
+       l'air soit égal des trois côtés du bloc. */
+    top: .5rem;
     z-index: 5;
     background: #fff;
     /* Marge négative compensée par le padding : le fond du bloc figé est
