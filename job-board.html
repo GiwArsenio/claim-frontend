@@ -842,11 +842,15 @@ function mesurer(nom, params) {
 }
 
 // Paramètres métier portés par tous les événements qui concernent une offre.
+// item_id et item_name n'existent que dans le tableau items[] du e-commerce.
+// Au premier niveau, GA4 les ignore en silence.
 function paramOffre(j, contexte) {
   const co = (j && j.companies) || {};
   return {
-    item_id:          tronquer(j && j.id, 100),
-    item_name:        tronquer(j && j.title, 100),
+    items: [{
+      item_id:   tronquer(j && j.id, 100),
+      item_name: tronquer(j && j.title, 100),
+    }],
     company_name:     tronquer(co.name || (j && j.source), 100),
     job_specialty:    tronquer(j && (j.jev_specialty || j.specialty), 100),
     contract_type:    tronquer(j && j.contract_type, 100),
@@ -867,6 +871,15 @@ function paramsFiltres(reinitialise) {
   if (f.city)       p.filtre_ville      = f.city;
   if (reinitialise) p.filtres_reinitialises = true;
   return p;
+}
+
+// Nombre de filtres simultanément actifs. GA4 ne compte pas de lui-même :
+// contract_type et filtre_contrat disent la même chose deux fois sans
+// jamais la compter.
+function compteFiltres() {
+  const f = currentFilters();
+  const actifs = [f.contract, f.specialty, f.experience, f.ats, f.city].filter(Boolean).length;
+  return { filters_count: actifs };
 }
 
 // Le clic « Postuler » est la conversion du site : l'intention de candidature.
@@ -1013,11 +1026,14 @@ async function loadJobs(forcedPage) {
     injectSeoLinks(SERVER_PAGES);
 
     // Ce que le visiteur voit après un chargement, une recherche ou un filtre.
+    // Pas de paramètre « page » : ce nom est réservé à GA4, qui gère déjà
+    // la pagination de son côté. Émis par nos soins, il rend l'événement
+    // entier invalide (HTTP 400) — et un événement invalide n'est jamais compté.
     mesurer('view_item_list', {
       results_count: TOTAL_SERVER,
-      page: SERVER_PAGE,
       view_context: 'board',
       ...paramsFiltres(false),
+      ...compteFiltres(),
     });
     if (mesureEnAttente) {
       mesurer(mesureEnAttente.nom, { ...mesureEnAttente.params, results_count: TOTAL_SERVER });
