@@ -172,8 +172,6 @@
   .clogo { width: 38px; height: 38px; border-radius: 6px; display: flex; align-items: center;
            justify-content: center; color: #fff; font-weight: 900; font-size: 9.5px;
            flex-shrink: 0; position: relative; overflow: hidden; }
-  .clogo-repli { position: absolute; inset: 0; display: flex; align-items: center;
-                 justify-content: center; border-radius: inherit; }
   .clogo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain;
                border-radius: inherit; padding: 2px; }
   .oc .ci { flex: 1; min-width: 0; padding-left: .5rem; }
@@ -206,6 +204,8 @@
   /* Le logo est contenu dans le carré, comme sur le board. Sans cette règle,
      l'image s'affichait à sa taille naturelle — 256 px pour un favicon — et
      débordait la page. */
+  .sigle-repli { position: absolute; inset: 0; display: flex; align-items: center;
+                 justify-content: center; border-radius: inherit; }
   .sigle img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain;
                border-radius: inherit; padding: 4px; }
   .vide { grid-column: 1 / -1; background: #fff; border-radius: .75rem; padding: 1.4rem 1.25rem;
@@ -231,13 +231,14 @@
 
   /* ── EMPLOYEURS ── */
   .employeurs { display: flex; flex-wrap: wrap; gap: .55rem; }
-  /* La tuile ne porte que le logo, et lui donne la place de se lire : c'est
-     un mur d'employeurs, pas une ligne de mentions. Le nom reste accessible
-     au survol et aux lecteurs d'écran. */
-  .firme { display: inline-flex; align-items: center; padding: .55rem;
-           background: #fff; border: 1px solid var(--bord); border-radius: .6rem; font-size: .82rem;
-           font-weight: 600; text-decoration: none; color: inherit; }
-  .firme:hover { border-color: var(--teal-bord); background: var(--teal-clair); }
+  /* Le logo seul : plus de cadre, de fond ni de marge autour de la marque.
+     C'est un mur d'employeurs, pas une grille de vignettes. Le nom reste
+     accessible au survol et aux lecteurs d'écran ; le survol et le focus
+     restent perceptibles — la tuile est un lien. */
+  .firme { display: inline-flex; align-items: center; border-radius: .6rem;
+           font-size: .82rem; font-weight: 600; text-decoration: none; color: inherit; }
+  .firme:hover { opacity: .8; }
+  .firme:focus-visible { outline: 2px solid var(--teal); outline-offset: 3px; }
   .firme .sigle { width: 64px; height: 64px; border-radius: .6rem; font-size: 17px; }
 
   /* ── CONTACT ── */
@@ -655,17 +656,10 @@ function tuileLogo(co) {
   const inits = echapper(initiales(co.name || '?'));
   const logo = co.logo_url
     || (annuaire && annuaire.logoEntreprise ? annuaire.logoEntreprise(co.slug) : null);
-  // Sans logo, les initiales tiennent le cadre : elles ont besoin du fond
-  // teinté pour rester lisibles. Avec un logo, le fond disparaît — il ne
-  // servait qu'à combler le vide autour d'une marque transparente, et
-  // dessinait un carré coloré par-dessus.
   if (!logo) return '<div class="clogo" style="background:' + fond + ';">' + inits + '</div>';
-  return '<div class="clogo">'
-    // Le repli garde le fond le temps du chargement : il s'efface avec lui.
-    + '<span class="clogo-repli" style="background:' + fond + ';">' + inits + '</span>'
+  return '<div class="clogo" style="background:' + fond + ';">'
+    + '<span>' + inits + '</span>'
     + '<img src="' + echapper(logo) + '" alt="Logo ' + echapper(co.name || '') + '" '
-    // Image chargée : le repli s'efface. Image cassée : c'est l'image qui
-    // part, et les initiales restent — jamais de trou.
     + 'onerror="this.remove()" onload="this.previousElementSibling.remove()"/>'
     + '</div>';
 }
@@ -851,14 +845,19 @@ function dessinerEmployeurs() {
     // Sans logo, la tuile affiche ses initiales sur la teinte — c'est le
     // repli de toutes les surfaces. Avec un logo, les initiales ne servent
     // que d'attente et disparaissent dès que l'image est là.
+    // La teinte ne teint que le repli : avec un logo, elle dessinerait un
+    // carré coloré derrière la marque. Elle reste donc dans un span qui
+    // s'efface au chargement de l'image — et qui réapparaît si elle casse.
     const dedans = logo
-      ? '<span>' + inits + '</span><img src="' + echapper(logo) + '" alt="" aria-hidden="true" '
+      ? '<span class="sigle-repli" style="background:' + fond + '">' + inits + '</span>'
+        + '<img src="' + echapper(logo) + '" alt="" aria-hidden="true" '
         + 'onerror="this.remove()" onload="this.previousElementSibling.remove()"/>'
       : inits;
+    const teinte = logo ? '' : ' style="background:' + fond + '"';
     return `
     <a class="firme" href="claim-entreprises.html?entreprise=${encodeURIComponent(p.slug)}"
        aria-label="${nom}" title="${nom}">
-      <span class="sigle" style="background:${fond}" aria-hidden="true">${dedans}</span>
+      <span class="sigle"${teinte} aria-hidden="true">${dedans}</span>
     </a>`;
   }).join('');
 }
