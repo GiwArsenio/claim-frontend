@@ -184,11 +184,11 @@ async function construire(job, urlCanonique) {
 // mesure reste active — choix assumé, consigné en documentation.
 const BLOC_CONSENTEMENT = `
 <!-- ── Consentement CNIL ──
-Trois issues, sans SDK ni tiers : rien n'est déposé ni lu depuis un domaine
+Deux issues, sans SDK ni tiers : rien n'est déposé ni lu depuis un domaine
 étranger. L'acceptation et le refus ont même hauteur et même poids — la CNIL
-demande que refuser soit aussi simple qu'accepter. « Personnaliser » est
-présent sans rivaliser. En mode dégradé la mesure reste active : le bandeau
-informe, il ne bloque rien (choix assumé, consigné en documentation).
+demande que refuser soit aussi simple qu'accepter. En mode dégradé la mesure
+reste active : le bandeau informe, il ne bloque rien (choix assumé, consigné
+en documentation).
 -->
 <aside id="claim-consentement" class="consent" role="dialog" aria-live="polite"
        aria-labelledby="consent-titre" aria-describedby="consent-texte" hidden>
@@ -198,20 +198,13 @@ informe, il ne bloque rien (choix assumé, consigné en documentation).
       <div>
         <p class="consent-titre" id="consent-titre">Mesure d'audience</p>
         <p class="consent-texte" id="consent-texte">Claim! mesure la fréquentation
-           du site avec Google Analytics. Aucun cookie publicitaire n'est déposé.</p>
+           du site avec Google Analytics. Aucun cookie publicitaire n'est déposé,
+           et aucune donnée n'est partagée avec un tiers.</p>
       </div>
     </div>
     <div class="consent-boutons">
       <button type="button" class="consent-accepter" data-consent="tout">Tout accepter</button>
       <button type="button" class="consent-refuser" data-consent="rien">Refuser</button>
-      <button type="button" class="consent-personnaliser" data-consent="perso"
-              aria-expanded="false" aria-controls="consent-panneau">Personnaliser</button>
-    </div>
-    <div id="consent-panneau" class="consent-panneau" hidden>
-      <p class="consent-ligne"><span class="ms" aria-hidden="true">check_circle</span>
-        <span><strong>Mesure d'audience</strong> — active quelle que soit votre réponse.</span></p>
-      <p class="consent-ligne"><span class="ms" aria-hidden="true">block</span>
-        <span><strong>Publicité et partage</strong> — aucun traceur, aucun tiers.</span></p>
     </div>
   </div>
 </aside>
@@ -221,35 +214,21 @@ informe, il ne bloque rien (choix assumé, consigné en documentation).
   var CLE = 'claim-consentement';
   var racine = document.getElementById('claim-consentement');
   if (!racine) return;
-  var panneau = document.getElementById('consent-panneau');
-  var boutonPerso = racine.querySelector('.consent-personnaliser');
 
   function lire() { try { return localStorage.getItem(CLE); } catch (e) { return null; } }
   function ecrire(v) { try { localStorage.setItem(CLE, v); } catch (e) { /* stockage refusé */ } }
 
-  function fermer(valeur) {
-    ecrire(valeur);
-    racine.hidden = true;
-    racine.setAttribute('aria-hidden', 'true');
-  }
-
   if (lire()) return;             // choix déjà exprimé : le bandeau ne revient pas
-  racine.hidden = false;          // aucune traceur tiers : rien à bloquer au chargement
+  racine.hidden = false;          // aucun traceur tiers : rien à bloquer au chargement
 
   racine.addEventListener('click', function (e) {
     var bouton = e.target.closest('button[data-consent]');
     if (!bouton) return;
-    var choix = bouton.getAttribute('data-consent');
-    if (choix === 'perso') {
-      var ouvert = !panneau.hidden;
-      panneau.hidden = ouvert;
-      bouton.setAttribute('aria-expanded', String(!ouvert));
-      if (!ouvert) panneau.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-      return;
-    }
     // Choix enregistré. En mode dégradé la mesure reste active : c'est un
     // choix assumé, pas un oubli.
-    fermer(choix);
+    ecrire(bouton.getAttribute('data-consent'));
+    racine.hidden = true;
+    racine.setAttribute('aria-hidden', 'true');
   });
 })();
 </script>
@@ -369,6 +348,9 @@ ${societe.logo_url
   .enveloppe { flex-grow: 1; flex-shrink: 1; flex-basis: 46rem; max-width: 842px; }
  }
   /* ── Bandeau de consentement ── */
+  /* ── Bandeau de consentement ──
+     Deux issues de même rang : l'acceptation éclaire, elle n'écrase pas le
+     refus. Couleurs, rayons, ombre et typographie sont ceux du site. */
   .consent {
     position: fixed; inset: auto 0 0 0; z-index: 900;
     background: #fff; border-top: 1px solid #e2e9ec;
@@ -377,25 +359,38 @@ ${societe.logo_url
     animation: consent-entree .3s cubic-bezier(.2, .8, .3, 1);
   }
   @keyframes consent-entree { from { transform: translateY(100%); } to { transform: translateY(0); } }
-  @media (prefers-reduced-motion: reduce) { .consent { animation: none; } }
-  .consent-interieur {
-    max-width: 46rem; margin: 0 auto; padding: 0 1.25rem;
-    display: grid; grid-template-columns: minmax(0, 1fr) auto;
-    gap: .9rem 1.4rem; align-items: center;
+  @media (prefers-reduced-motion: reduce) {
+    .consent { animation: none; }
   }
+  
+  .consent-interieur {
+    max-width: 46rem; margin: 0 auto; padding: 0 2rem;
+    display: grid; grid-template-columns: minmax(0, 1fr) auto;
+    gap: .9rem 1.8rem; align-items: center;
+  }
+  
   .consent-corps { display: flex; gap: .85rem; align-items: flex-start; min-width: 0; }
+  
+  /* Le sceau : même teinte que les pastilles du board. */
   .consent-sceau {
     flex: 0 0 auto; width: 38px; height: 38px; border-radius: 50%;
     display: grid; place-items: center;
-    background: #e9f6f8; border: 1px solid #bfe2e8; color: #006876;
+    background: #e9f6f8; border: 1px solid #bfe2e8;
+    color: #006876;
   }
   .consent-sceau .ms { font-size: 20px; }
+  
   .consent-titre {
     margin: 0 0 .1rem; font-size: .95rem; font-weight: 700;
-    color: #191c1d; line-height: 1.35;
+    color: #191c1d; line-height: 1.35; letter-spacing: -.005em;
   }
-  .consent-texte { margin: 0; font-size: .845rem; color: #515f78; line-height: 1.55; }
+  .consent-texte {
+    margin: 0; font-size: .845rem; color: #515f78;
+    line-height: 1.55; max-width: 48rem;
+  }
+  
   .consent-boutons { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+  
   .consent button {
     font: inherit; font-size: .845rem; font-weight: 600;
     height: 40px; padding: 0 1.1rem; border-radius: .5rem;
@@ -403,36 +398,23 @@ ${societe.logo_url
     transition: background .15s ease, border-color .15s ease, color .15s ease;
   }
   .consent button:focus-visible { outline: 2px solid #006876; outline-offset: 2px; }
+  
+  /* Accepter : la couleur de la marque, pleine. */
   .consent-accepter { background: #006876; color: #fff; border: 1px solid #006876; }
   .consent-accepter:hover { background: #005a66; border-color: #005a66; }
+  
+  /* Refuser : même hauteur, même poids typographique, un trait franc — jamais
+     grisé, jamais relégué. C'est la recommandation de la CNIL : refuser doit
+     être aussi simple qu'accepter. */
   .consent-refuser { background: #fff; color: #191c1d; border: 1px solid #c7d3d8; }
   .consent-refuser:hover { background: #f3f4f5; border-color: #b3c2c8; }
-  .consent-personnaliser {
-    background: none; color: #006876;
-    border: 1px solid transparent; padding: 0 .6rem;
-  }
-  .consent-personnaliser:hover { background: #e9f6f8; }
-  .consent-personnaliser[aria-expanded="true"] { background: #e9f6f8; border-color: #bfe2e8; }
-  .consent-panneau {
-    grid-column: 1 / -1;
-    background: #e9f6f8; border: 1px solid #bfe2e8;
-    border-radius: .75rem; padding: .9rem 1rem;
-    font-size: .82rem; color: #515f78;
-  }
-  .consent-panneau p { margin: 0; }
-  .consent-ligne { display: flex; align-items: flex-start; gap: .5rem; }
-  .consent-ligne + .consent-ligne { margin-top: .4rem; }
-  .consent-ligne .ms { font-size: 17px; color: #006876; flex: 0 0 auto; margin-top: .1rem; }
-  .consent-ligne strong { color: #191c1d; font-weight: 600; }
+  
   @media (max-width: 780px) {
     .consent { padding: .95rem 0; }
-    .consent-interieur { grid-template-columns: 1fr; gap: .8rem; }
+    .consent-interieur { grid-template-columns: 1fr; padding: 0 1.1rem; gap: .8rem; }
     .consent-texte { font-size: .82rem; }
     .consent-boutons { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
     .consent button { height: 42px; padding: 0 .75rem; }
-    .consent-accepter { order: 1; }
-    .consent-refuser { order: 2; }
-    .consent-personnaliser { order: 3; grid-column: 1 / -1; border-color: #e2e9ec; background: #fff; }
   }
 </style>
 <!-- Google tag (gtag.js) -->
