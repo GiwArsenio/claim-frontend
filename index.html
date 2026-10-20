@@ -219,27 +219,34 @@
   .rc h3 { font-size: 1rem; margin: 0 0 .4rem; }
   .rc p { margin: 0; font-size: .88rem; color: var(--gris); }
 
-  /* ── OBSERVATOIRE ── */
-  .obs { background: #fff; border-radius: .75rem; box-shadow: var(--ombre); padding: 1.4rem 1.5rem; }
-  .barres { display: grid; gap: .7rem; }
-  .barre { display: grid; grid-template-columns: 13rem 1fr 3.5rem; align-items: center; gap: .9rem;
-           font-size: .85rem; }
-  .barre .jauge { height: 10px; border-radius: 9999px; background: var(--teal-clair); overflow: hidden; }
-  .barre .jauge span { display: block; height: 100%; border-radius: 9999px; background: var(--teal); }
-  .barre .n { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
-  .obs .src { margin: 1rem 0 0; font-size: .78rem; color: var(--gris-doux); }
-
   /* ── EMPLOYEURS ── */
-  .employeurs { display: flex; flex-wrap: wrap; gap: .55rem; }
+  /* Les logos défilent d'un seul tenant, sur une seule ligne. Le bandeau
+     s'efface à ses deux bords pour qu'aucune marque ne soit coupée net, et
+     la piste est mise en pause dès qu'on la survole ou qu'on y place le
+     focus : le défilement ne doit jamais empêcher de lire ou d'atteindre
+     un logo. */
+  .employeurs { overflow: hidden; padding: .25rem 0;
+                mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+                -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent); }
+  .employeurs-piste { display: flex; gap: .55rem; width: max-content;
+                      animation: defile var(--duree, 60s) linear infinite; }
+  .employeurs:hover .employeurs-piste,
+  .employeurs:focus-within .employeurs-piste { animation-play-state: paused; }
+  @keyframes defile { to { transform: translateX(calc(-50% - .275rem)); } }
+
   /* Le logo seul : plus de cadre, de fond ni de marge autour de la marque.
      C'est un mur d'employeurs, pas une grille de vignettes. Le nom reste
-     accessible au survol et aux lecteurs d'écran ; le survol et le focus
-     restent perceptibles — la tuile est un lien. */
+     accessible au survol et aux lecteurs d'écran. */
   .firme { display: inline-flex; align-items: center; border-radius: .6rem;
-           font-size: .82rem; font-weight: 600; text-decoration: none; color: inherit; }
-  .firme:hover { opacity: .8; }
-  .firme:focus-visible { outline: 2px solid var(--teal); outline-offset: 3px; }
+           font-size: .82rem; font-weight: 600; text-decoration: none; color: inherit;
+           flex: 0 0 auto; }
   .firme .sigle { width: 64px; height: 64px; border-radius: .6rem; font-size: 17px; }
+
+  /* Sans animation, le bandeau reste utilisable : il se fait défiler à la main. */
+  @media (prefers-reduced-motion: reduce) {
+    .employeurs { overflow-x: auto; }
+    .employeurs-piste { animation: none; }
+  }
 
   /* ── CONTACT ── */
   .contact { background: var(--teal); color: #fff; }
@@ -461,8 +468,6 @@ en documentation).
       <a class="logo" href="/">Claim!</a>
       <div class="nav-links">
         <a href="/job-board.html">Offres d'emploi</a>
-        <a href="claim-entreprises.html">Entreprises</a>
-        <a href="claim-observatoire.html">Observatoire de l'assurance</a>
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:.75rem;">
@@ -614,32 +619,15 @@ en documentation).
   </div>
 </section>
 
-<section class="champ" id="observatoire">
-  <div class="env">
-    <div class="tete">
-      <div>
-        <h2>L'Observatoire de l'assurance</h2>
-        <p>Le marché vu depuis les annonces : ce que les employeurs cherchent vraiment.</p>
-      </div>
-      <a class="lien" href="claim-observatoire.html">Explorer l'Observatoire →</a>
-    </div>
-    <div class="obs">
-      <div class="barres" id="barres"><div class="vide" style="box-shadow:none;padding:0;">Chargement…</div></div>
-      <p class="src" id="obs-src"></p>
-    </div>
-  </div>
-</section>
-
 <section>
   <div class="env">
     <div class="tete">
       <div>
         <h2>Ils recrutent en ce moment</h2>
-        <p id="compte-employeurs">Ces employeurs ont leur fiche sur Claim!</p>
+        <p id="compte-employeurs">Les employeurs dont les annonces sont relevées chaque matin.</p>
       </div>
-      <a class="lien" href="claim-entreprises.html">Toutes les entreprises →</a>
     </div>
-    <div class="employeurs" id="employeurs"></div>
+    <div class="employeurs" id="employeurs" aria-label="Employeurs qui recrutent"></div>
   </div>
 </section>
 
@@ -662,8 +650,6 @@ en documentation).
         <a class="logo" href="/" style="color:#191c1d;font-size:1.2rem">Claim!</a>
         <div class="nav2" style="margin-top:.9rem">
           <a href="/job-board.html">Offres d'emploi</a>
-          <a href="claim-entreprises.html">Entreprises</a>
-          <a href="claim-observatoire.html">Observatoire de l'assurance</a>
         </div>
       </div>
     </div>
@@ -698,9 +684,6 @@ const API_BASE = 'https://claim-api-production-06b3.up.railway.app/api/v1';
 
 const CONTRATS = { cdi: 'CDI', cdd: 'CDD', alternance: 'Alternance', stage: 'Stage',
                    freelance: 'Freelance', interim: 'Intérim', vie: 'V.I.E', autre: 'Non précisé' };
-const SPECIALITES = { actuariat: 'Actuariat', ia_data: 'IA / Data',
-                      souscription_technique: 'Souscription tech.', autre: 'Autre' };
-
 const annuaire = (typeof CLAIM_ENTREPRISES !== 'undefined') ? CLAIM_ENTREPRISES : null;
 const echapper = (v) => String(v == null ? '' : v).replace(/[&<>"']/g,
   (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -849,44 +832,12 @@ async function chargerChiffres() {
   }
   const compte = document.getElementById('compte-employeurs');
   if (compte) {
-    compte.textContent = `${stats.companies_hiring} employeurs recrutent en ligne aujourd'hui ; `
-      + 'ces vingt-là ont leur fiche sur Claim!.';
+    compte.textContent = `${stats.companies_hiring} employeurs recrutent en ligne aujourd'hui.`;
   }
   const lien = document.getElementById('lien-board');
   if (lien) lien.textContent = `Voir les ${stats.jobs_online} offres →`;
 
-  dessinerObservatoire(stats);
   return stats;
-}
-
-// La répartition ne totalise pas les offres en ligne : une offre publiée dont
-// la spécialité n'est pas curée compte dans le total, dans aucune spécialité.
-// L'écart est montré, pas masqué.
-function dessinerObservatoire(stats) {
-  const lignes = Object.entries(stats.by_specialty || {})
-    .map(([code, total]) => ({ libelle: SPECIALITES[code] || code, total }));
-  const reste = Math.max(0, stats.jobs_online - (stats.classified_jobs || 0));
-  if (reste) lignes.push({ libelle: 'Autres / non classées', total: reste });
-  if (!lignes.length) return;
-
-  const max = Math.max(...lignes.map((l) => l.total), 1);
-  document.getElementById('barres').innerHTML = lignes
-    .sort((a, b) => b.total - a.total)
-    .map((l) => `
-      <div class="barre">
-        <span>${echapper(l.libelle)}</span>
-        <span class="jauge"><span style="width:${Math.round((l.total / max) * 100)}%"></span></span>
-        <span class="n">${l.total}</span>
-      </div>`).join('');
-
-  const quand = stats.last_collection_at
-    ? new Date(stats.last_collection_at).toLocaleDateString('fr-FR',
-        { timeZone: 'Europe/Paris', day: 'numeric', month: 'long' })
-    : null;
-  document.getElementById('obs-src').textContent =
-    `Répartition des ${stats.jobs_online} offres en ligne par spécialité`
-    + (quand ? `, relevé du ${quand}` : '') + '. L\'Observatoire détaille les contrats, les régions, '
-    + 'les salaires annoncés et les tendances semaine après semaine.';
 }
 
 // ── Les dernières offres ───────────────────────────────────────────────────
@@ -944,18 +895,9 @@ async function chargerOffres() {
 }
 
 // ── Les employeurs suivis ─────────────────────────────────────────────────
-// La liste vient de l'annuaire partagé — celui qui porte les couleurs et les
-// fiches d'entreprise. Rien n'est recopié ici.
-function dessinerEmployeurs() {
-  const cible = document.getElementById('employeurs');
-  if (!cible || !annuaire || !Array.isArray(annuaire.PROFILS)) return;
-  // Le nom n'est plus rendu : la bande ne montre que les logos. Il reste
-  // porté par le lien — c'est lui qui donne le nom à un lecteur d'écran —
-  // et par le titre, qui s'affiche au survol.
-  // Le logo vient de la même cascade que partout ailleurs : le logo publié
-  // par la source, puis la table partagée, puis les initiales sur la teinte.
-  // Le repli existe toujours : jamais de trou.
-  cible.innerHTML = annuaire.PROFILS.map((p) => {
+// La liste vient de l'annuaire partagé — celui qui porte les couleurs des
+// employeurs. Rien n'est recopié ici.
+function tuileEmployeur(p) {
     const nom = echapper(p.nom);
     const fond = echapper(couleur(p.slug));
     const inits = echapper(initiales(p.nom));
@@ -972,12 +914,43 @@ function dessinerEmployeurs() {
         + 'onerror="this.remove()" onload="this.previousElementSibling.remove()"/>'
       : inits;
     const teinte = logo ? '' : ' style="background:' + fond + '"';
-    return `
-    <a class="firme" href="claim-entreprises.html?entreprise=${encodeURIComponent(p.slug)}"
-       aria-label="${nom}" title="${nom}">
-      <span class="sigle"${teinte} aria-hidden="true">${dedans}</span>
-    </a>`;
-  }).join('');
+    // Le nom n'est pas rendu : la bande ne montre que les logos. Il reste
+    // porté par le titre et par `aria-label`, donc lisible au survol et par
+    // un lecteur d'écran. La tuile n'est plus un lien : elle ne renvoie plus
+    // vers une page en chantier.
+    return '<span class="firme" role="img" aria-label="' + nom + '" title="' + nom + '">'
+      + '<span class="sigle"' + teinte + ' aria-hidden="true">' + dedans + '</span>'
+      + '</span>';
+}
+
+function dessinerEmployeurs() {
+  const cible = document.getElementById('employeurs');
+  if (!cible || !annuaire || !Array.isArray(annuaire.PROFILS)) return;
+
+  const base = annuaire.PROFILS.map(tuileEmployeur).join('');
+  const piste = document.createElement('div');
+  piste.className = 'employeurs-piste';
+  piste.innerHTML = base;
+  cible.replaceChildren(piste);
+
+  // Le bandeau doit tenir sans trou sur les grands écrans : on répète la
+  // liste jusqu'à couvrir la largeur visible, puis on la double. C'est ce
+  // doublement qui permet de boucler sur -50 % sans coupure.
+  const largeurVisible = cible.clientWidth || window.innerWidth;
+  let essais = 0;
+  while (piste.scrollWidth < largeurVisible && essais < 10) {
+    piste.insertAdjacentHTML('beforeend', base);
+    essais += 1;
+  }
+  const moitie = piste.innerHTML;
+  piste.insertAdjacentHTML('beforeend', moitie);
+  // La copie ne doit pas être annoncée deux fois aux lecteurs d'écran.
+  [...piste.children].slice(piste.children.length / 2)
+    .forEach((el) => el.setAttribute('aria-hidden', 'true'));
+
+  // Vitesse constante (~42 px/s), quelle que soit la largeur de la piste.
+  const largeurMoitie = piste.scrollWidth / 2;
+  piste.style.setProperty('--duree', Math.max(18, Math.round(largeurMoitie / 42)) + 's');
 }
 
 dessinerEmployeurs();
@@ -997,8 +970,6 @@ chargerChiffres();
     <nav class="bm-nav">
       <a href="/" class="on" onclick="closeBurger()"><span class="ms">home</span>Accueil</a>
       <a href="/job-board.html" onclick="closeBurger()"><span class="ms">work</span>Offres d'emploi</a>
-      <a href="claim-entreprises.html" onclick="closeBurger()"><span class="ms">business</span>Entreprises</a>
-      <a href="claim-observatoire.html" onclick="closeBurger()"><span class="ms">bar_chart</span>Observatoire de l'assurance</a>
     </nav>
     <div class="bm-footer">
       <button class="btn-cta" onclick="closeBurger(); allerContact()">Contactez-nous</button>
