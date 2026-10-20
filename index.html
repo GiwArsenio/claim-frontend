@@ -334,7 +334,93 @@
   gtag('js', new Date());
   gtag('config', 'G-SKQQXZW4LH');
 </script>
-</head>
+
+<!-- ── Consentement CNIL ──
+Trois issues, sans SDK ni tiers : rien n'est déposé ni lu depuis un
+domaine étranger. « Personnaliser » est un bouton discret — la CNIL refuse
+les boutons d'égale importance — sans que les deux autres choices soient
+masquées. En mode dégradé, la mesure reste active : le bandeau informe,
+il ne bloque rien (choix assumé, consigné en documentation).
+-->
+<div id="claim-consentement" class="consent" role="dialog" aria-live="polite"
+     aria-label="Choix des cookies" hidden>
+  <p class="consent-texte">Claim! utilise Google Analytics pour mesurer l'audience.
+     Aucun cookie publicitaire n'est déposé.</p>
+  <div class="consent-boutons">
+    <button type="button" class="consent-accepter" data-consent="tout">Tout accepter</button>
+    <button type="button" class="consent-refuser" data-consent="rien">Refuser</button>
+    <button type="button" class="consent-personnaliser" data-consent="perso"
+            aria-expanded="false" aria-controls="consent-panneau">Personnaliser</button>
+  </div>
+  <div id="consent-panneau" class="consent-panneau" hidden>
+    <p>Seul l'audience est concerné. Il n'y a pas de traceur publicitaire,
+       ni de partage de données avec des tiers.</p>
+    <p class="consent-note">Mesure d'audience : active quelle que soit votre réponse.</p>
+  </div>
+</div>
+<style>
+.consent { position: fixed; inset: auto 0 0 0; z-index: 900; background: #fff;
+  border-top: 1px solid #e6edf0; box-shadow: 0 -4px 18px rgba(25, 44, 52, .10);
+  padding: 1rem 1.5rem; font-size: .875rem; color: #3c494c;
+  display: flex; flex-wrap: wrap; gap: .9rem 1.5rem; align-items: center; }
+.consent-texte { margin: 0; max-width: 44rem; line-height: 1.5; }
+.consent-boutons { display: flex; flex-wrap: wrap; gap: .5rem; margin-left: auto; }
+.consent button { font: inherit; font-weight: 600; padding: .45rem 1rem;
+  border-radius: .5rem; cursor: pointer; border: 1px solid transparent; }
+/* Acceptation : le bouton le plus visible, mais sans écraser le refus. */
+.consent-accepter { background: var(--teal, #006876); color: #fff; border-color: var(--teal, #006876); }
+.consent-accepter:hover { background: #00545f; }
+/* Refus : trait franc et distinct — jamais le même rendu que l'acceptation. */
+.consent-refuser { background: #fff; color: var(--encre, #191c1d); border-color: #c7d3d8; }
+.consent-refuser:hover { background: #f3f6f7; }
+/* Personnaliser : présent, sobre, sans rivaliser. */
+.consent-personnaliser { background: none; color: var(--teal, #006876);
+  border-color: transparent; text-decoration: underline; padding-left: .25rem; padding-right: .25rem; }
+.consent-panneau { flex-basis: 100%; border-top: 1px solid #eef2f4;
+  padding-top: .8rem; max-width: 44rem; }
+.consent-panneau p { margin: 0 0 .4rem; }
+.consent-note { font-size: .8rem; color: #515f78; }
+@media (max-width: 620px) {
+  .consent { flex-direction: column; align-items: stretch; }
+  .consent-boutons { margin-left: 0; }
+  .consent button { flex: 1 1 auto; }
+}
+</style>
+<script>
+(function () {
+  var CLE = 'claim-consentement';
+  var racine = document.getElementById('claim-consentement');
+  if (!racine) return;
+  var panneau = document.getElementById('consent-panneau');
+
+  function lire() { try { return localStorage.getItem(CLE); } catch (e) { return null; } }
+  function ecrire(v) { try { localStorage.setItem(CLE, v); } catch (e) { /* stockage refusé */ } }
+
+  function fermer(valeur) {
+    ecrire(valeur);
+    racine.hidden = true;
+    racine.setAttribute('aria-hidden', 'true');
+  }
+
+  if (lire()) return;             // choix déjà exprimé : le bandeau ne revient pas
+  racine.hidden = false;          // aucune traceur tiers : rien à bloquer au chargement
+
+  racine.addEventListener('click', function (e) {
+    var bouton = e.target.closest('button[data-consent]');
+    if (!bouton) return;
+    var choix = bouton.getAttribute('data-consent');
+    if (choix === 'perso') {
+      var ouvert = !panneau.hidden;
+      panneau.hidden = ouvert;
+      bouton.setAttribute('aria-expanded', String(!ouvert));
+      return;
+    }
+    // Choix enregistré. En mode dégradé la mesure reste active : c'est un
+    // choix assumé, pas un oubli.
+    fermer(choix);
+  });
+})();
+</script></head>
 <body>
 
 <div class="hd">
