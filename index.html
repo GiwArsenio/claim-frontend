@@ -567,7 +567,7 @@ en documentation).
   <div class="env">
     <div class="tete">
       <div>
-        <h2>Les dernières offres</h2>
+        <h2>Parmi les dernières offres</h2>
         <p id="compte-offres">Chargement…</p>
       </div>
       <a class="lien" href="/job-board.html" id="lien-board">Toutes les offres →</a>
@@ -848,19 +848,26 @@ async function chargerChiffres() {
 async function chargerOffres() {
   const liste = document.getElementById('liste');
   try {
-    // Les mêmes paramètres que le board : l'accueil montre ce que le board
-    // montre, dans le même ordre.
-    // Périmètre géographique décidé côté collecte : le board affiche tout ce
-    // que l'API publie, sans re-filtrer la France ici.
-    const params = new URLSearchParams({ per_page: '6', limit: '6', page: '1',
-                                         order: 'desc' });
-    const r = await fetch(`${API_BASE}/jobs?${params}`);
+    // Une sélection, pas les six dernières : le fil chronologique peut être
+    // monopolisé par un seul employeur — cinq offres d'AXA sur six, observé.
+    // `jobs/selection` rend une offre par employeur, la plus récente de
+    // chacun, dans le périmètre que le board publie.
+    const r = await fetch(`${API_BASE}/jobs/selection?limite=6`);
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const d = await r.json();
     const offres = d.data || [];
 
+    // Le compte annonce ce qui est montré : le nombre d'offres et celui des
+    // employeurs, qui sont ici le même — c'est la règle. Il ne le promet que
+    // s'il est vrai, un employeur pouvant manquer de fiches distinctes.
+    const employeurs = new Set(offres.map((j) =>
+      (j.companies || {}).slug || j.source || '')).size;
     document.getElementById('compte-offres').textContent =
-      offres.length > 1 ? `Les ${offres.length} dernières offres publiées` : 'La dernière offre publiée';
+      offres.length > 1
+        ? (employeurs === offres.length
+            ? `${offres.length} offres récentes, ${employeurs} employeurs différents.`
+            : `${offres.length} offres récentes de ${employeurs} employeurs.`)
+        : 'La dernière offre publiée';
 
     if (!offres.length) {
       liste.innerHTML = '<div class="vide">Aucune offre en ligne pour le moment.</div>';
