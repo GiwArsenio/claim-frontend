@@ -140,14 +140,14 @@
      filet qui s'efface à ses extrémités — elle sépare sans découper. */
   .chiffres { border-bottom: 1px solid var(--bord); background: #fff; }
   .chiffres dl { display: grid; grid-template-columns: repeat(4, 1fr);
-                 margin: 0; padding: .85rem 0 .95rem; }
+                 margin: 0; padding: .55rem 0 .65rem; }
   .chiffres dl > div { position: relative; padding: 0 1.6rem; }
   .chiffres dl > div:first-child { padding-left: 0; }
   .chiffres dl > div + div::before {
     content: ''; position: absolute; left: 0; top: .1rem; bottom: .1rem; width: 1px;
     background: linear-gradient(180deg, transparent, var(--bord) 24%, var(--bord) 76%, transparent);
   }
-  .chiffres dt { font-size: clamp(1.45rem, 1.9vw, 1.7rem); font-weight: 900; line-height: 1;
+  .chiffres dt { font-size: clamp(1.32rem, 1.75vw, 1.55rem); font-weight: 900; line-height: 1;
                  letter-spacing: -.04em; color: var(--encre);
                  font-variant-numeric: tabular-nums; }
   /* Avant l'arrivée des chiffres, le tiret cadratin prenait la graisse et la
@@ -311,13 +311,13 @@
      l'identité restait à gauche et les mentions partaient à l'autre bout.
      Il tient désormais dans une largeur de lecture, en deux colonnes —
      l'identité et la navigation d'un côté, le texte de l'autre. */
-  .pied { background: #fff; border-top: 1px solid var(--bord); padding: 1.5rem 0 1.35rem; }
+  .pied { background: #fff; border-top: 1px solid var(--bord); padding: 1.1rem 0 .95rem; }
   .pied .env { max-width: 1000px; }
   .pied .haut { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 44ch);
                 gap: 2.5rem; align-items: start; }
   .pied .logo { color: var(--encre); font-size: 1.25rem; font-weight: 900;
                 letter-spacing: -.05em; text-decoration: none; }
-  .pied .nav2 { display: flex; gap: 1.75rem; flex-wrap: wrap; margin-top: .7rem; }
+  .pied .nav2 { display: flex; gap: 1.75rem; flex-wrap: wrap; margin-top: .55rem; }
   .pied a { color: var(--gris); text-decoration: none; font-size: .88rem; font-weight: 600;
             transition: color .15s ease; }
   .pied a:hover { color: var(--teal); }
@@ -327,7 +327,7 @@
                          transform: scaleX(0); transform-origin: left;
                          transition: transform .18s ease; }
   .pied .nav2 a:hover::after { transform: scaleX(1); }
-  .pied .mentions { margin: 0; font-size: .78rem; line-height: 1.6; color: var(--gris-doux); }
+  .pied .mentions { margin: 0; font-size: .78rem; line-height: 1.45; color: var(--gris-doux); }
   .pied .mentions a { color: var(--gris); text-decoration: underline;
                       text-decoration-thickness: 1px; text-underline-offset: 2px; }
 
@@ -705,7 +705,7 @@ en documentation).
     <div class="panneau">
     <div class="tete">
       <div>
-        <h2>Ils recrutent en ce moment</h2>
+        <h2>Ils recrutent en ce moment sur Claim!</h2>
         <p id="compte-employeurs">Les employeurs dont les annonces sont relevées chaque matin.</p>
       </div>
     </div>
