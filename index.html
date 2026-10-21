@@ -630,7 +630,8 @@ en documentation).
       <div><dt id="f-employeurs">—</dt>
            <dd><span class="ms" aria-hidden="true">groups</span>EMPLOYEURS QUI RECRUTENT</dd></div>
       <div><dt id="f-releve">—</dt>
-           <dd id="f-releve-libelle"><span class="ms" aria-hidden="true">schedule</span>DERNIER RELEVÉ</dd></div>
+           <dd id="f-releve-libelle"><span class="ms" aria-hidden="true">schedule</span><span
+             id="f-releve-texte">DERNIER RELEVÉ</span></dd></div>
     </dl>
   </div>
 </div>
@@ -903,7 +904,9 @@ async function chargerChiffres() {
     const jour = quand.toLocaleDateString('fr-FR', { timeZone: 'Europe/Paris',
       day: 'numeric', month: 'long' });
     document.getElementById('f-releve').textContent = heure;
-    document.getElementById('f-releve-libelle').textContent = `RELEVÉ DU ${jour.toUpperCase()}`;
+    // Le texte seul : son frère est l'icône, qu'un textContent sur le parent
+    // effacerait à chaque chargement.
+    document.getElementById('f-releve-texte').textContent = `RELEVÉ DU ${jour.toUpperCase()}`;
   }
 
   document.getElementById('chiffre-hero').textContent = `${stats.jobs_online} offres`;
