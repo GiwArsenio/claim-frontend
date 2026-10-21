@@ -133,12 +133,25 @@
   select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
 
   /* ── CHIFFRES ── */
+  /* ── CHIFFRES ──
+     Quatre nombres qui portent la preuve, posés sur une seule ligne. Les
+     chiffres prennent l'échelle et l'interlettrage des titres ; les libellés
+     se réduisent à un rôle d'étiquette. La séparation entre colonnes est un
+     filet qui s'efface à ses extrémités — elle sépare sans découper. */
   .chiffres { border-bottom: 1px solid var(--bord); background: #fff; }
-  .chiffres dl { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--gouttiere);
-                 margin: 0; padding: 1.6rem 0; }
-  .chiffres div { border-left: 2px solid var(--teal-clair); padding-left: .9rem; }
-  .chiffres dt { font-size: 1.6rem; font-weight: 900; letter-spacing: -.03em; line-height: 1.1; }
-  .chiffres dd { margin: .1rem 0 0; font-size: .78rem; color: var(--gris-doux); }
+  .chiffres dl { display: grid; grid-template-columns: repeat(4, 1fr);
+                 margin: 0; padding: 1.5rem 0 1.6rem; }
+  .chiffres dl > div { position: relative; padding: 0 1.6rem; }
+  .chiffres dl > div:first-child { padding-left: 0; }
+  .chiffres dl > div + div::before {
+    content: ''; position: absolute; left: 0; top: .1rem; bottom: .1rem; width: 1px;
+    background: linear-gradient(180deg, transparent, var(--bord) 24%, var(--bord) 76%, transparent);
+  }
+  .chiffres dt { font-size: clamp(1.75rem, 2.5vw, 2.15rem); font-weight: 900; line-height: 1;
+                 letter-spacing: -.045em; color: var(--encre);
+                 font-variant-numeric: tabular-nums; }
+  .chiffres dd { margin: .6rem 0 0; font-size: .69rem; font-weight: 700;
+                 letter-spacing: .085em; color: var(--gris-doux); text-transform: uppercase; }
 
   /* ── SECTIONS ── */
   section { padding: 3rem 0; }
@@ -213,11 +226,25 @@
 
   /* ── RAISONS ── */
   .raisons { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--gouttiere); }
-  .rc { background: #fff; border-radius: .75rem; box-shadow: var(--ombre); padding: 1.25rem; }
-  .rc .ico { width: 38px; height: 38px; border-radius: .5rem; background: var(--teal-clair);
-             display: flex; align-items: center; justify-content: center; margin-bottom: .9rem; }
-  .rc h3 { font-size: 1rem; margin: 0 0 .4rem; }
-  .rc p { margin: 0; font-size: .88rem; color: var(--gris); }
+  /* ── RAISONS ──
+     Trois cartes de même poids. Le filet teal n'apparaît qu'au survol : il
+     signale la carte lue sans colorer la page au repos. */
+  .rc { position: relative; background: #fff; border: 1px solid var(--bord);
+        border-radius: .9rem; padding: 1.5rem 1.35rem 1.45rem;
+        box-shadow: 0 1px 2px rgba(25, 44, 52, .04);
+        transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
+  .rc::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 3px;
+                border-radius: .9rem .9rem 0 0;
+                background: linear-gradient(90deg, var(--teal), var(--teal-bord));
+                opacity: 0; transition: opacity .18s ease; }
+  .rc:hover { transform: translateY(-2px); border-color: var(--teal-bord);
+              box-shadow: 0 2px 4px rgba(25, 44, 52, .05), 0 12px 26px rgba(25, 44, 52, .08); }
+  .rc:hover::before { opacity: 1; }
+  .rc .ico { width: 40px; height: 40px; border-radius: .65rem; background: var(--teal-clair);
+             border: 1px solid var(--teal-bord);
+             display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; }
+  .rc h3 { font-size: 1.02rem; font-weight: 800; letter-spacing: -.015em; margin: 0 0 .45rem; }
+  .rc p { margin: 0; font-size: .885rem; line-height: 1.58; color: var(--gris); }
 
   /* ── EMPLOYEURS ── */
   /* Les logos défilent d'un seul tenant, sur une seule ligne. Le bandeau
@@ -258,17 +285,40 @@
             font-weight: 700; font-size: .925rem; text-decoration: none; white-space: nowrap; }
 
   /* ── PIED ── */
-  .pied { background: #fff; padding: 2.5rem 0 3rem; }
-  .pied .haut { display: flex; justify-content: space-between; gap: 2rem; flex-wrap: wrap; }
-  .pied a { color: var(--gris); text-decoration: none; font-size: .88rem; font-weight: 600; }
+  /* ── PIED ──
+     Il ferme la page : un filet net le sépare du contenu, le logo reprend son
+     échelle d'en-tête, et les liens se soulignent d'un trait qui se déploie.
+     Les mentions tiennent en colonne courte — un texte de mentions qui
+     traverse l'écran ne se lit pas. */
+  .pied { background: #fff; border-top: 1px solid var(--bord); padding: 2.75rem 0 2.25rem; }
+  .pied .haut { display: flex; justify-content: space-between; align-items: flex-start;
+                gap: 2rem; flex-wrap: wrap; }
+  .pied .logo { color: var(--encre); font-size: 1.25rem; font-weight: 900;
+                letter-spacing: -.05em; text-decoration: none; }
+  .pied .nav2 { display: flex; gap: 1.75rem; flex-wrap: wrap; margin-top: 1rem; }
+  .pied a { color: var(--gris); text-decoration: none; font-size: .88rem; font-weight: 600;
+            transition: color .15s ease; }
   .pied a:hover { color: var(--teal); }
-  .pied .nav2 { display: flex; gap: 1.6rem; flex-wrap: wrap; }
-  .pied .mentions { margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--bord);
-                    font-size: .78rem; color: var(--gris-doux); max-width: 70ch; }
+  .pied .nav2 a { position: relative; }
+  .pied .nav2 a::after { content: ''; position: absolute; left: 0; right: 0; bottom: -3px;
+                         height: 1.5px; border-radius: 2px; background: var(--teal);
+                         transform: scaleX(0); transform-origin: left;
+                         transition: transform .18s ease; }
+  .pied .nav2 a:hover::after { transform: scaleX(1); }
+  .pied .mentions { margin: 2.25rem 0 0; padding-top: 1.5rem; border-top: 1px solid var(--bord);
+                    font-size: .78rem; line-height: 1.75; color: var(--gris-doux);
+                    max-width: 74ch; }
+  .pied .mentions a { color: var(--gris); text-decoration: underline;
+                      text-decoration-thickness: 1px; text-underline-offset: 2px; }
 
   @media (max-width: 900px) {
     .env { padding: 0 1.25rem; }
-    .chiffres dl { grid-template-columns: repeat(2, 1fr); }
+    /* Deux colonnes : le filet de gauche ne vaut que pour la seconde, et
+       les chiffres du premier rang gardent leur accolade. */
+    .chiffres dl { grid-template-columns: repeat(2, 1fr); gap: 1.5rem 0; }
+    .chiffres dl > div { padding: 0 1.1rem; }
+    .chiffres dl > div:nth-child(odd) { padding-left: 0; }
+    .chiffres dl > div:nth-child(odd)::before { display: none; }
     .grille, .raisons { grid-template-columns: 1fr; }
     .barre { grid-template-columns: 9rem 1fr 2.5rem; }
     .hero { padding: 2.25rem 0 1.75rem; }
@@ -302,7 +352,8 @@
 
     .bm-header { display: flex; align-items: center; justify-content: space-between;
                  padding: .875rem 1.25rem; border-bottom: 1px solid rgba(255, 255, 255, .12); }
-    .bm-logo { font-size: 1.3rem; font-weight: 900; color: #fff; letter-spacing: -.05em; }
+    .bm-logo { font-size: 1.3rem; font-weight: 900; color: #fff; letter-spacing: -.05em;
+               text-decoration: none; }
     .bm-close { background: rgba(255, 255, 255, .12); border: none; color: #fff;
                 width: 32px; height: 32px; border-radius: .375rem; cursor: pointer;
                 display: flex; align-items: center; justify-content: center; }
@@ -649,7 +700,7 @@ en documentation).
   <div class="env">
     <div class="haut">
       <div>
-        <a class="logo" href="/" style="color:#191c1d;font-size:1.2rem">Claim!</a>
+        <a class="logo" href="/">Claim!</a>
         <div class="nav2" style="margin-top:.9rem">
           <a href="/job-board.html">Offres d'emploi</a>
           <a href="claim-entreprises.html">Entreprises</a>
@@ -973,7 +1024,7 @@ chargerChiffres();
   <div class="bm-overlay" onclick="closeBurger()"></div>
   <div class="bm-panel">
     <div class="bm-header">
-      <span class="bm-logo">Claim!</span>
+      <a class="bm-logo" href="/" onclick="closeBurger()">Claim!</a>
       <button class="bm-close" onclick="closeBurger()" aria-label="Fermer">
         <span class="ms" style="font-size:18px;">close</span>
       </button>

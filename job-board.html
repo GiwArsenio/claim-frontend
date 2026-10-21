@@ -348,7 +348,8 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
     padding: .875rem 1.25rem;
     border-bottom: 1px solid rgba(255,255,255,.12);
   }
-  .bm-logo { font-size: 1.3rem; font-weight: 900; color: #fff; letter-spacing: -.05em; }
+  .bm-logo { font-size: 1.3rem; font-weight: 900; color: #fff; letter-spacing: -.05em;
+             text-decoration: none; }
   .bm-close {
     background: rgba(255,255,255,.12);
     border: none;
@@ -1890,7 +1891,7 @@ loadJobs();
   <div class="bm-overlay" onclick="closeBurger()"></div>
   <div class="bm-panel">
     <div class="bm-header">
-      <span class="bm-logo">Claim!</span>
+      <a class="bm-logo" href="/" onclick="closeBurger()">Claim!</a>
       <button class="bm-close" onclick="closeBurger()">
         <span class="ms" style="font-size:18px;">close</span>
       </button>
