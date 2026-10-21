@@ -140,17 +140,21 @@
      filet qui s'efface à ses extrémités — elle sépare sans découper. */
   .chiffres { border-bottom: 1px solid var(--bord); background: #fff; }
   .chiffres dl { display: grid; grid-template-columns: repeat(4, 1fr);
-                 margin: 0; padding: 1.5rem 0 1.6rem; }
+                 margin: 0; padding: .85rem 0 .95rem; }
   .chiffres dl > div { position: relative; padding: 0 1.6rem; }
   .chiffres dl > div:first-child { padding-left: 0; }
   .chiffres dl > div + div::before {
     content: ''; position: absolute; left: 0; top: .1rem; bottom: .1rem; width: 1px;
     background: linear-gradient(180deg, transparent, var(--bord) 24%, var(--bord) 76%, transparent);
   }
-  .chiffres dt { font-size: clamp(1.75rem, 2.5vw, 2.15rem); font-weight: 900; line-height: 1;
-                 letter-spacing: -.045em; color: var(--encre);
+  .chiffres dt { font-size: clamp(1.45rem, 1.9vw, 1.7rem); font-weight: 900; line-height: 1;
+                 letter-spacing: -.04em; color: var(--encre);
                  font-variant-numeric: tabular-nums; }
-  .chiffres dd { display: flex; align-items: center; gap: .4rem; margin: .6rem 0 0;
+  /* Avant l'arrivée des chiffres, le tiret cadratin prenait la graisse et la
+     taille d'un nombre : quatre barres noires en travers de la page. Il
+     attend désormais dans la couleur du filet, à la même place. */
+  .chiffres dt.attente { color: var(--bord); }
+  .chiffres dd { display: flex; align-items: center; gap: .4rem; margin: .38rem 0 0;
                  font-size: .69rem; font-weight: 700; letter-spacing: .085em;
                  color: var(--gris-doux); text-transform: uppercase; }
   .chiffres dd .ms { font-size: 15px; color: var(--teal); opacity: .9;
@@ -307,13 +311,13 @@
      l'identité restait à gauche et les mentions partaient à l'autre bout.
      Il tient désormais dans une largeur de lecture, en deux colonnes —
      l'identité et la navigation d'un côté, le texte de l'autre. */
-  .pied { background: #fff; border-top: 1px solid var(--bord); padding: 2.5rem 0 2.25rem; }
+  .pied { background: #fff; border-top: 1px solid var(--bord); padding: 1.5rem 0 1.35rem; }
   .pied .env { max-width: 1000px; }
   .pied .haut { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 44ch);
                 gap: 2.5rem; align-items: start; }
   .pied .logo { color: var(--encre); font-size: 1.25rem; font-weight: 900;
                 letter-spacing: -.05em; text-decoration: none; }
-  .pied .nav2 { display: flex; gap: 1.75rem; flex-wrap: wrap; margin-top: 1rem; }
+  .pied .nav2 { display: flex; gap: 1.75rem; flex-wrap: wrap; margin-top: .7rem; }
   .pied a { color: var(--gris); text-decoration: none; font-size: .88rem; font-weight: 600;
             transition: color .15s ease; }
   .pied a:hover { color: var(--teal); }
@@ -323,7 +327,7 @@
                          transform: scaleX(0); transform-origin: left;
                          transition: transform .18s ease; }
   .pied .nav2 a:hover::after { transform: scaleX(1); }
-  .pied .mentions { margin: 0; font-size: .78rem; line-height: 1.7; color: var(--gris-doux); }
+  .pied .mentions { margin: 0; font-size: .78rem; line-height: 1.6; color: var(--gris-doux); }
   .pied .mentions a { color: var(--gris); text-decoration: underline;
                       text-decoration-thickness: 1px; text-underline-offset: 2px; }
 
@@ -623,13 +627,13 @@ en documentation).
 <div class="chiffres">
   <div class="env">
     <dl>
-      <div><dt id="f-offres">—</dt>
+      <div><dt id="f-offres" class="attente">—</dt>
            <dd><span class="ms" aria-hidden="true">work</span>OFFRES EN LIGNE</dd></div>
-      <div><dt id="f-sources">—</dt>
+      <div><dt id="f-sources" class="attente">—</dt>
            <dd><span class="ms" aria-hidden="true">travel_explore</span>SOURCES RELEVÉES</dd></div>
-      <div><dt id="f-employeurs">—</dt>
+      <div><dt id="f-employeurs" class="attente">—</dt>
            <dd><span class="ms" aria-hidden="true">groups</span>EMPLOYEURS QUI RECRUTENT</dd></div>
-      <div><dt id="f-releve">—</dt>
+      <div><dt id="f-releve" class="attente">—</dt>
            <dd id="f-releve-libelle"><span class="ms" aria-hidden="true">schedule</span><span
              id="f-releve-texte">DERNIER RELEVÉ</span></dd></div>
     </dl>
@@ -913,6 +917,10 @@ async function chargerChiffres() {
   if (stats.sources_tracked) {
     document.getElementById('chiffre-sources').textContent = `${stats.sources_tracked} sources`;
   }
+  // Les valeurs sont posées : le tiret d'attente n'a plus lieu d'être.
+  document.querySelectorAll('.chiffres dt.attente')
+    .forEach((el) => el.classList.remove('attente'));
+
   const compte = document.getElementById('compte-employeurs');
   if (compte) {
     compte.textContent = `${stats.companies_hiring} employeurs recrutent en ligne aujourd'hui.`;
