@@ -150,8 +150,21 @@
   .chiffres dt { font-size: clamp(1.75rem, 2.5vw, 2.15rem); font-weight: 900; line-height: 1;
                  letter-spacing: -.045em; color: var(--encre);
                  font-variant-numeric: tabular-nums; }
-  .chiffres dd { margin: .6rem 0 0; font-size: .69rem; font-weight: 700;
-                 letter-spacing: .085em; color: var(--gris-doux); text-transform: uppercase; }
+  .chiffres dd { display: flex; align-items: center; gap: .4rem; margin: .6rem 0 0;
+                 font-size: .69rem; font-weight: 700; letter-spacing: .085em;
+                 color: var(--gris-doux); text-transform: uppercase; }
+  .chiffres dd .ms { font-size: 15px; color: var(--teal); opacity: .9;
+                     font-variation-settings: 'wght' 300; }
+
+  /* ── PANNEAUX DE SECTION ──
+     Deux sections portaient leur contenu à même le fond blanc : elles se
+     lisaient comme la suite de la page. Elles deviennent des panneaux posés
+     sur un fond gris — le contenu a désormais un bord, et les sections se
+     comptent au lieu de s'enchaîner. */
+  .surface { background: var(--champ); border-top: 1px solid var(--bord);
+             border-bottom: 1px solid var(--bord); padding: 2.25rem 0; }
+  .panneau { background: #fff; border: 1px solid var(--bord); border-radius: 1rem;
+             box-shadow: var(--ombre); padding: clamp(1.15rem, 2.6vw, 2rem); }
 
   /* ── SECTIONS ── */
   section { padding: 3rem 0; }
@@ -290,9 +303,14 @@
      échelle d'en-tête, et les liens se soulignent d'un trait qui se déploie.
      Les mentions tiennent en colonne courte — un texte de mentions qui
      traverse l'écran ne se lit pas. */
-  .pied { background: #fff; border-top: 1px solid var(--bord); padding: 2.75rem 0 2.25rem; }
-  .pied .haut { display: flex; justify-content: space-between; align-items: flex-start;
-                gap: 2rem; flex-wrap: wrap; }
+  /* Le pied s'étalait sur toute l'enveloppe du site : sur un grand écran,
+     l'identité restait à gauche et les mentions partaient à l'autre bout.
+     Il tient désormais dans une largeur de lecture, en deux colonnes —
+     l'identité et la navigation d'un côté, le texte de l'autre. */
+  .pied { background: #fff; border-top: 1px solid var(--bord); padding: 2.5rem 0 2.25rem; }
+  .pied .env { max-width: 1000px; }
+  .pied .haut { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 44ch);
+                gap: 2.5rem; align-items: start; }
   .pied .logo { color: var(--encre); font-size: 1.25rem; font-weight: 900;
                 letter-spacing: -.05em; text-decoration: none; }
   .pied .nav2 { display: flex; gap: 1.75rem; flex-wrap: wrap; margin-top: 1rem; }
@@ -305,9 +323,7 @@
                          transform: scaleX(0); transform-origin: left;
                          transition: transform .18s ease; }
   .pied .nav2 a:hover::after { transform: scaleX(1); }
-  .pied .mentions { margin: 2.25rem 0 0; padding-top: 1.5rem; border-top: 1px solid var(--bord);
-                    font-size: .78rem; line-height: 1.75; color: var(--gris-doux);
-                    max-width: 74ch; }
+  .pied .mentions { margin: 0; font-size: .78rem; line-height: 1.7; color: var(--gris-doux); }
   .pied .mentions a { color: var(--gris); text-decoration: underline;
                       text-decoration-thickness: 1px; text-underline-offset: 2px; }
 
@@ -320,6 +336,7 @@
     .chiffres dl > div:nth-child(odd) { padding-left: 0; }
     .chiffres dl > div:nth-child(odd)::before { display: none; }
     .grille, .raisons { grid-template-columns: 1fr; }
+    .pied .haut { grid-template-columns: 1fr; gap: 1.5rem; }
     .barre { grid-template-columns: 9rem 1fr 2.5rem; }
     .hero { padding: 2.25rem 0 1.75rem; }
   }
@@ -606,10 +623,14 @@ en documentation).
 <div class="chiffres">
   <div class="env">
     <dl>
-      <div><dt id="f-offres">—</dt><dd>OFFRES EN LIGNE</dd></div>
-      <div><dt id="f-sources">—</dt><dd>SOURCES RELEVÉES</dd></div>
-      <div><dt id="f-employeurs">—</dt><dd>EMPLOYEURS QUI RECRUTENT</dd></div>
-      <div><dt id="f-releve">—</dt><dd id="f-releve-libelle">DERNIER RELEVÉ</dd></div>
+      <div><dt id="f-offres">—</dt>
+           <dd><span class="ms" aria-hidden="true">work</span>OFFRES EN LIGNE</dd></div>
+      <div><dt id="f-sources">—</dt>
+           <dd><span class="ms" aria-hidden="true">travel_explore</span>SOURCES RELEVÉES</dd></div>
+      <div><dt id="f-employeurs">—</dt>
+           <dd><span class="ms" aria-hidden="true">groups</span>EMPLOYEURS QUI RECRUTENT</dd></div>
+      <div><dt id="f-releve">—</dt>
+           <dd id="f-releve-libelle"><span class="ms" aria-hidden="true">schedule</span>DERNIER RELEVÉ</dd></div>
     </dl>
   </div>
 </div>
@@ -629,8 +650,9 @@ en documentation).
   </div>
 </section>
 
-<section>
+<section class="surface">
   <div class="env">
+    <div class="panneau">
     <div class="tete">
       <div>
         <h2>Pourquoi Claim!</h2>
@@ -669,11 +691,13 @@ en documentation).
            1 200 annonces — le tri est fait à la collecte, pas à la main par le candidat.</p>
       </div>
     </div>
+    </div>
   </div>
 </section>
 
-<section>
+<section class="surface">
   <div class="env">
+    <div class="panneau">
     <div class="tete">
       <div>
         <h2>Ils recrutent en ce moment</h2>
@@ -681,6 +705,7 @@ en documentation).
       </div>
     </div>
     <div class="employeurs" id="employeurs" aria-label="Employeurs qui recrutent"></div>
+    </div>
   </div>
 </section>
 
@@ -701,19 +726,19 @@ en documentation).
     <div class="haut">
       <div>
         <a class="logo" href="/">Claim!</a>
-        <div class="nav2" style="margin-top:.9rem">
+        <div class="nav2">
           <a href="/job-board.html">Offres d'emploi</a>
           <a href="claim-entreprises.html">Entreprises</a>
           <a href="claim-observatoire.html">Observatoire de l'assurance</a>
         </div>
       </div>
+      <p class="mentions">
+        Les offres sont relevées sur les sites carrières des employeurs et les plateformes de recrutement ;
+        chaque annonce renvoie à sa source d'origine. Claim! ne collecte aucune candidature et ne stocke
+        aucune donnée de candidat. Les logos des employeurs proviennent, selon les cas,
+        de leur site ou de <a href="https://hunter.io" rel="noopener" target="_blank">Hunter.io</a>.
+      </p>
     </div>
-    <p class="mentions">
-      Les offres sont relevées sur les sites carrières des employeurs et les plateformes de recrutement ;
-      chaque annonce renvoie à sa source d'origine. Claim! ne collecte aucune candidature et ne stocke
-      aucune donnée de candidat. Les logos des employeurs proviennent, selon les cas,
-      de leur site ou de <a href="https://hunter.io" rel="noopener" target="_blank">Hunter.io</a>.
-    </p>
   </div>
 </div>
 
