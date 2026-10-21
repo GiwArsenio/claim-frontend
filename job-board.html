@@ -108,23 +108,19 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
   /* Police, interligne et couleur du texte de la page d'offre. */
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   line-height: 1.65; color: #191c1d;
-  /* Marge droite : le blanc autour de la carte doit être le même à gauche
-     et à droite. Le blanc de gauche vaut la marge de page plus la colonne
-     d'offres — la carte ne peut pas s'en approcher. Pour que le blanc de
-     droite l'égale, il faut donc lui rendre exactement cette largeur :
+  /* Marge droite : exactement la marge blanche qui sépare le texte de la
+     colonne des offres. L'enveloppe se centre dans la page, donc sa
+     gouttière vaut (page − enveloppe) / 2, et la marge blanche du texte
+     vaut gouttière + le padding interne de l'enveloppe. En posant
+     « bande = marge blanche », on résout :
 
-         marge = marge de page + colonne
+         bande = (fenêtre − colonne − enveloppe + 2 × padding) / 3
 
-     Or la marge de page vaut (fenêtre − 1 720) / 2 : elle grandit avec
-     l'écran, et la somme aussi. D'où le plafond à `--colonne-liste`, qui
-     suffit à équilibrer — la carte occupe alors le reste, et son propre
-     `margin: 0 auto` répartit le blanc.
-
-     Le second terme protège les écrans moyens : il impose à la carte de
-     garder au moins 820 px de large. En dessous, la marge décroît jusqu'à
-     zéro et la page reprend sa disposition d'origine — la fiche ne se
-     laisse jamais écraser pour symétriser du blanc. */
-  margin-right: max(0px, min(var(--colonne-liste), calc(100% - var(--colonne-liste) - 820px))); }
+     Les deux marges du texte deviennent alors égales, à toute largeur, et
+     la colonne de lecture garde la largeur du modèle. Sur un écran étroit
+     la bande s'annule d'elle-même : la page reprend toute la largeur
+     restante après la colonne, comme avant. */
+  margin-right: max(0px, calc((100% - var(--colonne-liste) - var(--enveloppe-lecture) + 2.5rem) / 3)); }
 .pr::-webkit-scrollbar { width: 3px; }
 .pr::-webkit-scrollbar-thumb { background: #bbc9cc; border-radius: 10px; }
 
