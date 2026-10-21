@@ -836,7 +836,12 @@ en documentation).
     racine.setAttribute('aria-hidden', 'true');
   });
 })();
-</script></head>
+</script><!-- Thème jour / nuit : la préférence est posée avant le rendu, pour qu'aucune
+     page ne s'affiche en clair avant de basculer. -->
+<link rel="stylesheet" href="/assets/theme.css">
+<script>(function(){try{var t=localStorage.getItem('claim-theme');if(t==='nuit'||(!t&&window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.setAttribute('data-theme','nuit');}}catch(e){}})();</script>
+<script src="/assets/theme.js" defer></script>
+</head>
 <body>
 <div id="app">
 

@@ -75,8 +75,11 @@ const pr = bloc(html, '.pr ');
 assert.ok(pr.includes('background: #fff'), 'le volet reste blanc sur telephone');
 assert.ok(pr.includes('system-ui'), 'la fiche prend la police de la page d offre');
 assert.ok(pr.includes('line-height: 1.65'), 'et son interligne');
-assert.ok(/@media \(min-width: 769px\)[\s\S]{0,6000}\.pr \{ background: #f3f4f5; \}/.test(html),
-  'en bureau, le volet prend le gris du bandeau : la fiche et le rail s y detachent');
+// Le volet de bureau prend désormais le vert très clair de la charte, et non
+// plus le gris neutre : la carte blanche s'y détache, comme les cartes
+// d'offres sur leur colonne.
+assert.ok(/@media \(min-width: 769px\)[\s\S]{0,6000}\.pr \{ background: #edf4f2; \}/.test(html),
+  'en bureau, le volet prend la teinte de la charte : la fiche s y detache');
 
 const dc = bloc(html, '.dc');
 // L'enveloppe suit la variable de lecture, et non une valeur recopiée :

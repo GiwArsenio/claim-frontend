@@ -90,7 +90,9 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
 .chips::-webkit-scrollbar { display: none; }
 .chip { display: flex; align-items: center; gap: .3rem; padding: .38rem .85rem; border-radius: 9999px; background: #fff; color: #515f78; font-size: 0.925rem; font-weight: 500; border: 1px solid rgba(187,201,204,.25); cursor: pointer; white-space: nowrap; flex-shrink: 0; transition: background .15s; }
 .chip:hover { background: #e8f4f6; }
-select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
+select.chip { appearance: none; -webkit-appearance: none; padding-right: 2rem;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23515f78' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right .7rem center; }
 
 /* ── SPLIT PANE ── */
 #split { display: flex; overflow: hidden; height: 100%; min-height: 0; }
@@ -546,7 +548,7 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
 
      Le volet reste blanc sur téléphone : la fiche y occupe tout l'écran, il
      n'y a rien à délimiter. */
-  .pr { background: #f3f4f5; }
+  .pr { background: #edf4f2; }
   .dc-wrap { display: block; padding: 1.25rem 1.25rem 3rem; }
   .dc {
     background: #fff;
@@ -717,7 +719,12 @@ en documentation).
     racine.setAttribute('aria-hidden', 'true');
   });
 })();
-</script></head>
+</script><!-- Thème jour / nuit : la préférence est posée avant le rendu, pour qu'aucune
+     page ne s'affiche en clair avant de basculer. -->
+<link rel="stylesheet" href="/assets/theme.css">
+<script>(function(){try{var t=localStorage.getItem('claim-theme');if(t==='nuit'||(!t&&window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.setAttribute('data-theme','nuit');}}catch(e){}})();</script>
+<script src="/assets/theme.js" defer></script>
+</head>
 <body>
 <div id="app">
 
@@ -762,6 +769,7 @@ en documentation).
       <select id="contract-filter" class="chip" onchange="applyFilters()"><option value="">Type de contrat</option><option value="cdi">CDI</option><option value="cdd">CDD</option><option value="alternance">Alternance</option><option value="stage">Stage</option><option value="vie">V.I.E</option><option value="freelance">Freelance</option></select>
       <select id="specialty-filter" class="chip" onchange="applyFilters()"><option value="">Spécialité</option><option value="actuariat">Actuariat</option><option value="souscription_technique">Souscription technique</option><option value="ia_data">IA / Data</option></select>
       <select id="experience-filter" class="chip" onchange="applyFilters()"><option value="">Expérience</option><option value="junior">Junior</option><option value="confirmed">Confirmé</option><option value="senior">Senior</option><option value="lead">Lead</option></select>
+      <select id="date-filter" class="chip" onchange="applyFilters()"><option value="">Date de publication</option><option value="1">Moins de 24 h</option><option value="7">7 derniers jours</option><option value="14">14 derniers jours</option></select>
       <select id="ats-filter" class="chip" onchange="applyFilters()"><option value="">Source ATS</option><option value="workday">Workday</option><option value="smartrecruiters">SmartRecruiters</option><option value="talentsoft">TalentSoft</option><option value="custom">Custom</option><option value="magnet">Magnet</option><option value="greenhouse">Greenhouse</option><option value="ashby">Ashby</option><option value="successfactors">SuccessFactors</option><option value="radancy">Radancy</option><option value="groupama">Groupama</option><option value="oracle_hcm">Oracle HCM</option></select>
       <button class="chip" onclick="resetFilters()"><span class="ms" style="font-size:13px;">restart_alt</span>Réinitialiser</button>
       
@@ -1072,6 +1080,7 @@ const PARAMETRES_URL = {
   specialite: 'specialty-filter', specialty: 'specialty-filter',
   experience: 'experience-filter',
   ats: 'ats-filter',
+  days: 'date-filter', jours: 'date-filter',
 };
 
 function remplirDepuisAdresse() {
@@ -1093,6 +1102,7 @@ function currentFilters() {
     specialty: document.getElementById('specialty-filter')?.value || '',
     experience: document.getElementById('experience-filter')?.value || '',
     ats: document.getElementById('ats-filter')?.value || '',
+    days: document.getElementById('date-filter')?.value || '',
   };
 }
 function buildJobsUrl(page) {
@@ -1108,6 +1118,7 @@ function buildJobsUrl(page) {
   if (f.specialty) params.set('specialty', f.specialty);
   if (f.experience) params.set('experience', f.experience);
   if (f.ats) params.set('ats', f.ats);
+  if (f.days) params.set('days', f.days);
   // Plus de filtre France côté navigateur : la portée géographique est
   // appliquée à la collecte (cabinets de conseil uniquement).
   if (!isSearch) params.set('order', 'desc');
@@ -1131,7 +1142,7 @@ function applyFilters() {
 }
 function resetFilters() {
   mesureEnAttente = { nom: 'filter_apply', params: paramsFiltres(true) };
-  ['q-input','city-input','contract-filter','specialty-filter','experience-filter','ats-filter'].forEach(id => { const el=document.getElementById(id); if (el) el.value=''; });
+  ['q-input','city-input','contract-filter','specialty-filter','experience-filter','ats-filter','date-filter'].forEach(id => { const el=document.getElementById(id); if (el) el.value=''; });
   loadJobs(1);
 }
 

@@ -1,0 +1,64 @@
+/* ── BASCULE JOUR / NUIT ────────────────────────────────────────────────────
+   La préférence est posée sur <html> le plus tôt possible — un script en
+   ligne dans le <head> de chaque page — pour qu'aucune page ne s'affiche en
+   clair avant de basculer. Ce fichier-ci n'ajoute que le bouton. */
+(function () {
+  var CLE = 'claim-theme';
+  var racine = document.documentElement;
+
+  function courant() {
+    return racine.getAttribute('data-theme') === 'nuit' ? 'nuit' : 'jour';
+  }
+
+  function appliquer(theme) {
+    if (theme === 'nuit') racine.setAttribute('data-theme', 'nuit');
+    else racine.removeAttribute('data-theme');
+    var bouton = document.querySelector('.bascule-theme');
+    if (!bouton) return;
+    var libelle = theme === 'nuit' ? 'Passer en version jour' : 'Passer en version nuit';
+    bouton.setAttribute('aria-label', libelle);
+    bouton.title = libelle;
+    bouton.setAttribute('aria-pressed', theme === 'nuit' ? 'true' : 'false');
+    var icone = bouton.querySelector('.ms');
+    if (icone) icone.textContent = theme === 'nuit' ? 'light_mode' : 'dark_mode';
+  }
+
+  function basculer() {
+    var suivant = courant() === 'nuit' ? 'jour' : 'nuit';
+    try { localStorage.setItem(CLE, suivant); } catch (e) { /* navigation privée */ }
+    appliquer(suivant);
+  }
+
+  function poserBouton() {
+    if (document.querySelector('.bascule-theme')) return;
+    var nav = document.querySelector('.hd nav') || document.querySelector('#hd nav');
+    if (!nav) return;
+
+    var bouton = document.createElement('button');
+    bouton.type = 'button';
+    bouton.className = 'bascule-theme';
+    bouton.innerHTML = '<span class="ms" aria-hidden="true">dark_mode</span>';
+    bouton.addEventListener('click', basculer);
+
+    // À côté de l'action principale, jamais devant elle.
+    var cta = nav.querySelector('.btn-cta');
+    if (cta && cta.parentElement) cta.parentElement.insertBefore(bouton, cta);
+    else nav.appendChild(bouton);
+
+    // Deux pages masquent leur en-tête derrière l'affiche « en construction » :
+    // la barre y mesure zéro. Le bouton ne doit pas disparaître avec elle — il
+    // passe alors en haut à droite, par-dessus l'affiche.
+    if (nav.getBoundingClientRect().height < 1) {
+      bouton.classList.add('bascule-flottante');
+      document.body.appendChild(bouton);
+    }
+
+    appliquer(courant());
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', poserBouton);
+  } else {
+    poserBouton();
+  }
+})();

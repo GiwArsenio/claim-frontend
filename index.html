@@ -130,7 +130,9 @@
           font-weight: 500; border: 1px solid var(--bord-doux); cursor: pointer;
           white-space: nowrap; flex-shrink: 0; transition: background .15s; font-family: inherit; }
   .chip:hover { background: #e8f4f6; }
-  select.chip { appearance: none; -webkit-appearance: none; padding-right: 1rem; }
+  select.chip { appearance: none; -webkit-appearance: none; padding-right: 2rem;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23515f78' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right .7rem center; }
 
   /* ── CHIFFRES ── */
   /* ── CHIFFRES ──
@@ -531,7 +533,12 @@ en documentation).
     racine.setAttribute('aria-hidden', 'true');
   });
 })();
-</script></head>
+</script><!-- Thème jour / nuit : la préférence est posée avant le rendu, pour qu'aucune
+     page ne s'affiche en clair avant de basculer. -->
+<link rel="stylesheet" href="/assets/theme.css">
+<script>(function(){try{var t=localStorage.getItem('claim-theme');if(t==='nuit'||(!t&&window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.setAttribute('data-theme','nuit');}}catch(e){}})();</script>
+<script src="/assets/theme.js" defer></script>
+</head>
 <body>
 
 <div class="hd">
@@ -589,6 +596,12 @@ en documentation).
         <option value="stage">Stage</option>
         <option value="vie">V.I.E</option>
         <option value="freelance">Freelance</option>
+      </select>
+      <select id="acc-date" class="chip" onchange="versBoard('jours', this.value)" aria-label="Date de publication">
+        <option value="">Date de publication</option>
+        <option value="1">Moins de 24 h</option>
+        <option value="7">7 derniers jours</option>
+        <option value="14">14 derniers jours</option>
       </select>
       <select id="acc-specialite" class="chip" onchange="versBoard('specialite', this.value)" aria-label="Spécialité">
         <option value="">Spécialité</option>
@@ -714,7 +727,7 @@ en documentation).
   </div>
 </section>
 
-<section class="contact" id="contact" style="padding:2.25rem 0">
+<section class="contact" id="contact" style="padding:1.1rem 0">
   <div class="env">
     <div>
       <h2>Une offre manque ? Une source à ajouter ?</h2>

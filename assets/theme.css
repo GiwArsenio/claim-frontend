@@ -1,0 +1,101 @@
+/* ── THÈME JOUR / NUIT ──────────────────────────────────────────────────────
+   Un seul fichier, chargé par toutes les pages. Le jour est le défaut : rien
+   n'est redéfini hors du bloc [data-theme="nuit"], donc une page sans ce
+   fichier reste identique.
+
+   Les pages déclarent leurs couleurs en dur par endroits. Le thème nuit les
+   reprend une à une, sélecteur par sélecteur, plutôt que d'imposer un filtre
+   d'inversion qui fausserait les logos et les photos. */
+
+:root { color-scheme: light; }
+
+[data-theme="nuit"] {
+  color-scheme: dark;
+
+  --teal: #4fb3c2;
+  --teal-clair: #12262b;
+  --teal-bord: #23474f;
+  --encre: #e8eef0;
+  --gris: #a9b8be;
+  --gris-doux: #8b9aa0;
+  --champ: #12181b;
+  --bord: #273136;
+  --bord-doux: rgba(120, 145, 152, .28);
+  --ombre: 0 1px 2px rgba(0, 0, 0, .4), 0 4px 14px rgba(0, 0, 0, .35);
+}
+
+/* ── Fonds et texte ── */
+[data-theme="nuit"] body,
+[data-theme="nuit"] #app,
+[data-theme="nuit"] .champ,
+[data-theme="nuit"] .chiffres,
+[data-theme="nuit"] .pied,
+[data-theme="nuit"] .pr { background: #0f1416 !important; color: #e8eef0; }
+
+[data-theme="nuit"] .hero,
+[data-theme="nuit"] .surface { background: #12181b !important; border-color: #273136; }
+
+[data-theme="nuit"] .panneau,
+[data-theme="nuit"] .rc,
+[data-theme="nuit"] .oc,
+[data-theme="nuit"] .jc,
+[data-theme="nuit"] .card,
+[data-theme="nuit"] .dc,
+[data-theme="nuit"] .d-entete,
+[data-theme="nuit"] .vide { background: #171d20 !important; border-color: #273136 !important; }
+
+[data-theme="nuit"] .pl { background: #12181b !important; }
+[data-theme="nuit"] .pl-hd { background: #161d21 !important; color: #8b9aa0; }
+
+/* ── Textes ── */
+[data-theme="nuit"] h1, [data-theme="nuit"] h2, [data-theme="nuit"] h3,
+[data-theme="nuit"] .ctitle, [data-theme="nuit"] dt, [data-theme="nuit"] .logo,
+[data-theme="nuit"] .dc h1, [data-theme="nuit"] .d-titre { color: #e8eef0 !important; }
+[data-theme="nuit"] p, [data-theme="nuit"] dd, [data-theme="nuit"] .csub,
+[data-theme="nuit"] .mentions, [data-theme="nuit"] .sub { color: #a9b8be; }
+
+/* ── Surfaces interactives ── */
+[data-theme="nuit"] .chip,
+[data-theme="nuit"] select.chip,
+[data-theme="nuit"] .sbar,
+[data-theme="nuit"] .champ-recherche { background: #171d20 !important; color: #dbe4e7;
+  border-color: #273136 !important; }
+[data-theme="nuit"] .chip:hover { background: #1d262a !important; }
+[data-theme="nuit"] select.chip { background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a9b8be' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") !important; }
+[data-theme="nuit"] input, [data-theme="nuit"] textarea {
+  background: #12181b; color: #e8eef0; border-color: #273136; }
+[data-theme="nuit"] input::placeholder { color: #77868c; }
+
+/* ── Cartes d'offres ── */
+[data-theme="nuit"] .card-fact,
+[data-theme="nuit"] .tm, [data-theme="nuit"] .tn, [data-theme="nuit"] .tp {
+  background: #1d262a !important; border-color: #2b363b !important; color: #cfdade !important; }
+[data-theme="nuit"] .card-fact-value { color: #cfdade !important; }
+
+/* ── Barre de navigation : le teal reste, assombri ── */
+[data-theme="nuit"] .hd nav,
+[data-theme="nuit"] #hd nav { background: #0b1a1e; }
+
+/* ── Pied et mentions ── */
+[data-theme="nuit"] .pied a { color: #a9b8be; }
+[data-theme="nuit"] .pied a:hover { color: #4fb3c2; }
+
+/* ── Bandeau de consentement ── */
+[data-theme="nuit"] .consent { background: #171d20 !important; color: #e8eef0;
+  border-color: #273136; }
+
+/* ── Le bouton de bascule ── */
+.bascule-theme {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; flex-shrink: 0;
+  border-radius: 9999px; border: 1px solid rgba(255, 255, 255, .28);
+  background: rgba(255, 255, 255, .12); color: #fff;
+  cursor: pointer; padding: 0; transition: background .15s ease;
+}
+.bascule-theme:hover { background: rgba(255, 255, 255, .22); }
+.bascule-theme .ms { font-size: 18px; }
+[data-theme="nuit"] .bascule-theme { border-color: #2b363b; background: #1d262a; color: #e8eef0; }
+
+/* Barre d'en-tête absente ou masquée : le bouton se pose par-dessus la page. */
+.bascule-flottante { position: fixed; top: 1rem; right: 1rem; z-index: 400;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, .18); }

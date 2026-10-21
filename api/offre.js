@@ -426,6 +426,9 @@ ${societe.logo_url
   gtag('config', 'G-SKQQXZW4LH');
 </script>
 <script>window.__claimMesure = ${JSON.stringify(mesure).replace(/</g, '\\u003c')};</script>
+<link rel="stylesheet" href="/assets/theme.css">
+<script>(function(){try{var t=localStorage.getItem('claim-theme');if(t==='nuit'||(!t&&window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.setAttribute('data-theme','nuit');}}catch(e){}})();</script>
+<script src="/assets/theme.js" defer></script>
 </head>
 <body>
 ${BLOC_CONSENTEMENT}
