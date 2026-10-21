@@ -147,8 +147,9 @@ assert.ok(racine, 'la variable de largeur doit etre declaree');
 assert.equal(racine[1].trim(), '420px', 'et valoir la largeur mesuree de la colonne');
 
 // La marge droite n'est pas la colonne : c'est la marge blanche du texte.
-// L'enveloppe se centrant dans la page, « bande = marge blanche » se resout
-// en bande = (fenetre - colonne - enveloppe + 2 x padding) / 3.
+// Le blanc autour de la carte doit etre le meme des deux cotes. A gauche il
+// vaut la marge de page plus la colonne des offres ; la marge de droite doit
+// donc valoir exactement cette somme.
 //
 // C'est la mise en page de la fiche seule : la colonne des offres a gauche,
 // la fiche recentree dans la place qui reste. La bande ne descend jamais sous
@@ -162,13 +163,20 @@ assert.ok(enveloppe, "la largeur de l'enveloppe doit etre declaree");
 assert.ok(parseFloat(enveloppe[1]) > 46, 'elle couvre au moins la largeur de lecture du modele');
 assert.ok(dc.includes('max-width: var(--enveloppe-lecture)'), "et l'enveloppe du board s'y conforme");
 
+// La marge de droite vaut la marge de page plus la colonne : c'est la seule
+// valeur qui rende le blanc egal a gauche et a droite de la carte. La marge
+// de page grandissant avec l'ecran, la somme est plafonnee a `--colonne-liste`
+// — au-dela, la carte occupe le reste et son `margin: 0 auto` repartit le blanc.
+// Le troisieme terme protege les ecrans moyens : la carte garde au moins
+// 820 px, et la marge decroit jusqu'a zero plutot que de l'ecraser.
 const bande = valeur(html, '.pr', 'margin-right');
 assert.ok(bande.startsWith('max(0px,'), 'la bande ne descend jamais sous zero');
-assert.ok(bande.includes('var(--colonne-liste)') && bande.includes('var(--enveloppe-lecture)'),
-  'elle se deduit de la colonne et de l enveloppe');
-assert.ok(/\)\s*\/\s*3\)/.test(bande),
-  'et vaut le tiers de ce qui reste : c est la marge du texte, des deux cotes');
-assert.ok(bande.includes('2.5rem'), 'les deux paddings de l enveloppe sont comptes');
+assert.ok(bande.includes('min(var(--colonne-liste)'), 'elle est plafonnee a la colonne');
+assert.ok(/calc\(100% - var\(--colonne-liste\) - 820px\)/.test(bande),
+  'la carte garde au moins 820 px avant que la marge ne s applique');
+assert.ok(!bande.includes('var(--enveloppe-lecture)'),
+  'le calcul ne porte plus sur l enveloppe de lecture');
+assert.ok(!/\/\s*3\)/.test(bande), 'plus de division par trois');
 assert.ok(!bande.includes('clamp('), 'la bande ne copie plus la colonne de gauche');
 
 // Le rail a ete retire : la fiche garde son recentrage, et plus rien ne se
