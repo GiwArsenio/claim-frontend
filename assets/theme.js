@@ -31,8 +31,6 @@
 
   function poserBouton() {
     if (document.querySelector('.bascule-theme')) return;
-    var nav = document.querySelector('.hd nav') || document.querySelector('#hd nav');
-    if (!nav) return;
 
     var bouton = document.createElement('button');
     bouton.type = 'button';
@@ -40,15 +38,25 @@
     bouton.innerHTML = '<span class="ms" aria-hidden="true">dark_mode</span>';
     bouton.addEventListener('click', basculer);
 
-    // À côté de l'action principale, jamais devant elle.
-    var cta = nav.querySelector('.btn-cta');
-    if (cta && cta.parentElement) cta.parentElement.insertBefore(bouton, cta);
-    else nav.appendChild(bouton);
+    var nav = document.querySelector('.hd nav') || document.querySelector('#hd nav');
 
-    // Deux pages masquent leur en-tête derrière l'affiche « en construction » :
-    // la barre y mesure zéro. Le bouton ne doit pas disparaître avec elle — il
-    // passe alors en haut à droite, par-dessus l'affiche.
-    if (nav.getBoundingClientRect().height < 1) {
+    if (nav) {
+      // À côté de l'action principale, jamais devant elle.
+      var cta = nav.querySelector('.btn-cta');
+      if (cta && cta.parentElement) cta.parentElement.insertBefore(bouton, cta);
+      else nav.appendChild(bouton);
+
+      // Deux pages masquent leur en-tête derrière l'affiche « en construction » :
+      // la barre y mesure zéro. Le bouton ne doit pas disparaître avec elle — il
+      // passe alors en haut à droite, par-dessus l'affiche.
+      if (nav.getBoundingClientRect().height < 1) {
+        bouton.classList.add('bascule-flottante');
+        document.body.appendChild(bouton);
+      }
+    } else {
+      // Une page sans barre de navigation — la fiche d'offre, qui s'ouvre
+      // seule — n'a pas d'endroit naturel pour le bouton. Il se pose alors en
+      // haut à droite, par-dessus la page : le thème reste accessible partout.
       bouton.classList.add('bascule-flottante');
       document.body.appendChild(bouton);
     }

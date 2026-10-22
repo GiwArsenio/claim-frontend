@@ -44,8 +44,11 @@ console.log('Ville display tests passed');
 
 // Typography aligned across page; resting cards have visible border and shadow.
 assert.ok(html.includes('.kl { font-size: 10px;'));
-assert.ok(html.includes('border: 1.5px solid #d5dfe3; box-shadow:'));
-assert.ok(html.includes('background: #e9eef1; border-right:'));
+// Les couleurs viennent des jetons du theme : la carte et la colonne
+// doivent rester sur les memes roles de couleur (bordure de carte, fond de
+// colonne), quel que soit le theme actif.
+assert.ok(html.includes('border: 1.5px solid var(--bord-carte); box-shadow:'));
+assert.ok(html.includes('background: var(--surface-liste); border-right:'));
 assert.ok(html.includes('.ctitle { font-size: .875rem;'));
 console.log('Typography and card contrast tests passed');
 
@@ -113,8 +116,9 @@ context.row = {ville:'Nanterre', jev_publishable:{}};
 const loc = vm.runInContext('cardLocationHtml(row)', context);
 assert.ok(loc.includes('card-fact--loc'), 'la localisation doit porter sa propre classe');
 assert.ok(!vm.runInContext("cardFactHtml('Contrat','CDI')", context).includes('card-fact--loc'));
-assert.ok(html.includes('.card-fact--loc { background: #e9f6f8; border-color: #bfe2e8; }'));
-assert.ok(html.includes('.card-fact--loc .ms { color: #006876; }'));
+// La localisation porte sa propre teinte : les valeurs viennent des jetons.
+assert.ok(html.includes('.card-fact--loc { background: var(--teal-clair); border-color: var(--teal-bord); }'));
+assert.ok(html.includes('.card-fact--loc .ms { color: var(--teal); }'));
 assert.ok(html.includes('.jc .ctags .tag { font-size: 9px; padding: 3px 6px; }'));
 console.log('Location colour and badge height tests passed');
 

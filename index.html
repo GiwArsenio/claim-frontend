@@ -29,18 +29,16 @@
 
 <style>
   :root {
-    --teal: #006876;
-    --teal-clair: #e9f6f8;
-    --teal-bord: #bfe2e8;
-    --encre: #191c1d;
-    --gris: #515f78;
-    --gris-doux: #6c797c;
-    --champ: #f3f4f5;
-    --bord: #e2e9ec;
+
+
+
+
+
+
+
+
     --bord-doux: rgba(187, 201, 204, .35);
     --ombre: 0 1px 2px rgba(25, 44, 52, .06), 0 4px 14px rgba(25, 44, 52, .05);
-    --gouttiere: 1.6rem;
-    --enveloppe: 1180px;
   }
   * { box-sizing: border-box; }
   html { -webkit-text-size-adjust: 100%; }
@@ -58,7 +56,7 @@
     font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     color: var(--encre);
     line-height: 1.65;
-    background: #fff;
+    background: var(--surface);
   }
   a { color: var(--teal); }
   .env { max-width: var(--enveloppe); margin: 0 auto; padding: 0 2rem; }
@@ -67,15 +65,15 @@
      Repris du board : le logo et les liens forment un seul groupe à gauche,
      l'action reste à droite. La densité, les couleurs et les espacements sont
      ceux de la liste des offres. */
-  .hd { background: var(--teal); position: sticky; top: 0; z-index: 200; }
+  .hd { background: var(--teal-fond); position: sticky; top: 0; z-index: 200; }
   .hd nav { display: flex; justify-content: space-between; align-items: center;
             padding: .75rem 2rem; }
-  .logo { font-size: 1.5rem; font-weight: 900; color: #fff; letter-spacing: -.05em; text-decoration: none; }
+  .logo { font-size: 1.5rem; font-weight: 900; color: var(--blanc); letter-spacing: -.05em; text-decoration: none; }
   .nav-links { display: flex; gap: 2rem; }
   .nav-links a { color: rgba(255, 255, 255, .8); text-decoration: none;
                  font-size: .925rem; font-weight: 600; }
-  .nav-links a:hover { color: #fff; }
-  .btn-cta { background: #fff; color: var(--teal); padding: .45rem 1.2rem; border-radius: .5rem;
+  .nav-links a:hover { color: var(--blanc); }
+  .btn-cta { background: var(--surface); color: var(--teal); padding: .45rem 1.2rem; border-radius: .5rem;
              font-weight: 700; font-size: .925rem; border: none; cursor: pointer;
              font-family: inherit; white-space: nowrap; }
 
@@ -88,7 +86,7 @@
     border: none; border-radius: .4rem; cursor: pointer;
     padding: 7px 8px; flex-shrink: 0;
   }
-  .btn-burger span { display: block; height: 2px; background: #fff; border-radius: 2px;
+  .btn-burger span { display: block; height: 2px; background: var(--surface); border-radius: 2px;
                      transition: transform .25s, opacity .2s; }
   .btn-burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
   .btn-burger.open span:nth-child(2) { opacity: 0; }
@@ -110,7 +108,7 @@
      Repris trait pour trait du board : mêmes icônes, même pilule, même bouton,
      mêmes listes déroulantes. Seule la largeur s'adapte — l'accueil n'a pas de
      colonne d'offres à droite, la barre reste donc bornée à 50 rem. */
-  .sbar { display: flex; align-items: center; background: #fff; border-radius: 9999px;
+  .sbar { display: flex; align-items: center; background: var(--surface); border-radius: 9999px;
           padding: .3rem; max-width: 50rem; box-shadow: 0 1px 4px rgba(0, 0, 0, .07);
           margin-bottom: .5rem; }
   .sf { flex: 1; display: flex; align-items: center; padding: 0 1rem; gap: .4rem; min-width: 0; }
@@ -118,7 +116,7 @@
               font-family: inherit; font-size: .925rem; color: var(--encre); }
   .sf input::placeholder { color: rgba(108, 121, 124, .6); }
   .sdiv { width: 1px; height: 1.4rem; background: var(--bord-doux); flex-shrink: 0; }
-  .btn-srch { background: linear-gradient(135deg, #006876, #00bcd4); color: #fff; border: none;
+  .btn-srch { background: linear-gradient(135deg, var(--teal), var(--teal-vif)); color: var(--blanc); border: none;
               cursor: pointer; padding: .5rem 1.5rem; border-radius: 9999px; font-weight: 700;
               font-size: .925rem; font-family: inherit; white-space: nowrap; }
   .btn-srch:hover { filter: brightness(1.08); }
@@ -126,10 +124,10 @@
   .chips { display: flex; gap: .5rem; overflow-x: auto; padding-bottom: .15rem; }
   .chips::-webkit-scrollbar { display: none; }
   .chip { display: flex; align-items: center; gap: .3rem; padding: .38rem .85rem;
-          border-radius: 9999px; background: #fff; color: var(--gris); font-size: .925rem;
+          border-radius: 9999px; background: var(--surface); color: var(--gris); font-size: .925rem;
           font-weight: 500; border: 1px solid var(--bord-doux); cursor: pointer;
           white-space: nowrap; flex-shrink: 0; transition: background .15s; font-family: inherit; }
-  .chip:hover { background: #e8f4f6; }
+  .chip:hover { background: var(--teal-survol); }
   select.chip { appearance: none; -webkit-appearance: none; padding-right: 2rem;
     background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23515f78' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
     background-repeat: no-repeat; background-position: right .7rem center; }
@@ -140,7 +138,7 @@
      chiffres prennent l'échelle et l'interlettrage des titres ; les libellés
      se réduisent à un rôle d'étiquette. La séparation entre colonnes est un
      filet qui s'efface à ses extrémités — elle sépare sans découper. */
-  .chiffres { border-bottom: 1px solid var(--bord); background: #fff; }
+  .chiffres { border-bottom: 1px solid var(--bord); background: var(--surface); }
   .chiffres dl { display: grid; grid-template-columns: repeat(4, 1fr);
                  margin: 0; padding: .55rem 0 .65rem; }
   .chiffres dl > div { position: relative; padding: 0 1.6rem; }
@@ -169,7 +167,7 @@
      comptent au lieu de s'enchaîner. */
   .surface { background: var(--champ); border-top: 1px solid var(--bord);
              border-bottom: 1px solid var(--bord); padding: 2.25rem 0; }
-  .panneau { background: #fff; border: 1px solid var(--bord); border-radius: 1rem;
+  .panneau { background: var(--surface); border: 1px solid var(--bord); border-radius: 1rem;
              box-shadow: var(--ombre); padding: clamp(1.15rem, 2.6vw, 2rem); }
 
   /* ── SECTIONS ── */
@@ -190,19 +188,19 @@
      La réserve droite des étiquettes les empêche de passer sous la date, qui
      est posée en absolu comme sur le board. */
   .grille { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--gouttiere); }
-  .oc { background: #fff; border-radius: .625rem; padding: .875rem;
+  .oc { background: var(--surface); border-radius: .625rem; padding: .875rem;
         display: flex; flex-direction: column; text-decoration: none; color: inherit;
         cursor: pointer; transition: transform .15s, box-shadow .15s; position: relative;
-        border: 1.5px solid #d5dfe3;
+        border: 1.5px solid var(--bord-carte);
         box-shadow: 0 2px 6px rgba(25, 44, 52, .08), 0 5px 14px rgba(25, 44, 52, .04);
         min-width: 0; overflow: hidden; }
-  .oc:hover { transform: translateY(-1px); border-color: #a9c6cc;
+  .oc:hover { transform: translateY(-1px); border-color: var(--bord-carte-survol);
               box-shadow: 0 5px 16px rgba(25, 44, 52, .14); }
   .oc .ct { display: flex; align-items: flex-start; margin-bottom: .45rem; }
   /* Tuile de logo : la teinte de l'employeur dessous, le logo de la source
      dessus, les initiales entre les deux. Le repli n'a jamais de trou. */
   .clogo { width: 38px; height: 38px; border-radius: 6px; display: flex; align-items: center;
-           justify-content: center; color: #fff; font-weight: 900; font-size: 9.5px;
+           justify-content: center; color: var(--blanc); font-weight: 900; font-size: 9.5px;
            flex-shrink: 0; position: relative; overflow: hidden; }
   .clogo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain;
                border-radius: inherit; padding: 2px; }
@@ -214,24 +212,24 @@
   .oc:hover .ctitle { color: var(--teal); }
   .oc .cm { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin: 9px 0; }
   .card-fact { display: inline-flex; align-items: center; flex: 0 0 auto; max-width: 100%;
-               padding: 2px 8px; border: 1px solid #dce5e9; border-radius: 4px; background: #f5f8f9; }
-  .card-fact-value { color: #24363d; font-size: 12px; font-weight: 600; line-height: 16px;
+               padding: 2px 8px; border: 1px solid var(--bord-carte); border-radius: 4px; background: var(--surface-2); }
+  .card-fact-value { color: var(--encre-forte); font-size: 12px; font-weight: 600; line-height: 16px;
                      overflow-wrap: anywhere; }
-  .card-fact .ms { font-size: 14px; color: #65747c; margin-right: 3px; }
-  .card-fact--loc { background: #e9f6f8; border-color: #bfe2e8; }
-  .card-fact--loc .card-fact-value { color: #00545f; }
-  .card-fact--loc .ms { color: #006876; }
+  .card-fact .ms { font-size: 14px; color: var(--gris-icone); margin-right: 3px; }
+  .card-fact--loc { background: var(--teal-clair); border-color: var(--teal-bord); }
+  .card-fact--loc .card-fact-value { color: var(--teal-texte); }
+  .card-fact--loc .ms { color: var(--teal); }
   .oc .ctags { display: flex; flex-wrap: wrap; gap: 3px; min-width: 0; padding-right: 4rem; }
   .oc .ctags .tag { font-size: 9px; padding: 3px 6px; }
   .tag { display: inline-block; padding: 1.5px 5px; border-radius: 3px; font-size: 8px;
          font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
-  .tm { background: #a1efff; color: #004e59; }
-  .tn { background: #ffdcc2; color: #6d3a00; }
+  .tm { background: var(--cyan-clair); color: var(--cyan-texte); }
+  .tn { background: var(--orange-clair); color: var(--orange-texte); }
   .oc .cdate { position: absolute; bottom: .5rem; right: .875rem; font-size: 9px;
                color: var(--gris-doux); font-weight: 500; }
   /* La tuile des employeurs garde sa propre échelle : elle est plus petite. */
   .sigle { width: 34px; height: 34px; border-radius: .5rem; flex-shrink: 0; display: flex;
-           align-items: center; justify-content: center; color: #fff; font-weight: 900;
+           align-items: center; justify-content: center; color: var(--blanc); font-weight: 900;
            font-size: 11px; letter-spacing: -.02em; position: relative; overflow: hidden; }
   /* Le logo est contenu dans le carré, comme sur le board. Sans cette règle,
      l'image s'affichait à sa taille naturelle — 256 px pour un favicon — et
@@ -240,7 +238,7 @@
                  justify-content: center; border-radius: inherit; }
   .sigle img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain;
                border-radius: inherit; padding: 4px; }
-  .vide { grid-column: 1 / -1; background: #fff; border-radius: .75rem; padding: 1.4rem 1.25rem;
+  .vide { grid-column: 1 / -1; background: var(--surface); border-radius: .75rem; padding: 1.4rem 1.25rem;
           color: var(--gris); font-size: .9rem; box-shadow: var(--ombre); }
 
   /* ── RAISONS ── */
@@ -248,7 +246,7 @@
   /* ── RAISONS ──
      Trois cartes de même poids. Le filet teal n'apparaît qu'au survol : il
      signale la carte lue sans colorer la page au repos. */
-  .rc { position: relative; background: #fff; border: 1px solid var(--bord);
+  .rc { position: relative; background: var(--surface); border: 1px solid var(--bord);
         border-radius: .9rem; padding: 1.5rem 1.35rem 1.45rem;
         box-shadow: 0 1px 2px rgba(25, 44, 52, .04);
         transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
@@ -295,12 +293,12 @@
   }
 
   /* ── CONTACT ── */
-  .contact { background: var(--teal); color: #fff; }
+  .contact { background: var(--teal-fond); color: var(--blanc); }
   .contact .env { display: flex; justify-content: space-between; align-items: center; gap: 2rem;
                   flex-wrap: wrap; }
-  .contact h2 { color: #fff; font-size: 1.3rem; }
+  .contact h2 { color: var(--blanc); font-size: 1.3rem; }
   .contact p { margin: .35rem 0 0; color: rgba(255, 255, 255, .85); font-size: .92rem; max-width: 58ch; }
-  .bblanc { background: #fff; color: var(--teal); padding: .6rem 1.4rem; border-radius: .5rem;
+  .bblanc { background: var(--surface); color: var(--teal); padding: .6rem 1.4rem; border-radius: .5rem;
             font-weight: 700; font-size: .925rem; text-decoration: none; white-space: nowrap; }
 
   /* ── PIED ── */
@@ -313,7 +311,7 @@
      l'identité restait à gauche et les mentions partaient à l'autre bout.
      Il tient désormais dans une largeur de lecture, en deux colonnes —
      l'identité et la navigation d'un côté, le texte de l'autre. */
-  .pied { background: #fff; border-top: 1px solid var(--bord); padding: 1.1rem 0 .95rem; }
+  .pied { background: var(--surface); border-top: 1px solid var(--bord); padding: 1.1rem 0 .95rem; }
   .pied .env { max-width: 1000px; }
   .pied .haut { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 44ch);
                 gap: 2.5rem; align-items: start; }
@@ -364,7 +362,7 @@
     .bm-overlay { position: absolute; inset: 0; background: rgba(0, 0, 0, .45);
                   opacity: 0; transition: opacity .3s; }
     .bm-panel { position: absolute; top: 0; right: 0; bottom: 0;
-                width: 78vw; max-width: 300px; background: var(--teal);
+                width: 78vw; max-width: 300px; background: var(--teal-fond);
                 transform: translateX(100%);
                 transition: transform .3s cubic-bezier(.4, 0, .2, 1);
                 display: flex; flex-direction: column; padding: 0;
@@ -375,9 +373,9 @@
 
     .bm-header { display: flex; align-items: center; justify-content: space-between;
                  padding: .875rem 1.25rem; border-bottom: 1px solid rgba(255, 255, 255, .12); }
-    .bm-logo { font-size: 1.3rem; font-weight: 900; color: #fff; letter-spacing: -.05em;
+    .bm-logo { font-size: 1.3rem; font-weight: 900; color: var(--blanc); letter-spacing: -.05em;
                text-decoration: none; }
-    .bm-close { background: rgba(255, 255, 255, .12); border: none; color: #fff;
+    .bm-close { background: var(--surbrillance); border: none; color: var(--blanc);
                 width: 32px; height: 32px; border-radius: .375rem; cursor: pointer;
                 display: flex; align-items: center; justify-content: center; }
 
@@ -385,7 +383,7 @@
     .bm-nav a { display: flex; align-items: center; gap: .75rem; color: rgba(255, 255, 255, .85);
                 text-decoration: none; font-size: .95rem; font-weight: 600;
                 padding: .875rem 1.25rem; transition: background .15s, color .15s; }
-    .bm-nav a.on { color: #fff; background: rgba(255, 255, 255, .12); }
+    .bm-nav a.on { color: var(--blanc); background: var(--surbrillance); }
     .bm-nav a .ms { font-size: 20px; color: rgba(255, 255, 255, .6); }
     .bm-nav a.on .ms { color: rgba(255, 255, 255, .9); }
 
@@ -447,7 +445,7 @@ en documentation).
    refus. Couleurs, rayons, ombre et typographie sont ceux du site. */
 .consent {
   position: fixed; inset: auto 0 0 0; z-index: 900;
-  background: #fff; border-top: 1px solid var(--bord);
+  background: var(--surface); border-top: 1px solid var(--bord);
   box-shadow: 0 -10px 30px rgba(25, 44, 52, .10);
   padding: 1.15rem 0;
   animation: consent-entree .3s cubic-bezier(.2, .8, .3, 1);
@@ -494,14 +492,14 @@ en documentation).
 .consent button:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
 
 /* Accepter : la couleur de la marque, pleine. */
-.consent-accepter { background: var(--teal); color: #fff; border: 1px solid var(--teal); }
-.consent-accepter:hover { background: #005a66; border-color: #005a66; }
+.consent-accepter { background: var(--teal-fond); color: var(--blanc); border: 1px solid var(--teal); }
+.consent-accepter:hover { background: var(--teal-fonce); border-color: var(--teal-fonce); }
 
 /* Refuser : même hauteur, même poids typographique, un trait franc — jamais
    grisé, jamais relégué. C'est la recommandation de la CNIL : refuser doit
    être aussi simple qu'accepter. */
-.consent-refuser { background: #fff; color: var(--encre); border: 1px solid #c7d3d8; }
-.consent-refuser:hover { background: var(--champ); border-color: #b3c2c8; }
+.consent-refuser { background: var(--surface); color: var(--encre); border: 1px solid var(--bord-fort); }
+.consent-refuser:hover { background: var(--champ); border-color: var(--bord-fort); }
 
 @media (max-width: 780px) {
   .consent { padding: .95rem 0; }
@@ -574,12 +572,12 @@ en documentation).
 
         <form class="sbar" action="/job-board.html" method="get">
       <div class="sf">
-        <span class="ms" style="color:#6c797c;font-size:17px;">search</span>
+        <span class="ms" style="color:var(--gris-doux);font-size:17px;">search</span>
         <input id="q" name="q" type="text" placeholder="Mots-clés (e.g. Actuaire, Data Scientist)" autocomplete="off"/>
       </div>
       <div class="sdiv"></div>
       <div class="sf loc-field">
-        <span class="ms" style="color:#6c797c;font-size:17px;">location_on</span>
+        <span class="ms" style="color:var(--gris-doux);font-size:17px;">location_on</span>
         <input id="ville" name="ville" type="text" placeholder="Localisation" autocomplete="off"/>
       </div>
       <button class="btn-srch" type="submit">Rechercher</button>
@@ -680,7 +678,7 @@ en documentation).
     <div class="raisons">
       <div class="rc">
         <div class="ico">
-          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#006876" stroke-width="2"
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2"
                stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 5-9 5-9-5 9-5z"></path>
                <path d="M3 13l9 5 9-5"></path></svg>
         </div>
@@ -690,7 +688,7 @@ en documentation).
       </div>
       <div class="rc">
         <div class="ico">
-          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#006876" stroke-width="2"
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2"
                stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"></circle>
                <path d="M12 8v4.5l3 1.8"></path></svg>
         </div>
@@ -700,7 +698,7 @@ en documentation).
       </div>
       <div class="rc">
         <div class="ico">
-          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#006876" stroke-width="2"
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2"
                stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7.5 3v6c0 4.3-3 7.6-7.5 9-4.5-1.4-7.5-4.7-7.5-9V6L12 3z"></path>
                <path d="M9 12l2 2 4-4"></path></svg>
         </div>
@@ -786,7 +784,7 @@ const annuaire = (typeof CLAIM_ENTREPRISES !== 'undefined') ? CLAIM_ENTREPRISES 
 const echapper = (v) => String(v == null ? '' : v).replace(/[&<>"']/g,
   (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
-const couleur = (slug) => (annuaire ? annuaire.couleurEntreprise(slug) : '#006876');
+const couleur = (slug) => (annuaire ? annuaire.couleurEntreprise(slug) : 'var(--teal)');
 
 // ── Cartes : le rendu du board ─────────────────────────────────────────────
 // La carte de l'accueil est celle du board, au paramètre de grille près. Les

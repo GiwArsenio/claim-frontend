@@ -17,9 +17,11 @@ assert.ok(html.includes("renderCompanyLogo(co, 'clogo')"), 'la carte garde son l
 
 // Le nom de l'entreprise suit le gris de la page d'offre, pour ne pas
 // rivaliser avec le titre.
+// La couleur vient d'un jeton. Ce qui compte est le role : le gris de la
+// page d'offre, pas le teal de la marque.
 const dco = html.match(/\.dco \{[^}]*\}/)[0];
-assert.ok(dco.includes('#515f78'), "le nom de l'entreprise reprend le gris de la page d'offre");
-assert.ok(!dco.includes('#006876'), "le nom de l'entreprise n'est plus en teal");
+assert.ok(dco.includes('var(--gris)'), "le nom de l'entreprise reprend le gris de la page d'offre");
+assert.ok(!dco.includes('var(--teal)'), "le nom de l'entreprise n'est plus en teal");
 
 // Le titre tient son rôle par sa taille : c'est le h1 du modèle, au gras
 // par défaut (700), et non plus un 900 propre au board.

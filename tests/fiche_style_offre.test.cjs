@@ -11,8 +11,22 @@ const modele = fs.readFileSync(path.join(__dirname, '../api/offre.js'), 'utf8');
 // Le modèle nomme ses couleurs par variable (--gris, --teal, --encre). On les
 // résout avant de comparer : sinon la comparaison porterait sur l'écriture et
 // non sur la couleur rendue.
-const VARIABLES = { '--teal': '#006876', '--encre': '#191c1d', '--gris': '#515f78' };
-const resoudre = v => v.replace(/var\((--[a-z]+)\)/g, (_, nom) => VARIABLES[nom] || nom);
+// Le theme fournit les jetons ; le modele serveur les nomme aussi. Pour que la
+// comparaison porte sur la couleur rendue et non sur l'ecriture, les deux
+// cotes sont resolus dans le meme referentiel.
+const VARIABLES = {
+  '--teal': '#006876', '--encre': '#191c1d', '--gris': '#515f78',
+  '--gris-texte': '#3c494c', '--teal-clair': '#e9f6f8', '--teal-bord': '#bfe2e8',
+  '--teal-texte': '#00545f', '--surface-2': '#f5f8f9', '--surface': '#fff',
+  '--surface-liste': '#e9eef1', '--bord-carte': '#d5dfe3', '--champ': '#f3f4f5',
+  '--encre-forte': '#24363d', '--gris-doux': '#6c797c', '--gris-icone': '#65747c',
+  '--vert-clair': '#f2f8f2', '--vert-bord': '#cfe6cf', '--vert-texte': '#2d5a2d',
+  '--cyan-clair': '#a1efff', '--cyan-texte': '#004e59',
+  '--orange-clair': '#ffdcc2', '--orange-texte': '#6d3a00',
+  // Grandeurs : la comparaison porte aussi sur la largeur de la colonne.
+  '--colonne-liste': '420px',
+};
+const resoudre = v => v.replace(/var\((--[a-z0-9-]+)\)/g, (_, nom) => VARIABLES[nom] || nom);
 
 function bloc(source, selecteur) {
   const motif = selecteur.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*\\{[^}]*\\}';
@@ -25,6 +39,15 @@ function valeur(source, selecteur, propriete) {
   const m = bloc(source, selecteur).match(new RegExp(propriete + ':\\s*([^;]+)'));
   assert.ok(m, `${propriete} doit être défini dans ${selecteur}`);
   return resoudre(m[1].trim());
+}
+
+/* Lecture brute : la declaration telle qu'elle est ecrite. Elle sert aux
+   assertions qui portent sur la maniere dont une valeur est exprimee
+   (une variable, pas une constante) plutot que sur sa valeur. */
+function valeurBrute(source, selecteur, propriete) {
+  const m = bloc(source, selecteur).match(new RegExp(propriete + ':\\s*([^;]+)'));
+  assert.ok(m, `${propriete} doit etre defini dans ${selecteur}`);
+  return m[1].trim();
 }
 
 function proprietes(source, selecteur) {
@@ -72,13 +95,13 @@ assert.equal(valeur(html, '.desc-source ul, .desc-source ol, .pb ul', 'padding-l
 // gouttiere entre elles, un champ gris dessous. Le volet reste blanc sur
 // telephone — la fiche y occupe tout l'ecran, il n'y a rien a delimiter.
 const pr = bloc(html, '.pr ');
-assert.ok(pr.includes('background: #fff'), 'le volet reste blanc sur telephone');
+assert.ok(pr.includes('background: var(--surface)'), 'le volet reste clair sur telephone');
 assert.ok(pr.includes('system-ui'), 'la fiche prend la police de la page d offre');
 assert.ok(pr.includes('line-height: 1.65'), 'et son interligne');
 // Le volet de bureau prend désormais le vert très clair de la charte, et non
 // plus le gris neutre : la carte blanche s'y détache, comme les cartes
 // d'offres sur leur colonne.
-assert.ok(/@media \(min-width: 769px\)[\s\S]{0,6000}\.pr \{ background: #edf4f2; \}/.test(html),
+assert.ok(/@media \(min-width: 769px\)[\s\S]{0,6000}\.pr \{ background: var\(--champ\); \}/.test(html),
   'en bureau, le volet prend la teinte de la charte : la fiche s y detache');
 
 const dc = bloc(html, '.dc');
@@ -109,7 +132,7 @@ assert.ok(entete.includes('top: .5rem'),
   'le bloc se decale d un demi-rem sous le bord du volet');
 assert.ok(entete.includes('padding: .35rem 1.25rem .5rem'),
   'et garde ses marges interieures, sans quoi le bloc grandirait');
-assert.ok(entete.includes('background: #fff'),
+assert.ok(entete.includes('background: var(--surface)'),
   'un fond opaque est indispensable : le corps defile dessous');
 assert.ok(entete.includes('margin: 0 -1.25rem'),
   'le fond couvre les gouttieres, sinon le texte defilerait a cote');
@@ -117,7 +140,7 @@ assert.ok(entete.includes('margin: 0 -1.25rem'),
 // traversait la bande en défilant.
 assert.ok(/\.d-entete::before \{[\s\S]{0,300}bottom: 100%;/.test(html),
   'un aplat au dessus du bloc referme le vide laisse decouvert');
-assert.ok(/\.d-entete::before \{[\s\S]{0,300}background: #f3f4f5;/.test(html),
+assert.ok(/\.d-entete::before \{[\s\S]{0,300}background: var\(--champ\);/.test(html),
   "l'aplat prend la teinte du champ, invisible au repos");
 // L ancien en-tete collant du board reste retire, lui.
 assert.ok(!html.includes('d-sticky'), "l'ancien en-tête collant n'est pas revenu");
@@ -143,7 +166,7 @@ assert.deepEqual(ordre, [...ordre].sort((a, b) => a - b),
 
 // ── La page blanche reprend exactement la colonne de gauche en marge droite ──
 // La fiche se recentre dans la fenêtre : autant de gris de part et d'autre.
-assert.equal(valeur(html, '.pl', 'width'), 'var(--colonne-liste)',
+assert.equal(valeurBrute(html, '.pl', 'width'), 'var(--colonne-liste)',
   'la colonne de gauche tient sa largeur d une seule variable');
 const racine = html.match(/:root \{\s*--colonne-liste: ([^;]+);/);
 assert.ok(racine, 'la variable de largeur doit etre declaree');
@@ -165,7 +188,7 @@ assert.ok(enveloppe, "la largeur de l'enveloppe doit etre declaree");
 assert.ok(parseFloat(enveloppe[1]) > 46, 'elle couvre au moins la largeur de lecture du modele');
 assert.ok(dc.includes('max-width: var(--enveloppe-lecture)'), "et l'enveloppe du board s'y conforme");
 
-const bande = valeur(html, '.pr', 'margin-right');
+const bande = valeurBrute(html, '.pr', 'margin-right');
 assert.ok(bande.startsWith('max(0px,'), 'la bande ne descend jamais sous zero');
 assert.ok(bande.includes('var(--colonne-liste)') && bande.includes('var(--enveloppe-lecture)'),
   'elle se deduit de la colonne et de l enveloppe');

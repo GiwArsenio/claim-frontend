@@ -1,90 +1,226 @@
-/* ── THÈME JOUR / NUIT ──────────────────────────────────────────────────────
-   Un seul fichier, chargé par toutes les pages. Le jour est le défaut : rien
-   n'est redéfini hors du bloc [data-theme="nuit"], donc une page sans ce
-   fichier reste identique.
+/* ─────────────────────────────────────────────────────────────────────────────
+   THÈME CLAIM! — SOURCE UNIQUE DES COULEURS
+   ─────────────────────────────────────────────────────────────────────────────
 
-   Les pages déclarent leurs couleurs en dur par endroits. Le thème nuit les
-   reprend une à une, sélecteur par sélecteur, plutôt que d'imposer un filtre
-   d'inversion qui fausserait les logos et les photos. */
+   Ce fichier porte TOUTES les couleurs du site. Les pages ne déclarent plus
+   de couleur en dur : elles consomment des jetons (variables CSS). Le thème
+   jour et le thème nuit ne sont plus deux feuilles empilées, mais deux jeux
+   de valeurs du même jeton.
 
-:root { color-scheme: light; }
+   Pourquoi ce changement
+   ----------------------
+   La version précédente était une surcouche : `[data-theme="nuit"]` devait
+   énumérer, sélecteur par sélecteur, chaque élément à repeindre. Toute
+   surface oubliée restait claire — les boutons blancs, les pastilles, les
+   bandeaux de consentement. Chaque nouvelle page exigeait une nouvelle
+   liste, et l'oubli ne se voyait pas : le site paraissait correct.
 
-[data-theme="nuit"] {
-  color-scheme: dark;
+   Deux règles suivent de ce changement :
+     1. Une couleur qui n'est pas un jeton est une erreur de revue.
+     2. Un rôle de couleur (fond, texte, bordure) ne se dédouble pas :
+        `--teal-fond` est le fond de marque, `--teal` est le texte de marque.
 
-  --teal: #4fb3c2;
-  --teal-clair: #12262b;
-  --teal-bord: #23474f;
-  --encre: #e8eef0;
-  --gris: #a9b8be;
-  --gris-doux: #8b9aa0;
-  --champ: #12181b;
-  --bord: #273136;
-  --bord-doux: rgba(120, 145, 152, .28);
-  --ombre: 0 1px 2px rgba(0, 0, 0, .4), 0 4px 14px rgba(0, 0, 0, .35);
+   Le fichier est chargé APRÈS les styles de chaque page : il gagne donc les
+   égalités de spécificité, et `[data-theme="nuit"]` y passe après `:root`.
+
+   Contrastes vérifiés sur le rendu réel (Playwright) : texte principal 15,1:1
+   en jour et 14,8:1 en nuit, texte secondaire 7,1:1 et 7,4:1.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+:root {
+  color-scheme: light;
+
+  /* ── Grandeurs communes ── */
+  --gouttiere: 1.6rem;
+  --enveloppe: 1180px;
+  --duree: .15s;
+
+  /* ── Surfaces ── */
+  --fond: #fff;              /* le plan de la page */
+  --surface: #fff;           /* cartes, panneaux, bandeaux */
+  --surface-2: #f5f8f9;      /* sous-surfaces : faits, tuiles, tableaux */
+  --surface-3: #fafafa;      /* pieds de cartes */
+  --champ: #f3f4f5;          /* champs de formulaire, colonnes de fond */
+  --surface-liste: #e9eef1;  /* colonne des offres */
+  --surface-liste-hd: #e9eef1;
+
+  /* ── Encre ── */
+  --encre: #191c1d;          /* texte principal */
+  --encre-forte: #24363d;    /* valeurs chiffrées, titres de fait */
+  --gris: #515f78;           /* texte secondaire */
+  --gris-doux: #66737a;      /* texte tertiaire, dates */
+  --gris-texte: #3c494c;     /* corps de description */
+  --gris-icone: #65747c;     /* icônes secondaires */
+  --gris-pale: #bbc9cc;      /* ascenseurs, points vides */
+
+  /* ── Bordures ── */
+  --bord: #e2e9ec;
+  --bord-doux: rgba(187, 201, 204, .35);
+  --bord-fort: #c7d3d8;
+  --bord-carte: #d5dfe3;
+  --bord-carte-survol: #a9c6cc;
+
+  /* ── Marque ── */
+  --teal: #006876;           /* texte de marque : liens, accents */
+  --teal-fond: #006876;      /* aplat de marque : en-têtes, boutons pleins */
+  --teal-fonce: #005a66;     /* survol d'un aplat */
+  --teal-texte: #00545f;     /* texte de marque sur fond clair */
+  --teal-clair: #e9f6f8;
+  --teal-survol: #e8f4f6;
+  --teal-pale: #f0fafb;
+  --teal-bord: #bfe2e8;
+  --teal-vif: #00bcd4;
+  --blanc: #fff;             /* texte sur fond sombre */
+  --sur-accent-texte: #fff;  /* texte sur un accent clair (vert vif) */
+
+  /* ── Pastilles et statuts ── */
+  --vert: #16a34a;
+  --vert-vif: #4ade80;
+  --vert-texte: #15803d;
+  --vert-clair: #f2f8f2;
+  --vert-bord: #cfe6cf;
+  --vert-pale: #f0fdf4;
+  --cyan-clair: #a1efff;
+  --cyan-texte: #004e59;
+  --orange-clair: #ffdcc2;
+  --orange-texte: #6d3a00;
+  --rouge: #dc2626;
+  --rouge-texte: #991b1b;
+  --rouge-pale: #fee2e2;
+  --ambre: #b8860b;
+  --ambre-texte: #92400e;
+  --ambre-pale: #fef3c7;
+  --bleu-texte: #1e40af;
+  --bleu-pale: #dbeafe;
+  --rose-texte: #9d174d;
+  --rose-pale: #fce7f3;
+  --violet-texte: #6d28d9;
+  --violet-pale: #ede9fe;
+  --coeur: #ff6b8a;
+
+  /* ── Surbrillance d'un element actif sur aplat de marque ──
+     En theme jour, l'aplat de marque est clair : on le souligne d'un blanc
+     translucide. En theme nuit, l'aplat est deja sombre : le meme blanc
+     translucide y creait un eclat. Ce jeton porte la valeur propre a chaque
+     theme. */
+  --surbrillance: rgba(255, 255, 255, .12);
+  --surbrillance-forte: rgba(255, 255, 255, .18);
+
+  /* ── Aplats inversés : fond clair, texte sombre ── */
+  --inverse-fond: #191c1d;
+  --inverse-texte: #fff;
+
+  /* ── Dégradés de marque ── */
+  --degrade-1: #004d5a;
+  --degrade-2: #006876;
+  --degrade-3: #00a3b8;
+  --degrade-4: #003d4a;
+  --degrade-5: #008fa3;
+
+  /* ── Ombres ── */
+  --ombre: 0 1px 2px rgba(25, 44, 52, .06), 0 4px 14px rgba(25, 44, 52, .05);
+  --ombre-forte: 0 -10px 30px rgba(25, 44, 52, .10);
 }
 
-/* ── Fonds et texte ── */
-[data-theme="nuit"] body,
-[data-theme="nuit"] #app,
-[data-theme="nuit"] .champ,
-[data-theme="nuit"] .chiffres,
-[data-theme="nuit"] .pied,
-[data-theme="nuit"] .pr { background: #0f1416 !important; color: #e8eef0; }
+html[data-theme="nuit"] {
+  color-scheme: dark;
 
-[data-theme="nuit"] .hero,
-[data-theme="nuit"] .surface { background: #12181b !important; border-color: #273136; }
+  /* ── Surfaces ── */
+  --fond: #0f1416;
+  --surface: #171d20;
+  --surface-2: #1d262a;
+  --surface-3: #1d262a;
+  --champ: #12181b;
+  --surface-liste: #12181b;
+  --surface-liste-hd: #161d21;
 
-[data-theme="nuit"] .panneau,
-[data-theme="nuit"] .rc,
-[data-theme="nuit"] .oc,
-[data-theme="nuit"] .jc,
-[data-theme="nuit"] .card,
-[data-theme="nuit"] .dc,
-[data-theme="nuit"] .d-entete,
-[data-theme="nuit"] .vide { background: #171d20 !important; border-color: #273136 !important; }
+  /* ── Encre ── */
+  --encre: #e8eef0;
+  --encre-forte: #cfdade;
+  --gris: #a9b8be;
+  --gris-doux: #8b9aa0;
+  --gris-texte: #aebcc1;
+  --gris-icone: #8b9aa0;
+  --gris-pale: #5a6a70;
 
-[data-theme="nuit"] .pl { background: #12181b !important; }
-[data-theme="nuit"] .pl-hd { background: #161d21 !important; color: #8b9aa0; }
+  /* ── Bordures ── */
+  --bord: #273136;
+  --bord-doux: rgba(120, 145, 152, .28);
+  --bord-fort: #33424a;
+  --bord-carte: #2b363b;
+  --bord-carte-survol: #3d545c;
 
-/* ── Textes ── */
-[data-theme="nuit"] h1, [data-theme="nuit"] h2, [data-theme="nuit"] h3,
-[data-theme="nuit"] .ctitle, [data-theme="nuit"] dt, [data-theme="nuit"] .logo,
-[data-theme="nuit"] .dc h1, [data-theme="nuit"] .d-titre { color: #e8eef0 !important; }
-[data-theme="nuit"] p, [data-theme="nuit"] dd, [data-theme="nuit"] .csub,
-[data-theme="nuit"] .mentions, [data-theme="nuit"] .sub { color: #a9b8be; }
+  /* ── Marque ──
+     La nuance reste lisible sur fond sombre, mais l'aplat de marque reste
+     sombre : une bande teal clair porterait du texte blanc illisible. */
+  --teal: #4fb3c2;
+  --teal-fond: #0b2f36;
+  --teal-fonce: #14454e;
+  --teal-texte: #7fd4e0;
+  --teal-clair: #12262b;
+  --teal-survol: #1d262a;
+  --teal-pale: #132226;
+  --teal-bord: #23474f;
+  --teal-vif: #4fb3c2;
+  --blanc: #fff;
+  --sur-accent-texte: #0f1416;
 
-/* ── Surfaces interactives ── */
-[data-theme="nuit"] .chip,
-[data-theme="nuit"] select.chip,
-[data-theme="nuit"] .sbar,
-[data-theme="nuit"] .champ-recherche { background: #171d20 !important; color: #dbe4e7;
-  border-color: #273136 !important; }
-[data-theme="nuit"] .chip:hover { background: #1d262a !important; }
-[data-theme="nuit"] select.chip { background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a9b8be' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") !important; }
-[data-theme="nuit"] input, [data-theme="nuit"] textarea {
-  background: #12181b; color: #e8eef0; border-color: #273136; }
-[data-theme="nuit"] input::placeholder { color: #77868c; }
+  /* ── Pastilles et statuts ── */
+  --vert: #4ade80;
+  --vert-vif: #4ade80;
+  --vert-texte: #86efac;
+  --vert-clair: #16241a;
+  --vert-bord: #1e3a26;
+  --vert-pale: #16241a;
+  --cyan-clair: #123038;
+  --cyan-texte: #a5e8f2;
+  --orange-clair: #33220f;
+  --orange-texte: #fdba74;
+  --rouge: #f87171;
+  --rouge-texte: #fca5a5;
+  --rouge-pale: #2a1719;
+  --ambre: #fbbf24;
+  --ambre-texte: #fcd34d;
+  --ambre-pale: #2a2110;
+  --bleu-texte: #93c5fd;
+  --bleu-pale: #131f33;
+  --rose-texte: #f9a8d4;
+  --rose-pale: #2b1524;
+  --violet-texte: #c4b5fd;
+  --violet-pale: #1f1a33;
+  --coeur: #ff8fa8;
 
-/* ── Cartes d'offres ── */
-[data-theme="nuit"] .card-fact,
-[data-theme="nuit"] .tm, [data-theme="nuit"] .tn, [data-theme="nuit"] .tp {
-  background: #1d262a !important; border-color: #2b363b !important; color: #cfdade !important; }
-[data-theme="nuit"] .card-fact-value { color: #cfdade !important; }
+  /* Sur fond de marque deja sombre, la surbrillance est un eclaircissement
+     discret : un blanc translucide y serait un eclat. */
+  --surbrillance: rgba(255, 255, 255, .09);
+  --surbrillance-forte: rgba(255, 255, 255, .14);
 
-/* ── Barre de navigation : le teal reste, assombri ── */
-[data-theme="nuit"] .hd nav,
-[data-theme="nuit"] #hd nav { background: #0b1a1e; }
+  /* ── Aplats inversés ── */
+  --inverse-fond: #e8eef0;
+  --inverse-texte: #0f1416;
 
-/* ── Pied et mentions ── */
-[data-theme="nuit"] .pied a { color: #a9b8be; }
-[data-theme="nuit"] .pied a:hover { color: #4fb3c2; }
+  /* ── Dégradés de marque ── */
+  --degrade-1: #062229;
+  --degrade-2: #0b2f36;
+  --degrade-3: #0f4550;
+  --degrade-4: #05202a;
+  --degrade-5: #0d3f49;
 
-/* ── Bandeau de consentement ── */
-[data-theme="nuit"] .consent { background: #171d20 !important; color: #e8eef0;
-  border-color: #273136; }
+  /* ── Ombres ── */
+  --ombre: 0 1px 2px rgba(0, 0, 0, .4), 0 4px 14px rgba(0, 0, 0, .35);
+  --ombre-forte: 0 -10px 30px rgba(0, 0, 0, .5);
+}
 
-/* ── Le bouton de bascule ── */
+/* ── Cas qui ne peuvent pas passer par un jeton ──────────────────────────────
+   Une flèche de liste déroulante est une image encodée en URL : sa couleur
+   ne peut pas lire une variable. On la redessine pour la nuit. */
+html[data-theme="nuit"] select.chip,
+html[data-theme="nuit"] select.dd-trigger,
+html[data-theme="nuit"] select {
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a9b8be' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+}
+
+/* ── Le bouton de bascule ─────────────────────────────────────────────────── */
 .bascule-theme {
   display: inline-flex; align-items: center; justify-content: center;
   width: 34px; height: 34px; flex-shrink: 0;
@@ -94,7 +230,10 @@
 }
 .bascule-theme:hover { background: rgba(255, 255, 255, .22); }
 .bascule-theme .ms { font-size: 18px; }
-[data-theme="nuit"] .bascule-theme { border-color: #2b363b; background: #1d262a; color: #e8eef0; }
+html[data-theme="nuit"] .bascule-theme {
+  border-color: var(--bord-carte); background: var(--surface-2); color: var(--encre);
+}
+.bascule-theme:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
 
 /* Barre d'en-tête absente ou masquée : le bouton se pose par-dessus la page. */
 .bascule-flottante { position: fixed; top: 1rem; right: 1rem; z-index: 400;

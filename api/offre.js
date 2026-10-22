@@ -101,7 +101,7 @@ async function construire(job, urlCanonique) {
   const logoParHunter = Boolean(logoSociete && logoSociete.indexOf('logos.hunter.io') === 0);
   const initialesSociete = ANNUAIRE ? ANNUAIRE.initiales(nomSociete) : '';
   const teinteSociete = (ANNUAIRE && societe.slug)
-    ? ANNUAIRE.couleurEntreprise(societe.slug) : '#006876';
+    ? ANNUAIRE.couleurEntreprise(societe.slug) : 'var(--teal)';
   const ville = job.ville || job.city || '';
   const contrat = job.contract_type || '';
   const description = job.description_raw || '';
@@ -292,7 +292,7 @@ ${societe.logo_url
 <meta name="twitter:card" content="summary_large_image">
 <script type="application/ld+json">${JSON.stringify(offre)}</script>
 <style>
- :root { --teal:#006876; --encre:#191c1d; --gris:#515f78; }
+ /* Les couleurs viennent de assets/theme.css (source unique). */
  * { box-sizing:border-box; }
  body { margin:0; font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; color:var(--encre); line-height:1.65; }
  .enveloppe { max-width:46rem; margin:0 auto; padding:1.5rem 1.25rem 4rem; }
@@ -302,38 +302,38 @@ ${societe.logo_url
  /* Tuile d'identité de l'employeur. Même dessin que les cartes, à l'échelle
     de la page de lecture : elle situe l'entreprise sans concurrencer le titre. */
  .slogo { width:26px; height:26px; border-radius:.375rem; flex-shrink:0; position:relative; overflow:hidden;
-   display:inline-flex; align-items:center; justify-content:center; color:#fff; font-weight:900;
+   display:inline-flex; align-items:center; justify-content:center; color: var(--blanc); font-weight:900;
    font-size:9px; letter-spacing:-.02em; }
  .slogo img { position:absolute; inset:0; width:100%; height:100%; object-fit:contain;
    border-radius:inherit; padding:2px; }
  .pastilles { display:flex; flex-wrap:wrap; gap:.4rem; margin-bottom:1.6rem; }
 /* Pastilles : chaque badge tient sur sa ligne, sans jamais déborder. */
- .pastille { display:inline-block !important; width:fit-content; max-width:100%; padding:3px 10px; border:1px solid #dce5e9; border-radius:9999px; background:#f5f8f9; font-size:.78rem; font-weight:600; color:#24363d; overflow-wrap:anywhere; white-space:normal; line-height:1.4; }
- .pastille-ville { background:#e9f6f8; border-color:#bfe2e8; color:#00545f; }
- .pastille-salaire { background:#f2f8f2; border-color:#cfe6cf; color:#2d5a2d; }
- .pastille-specialite { background:#e9f6f8; border-color:#bfe2e8; color:#00545f; }
+ .pastille { display:inline-block !important; width:fit-content; max-width:100%; padding:3px 10px; border:1px solid var(--bord-carte); border-radius:9999px; background:var(--surface-2); font-size:.78rem; font-weight:600; color:var(--encre-forte); overflow-wrap:anywhere; white-space:normal; line-height:1.4; }
+ .pastille-ville { background:var(--teal-clair); border-color:var(--teal-bord); color:var(--teal-texte); }
+ .pastille-salaire { background:var(--vert-clair); border-color:var(--vert-bord); color:var(--vert-texte); }
+ .pastille-specialite { background:var(--teal-clair); border-color:var(--teal-bord); color:var(--teal-texte); }
  h2 { font-size:1.05rem; margin:1.8rem 0 .5rem; }
- p { margin:0 0 .7rem; color:#3c494c; }
+ p { margin:0 0 .7rem; color:var(--gris-texte); }
  /* Structure éditoriale venue de la source : listes, emphases, sous-titres. */
- ul, ol { margin:0 0 .9rem; padding-left:1.3rem; color:#3c494c; }
+ ul, ol { margin:0 0 .9rem; padding-left:1.3rem; color:var(--gris-texte); }
  li { margin:.25rem 0; }
  li > ul, li > ol { margin:.25rem 0 .1rem; }
- strong, b { color:#191c1d; }
+ strong, b { color:var(--encre); }
  em, i { font-style:italic; }
- h3, h4, h5, h6 { font-size:.98rem; margin:1.2rem 0 .4rem; color:#191c1d; }
- blockquote { margin:0 0 .9rem; padding-left:.8rem; border-left:3px solid #bfe2e8; color:#3c494c; }
+ h3, h4, h5, h6 { font-size:.98rem; margin:1.2rem 0 .4rem; color:var(--encre); }
+ blockquote { margin:0 0 .9rem; padding-left:.8rem; border-left:3px solid var(--teal-bord); color:var(--gris-texte); }
  a { color:var(--teal); }
- .pied { margin-top:2.5rem; padding-top:1.2rem; border-top:1px solid #e6edf0; font-size:.85rem; color:var(--gris); }
+ .pied { margin-top:2.5rem; padding-top:1.2rem; border-top:1px solid var(--bord); font-size:.85rem; color:var(--gris); }
  .pied a { color:var(--teal); font-weight:600; }
 
  /* ── La fiche est une carte sur le champ gris ──
     Le volet n'est plus blanc : la fiche se détache, comme sur le board.
     C'est la délimitation du modèle — elle se voit sans qu'on trace un trait. */
  @media (min-width: 769px) {
-  body { background: #f3f4f5; }
+  body { background: var(--champ); }
   .page { padding: 1.25rem 1.25rem 3rem; }
   .enveloppe {
-   background: #fff;
+   background: var(--surface);
    border-radius: .75rem;
    box-shadow: 0 1px 2px rgba(25, 44, 52, .06), 0 4px 14px rgba(25, 44, 52, .05);
   }
@@ -353,7 +353,7 @@ ${societe.logo_url
      refus. Couleurs, rayons, ombre et typographie sont ceux du site. */
   .consent {
     position: fixed; inset: auto 0 0 0; z-index: 900;
-    background: #fff; border-top: 1px solid #e2e9ec;
+    background: var(--surface); border-top: 1px solid var(--bord);
     box-shadow: 0 -10px 30px rgba(25, 44, 52, .10);
     padding: 1.15rem 0;
     animation: consent-entree .3s cubic-bezier(.2, .8, .3, 1);
@@ -375,17 +375,17 @@ ${societe.logo_url
   .consent-sceau {
     flex: 0 0 auto; width: 38px; height: 38px; border-radius: 50%;
     display: grid; place-items: center;
-    background: #e9f6f8; border: 1px solid #bfe2e8;
-    color: #006876;
+    background: var(--teal-clair); border: 1px solid var(--teal-bord);
+    color: var(--teal);
   }
   .consent-sceau .ms { font-size: 20px; }
   
   .consent-titre {
     margin: 0 0 .1rem; font-size: .95rem; font-weight: 700;
-    color: #191c1d; line-height: 1.35; letter-spacing: -.005em;
+    color: var(--encre); line-height: 1.35; letter-spacing: -.005em;
   }
   .consent-texte {
-    margin: 0; font-size: .845rem; color: #515f78;
+    margin: 0; font-size: .845rem; color: var(--gris);
     line-height: 1.55; max-width: 48rem;
   }
   
@@ -397,17 +397,17 @@ ${societe.logo_url
     cursor: pointer; white-space: nowrap;
     transition: background .15s ease, border-color .15s ease, color .15s ease;
   }
-  .consent button:focus-visible { outline: 2px solid #006876; outline-offset: 2px; }
+  .consent button:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
   
   /* Accepter : la couleur de la marque, pleine. */
-  .consent-accepter { background: #006876; color: #fff; border: 1px solid #006876; }
-  .consent-accepter:hover { background: #005a66; border-color: #005a66; }
+  .consent-accepter { background: var(--teal); color: var(--blanc); border: 1px solid var(--teal); }
+  .consent-accepter:hover { background: var(--teal-fonce); border-color: var(--teal-fonce); }
   
   /* Refuser : même hauteur, même poids typographique, un trait franc — jamais
      grisé, jamais relégué. C'est la recommandation de la CNIL : refuser doit
      être aussi simple qu'accepter. */
-  .consent-refuser { background: #fff; color: #191c1d; border: 1px solid #c7d3d8; }
-  .consent-refuser:hover { background: #f3f4f5; border-color: #b3c2c8; }
+  .consent-refuser { background: var(--surface); color: var(--encre); border: 1px solid var(--bord-fort); }
+  .consent-refuser:hover { background: var(--champ); border-color: var(--bord-fort); }
   
   @media (max-width: 780px) {
     .consent { padding: .95rem 0; }
