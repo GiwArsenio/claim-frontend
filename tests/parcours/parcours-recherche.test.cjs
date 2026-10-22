@@ -9,11 +9,24 @@
 // l'adresse, ce qu'on a emis vers GA4), jamais une ligne de code.
 
 const {
-  test, expect, attendreListe, attendreDetail, ouvrirPage, fermerPage,
-  lireGa4, ga4ParNom,
+  expect, attendreListe, attendreDetail, ouvrirPage, fermerPage,
+  lireGa4, ga4ParNom, modeRunner, adapter,
 } = require('./helpers/cas.cjs');
 
 const BOARD = '/job-board.html';
+
+// Le `test` local : l appel a test() doit avoir lieu dans ce fichier, sinon
+// le rapport de la CI rattache tous les cas au module des helpers, et un
+// echec ne dit pas quel parcours il vient.
+const { test: testPlaywright } = require('@playwright/test');
+
+function test(nom, corps) {
+  if (modeRunner()) {
+    testPlaywright(nom, { description: nom }, adapter(corps));
+    return;
+  }
+  require('./helpers/cas.cjs').enregistrerCasAutonome(nom, corps);
+}
 
 test('P01 — la liste affiche les 8 offres du backend simule', async (page) => {
   const serveur = await ouvrirPage(page);

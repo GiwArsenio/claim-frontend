@@ -11,19 +11,24 @@
 // panneau qui defile, pas dans une variable interne.
 
 const {
-  test, expect, attendreListe, attendreDetail, ouvrirPage, fermerPage,
+  expect, attendreListe, attendreDetail, ouvrirPage, fermerPage,
+  modeRunner, adapter,
 } = require('./helpers/cas.cjs');
 
 const BOARD = '/job-board.html';
-// ── D10 : apres fermeture, le haut de page revient ────────────────────────
-//
-// Fermer la fiche retire les classes du corps de la page. Mais le panneau
-// garde sa position de defilement, et le listener de scroll peut alors
-// remettre la fiche en mode defile. Le haut de page reste masque : la page
-// parait cassee.
-//
-// Ce test est volontairement ROUGE avant la correction de D10.
 
+// Le `test` local : l appel a test() doit avoir lieu dans ce fichier, sinon
+// le rapport de la CI rattache tous les cas au module des helpers, et un
+// echec ne dit pas quel parcours il vient.
+const { test: testPlaywright } = require('@playwright/test');
+
+function test(nom, corps) {
+  if (modeRunner()) {
+    testPlaywright(nom, { description: nom }, adapter(corps));
+    return;
+  }
+  require('./helpers/cas.cjs').enregistrerCasAutonome(nom, corps);
+}
 
 test('P05 — sur telephone, la fiche occupe l ecran et le bouton retour existe', async (page) => {
   const serveur = await ouvrirPage(page);
