@@ -2,3 +2,9 @@
 .env.local
 .vercel
 node_modules/
+
+# Artefacts des parcours navigateur (Playwright)
+test-results/
+playwright-report/
+blob-report/
+.playwright/

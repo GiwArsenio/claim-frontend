@@ -154,8 +154,23 @@ for (const image of ['assets/favicon.png', 'assets/apple-touch-icon.png', 'asset
 const paquet = JSON.parse(lire('package.json'));
 assert.ok(!paquet.dependencies || Object.keys(paquet.dependencies).length === 0,
   'le projet ne doit pas avoir de dépendance de production sans le dire');
-assert.ok(!paquet.devDependencies || Object.keys(paquet.devDependencies).length === 0,
-  'les dépendances de développement doivent être listées, et installées par la CI');
+// Les dépendances de développement sont autorisées, mais elles doivent être
+// listées ET installées par la CI : sinon la CI échoue sur un module
+// absent, ou pire, passe parce qu'elle n'exécute rien.
+//
+// Seule la liste blanche ci-dessous est admise. Ajouter une dépendance ici
+// doit être un choix explicite, pas un effet de bord d'un `npm install`.
+const DEV_DEPENDANCES_ADMISES = ['@playwright/test'];
+const devDependencies = Object.keys(paquet.devDependencies || {});
+for (const nom of devDependencies) {
+  assert.ok(DEV_DEPENDANCES_ADMISES.includes(nom),
+    nom + ' n est pas une dépendance de développement admise : elle doit être justifiée');
+}
+const workflow = lire('.github/workflows/tests.yml');
+assert.ok(workflow.includes('npm ci') || workflow.includes('npm install'),
+  'la CI doit installer les dépendances de développement');
+assert.ok(workflow.includes('playwright install') || workflow.includes('npx playwright'),
+  'la CI doit installer et lancer le navigateur des parcours');
 
 // ─────────────────────────────────────────────────────────────────────────
 // F01 — Le fichier d exécuteur existe, et déclare tous les tests.

@@ -1093,6 +1093,45 @@ function remplirDepuisAdresse() {
   });
 }
 
+// ── Ecrire les filtres actifs dans l'adresse ──────────────────────────────
+//
+// Un visiteur qui filtre, puis copie l'adresse, doit pouvoir transmettre sa
+// recherche. Sans cela, une adresse partagee ne porte aucun filtre : le
+// destinataire voit la liste complete et ne comprend pas ce qu'il a recu.
+//
+// On n'ecrit que les filtres reellement actifs, avec un seul nom par
+// filtre (celui de l'API), et on retire les parametres devenus vides. La
+// nomenclature reste donc celle que le serveur comprend, et une adresse
+// n'accumule jamais de restes.
+const NOM_FILTRE_URL = {
+  q: 'q',
+  city: 'city',
+  contract: 'contract',
+  specialty: 'specialty',
+  experience: 'experience',
+  ats: 'ats',
+  days: 'days',
+};
+
+function ecrireFiltresDansAdresse() {
+  const f = currentFilters();
+  const params = new URLSearchParams(window.location.search);
+
+  Object.keys(NOM_FILTRE_URL).forEach((cle) => {
+    const nom = NOM_FILTRE_URL[cle];
+    const valeur = f[cle] || '';
+    if (valeur) params.set(nom, valeur);
+    else params.delete(nom);
+  });
+
+  const chaine = params.toString();
+  const cible = window.location.pathname + (chaine ? '?' + chaine : '');
+  if (cible === window.location.pathname + window.location.search) return;
+  try {
+    history.replaceState(history.state, '', cible);
+  } catch (e) { /* sans history */ }
+}
+
 // ── Fetch une page serveur ─────────────────────────────────────────────────
 function currentFilters() {
   return {
@@ -1134,15 +1173,18 @@ async function fetchPage(page) {
 function applySearch() {
   const f = currentFilters();
   mesureEnAttente = { nom: 'search', params: { search_term: f.q || f.city } };
+  ecrireFiltresDansAdresse();
   loadJobs(1);
 }
 function applyFilters() {
   mesureEnAttente = { nom: 'filter_apply', params: paramsFiltres(false) };
+  ecrireFiltresDansAdresse();
   loadJobs(1);
 }
 function resetFilters() {
   mesureEnAttente = { nom: 'filter_apply', params: paramsFiltres(true) };
   ['q-input','city-input','contract-filter','specialty-filter','experience-filter','ats-filter','date-filter'].forEach(id => { const el=document.getElementById(id); if (el) el.value=''; });
+  ecrireFiltresDansAdresse();
   loadJobs(1);
 }
 

@@ -37,6 +37,9 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Installer les dépendances
+        run: npm ci
+
       - name: Vérifier que toutes les suites sont déclarées
         run: node tools/run-tests.cjs --liste
 
@@ -46,6 +49,37 @@ jobs:
       - name: Suites historiques
         continue-on-error: true
         run: node tools/run-tests.cjs --groupe=legacy
+
+  # Les parcours navigateur : un vrai navigateur, un faux backend.
+  #
+  # Aucun secret, aucune ressource externe : le serveur de test simule le
+  # backend et bloque tout ce qui sort du localhost. Une panne de Railway ne
+  # peut donc pas faire echouer cette suite.
+  parcours:
+    name: Parcours navigateur
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Installer Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Installer les dépendances
+        run: npm ci
+
+      - name: Installer le navigateur
+        run: npx playwright install --with-deps chromium
+
+      - name: Lister les parcours
+        run: npm run test:parcours:liste
+
+      - name: Parcours navigateur
+        run: npm run test:parcours
 
   # Les tests qui parlent à la production ne bloquent pas une proposition.
   # Ils alertent : une régression en ligne se voit ici, pas dans les rapports.

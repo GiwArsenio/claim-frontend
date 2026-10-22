@@ -8,9 +8,15 @@
     "test:static": "node tools/run-tests.cjs --groupe=static",
     "test:unit": "node tools/run-tests.cjs --groupe=unit",
     "test:integration": "node tools/run-tests.cjs --groupe=integration",
-    "test:live": "node tools/run-tests.cjs --groupe=live"
+    "test:live": "node tools/run-tests.cjs --groupe=live",
+    "test:parcours": "npx playwright test",
+    "test:parcours:liste": "npx playwright test --list",
+    "test:tous": "node tools/run-tests.cjs && npx playwright test"
   },
   "engines": {
     "node": ">=20"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.1"
   }
 }
