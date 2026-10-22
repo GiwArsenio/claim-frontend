@@ -11,13 +11,24 @@
 // que prennent les visiteurs qui n ont pas de partage systeme.
 
 const {
-  test, expect, attendreListe, attendreDetail, ouvrirPage, fermerPage,
-  lireGa4, ga4ParNom,
+  expect, attendreListe, attendreDetail, ouvrirPage, fermerPage,
+  lireGa4, ga4ParNom, modeRunner, adapter,
 } = require('./helpers/cas.cjs');
 
 const BOARD = '/job-board.html';
 
+// Le `test` local : l appel a test() doit avoir lieu dans ce fichier, sinon
+// le rapport de la CI rattache tous les cas au module des helpers, et un
+// echec ne dit pas quel parcours il vient.
+const { test: testPlaywright } = require('@playwright/test');
 
+function test(nom, corps) {
+  if (modeRunner()) {
+    testPlaywright(nom, { description: nom }, adapter(corps));
+    return;
+  }
+  require('./helpers/cas.cjs').enregistrerCasAutonome(nom, corps);
+}
 
 test('P06 — une annulation de partage ne remonte pas d erreur', async (page) => {
   const serveur = await ouvrirPage(page);
@@ -127,6 +138,61 @@ test('P06 — le partage copie le lien de l offre', async (page, context) => {
     await fermerPage(serveur);
   }
 });
+// ── D08 : le contexte filtre survit a l ouverture d une offre ─────────────
+//
+// Le visiteur filtre la liste, ouvre une offre. L adresse devient
+// /offre/<slug> : les filtres disparaissent. Le bouton "precedent" du
+// navigateur ramene alors a une liste non filtree, alors que le visiteur
+// l avait filtree.
+//
+// Ce test est volontairement ROUGE avant la correction de D08.
+
+test('D08 — ouvrir une offre conserve les filtres dans l adresse', async (page) => {
+  const serveur = await ouvrirPage(page);
+  try {
+    await page.goto(serveur.url + BOARD);
+    await attendreListe(page, 8);
+
+    await page.selectOption('#contract-filter', 'cdd');
+    await attendreListe(page, 2);
+
+    await page.locator('#feed .jc').nth(0).click();
+    await attendreDetail(page, 'Actuaire confirme 104');
+    await page.waitForTimeout(200);
+
+    const url = new URL(page.url());
+    expect(url.searchParams.get('contract')).toBe('cdd');
+  } finally {
+    await fermerPage(serveur);
+  }
+});
+
+test('D08 — revenir en arriere restitue la liste filtree', async (page) => {
+  const serveur = await ouvrirPage(page);
+  try {
+    await page.goto(serveur.url + BOARD);
+    await attendreListe(page, 8);
+
+    await page.selectOption('#contract-filter', 'cdd');
+    await attendreListe(page, 2);
+
+    await page.locator('#feed .jc').nth(0).click();
+    await attendreDetail(page, 'Actuaire confirme 104');
+    await page.waitForTimeout(200);
+
+    await page.goBack();
+    await page.waitForTimeout(500);
+
+    // La liste restituee doit etre celle que le visiteur avait filtree.
+    const url = new URL(page.url());
+    expect(url.searchParams.get('contract')).toBe('cdd');
+    await attendreListe(page, 2);
+    expect(await page.locator('#feed .jc').count()).toBe(2);
+  } finally {
+    await fermerPage(serveur);
+  }
+});
+
 // ── Mode autonome ────────────────────────────────────────────────────────
 //
 // Execute directement par node, le fichier joue lui-meme ses cas.
