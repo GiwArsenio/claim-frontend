@@ -1029,8 +1029,6 @@ function updateResetBtn() {
 /* ══════════════════════════════════════════════
    RENDU
 ══════════════════════════════════════════════ */
-function render() {
-  const list = 
 // Le logo vient de la source partagée, comme sur le board et sur la page
 // d'offre : un slug réel, et la même cascade. La table de domaines locale et
 // son accesseur sont supprimés — c'était une troisième copie de la même
@@ -1048,7 +1046,8 @@ function renderEcLogo(c) {
   return '<div class="ec-logo" style="background:' + c.color + ';">' + initials + '</div>';
 }
 
-COMPANIES.filter(c => {
+function render() {
+  const list = COMPANIES.filter(c => {
     if (state.type !== 'all' && c.type !== state.type) return false;
     if (state.remote !== 'all' && c.remote !== state.remote) return false;
     if (state.avantages !== 'all' && !c.avantages.includes(state.avantages)) return false;
