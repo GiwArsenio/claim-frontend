@@ -147,6 +147,97 @@ test('P05 — remonter dans la fiche rend le haut de page', async (page) => {
 });
 
 
+// ── D10 : fermer la fiche sur grand ecran ─────────────────────────────────
+//
+// Sur telephone, un glissement vers la gauche ferme la fiche. Sur grand
+// ecran, il n y a rien : le bouton de retour est masque. Le visiteur qui
+// a ouvert une offre depuis une liste ne peut plus revenir a la liste.
+//
+// Ce test est volontairement ROUGE avant la correction de D10.
+
+test('D10 — un geste permet de fermer la fiche sur grand ecran', async (page) => {
+  const serveur = await ouvrirPage(page);
+  try {
+    await page.goto(serveur.url + BOARD);
+    await attendreListe(page, 8);
+    await attendreDetail(page, 'Actuaire confirme 101');
+
+    const bouton = page.locator('#detail .btn-back').first();
+    await expect(bouton).toBeVisible();
+  } finally {
+    await fermerPage(serveur);
+  }
+});
+
+// ── D10 : apres fermeture, le haut de page revient ────────────────────────
+//
+// Fermer la fiche retire les classes du corps de la page. Mais le panneau
+// garde sa position de defilement, et le listener de scroll peut alors
+// remettre la fiche en mode defile. Le haut de page reste masque : la page
+// parait cassee.
+//
+// Ce test est volontairement ROUGE avant la correction de D10.
+
+test('D10 — apres fermeture, le haut de page revient a sa place', async (page) => {
+  const serveur = await ouvrirPage(page);
+  try {
+    await page.goto(serveur.url + BOARD);
+    await attendreListe(page, 8);
+    await attendreDetail(page, 'Actuaire confirme 101');
+
+    // Le lecteur descend dans la fiche : le haut de page se masque.
+    await page.locator('#pr').evaluate((el) => {
+      el.scrollTop = 200;
+      el.dispatchEvent(new Event('scroll'));
+    });
+    await page.waitForTimeout(150);
+    expect(await page.evaluate(() => document.body.className)).toContain('fiche-defilee');
+
+    // Il ferme la fiche.
+    await page.evaluate(() => closeDetail());
+
+    // Le panneau conserve sa position et le scroll se stabilise. On attend
+    // la fin du defilement avant de juger : sinon on lit un etat transitoire
+    // et le test passe ou echoue selon la machine.
+    await page.waitForFunction(() => {
+      const el = document.getElementById('pr');
+      const avant = el.scrollTop;
+      return new Promise((r) => setTimeout(() => r(el.scrollTop === avant), 60));
+    });
+    await page.waitForTimeout(150);
+
+    const corps = await page.evaluate(() => document.body.className);
+    expect(corps).not.toContain('fiche-defilee');
+    expect(corps).not.toContain('entete-collee');
+  } finally {
+    await fermerPage(serveur);
+  }
+});
+
+test('D10 — la touche Echap ferme la fiche', async (page) => {
+  const serveur = await ouvrirPage(page);
+  try {
+    await page.goto(serveur.url + BOARD);
+    await attendreListe(page, 8);
+    await attendreDetail(page, 'Actuaire confirme 101');
+
+    await page.locator('#pr').evaluate((el) => {
+      el.scrollTop = 200;
+      el.dispatchEvent(new Event('scroll'));
+    });
+    await page.waitForTimeout(150);
+    expect(await page.evaluate(() => document.body.className)).toContain('fiche-defilee');
+
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(400);
+
+    const corps = await page.evaluate(() => document.body.className);
+    expect(corps).not.toContain('fiche-defilee');
+  } finally {
+    await fermerPage(serveur);
+  }
+});
+
 // ── Mode autonome ────────────────────────────────────────────────────────
 //
 // Execute directement par node, le fichier joue lui-meme ses cas.
