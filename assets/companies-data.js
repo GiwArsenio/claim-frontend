@@ -586,29 +586,35 @@
      l'image est une politique, décidée juste après — les deux ne se
      mélangent plus.
 
-     Trois entrées font exception et portent une adresse complète, parce que
-     leur logo n'est pas un favicon : BPCE vient de Wikimedia, Shift et Sia
-     sont des fichiers du dépôt. Une valeur contenant « :// » est une adresse
-     directe, servie telle quelle. */
+     Quatorze entrées portent une adresse directe, parce que leur logo n'est
+     pas un favicon : ce sont les fichiers du dossier logos/, servis par
+     notre propre domaine. Une valeur qui commence par « / » est un fichier
+     du dépôt ; une valeur contenant « :// » est une adresse externe
+     (BPCE vient de Wikimedia).
+
+     Ces quatorze fichiers ont été relevés sur le site de l'employeur lui-même
+     ou sur une source libre, puis mesurés : le plus petit fait 185 px de
+     large, le plus grand 3 508. Le dossier logos/CHANGELOG.md dit d'où
+     vient chacun. */
   var DOMAINES = {
     "abeille": "abeille-assurances.fr",
     "acm": "acm.fr",
     "actelior": "actelior.fr",
     "addactis": "addactis.com",
-    "aesio": "aesio.fr",
+    "aesio": "/logos/aesio.svg",
     "ag2r": "ag2rlamondiale.fr",
-    "aig": "aig.fr",
+    "aig": "/logos/aig.png",
     "akur8": "akur8.com",
     "alan": "alan.com",
     "allianz": "allianz.fr",
     "alptis": "alptis.fr",
     "aon": "aon.com",
-    "apicil": "apicil.fr",
+    "apicil": "/logos/apicil.png",
     "april": "april.fr",
     "axa": "axa.fr",
     "bdo": "bdo.fr",
     "bnp_cardif": "bnpparibascardif.com",
-    "carac": "carac.fr",
+    "carac": "/logos/carac.png",
     "cm_arkea": "cm-arkea.com",
     "cnp": "cnp.fr",
     "coface": "coface.fr",
@@ -620,7 +626,7 @@
     "ey": "ey.com",
     "forsides": "forsides.fr",
     "galea": "galea-associes.eu",
-    "garance": "garance.fr",
+    "garance": "/logos/garance.png",
     "generali": "generali.fr",
     "groupama_gan": "groupama.fr",
     "groupe_agrica": "groupagrica.com",
@@ -628,12 +634,12 @@
     "klesia": "klesia.fr",
     "kpmg": "kpmg.fr",
     "la_france_mutualiste": "la-france-mutualiste.fr",
-    "la_mutuelle_generale": "lamutuellegenerale.fr",
+    "la_mutuelle_generale": "/logos/la-mutuelle-generale.svg",
     "luko": "luko.eu",
     "macif": "macif.fr",
     "macsf": "macsf.fr",
     "maif": "maif.fr",
-    "malakoff-humanis": "malakoffhumanis.com",
+    "malakoff-humanis": "/logos/malakoff-humanis.png",
     "matmut": "matmut.fr",
     "mazars": "mazars.fr",
     "milliman": "milliman.com",
@@ -645,18 +651,18 @@
     "partnerre": "partnerre.com",
     "prevoir": "prevoir.fr",
     "primact": "primact.fr",
-    "pro_btp": "probtp.com",
+    "pro_btp": "/logos/pro-btp.png",
     "pwc": "pwc.fr",
-    "scor": "scor.com",
-    "seabird": "seabirdconseil.com",
+    "scor": "/logos/scor.svg",
+    "seabird": "/logos/seabird.svg",
     "seyna": "seyna.eu",
     "sg-assurances": "assurances.societegenerale.com",
-    "smabtp": "smabtp.fr",
+    "smabtp": "/logos/smabtp.png",
     "smacl": "smacl.fr",
     "suravenir": "suravenir.fr",
     "swiss-re": "swissre.com",
     "swiss_life": "swisslife.fr",
-    "umr": "umr-retraite.fr",
+    "umr": "/logos/umr.png",
     "verlingue": "verlingue.fr",
     "viasante": "viasante.fr",
     "wakam": "wakam.com",
@@ -664,8 +670,8 @@
     "wtw": "wtwco.com",
     "zelros": "zelros.com",
     "bpce": "https://upload.wikimedia.org/wikipedia/fr/0/0a/Groupe_BPCE_%28logo%29.svg",
-    "shift_technology": "https://raw.githubusercontent.com/GiwArsenio/claim-frontend/main/logos/shift-technology.svg",
-    "sia": "https://raw.githubusercontent.com/GiwArsenio/claim-frontend/main/logos/sia-partners.svg",
+    "shift_technology": "/logos/shift-technology.svg",
+    "sia": "/logos/sia-partners.svg",
   };
 
   /* ── Alias ───────────────────────────────────────────────────────────────
@@ -740,6 +746,10 @@
   function logoEntreprise(slug) {
     var cible = domaineEntreprise(slug);
     if (!cible) return null;
+    // Une adresse qui commence par « / » est servie par notre propre
+    // domaine : le fichier du dépôt. Elle ne contient pas « :// », et
+    // l'envoyer a Google la transformerait en nom de domaine.
+    if (cible.charAt(0) === '/') return cible;
     if (cible.indexOf('://') !== -1) return cible;
     if (SANS_LOGO[cible]) return null;
     return FOURNISSEUR_HUNTER[cible]
