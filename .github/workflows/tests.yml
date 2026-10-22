@@ -1,0 +1,69 @@
+name: Tests
+
+# Contrôle automatique à chaque proposition de modification.
+#
+# Trois principes :
+#   - permissions minimales : le workflow ne lit que ce qu il doit ;
+#   - aucun secret : les tests locaux ne parlent à aucun service externe ;
+#   - une suite obligatoire absente ou vide est un ÉCHEC, jamais un silence.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Une proposition concurrente annule la précédente : le même code ne teste
+# pas deux fois.
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Installer Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Vérifier que toutes les suites sont déclarées
+        run: node tools/run-tests.cjs --liste
+
+      - name: Suites locales (statique, unitaires, intégration)
+        run: node tools/run-tests.cjs
+
+      - name: Suites historiques
+        continue-on-error: true
+        run: node tools/run-tests.cjs --groupe=legacy
+
+  # Les tests qui parlent à la production ne bloquent pas une proposition.
+  # Ils alertent : une régression en ligne se voit ici, pas dans les rapports.
+  production:
+    name: Surveillance de la production
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Installer Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Tests de production
+        continue-on-error: true
+        run: node tools/run-tests.cjs --groupe=live

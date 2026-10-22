@@ -11,20 +11,42 @@
 const API_BASE = process.env.API_URL || 'https://claim-api-production-06b3.up.railway.app/api/v1';
 const SITE_URL = process.env.SITE_URL || 'https://claimyourjob.fr';
 
+// Délai maximal de lecture du backend. Sans lui, une requête qui traîne
+// immobilise la fonction serveur jusqu à la limite de la plateforme.
+const DELAI_LECTURE_API_MS = 2500;
+
 module.exports = async (req, res) => {
   try {
     // 1. Connaître le nombre total d'offres
-    const r = await fetch(`${API_BASE}/jobs?per_page=1&limit=1&page=1`);
-    const d = await r.json();
+    //
+    // Chaque appel au backend doit être vérifié. Sans cela, une panne
+    // produisait un sitemap "complet" contenant seulement les pages
+    // statiques : Google le lisait, ne redemandait rien, et les offres
+    // disparaissaient de l index sans que rien ne se plaigne.
+    const lireJson = async (url) => {
+      const reponse = await fetch(url, { signal: AbortSignal.timeout(DELAI_LECTURE_API_MS) });
+      if (!reponse.ok) {
+        throw new Error('backend en erreur : HTTP ' + reponse.status);
+      }
+      return reponse.json();
+    };
+
+    const d = await lireJson(`${API_BASE}/jobs?per_page=1&limit=1&page=1`);
     const total = d.pagination?.total || 0;
 
     // 2. Récupérer tous les slugs pour les URLs individuelles
     const allSlugs = [];
+    const vus = new Set();
     for (let p = 1; p <= Math.ceil(total / 300); p++) {
-      const pr = await fetch(`${API_BASE}/jobs?per_page=300&limit=300&page=${p}`);
-      const pd = await pr.json();
+      const pd = await lireJson(`${API_BASE}/jobs?per_page=300&limit=300&page=${p}`);
       (pd.data || []).forEach(j => {
-        if (j.slug) allSlugs.push({ slug: j.slug, date: j.source_published_at });
+        if (!j.slug) return;
+        // Une même adresse ne doit pas figurer deux fois. Sans cette
+        // déduplication, deux offres de même slug produisaient deux
+        // entrées : Google y voyait deux pages, dont une inconnue.
+        if (vus.has(j.slug)) return;
+        vus.add(j.slug);
+        allSlugs.push({ slug: j.slug, date: j.source_published_at });
       });
     }
 

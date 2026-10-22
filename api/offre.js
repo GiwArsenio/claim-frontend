@@ -49,6 +49,30 @@ const LABELS_EXPERIENCE = { junior: 'Junior', confirmed: 'Confirmé', senior: 'S
 // disparition du site.
 const DUREE_VALIDITE_JOURS = 90;
 
+// Délai maximal de lecture du backend. Sans lui, une requête qui traîne
+// immobilise la fonction serveur jusqu'à la limite de la plateforme, qui la
+// tue sans réponse : le visiteur voit une page vide plutôt qu'une erreur.
+const DELAI_LECTURE_API_MS = 2500;
+
+// Sérialisation destinée à une balise <script>.
+//
+// JSON.stringify n'échappe ni « < » ni « & » : une description contenant
+// « </script> » fermait la balise de balisage structuré, et le texte
+// suivant devenait du JavaScript exécutable. C est une injection de script
+// dans la page, apportée par la donnée elle-même.
+//
+// On remplace donc les caractères capables de rompre le contexte script par
+// leur échappement JSON, qui reste du JSON valide et que le parseur
+// restitue à l'identique.
+function jsonPourScript(valeur) {
+  return JSON.stringify(valeur)
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+    .replace(/&/g, '\\u0026')
+    .replace(/\u2028/g, '\\u2028')
+    .replace(/\u2029/g, '\\u2029');
+}
+
 function echapper(valeur) {
   return String(valeur == null ? '' : valeur).replace(/[&<>"']/g, (c) => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
@@ -76,13 +100,28 @@ function paragraphesDe(description) {
 
 function blocSalaire(job) {
   if (!job.jev_publishable || job.jev_publishable.salaire !== true) return null;
-  const bas = Number(job.jev_salaire_bas);
-  const haut = Number(job.jev_salaire_haut);
-  if (!Number.isFinite(bas) && !Number.isFinite(haut)) return null;
+
+  // Une borne absente est une absence, pas un zéro. Number(null) vaut 0 :
+  // sans cette vérification, une offre sans salaire était publiée avec
+  // minValue:0 et maxValue:0 — un salaire de zéro euro que Google lisait.
+  // Number('') vaut aussi 0 : une chaîne vide est une absence de même.
+  const borne = (valeur) => {
+    if (valeur === null || valeur === undefined || valeur === '') return null;
+    const nombre = Number(valeur);
+    return Number.isFinite(nombre) ? nombre : null;
+  };
+  const bas = borne(job.jev_salaire_bas);
+  const haut = borne(job.jev_salaire_haut);
+
+  // Aucune borne lisible : il n'y a pas de salaire à publier.
+  if (bas === null && haut === null) return null;
+  // Bornes inversées : c'est une donnée fausse, elle ne se publie pas.
+  if (bas !== null && haut !== null && bas > haut) return null;
+
   const unite = /mensuel|mois/i.test(job.jev_salaire_periodicite || '') ? 'MONTH' : 'YEAR';
   const valeur = { '@type': 'QuantitativeValue', unitText: unite };
-  if (Number.isFinite(bas)) valeur.minValue = bas;
-  if (Number.isFinite(haut)) valeur.maxValue = haut;
+  if (bas !== null) valeur.minValue = bas;
+  if (haut !== null) valeur.maxValue = haut;
   return { '@type': 'MonetaryAmount', currency: 'EUR', value: valeur };
 }
 
@@ -290,7 +329,7 @@ ${societe.logo_url
   ? `<meta property="og:image" content="${echapper(societe.logo_url)}">`
   : `<meta property="og:image" content="${SITE_URL}/assets/og-image.png">`}
 <meta name="twitter:card" content="summary_large_image">
-<script type="application/ld+json">${JSON.stringify(offre)}</script>
+<script type="application/ld+json">${jsonPourScript(offre)}</script>
 <style>
  :root { --teal:#006876; --encre:#191c1d; --gris:#515f78; }
  * { box-sizing:border-box; }
@@ -453,7 +492,11 @@ ${BLOC_CONSENTEMENT}
     var p = {};
     Object.keys(d).forEach(function (k) {
       if (d[k] === '' || d[k] == null) return;
-      p[k] = String(d[k]).slice(0, 100);
+      // Un tableau n est pas une chaine. String(items) produisait
+      // "[object Object]" : GA4 ignorait alors item_id et item_name en
+      // silence, et l evenement partait sans donnee d offre.
+      // Seules les chaines sont tronquees ; les objets passent tels quels.
+      p[k] = typeof d[k] === 'string' ? d[k].slice(0, 100) : d[k];
     });
     // Entrée sur une page d'offre : c'est la consultation.
     gtag('event', 'view_item', p);
@@ -484,11 +527,23 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const reponse = await fetch(`${API_BASE}/jobs/${encodeURIComponent(slug)}`);
+    const reponse = await fetch(`${API_BASE}/jobs/${encodeURIComponent(slug)}`,
+      { signal: AbortSignal.timeout(DELAI_LECTURE_API_MS) });
     if (!reponse.ok) {
-      // Une offre retirée doit répondre 404 : c'est ce que le sitemap garantit.
-      res.status(404).send(PAGE_ABSENTE('Offre introuvable',
-        `Cette offre n'est plus en ligne. <a href="${SITE_URL}/job-board.html">Voir les offres actuelles</a>.`));
+      // Distinguer l absence d une panne.
+      //
+      // 404 et 410 disent que l offre n existe plus : c est un état stable,
+      // et le sitemap la retire. Toute autre erreur (500, 503, limitation de
+      // débit) est un incident : la faire passer pour une absence effaçait
+      // l offre sans explication, et Google la retirait du sitemap.
+      if (reponse.status === 404 || reponse.status === 410) {
+        res.status(404).send(PAGE_ABSENTE('Offre introuvable',
+          `Cette offre n'est plus en ligne. <a href="${SITE_URL}/job-board.html">Voir les offres actuelles</a>.`));
+        return;
+      }
+      console.error('[offre] erreur amont', slug, reponse.status);
+      res.status(502).send(PAGE_ABSENTE('Service momentanément indisponible',
+        `<a href="${SITE_URL}/job-board.html">Retour aux offres</a>`));
       return;
     }
     const job = await reponse.json();
