@@ -38,11 +38,19 @@ export default async function handler(req, res) {
 
     const data = await response.json();
 
+    // Le backend repond une enveloppe { data, pagination }. Lire
+    // data.length dessus donnait undefined : le proxy renvoyait donc
+    // jobs: undefined et total: 0, en annonçant un site sans aucune
+    // offre. Les deux formes sont acceptees, pour que le proxy survive
+    // a un changement de contrat.
+    const offres = Array.isArray(data) ? data : (Array.isArray(data.data) ? data.data : []);
+    const total = offres.length || (data.pagination && data.pagination.total) || 0;
+
     return res.status(200).json({
       source: 'api',
       updatedAt: new Date().toISOString(),
-      total: data.length ?? 0,
-      jobs: data
+      total: total,
+      jobs: offres
     });
 
   } catch (err) {

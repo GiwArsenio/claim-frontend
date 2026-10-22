@@ -1,0 +1,16 @@
+{
+  "name": "claim-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Job board CLAIM! — Actuariat, Data et IA en assurance",
+  "scripts": {
+    "test": "node tools/run-tests.cjs",
+    "test:static": "node tools/run-tests.cjs --groupe=static",
+    "test:unit": "node tools/run-tests.cjs --groupe=unit",
+    "test:integration": "node tools/run-tests.cjs --groupe=integration",
+    "test:live": "node tools/run-tests.cjs --groupe=live"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
