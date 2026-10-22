@@ -10,11 +10,25 @@
 // Chaque cas observe l ecran, jamais l etat interne du code.
 
 const {
-  test, expect, attendreListe, attendreDetail, ouvrirPage, fermerPage,
-  lireGa4, ga4ParNom,
+  expect, attendreListe, attendreDetail, ouvrirPage, fermerPage,
+  lireGa4, ga4ParNom, modeRunner, adapter,
 } = require('./helpers/cas.cjs');
 
 const BOARD = '/job-board.html';
+
+// Le `test` local : l appel a test() doit avoir lieu dans ce fichier, sinon
+// le rapport de la CI rattache tous les cas au module des helpers, et un
+// echec ne dit pas quel parcours il vient.
+const { test: testPlaywright } = require('@playwright/test');
+
+function test(nom, corps) {
+  if (modeRunner()) {
+    testPlaywright(nom, { description: nom }, adapter(corps));
+    return;
+  }
+  require('./helpers/cas.cjs').enregistrerCasAutonome(nom, corps);
+}
+
 test('P04 — la fiche s affiche une seule fois, sans doublon', async (page) => {
   const serveur = await ouvrirPage(page);
   try {

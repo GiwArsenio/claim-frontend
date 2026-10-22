@@ -37,20 +37,27 @@ function enModeRunner() {
   return process.env.PLAYWRIGHT_TEST === '1';
 }
 
-function test(nom, corps) {
-  const description = nom;
-  if (enModeRunner()) {
-    // Playwright exige (titre, details, corps). L'objet de details ne peut
-    // pas etre vide : il porte la description du cas, ce qui apparait dans
-    // le rapport de la CI.
-    const details = { description: description };
-    // Playwright exige que le premier argument soit detruit a la volee.
-    // Le corps attend la page en premier : on respecte les deux.
-    const adapte = async ({ page, context }) => corps(page, context);
-    testBase(nom, details, adapte);
-    return;
-  }
-  definirCas(nom, description, corps);
+// Enregistre un cas de parcours.
+//
+// Ce helper ne s'appelle pas directement depuis un fichier de test : il
+// serait alors attribue a ce module dans le rapport de la CI, et tous les
+// parcours y seraient confondus.
+//
+// Chaque fichier de test declare donc son propre `test`, qui appelle
+// `enregistrerCas` ci-dessous. L appel a lieu dans le fichier de test : le
+// rapport de la CI montre alors le bon fichier pour chaque cas.
+// Le mode runner est decide ici, mais l appel a testBase est fait par le
+// fichier de test : Playwright rattache un cas au fichier depuis lequel
+// test() est appele, et un appel passant par un module tiers attribuerait
+// tous les cas a ce module.
+function modeRunner() {
+  return enModeRunner();
+}
+
+// Prepare l adaptateur du cas : le corps attend la page en premier argument,
+// Playwright livre les fixtures.
+function adapter(corps) {
+  return async ({ page, context }) => corps(page, context);
 }
 
 // ── Attentes deterministes ────────────────────────────────────────────────
@@ -180,9 +187,17 @@ async function lancerAutonomie() {
   process.exitCode = echecs ? 1 : 0;
 }
 
+// Enregistre un cas pour le mode autonome. Appele par le `test` local de
+// chaque fichier de parcours.
+function enregistrerCasAutonome(nom, corps) {
+  definirCas(nom, nom, corps);
+}
+
 module.exports = {
   modeRunner: enModeRunner,
-  test: test,
+  modeRunner: modeRunner,
+  enregistrerCasAutonome: enregistrerCasAutonome,
+  adapter: adapter,
   expect: expect,
   CAS: CAS,
   demarrer: demarrer,
