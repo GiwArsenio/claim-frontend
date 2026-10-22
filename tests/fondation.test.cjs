@@ -177,4 +177,19 @@ for (const fichier of declares) {
   assert.ok(surDisque.includes(fichier), fichier + ' est déclaré mais n existe pas');
 }
 
+
+// ─────────────────────────────────────────────────────────────────────────
+// F06 — Le lockfile existe et correspond aux dependances declarees.
+//
+// Sans lockfile, une installation n est pas reproductible. Le projet n a
+// aujourd hui aucune dependance : le lockfile est donc vide, mais il doit
+// exister, et rester coherent avec le manifeste.
+// ─────────────────────────────────────────────────────────────────────────
+assert.ok(existe('package-lock.json'), 'le dépôt doit porter un lockfile');
+const lock = JSON.parse(lire('package-lock.json'));
+assert.equal(lock.name, paquet.name, 'le lockfile doit concerner le même projet');
+const dependancesLock = Object.keys(lock.packages && lock.packages[""] && lock.packages[""].dependencies || {});
+const dependancesPaquet = Object.keys(paquet.dependencies || {});
+assert.deepEqual(dependancesLock.sort(), dependancesPaquet.sort(),
+  'le lockfile et le manifeste doivent déclarer les mêmes dépendances');
 console.log('Fondation : syntaxe, documents, ressources, configuration, exécuteur — OK');
