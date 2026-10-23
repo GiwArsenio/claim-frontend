@@ -21,6 +21,14 @@ source libre, puis mesuré : la taille naturelle est notée ici.
 | Seabird Conseil | `seabird.svg` | 185 × 25 | `seabirdconseil.com/wp-content/themes/seabird/images/logos/logo.svg` |
 | SMABTP | `smabtp.png` | 194 × 120 | `smabtp.fr/sma/upload/docs/image/png/2023-01/logo-smabtp-footer.png` |
 | UMR | `umr.png` | 398 × 199 | `umr-retraite.fr/themes/umr/assets/dist/images/logo/logo.png` |
+| Alan | `alan.png` | 1 928 × 852 | `jobs.ashbyhq.com/alan` — endpoint `org-theme-wordmark` |
+| Covéa | `covea.png` | 65 × 66 | `jobs.smartrecruiters.com/COVEA1` — monogramme COvea |
+| KPMG | `kpmg.svg` | 77 × 30 | `kpmg.com` — logo de l'en-tête |
+| AON | `aon.png` | 508 × 306 | `aon.com` — signature rouge |
+| Suravenir | `suravenir.svg` | 300 × 62 | `suravenir.fr/wp-content/uploads/2025/09/logo-2025.svg` |
+| Verlingue | `verlingue.png` | 280 × 96 | `verlingue.fr` — logo courtier en assurances |
+| Natixis | `natixis.png` | 360 × 62 | `recrutement.bpce.fr` — logotype de la marque |
+| SMACL | `smacl.png` | 203 × 119 | `smacl.fr/ref-images-web/smacl_logo.png` |
 | Shift Technology | `shift-technology.svg` | — | `shift-technology.com` |
 | Sia Partners | `sia-partners.svg` | — | `sia-partners.com` |
 
@@ -36,6 +44,14 @@ Il n'est pas versionné ici parce que le format retenu sur Commons est un
 SVG dont les conditions de réutilisation demandaient un crédit explicite.
 Il est credited en pied de page, sur les surfaces qui affichent un logo.
 
+**AIG.** L'entrée a été retirée de la table : elle pointait sur `aig.fr`,
+qui est « Alliances Informatique de Gestion », et non l'assureur. AIG
+n'existe ni parmi les entreprises de la base, ni parmi les sources
+collectées, ni parmi les scrapers — l'entrée était un résidu. Si
+l'assureur entre un jour dans le relevé, il faudra son vrai logo : celui
+d'`aig.com/fr` est blanc et fait 89 px de large, ce qui ne convient pas à
+une tuile claire.
+
 ## Ajouter un logo
 
 1. Déposer le fichier dans ce dossier, en PNG ou SVG.
@@ -44,3 +60,17 @@ Il est credited en pied de page, sur les surfaces qui affichent un logo.
 3. Noter ici son origine et sa taille.
 4. Dans `assets/companies-data.js`, remplacer la valeur du domaine par
    `/logos/nom-du-fichier`.
+
+## Ce que la mesure ne voyait pas
+
+La taille naturelle ne dit pas si une image est un logo. Hunter servait, pour
+six employeurs, la **photo de couverture de marque** — un pont, un surfeur,
+un collaborateur en bureau — là où la tuile attend le logotype. Ces images
+faisaient 1 024 px de large : la mesure les jugeait parfaites, et elles
+étaient fausses.
+
+La vérification visuelle, elle, les a vues. Elle a aussi révélé que
+l'entrée `aig` pointait sur `aig.fr`, qui est « Alliances Informatique de
+Gestion », et non l'assureur AIG — l'entrée a été retirée.
+
+Chaque logo de ce dossier a été regardé avant d'être retenu.
