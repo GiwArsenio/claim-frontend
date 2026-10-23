@@ -309,8 +309,12 @@ ${societe.logo_url
  .slogo img { position:absolute; inset:0; width:100%; height:100%; object-fit:contain;
    border-radius:inherit; padding:2px; }
  /* Fond clair pour un logo ; la couleur de la marque garde les initiales. */
- .slogo.fond-logo { background: var(--tuile-logo); border: 1px solid var(--bord); }
+ /* La tuile suit le theme ; le cadre de l'image porte le fond sur
+    lequel le logo reste lisible. En mode nuit, l'image est inversee. */
+ .slogo.fond-logo { background: var(--surface); }
  .slogo.fond-logo span { color: var(--encre-forte); }
+ .slogo.fond-logo img { background: var(--tuile-logo); padding: 2px; }
+ html[data-theme="nuit"] .slogo.fond-logo img { filter: invert(1) hue-rotate(180deg); }
  .pastilles { display:flex; flex-wrap:wrap; gap:.4rem; margin-bottom:1.6rem; }
 /* Pastilles : chaque badge tient sur sa ligne, sans jamais déborder. */
  .pastille { display:inline-block !important; width:fit-content; max-width:100%; padding:3px 10px; border:1px solid var(--bord-carte); border-radius:9999px; background:var(--surface-2); font-size:.78rem; font-weight:600; color:var(--encre-forte); overflow-wrap:anywhere; white-space:normal; line-height:1.4; }
