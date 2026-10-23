@@ -217,7 +217,9 @@ html[data-theme="nuit"] select.chip {
      comptent au lieu de s'enchaîner. */
   .surface { background: var(--champ); border-top: 1px solid var(--bord);
              border-bottom: 1px solid var(--bord); padding: 2.25rem 0; }
-  .panneau { background: var(--surface); border: 1px solid var(--bord); border-radius: 1rem;
+  /* Le rayon des panneaux suit celui de la barre de recherche : .625rem.
+     A 1rem, l'accueil parlait une autre langue graphique que le board. */
+  .panneau { background: var(--surface); border: 1px solid var(--bord); border-radius: .625rem;
              box-shadow: var(--ombre); padding: clamp(1.15rem, 2.6vw, 2rem); }
 
   /* ── SECTIONS ── */
@@ -298,7 +300,7 @@ html[data-theme="nuit"] select.chip {
                  justify-content: center; border-radius: inherit; }
   .sigle img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain;
                border-radius: inherit; padding: 4px; }
-  .vide { grid-column: 1 / -1; background: var(--surface); border-radius: .75rem; padding: 1.4rem 1.25rem;
+  .vide { grid-column: 1 / -1; background: var(--surface); border-radius: .625rem; padding: 1.4rem 1.25rem;
           color: var(--gris); font-size: .9rem; box-shadow: var(--ombre); }
 
   /* ── RAISONS ── */
@@ -307,11 +309,11 @@ html[data-theme="nuit"] select.chip {
      Trois cartes de même poids. Le filet teal n'apparaît qu'au survol : il
      signale la carte lue sans colorer la page au repos. */
   .rc { position: relative; background: var(--surface); border: 1px solid var(--bord);
-        border-radius: .9rem; padding: 1.5rem 1.35rem 1.45rem;
+        border-radius: .625rem; padding: 1.5rem 1.35rem 1.45rem;
         box-shadow: 0 1px 2px rgba(25, 44, 52, .04);
         transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
   .rc::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 3px;
-                border-radius: .9rem .9rem 0 0;
+                border-radius: .625rem .625rem 0 0;
                 background: linear-gradient(90deg, var(--teal), var(--teal-bord));
                 opacity: 0; transition: opacity .18s ease; }
   .rc:hover { transform: translateY(-2px); border-color: var(--teal-bord);
@@ -341,10 +343,10 @@ html[data-theme="nuit"] select.chip {
   /* Le logo seul : plus de cadre, de fond ni de marge autour de la marque.
      C'est un mur d'employeurs, pas une grille de vignettes. Le nom reste
      accessible au survol et aux lecteurs d'écran. */
-  .firme { display: inline-flex; align-items: center; border-radius: .6rem;
+  .firme { display: inline-flex; align-items: center; border-radius: .625rem;
            font-size: .82rem; font-weight: 600; text-decoration: none; color: inherit;
            flex: 0 0 auto; }
-  .firme .sigle { width: 64px; height: 64px; border-radius: .6rem; font-size: 17px; }
+  .firme .sigle { width: 64px; height: 64px; border-radius: .625rem; font-size: 17px; }
 
   /* Sans animation, le bandeau reste utilisable : il se fait défiler à la main. */
   @media (prefers-reduced-motion: reduce) {
