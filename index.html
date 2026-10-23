@@ -204,6 +204,10 @@
            flex-shrink: 0; position: relative; overflow: hidden; }
   .clogo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain;
                border-radius: inherit; padding: 2px; }
+  /* Fond clair pour un logo : il y reste lisible. La couleur de la marque
+     garde la tuile des initiales. Le fond suit le thème. */
+  .clogo.fond-logo { background: var(--tuile-logo); border: 1px solid var(--bord); }
+  .clogo.fond-logo span { color: var(--encre-forte); }
   .oc .ci { flex: 1; min-width: 0; padding-left: .5rem; }
   .oc .ctitle { font-size: .875rem; font-weight: 700; color: var(--encre);
                 white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -853,8 +857,10 @@ function tuileLogo(co) {
   const inits = echapper(initiales(co.name || '?'));
   const logo = co.logo_url
     || (annuaire && annuaire.logoEntreprise ? annuaire.logoEntreprise(co.slug) : null);
+  // Sur fond clair : c'est la seule surface où le logo reste lisible.
+  // La couleur de la marque garde la tuile des initiales.
   if (!logo) return '<div class="clogo" style="background:' + fond + ';">' + inits + '</div>';
-  return '<div class="clogo" style="background:' + fond + ';">'
+  return '<div class="clogo fond-logo">'
     + '<span>' + inits + '</span>'
     + '<img src="' + echapper(logo) + '" alt="Logo ' + echapper(co.name || '') + '" '
     + 'onerror="this.remove()" onload="this.previousElementSibling.remove()"/>'

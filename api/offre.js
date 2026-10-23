@@ -264,8 +264,10 @@ en documentation).
   const tuileSociete = (() => {
     const fond = echapper(teinteSociete);
     const inits = echapper(initialesSociete);
+    // Un logo se pose sur fond clair : sur la couleur de la marque, il se
+    // fond. La couleur reste pour la tuile des initiales.
     if (!logoSociete) return `<span class="slogo" style="background:${fond}">${inits}</span>`;
-    return `<span class="slogo" style="background:${fond}"><span>${inits}</span>`
+    return `<span class="slogo fond-logo"><span>${inits}</span>`
       + `<img src="${echapper(logoSociete)}" alt="Logo ${echapper(nomSociete)}" `
       + `onerror="this.remove()" onload="this.previousElementSibling.remove()"/></span>`;
   })();
@@ -306,6 +308,9 @@ ${societe.logo_url
    font-size:9px; letter-spacing:-.02em; }
  .slogo img { position:absolute; inset:0; width:100%; height:100%; object-fit:contain;
    border-radius:inherit; padding:2px; }
+ /* Fond clair pour un logo ; la couleur de la marque garde les initiales. */
+ .slogo.fond-logo { background: var(--tuile-logo); border: 1px solid var(--bord); }
+ .slogo.fond-logo span { color: var(--encre-forte); }
  .pastilles { display:flex; flex-wrap:wrap; gap:.4rem; margin-bottom:1.6rem; }
 /* Pastilles : chaque badge tient sur sa ligne, sans jamais déborder. */
  .pastille { display:inline-block !important; width:fit-content; max-width:100%; padding:3px 10px; border:1px solid var(--bord-carte); border-radius:9999px; background:var(--surface-2); font-size:.78rem; font-weight:600; color:var(--encre-forte); overflow-wrap:anywhere; white-space:normal; line-height:1.4; }

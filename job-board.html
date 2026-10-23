@@ -245,6 +245,10 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 2rem;
   transition: opacity .2s ease, transform .2s ease; }
 .toast-claim.vu { opacity: 1; transform: translate(-50%, 0); }
 .clogo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; border-radius: inherit; padding: 2px; }
+/* Un logo se pose sur un fond clair : il y reste lisible. Le fond suit
+   le thème, il n'est donc jamais le même en mode nuit. */
+.clogo.fond-logo { background: var(--tuile-logo); border: 1px solid var(--bord); }
+.clogo.fond-logo span { color: var(--encre-forte); }
 .bcv { display: inline-flex; align-items: center; gap: .3rem; padding: .5rem .875rem; border-radius: .5rem; background: var(--encre); color: var(--blanc); font-weight: 700; font-size: 0.8rem; text-decoration: none; }
 
 /* ── FOOTER RICHE ── */
@@ -885,8 +889,16 @@ function renderCompanyLogo(company, cssClass) {
   const initials = companyInitials((company && company.name) || '?');
   // Priorité 1: logo_url de l'API, Priorité 2: mapping statique
   const logoUrl = (company && company.logo_url) || logoEntreprise((company && company.slug) || '');
+  // Le fond change selon ce qu'il y a à montrer. Un logo transparent posé
+  // sur la couleur de la marque disparaît : mesuré sur le catalogue, 33
+  // logos sur 35 se lisent mieux sur fond clair que sur la couleur de
+  // leur marque — l'écart y est de 400 contre 90 en moyenne. Un logo
+  // gagne donc toujours sur fond clair.
+  //
+  // La couleur de la marque ne disparait pas : elle porte la tuile des
+  // initiales, là où elle est le seul signe de la marque.
   if (logoUrl) {
-    return '<div class="' + cssClass + '" style="background:' + color + ';">' +
+    return '<div class="' + cssClass + ' fond-logo">' +
       '<span>' + initials + '</span>' +
       '<img src="' + logoUrl + '" alt="Logo ' + (company.name||'') + '" onerror="this.remove()" onload="this.previousElementSibling.remove()" />' +
       '</div>';

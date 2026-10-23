@@ -43,6 +43,7 @@
   --champ: #f3f4f5;          /* champs de formulaire, colonnes de fond */
   --surface-liste: #e9eef1;  /* colonne des offres */
   --surface-liste-hd: #e9eef1;
+  --tuile-logo: #fff;        /* fond des tuiles de logo — clair dans les deux themes */
 
   /* ── Encre ── */
   --encre: #191c1d;          /* texte principal */
@@ -133,6 +134,9 @@ html[data-theme="nuit"] {
   --champ: #12181b;
   --surface-liste: #12181b;
   --surface-liste-hd: #161d21;
+  /* --tuile-logo reste clair : un logo est une image de marque, sa
+     lisibilite ne doit pas dependre du theme. Sur fond sombre, Coface,
+     Alan et SMA BTP disparaissaient. */
 
   /* ── Encre ── */
   --encre: #e8eef0;
