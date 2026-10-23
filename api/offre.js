@@ -267,7 +267,10 @@ en documentation).
     // Un logo se pose sur fond clair : sur la couleur de la marque, il se
     // fond. La couleur reste pour la tuile des initiales.
     if (!logoSociete) return `<span class="slogo" style="background:${fond}">${inits}</span>`;
-    return `<span class="slogo fond-logo"><span>${inits}</span>`
+    // Un logo a fond sombre n'est pas inverse en mode nuit.
+    const inversable = (ANNUAIRE && ANNUAIRE.logoInversable)
+      ? ANNUAIRE.logoInversable(societe.slug || '') : true;
+    return `<span class="slogo fond-logo${inversable ? ' logo-inversable' : ''}"><span>${inits}</span>`
       + `<img src="${echapper(logoSociete)}" alt="Logo ${echapper(nomSociete)}" `
       + `onerror="this.remove()" onload="this.previousElementSibling.remove()"/></span>`;
   })();
@@ -316,7 +319,7 @@ ${societe.logo_url
  .slogo.fond-logo { background: var(--surface-2); }
  .slogo.fond-logo span { color: var(--encre-forte); }
  .slogo.fond-logo img { padding: 2px; }
- html[data-theme="nuit"] .slogo.fond-logo img { filter: invert(1) hue-rotate(180deg); }
+ html[data-theme="nuit"] .slogo.fond-logo.logo-inversable img { filter: invert(1) hue-rotate(180deg); }
  .pastilles { display:flex; flex-wrap:wrap; gap:.4rem; margin-bottom:1.6rem; }
 /* Pastilles : chaque badge tient sur sa ligne, sans jamais déborder. */
  .pastille { display:inline-block !important; width:fit-content; max-width:100%; padding:3px 10px; border:1px solid var(--bord-carte); border-radius:9999px; background:var(--surface-2); font-size:.78rem; font-weight:600; color:var(--encre-forte); overflow-wrap:anywhere; white-space:normal; line-height:1.4; }

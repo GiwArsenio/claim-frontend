@@ -224,7 +224,7 @@
   .clogo.fond-logo { background: var(--surface-2); }
   .clogo.fond-logo span { color: var(--encre-forte); }
   .clogo.fond-logo img { padding: 3px; }
-  html[data-theme="nuit"] .clogo.fond-logo img { filter: invert(1) hue-rotate(180deg); }
+  html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1) hue-rotate(180deg); }
   .oc .ci { flex: 1; min-width: 0; padding-left: .5rem; }
   .oc .ctitle { font-size: .875rem; font-weight: 700; color: var(--encre);
                 white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -883,7 +883,10 @@ function tuileLogo(co) {
   // Sur fond clair : c'est la seule surface où le logo reste lisible.
   // La couleur de la marque garde la tuile des initiales.
   if (!logo) return '<div class="clogo" style="background:' + fond + ';">' + inits + '</div>';
-  return '<div class="clogo fond-logo">'
+  // Un logo a fond sombre n'est pas inverse en mode nuit.
+  const inversable = (annuaire && annuaire.logoInversable)
+    ? annuaire.logoInversable(co.slug || '') : true;
+  return '<div class="clogo fond-logo' + (inversable ? ' logo-inversable' : '') + '">'
     + '<span>' + inits + '</span>'
     + '<img src="' + echapper(logo) + '" alt="Logo ' + echapper(co.name || '') + '" '
     + 'onerror="this.remove()" onload="this.previousElementSibling.remove()"/>'

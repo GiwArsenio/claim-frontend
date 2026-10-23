@@ -261,7 +261,7 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 2rem;
 .clogo.fond-logo { background: var(--surface-2); }
 .clogo.fond-logo span { color: var(--encre-forte); }
 .clogo.fond-logo img { padding: 3px; }
-html[data-theme="nuit"] .clogo.fond-logo img { filter: invert(1) hue-rotate(180deg); }
+html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1) hue-rotate(180deg); }
 .bcv { display: inline-flex; align-items: center; gap: .3rem; padding: .5rem .875rem; border-radius: .5rem; background: var(--encre); color: var(--blanc); font-weight: 700; font-size: 0.8rem; text-decoration: none; }
 
 /* ── FOOTER RICHE ── */
@@ -919,7 +919,15 @@ function renderCompanyLogo(company, cssClass) {
   // La couleur de la marque ne disparait pas : elle porte la tuile des
   // initiales, là où elle est le seul signe de la marque.
   if (logoUrl) {
-    return '<div class="' + cssClass + ' fond-logo">' +
+    // Un logo a fond sombre n'est pas inverse en mode nuit : l'inversion
+    // denature son aplat de marque. Les autres le sont : c'est la seule
+    // facon de les voir sur du sombre.
+    const slugLogo = (company && company.slug) || '';
+    const inversable = (typeof CLAIM_ENTREPRISES !== 'undefined'
+      && CLAIM_ENTREPRISES.logoInversable)
+      ? CLAIM_ENTREPRISES.logoInversable(slugLogo) : true;
+    return '<div class="' + cssClass + ' fond-logo'
+      + (inversable ? ' logo-inversable' : '') + '">' +
       '<span>' + initials + '</span>' +
       '<img src="' + logoUrl + '" alt="Logo ' + (company.name||'') + '" onerror="this.remove()" onload="this.previousElementSibling.remove()" />' +
       '</div>';

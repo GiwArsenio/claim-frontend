@@ -631,7 +631,7 @@
      large, le plus grand 3 508. Le dossier logos/CHANGELOG.md dit d'où
      vient chacun. */
   var DOMAINES = {
-    "abeille": "abeille-assurances.fr",
+    "abeille": "/logos/abeille.png",
     "acm": "acm.fr",
     "actelior": "actelior.fr",
     "addactis": "addactis.com",
@@ -702,7 +702,7 @@
     "wp_ca_assurances": "ca-assurances.com",
     "wtw": "wtwco.com",
     "zelros": "zelros.com",
-    "bpce": "https://upload.wikimedia.org/wikipedia/fr/0/0a/Groupe_BPCE_%28logo%29.svg",
+    "bpce": "/logos/bpce.png",
     "shift_technology": "/logos/shift-technology.svg",
     "sia": "/logos/sia-partners.svg",
   };
@@ -775,6 +775,44 @@
     return DOMAINES_INDEX[cle(slug)] || null;
   }
 
+  // Logos a fond sombre : en mode nuit, la tuile NE les inverse pas.
+  //
+  // L'inversion d'un aplat de marque le denature : mesure sur le
+  // catalogue, l'ecart entre la couleur d'origine et sa version inversee
+  // va de 501 a 765 sur 765. Le carre bleu d'AXA deviendrait un pave
+  // presque blanc, qui jure sur la page sombre — et le logo perdrait le
+  // bleu qui fait sa marque.
+  //
+  // Le test qui les designe n'est pas la couleur dominante : c'est
+  // l'encre claire enchassee dans un aplat sombre. Un logo a fond
+  // sombre et encre claire — le carre d'AXA, le cartouche de Macif,
+  // le pave de Deloitte — garde sa couleur ; son texte blanc reste
+  // lisible sur la tuile sombre.
+  //
+  // Les autres, transparents ou a fond blanc avec de l'encre sombre, sont
+  // inverses : c'est la seule facon de les voir sur du sombre.
+  var LOGOS_A_FOND_SOMBRE = {
+    'alptis.fr': 1,
+    'axa.fr': 1,
+    'deloitte.com': 1,
+    'luko.eu': 1,
+    'macif.fr': 1,
+    'milliman.com': 1,
+    'prevoir.fr': 1,
+    'primact.fr': 1,
+    'seyna.eu': 1,
+    'assurances.societegenerale.com': 1,
+    'wtwco.com': 1,
+
+  };
+
+  // Le logo doit-il etre inverse en mode nuit ?
+  function logoInversable(slug) {
+    var cible = domaineEntreprise(slug);
+    if (!cible) return true;
+    return !LOGOS_A_FOND_SOMBRE[cible];
+  }
+
   // L'adresse de l'image, ou null : la tuile affiche alors les initiales.
   function logoEntreprise(slug) {
     var cible = domaineEntreprise(slug);
@@ -807,6 +845,7 @@
     SANS_LOGO: SANS_LOGO,
     ALIAS_LOGOS: ALIAS_LOGOS,
     domaineEntreprise: domaineEntreprise,
-    logoEntreprise: logoEntreprise
+    logoEntreprise: logoEntreprise,
+    logoInversable: logoInversable
   };
 }));
