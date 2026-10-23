@@ -64,9 +64,23 @@
   --teal: #006876;           /* texte de marque : liens, accents */
   --teal-fond: #006876;      /* aplat de marque : en-têtes, boutons pleins */
   --teal-fonce: #005a66;     /* survol d'un aplat */
+  /* Le survol d'un aplat de marque reste un APLAT : il s'eclaircit, mais
+     ne devient jamais clair au point de porter du texte blanc
+     illisible. C'etait la cause du defaut du bouton « Postuler » en mode
+     nuit, dont le survol tombait a 1,69 de contraste. */
+  --teal-aplat-survol: #00545f;
   --teal-texte: #00545f;     /* texte de marque sur fond clair */
+  /* Le survol du logo de l'en-tete : un blanc nuance. Il doit s'eclaircir
+     par rapport au blanc pur, et rester lisible sur l'aplat de marque
+     dans les DEUX themes. */
+  --blanc-survol: #a8e8ef;
   --teal-clair: #e9f6f8;
-  --teal-survol: #e8f4f6;
+  --teal-survol: #e8f4f6;     /* fond de BADGE : une categorie, une pastille */
+  /* Le fond de survol d'un ELEMENT est un autre besoin qu'un fond de
+     badge : il doit se voir. Le badge porte du texte de marque sur un
+     aplat leger ; le survol doit distinguer l'element du fond sur lequel
+     il repose. Un seul jeton pour les deux ne pouvait pas servir les deux. */
+  --teal-survol-element: #dceef2;
   --teal-pale: #f0fafb;
   --teal-bord: #bfe2e8;
   --teal-vif: #00bcd4;
@@ -159,9 +173,21 @@ html[data-theme="nuit"] {
   --teal: #4fb3c2;
   --teal-fond: #0b2f36;
   --teal-fonce: #14454e;
+  /* Un aplat de marque reste un aplat. Le survol eclaircit la surface,
+     il ne la transforme pas en aplat clair : du texte blanc sur
+     #7fd4e0 ne se lisait plus du tout. */
+  --teal-aplat-survol: #2a6a77;
   --teal-texte: #7fd4e0;
+  /* Le survol du logo de l'en-tete. En mode nuit, l'aplat de marque est
+     #0b2f36 : ce cyan clair s'y lit a 10,5. */
+  --blanc-survol: #7fd4e0;
   --teal-clair: #12262b;
-  --teal-survol: #1d262a;
+  --teal-survol: #1d262a;     /* fond de BADGE */
+  /* En mode nuit, le fond de survol doit s'ecarter franchement de la
+     surface sur laquelle il repose. Valait #1d262a, qui est aussi
+     --surface-2 : l'ecart de contraste de fond sur fond ne montait
+     qu'a 1,105, et le survol etait invisible. */
+  --teal-survol-element: #2f5a64;
   --teal-pale: #132226;
   --teal-bord: #23474f;
   --teal-vif: #4fb3c2;
@@ -231,7 +257,17 @@ html[data-theme="nuit"] select {
   background: rgba(255, 255, 255, .12); color: #fff;
   cursor: pointer; padding: 0; transition: background .15s ease;
 }
-.bascule-theme:hover { background: rgba(255, 255, 255, .22); }
+/* Le survol de la bascule. La regle du mode nuit
+   (`html[data-theme="nuit"] .bascule-theme`) a une specificite de (0,2,1) :
+   elle ecrase celle-ci, en (0,2,0). Le bouton n'avait donc aucun survol
+   en mode nuit. Les deux regles doivent avoir le meme poids : celle du
+   mode nuit vient apres, et traite le survol a part. */
+/* Le survol de la bascule passait le fond de #1f7a86 a #388994 : le
+   texte blanc tombait a 4,05 de contraste, sous le seuil. Le survol
+   change le fond vers l'accent de marque — comme le bouton « Postuler »
+   et le bouton « Rechercher » — et le texte y reste blanc, lisible dans
+   les deux themes. */
+.bascule-theme:hover { background: var(--teal-aplat-survol); border-color: var(--teal-texte); }
 .bascule-theme .ms { font-size: 18px; }
 /* L'icone de la bascule passe par le pseudo-element : son nom ne vit pas
    dans le DOM, et le texte visible ne peut plus diverger du nom accessible
@@ -239,6 +275,13 @@ html[data-theme="nuit"] select {
 .bascule-theme .ms::before { content: attr(data-icone); }
 html[data-theme="nuit"] .bascule-theme {
   border-color: var(--bord-carte); background: var(--surface-2); color: var(--encre);
+}
+/* Le survol, en mode nuit. Meme specificite que la regle du mode nuit,
+   mais placee apres : elle gagne. Le fond s'eclaircit et la bordure se
+   marque — le signal reste lisible, et le texte reste clair sur fond
+   sombre. */
+html[data-theme="nuit"] .bascule-theme:hover {
+  background: var(--teal-aplat-survol); border-color: var(--teal-texte);
 }
 .bascule-theme:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
 

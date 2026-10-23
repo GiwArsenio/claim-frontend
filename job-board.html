@@ -52,12 +52,23 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
    Contact, sans section contact ici. */
 #hd { background: var(--teal-fond); position: sticky; top: 0; z-index: 200; }
 #hd nav { display: flex; justify-content: space-between; align-items: center; padding: .75rem 2rem; }
+/* Le logo reagissait a rien : un lien sans aucun signal de survol. La
+   marque est le point de sortie du site : le survol doit le dire. */
 .logo { font-size: 1.5rem; font-weight: 900; color: var(--blanc); letter-spacing: -.05em; text-decoration: none; }
+.logo:hover { color: var(--blanc-survol); }
 .nav-links { display: flex; gap: 2rem; }
 .nav-links a { color: rgba(255, 255, 255, .8); text-decoration: none; font-size: .925rem; font-weight: 600; }
 .nav-links a:hover { color: var(--blanc); }
 .nav-links a.on { color: var(--blanc); border-bottom: 2px solid #fff; padding-bottom: 2px; }
+/* Le lien actif porte deja un soulignement : c'est lui qui dit a
+   l'utilisateur qu'il est sur la page courante. Le survol ne l'efface
+   pas, il le renforce. */
+.nav-links a.on:hover { color: var(--blanc); border-bottom-color: var(--blanc-survol); }
 .btn-cta { background: var(--surface); color: var(--teal); padding: .45rem 1.2rem; border-radius: .5rem; font-weight: 700; font-size: .925rem; border: none; cursor: pointer; font-family: inherit; white-space: nowrap; }
+/* Le bouton ne reagissait a rien. Pose sur le fond clair — en mode nuit
+   aussi — son survol s'eclaire et sa bordure se marque. */
+.btn-cta:hover { background: var(--teal-survol-element); border-color: var(--teal);
+                    color: var(--encre); }
 
 /* ── HERO ── */
 #hero {
@@ -88,12 +99,21 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
 .sf input:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
 .sf input::placeholder { color: rgba(108,121,124,.6); }
 .sdiv { width: 1px; height: 1.4rem; background: rgba(187,201,204,.35); flex-shrink: 0; }
-.btn-srch { background: linear-gradient(135deg,var(--teal-fond),var(--teal-fonce)); color: var(--blanc); border: none; cursor: pointer; padding: .5rem 1.5rem; border-radius: 9999px; font-weight: 700; font-size: 0.925rem; white-space: nowrap; }
+.btn-srch { background: linear-gradient(135deg,var(--teal-fond),var(--teal-fonce)); color: var(--blanc); border: none; cursor: pointer; padding: .5rem 1.5rem; border-radius: 9999px; font-weight: 700; font-size: 0.925rem; white-space: nowrap;
+  transition: background .15s, box-shadow .15s; }
+.btn-srch:hover { background: var(--teal-aplat-survol); box-shadow: 0 2px 10px rgba(0,0,0,.18); }
 
 .chips { display: flex; gap: .5rem; overflow-x: auto; padding-bottom: .15rem; }
 .chips::-webkit-scrollbar { display: none; }
 .chip { display: flex; align-items: center; gap: .3rem; padding: .38rem .85rem; border-radius: 9999px; background: var(--surface); color: var(--gris); font-size: 0.925rem; font-weight: 500; border: 1px solid rgba(187,201,204,.25); cursor: pointer; white-space: nowrap; flex-shrink: 0; transition: background .15s; }
-.chip:hover { background: var(--teal-survol); }
+/* Le survol d'un filtre doit se VOIR. Le fond de survol est un jeton
+   dedie : --teal-survol reste le fond des badges, ou un fond clair le
+   jour eclaircissait le badge au lieu de le lire. */
+.chip:hover { background: var(--teal-survol-element); border-color: var(--teal-bord);
+             /* Le texte suit le fond. Sans cela, le texte secondaire du
+                filtre tombait a 3,7 de contraste sur le fond de survol :
+                le survol rendait le filtre illisible. */
+             color: var(--encre); }
 select.chip { appearance: none; -webkit-appearance: none; padding-right: 2rem;
   background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23515f78' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat; background-position: right .7rem center; }
@@ -200,10 +220,17 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 2rem;
   border-radius: .5rem; text-decoration: none; white-space: nowrap; cursor: pointer; }
 /* Postuler : teal de la maison, plein — c'est l'action attendue. */
 .bap { background: var(--teal-fond); color: var(--blanc); border: 1px solid var(--teal); }
-.bap:hover { background: var(--teal-texte); border-color: var(--teal-texte); }
+/* Le survol eclaircit l'APLAT, il ne le remplace pas par la couleur du
+   TEXTE de marque. En mode nuit, --teal-texte vaut #7fd4e0 : du texte
+   blanc dessus tombait a 1,69 de contraste, et le survol rendait le
+   bouton illisible. --teal-aplat-survol reste un aplat. */
+.bap:hover { background: var(--teal-aplat-survol); border-color: var(--teal-aplat-survol); }
 /* Partager : secondaire, en contour, pour ne pas concurrencer Postuler. */
 .bsh { background: var(--surface); color: var(--teal); border: 1px solid var(--teal-bord); }
-.bsh:hover { background: var(--teal-clair); }
+/* Comme les filtres, le survol doit se distinguer du fond de repos. */
+.bsh:hover { background: var(--teal-survol-element); border-color: var(--teal);
+              /* Le texte suit le fond, comme sur les filtres. */
+              color: var(--encre); }
 /* Pastilles : chaque badge tient sur sa ligne, sans jamais déborder. */
 .pastille { display: inline-block !important; width: fit-content; max-width: 100%;
   padding: 3px 10px; border: 1px solid var(--bord-carte); border-radius: 9999px;
@@ -237,6 +264,8 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 2rem;
 /* Pied : filet et texte gris, comme la page d'offre. */
 .pied { margin-top: 2.5rem; padding-top: 1.2rem; border-top: 1px solid var(--bord); font-size: .85rem; color: var(--gris); }
 .pied a { color: var(--teal); font-weight: 600; }
+/* Les liens du pied de la fiche ne reagissaient a rien. */
+.pied a:hover { color: var(--teal-texte); text-decoration: underline; }
 
 
 
