@@ -25,6 +25,9 @@
   },
   "homepage": "https://github.com/GiwArsenio/claim-frontend#readme",
   "devDependencies": {
-    "playwright": "^1.64.1"
+    "axe-core": "^4.14.0",
+    "pixelmatch": "^5.3.0",
+    "playwright": "^1.64.1",
+    "pngjs": "^7.0.0"
   }
 }

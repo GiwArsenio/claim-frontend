@@ -2,3 +2,11 @@
 .env.local
 .vercel
 node_modules/
+
+# Fichiers temporaires du serveur de test
+api/.offre-test-*.js
+
+# Artefacts de travail des tests visuels : les ecarts se regenerent.
+# Les captures de REFERENCE, elles, sont versionnees : elles appartiennent
+# a une revision et ne sont jamais acceptees automatiquement.
+captures/ecarts/
