@@ -112,14 +112,38 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
 /* Le survol d'un filtre doit se VOIR. Le fond de survol est un jeton
    dedie : --teal-survol reste le fond des badges, ou un fond clair le
    jour eclaircissait le badge au lieu de le lire. */
-.chip:hover { background: var(--teal-survol-element); border-color: var(--teal-bord);
-             /* Le texte suit le fond. Sans cela, le texte secondaire du
-                filtre tombait a 3,7 de contraste sur le fond de survol :
-                le survol rendait le filtre illisible. */
+.chip:hover { background-color: var(--surface-survol); border-color: var(--teal-bord);
+             /* Le fond s'eclaircit d'un cran, comme une surface. Une ombre
+                le detache du bandeau. Un aplat de couleur sature se lirait
+                « allume » : ce n'est pas un survol, c'est un changement de
+                nature. */
+             box-shadow: 0 1px 6px rgba(0, 0, 0, .28);
+             /* La fleche suit le fond : sinon elle reste grise sur une
+                surface changee, et le signal parait incomplet. */
+             /* Le texte suit le fond : sinon il garde sa couleur d'origine
+                et le filtre devient illisible sur la surface eclaircie. */
              color: var(--encre); }
+/* La fleche de la liste deroulante.
+   Elle est une IMAGE dont l'URL est portee par une variable : la variable
+   prend une autre valeur en mode nuit, et la fleche suit le theme.
+
+   En image a couleur figee, elle ne suivait ni le theme, ni le survol, et
+   son trait etait a 2,64 de contraste sur le fond de pause en mode nuit :
+   elle y etait presque invisible.
+
+   Ni raccourci `background`, ni `background-color` seul : le raccourci
+   remet a zero background-position et background-repeat, et la fleche
+   partait dans le coin haut-gauche, repetee sur toute la pastille —
+   101 pixels de fleche au repos, 464 au survol. */
 select.chip { appearance: none; -webkit-appearance: none; padding-right: 2rem;
-  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23515f78' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  --fleche-pastille: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23515f78' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-image: var(--fleche-pastille);
   background-repeat: no-repeat; background-position: right .7rem center; }
+/* En mode nuit, la fleche s'eclaircit : sur une surface sombre, le trait
+   d'origine tombait sous le seuil de lisibilite. */
+html[data-theme="nuit"] select.chip {
+  --fleche-pastille: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b9aa0' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+}
 
 /* ── SPLIT PANE ── */
 #split { display: flex; overflow: hidden; height: 100%; min-height: 0; }
@@ -867,7 +891,7 @@ en documentation).
 // ── Configuration ──────────────────────────────────────────────────────────
 const API_BASE    = (typeof CLAIM_API_BASE === 'string' && CLAIM_API_BASE)
   ? CLAIM_API_BASE
-  : 'https://claim-api-production-06b3.up.railway.app/api/v1';
+  : 'https://api.claimyourjob.fr/api/v1';
 const PAGE_SIZE   = 20;   // offres affichées par page (Load More)
 
 // ── Helpers ────────────────────────────────────────────────────────────────

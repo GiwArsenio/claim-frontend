@@ -18,7 +18,7 @@ function appeler(query) {
 (async () => {
   // Un slug réel, pris dans l'API de production.
   const brut = execFileSync('curl', ['-s',
-    'https://claim-api-production-06b3.up.railway.app/api/v1/jobs?limit=1'], { encoding: 'utf8' });
+    'https://api.claimyourjob.fr/api/v1/jobs?limit=1'], { encoding: 'utf8' });
   const slug = JSON.parse(brut).data[0].slug;
 
   const r = await appeler({ slug });

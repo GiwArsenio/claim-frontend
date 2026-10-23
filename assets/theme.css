@@ -82,6 +82,11 @@
      aplat leger ; le survol doit distinguer l'element du fond sur lequel
      il repose. Un seul jeton pour les deux ne pouvait pas servir les deux. */
   --teal-survol-element: #dceef2;
+  /* Un survol sur une interface sombre s'apercoit par un LEGER
+     eclaircissement de la surface, pas par un aplat de couleur sature.
+     Un aplat teal sur un fond noir se lit comme un changement de nature :
+     la pastille parait s'allumer. */
+  --surface-survol: #e9f0f2;
   --teal-pale: #f0fafb;
   --teal-bord: #bfe2e8;
   --teal-vif: #00bcd4;
@@ -190,6 +195,10 @@ html[data-theme="nuit"] {
      --surface-2 : l'ecart de contraste de fond sur fond ne montait
      qu'a 1,105, et le survol etait invisible. */
   --teal-survol-element: #2f5a64;
+  /* Meme raison en mode nuit : l'eclaircissement de la surface, et non un
+     aplat teal. #2f5a64 se lisait « allume » sur le fond #12181b du
+     bandeau. */
+  --surface-survol: #303b42;
   --teal-pale: #132226;
   --teal-bord: #23474f;
   --teal-vif: #4fb3c2;

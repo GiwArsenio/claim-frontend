@@ -8,7 +8,7 @@
 // se distinguent que par leur etat cote client. La balise canonique de la page
 // les consolide vers le board — les declarer ici enverrait le signal inverse.
 
-const API_BASE = process.env.API_URL || 'https://claim-api-production-06b3.up.railway.app/api/v1';
+const API_BASE = process.env.API_URL || 'https://api.claimyourjob.fr/api/v1';
 const SITE_URL = process.env.SITE_URL || 'https://claimyourjob.fr';
 
 module.exports = async (req, res) => {

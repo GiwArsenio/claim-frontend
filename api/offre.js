@@ -9,7 +9,7 @@
 // Aucune donnée n'est inventée : tout vient de l'API. Les champs absents sont
 // omis plutôt que comblés.
 
-const API_BASE = process.env.API_URL || 'https://claim-api-production-06b3.up.railway.app/api/v1';
+const API_BASE = process.env.API_URL || 'https://api.claimyourjob.fr/api/v1';
 const SITE_URL = process.env.SITE_URL || 'https://claimyourjob.fr';
 
 // Profils d'entreprise : présentation, avantages, liens sociaux. Même source
