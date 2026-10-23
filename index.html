@@ -68,7 +68,10 @@
   .hd { background: var(--teal-fond); position: sticky; top: 0; z-index: 200; }
   .hd nav { display: flex; justify-content: space-between; align-items: center;
             padding: .75rem 2rem; }
-  .logo { font-size: 1.5rem; font-weight: 900; color: var(--blanc); letter-spacing: -.05em; text-decoration: none; }
+  /* Le logo reagissait a rien : un lien sans aucun signal de survol. La
+   marque est le point de sortie du site : le survol doit le dire. */
+.logo { font-size: 1.5rem; font-weight: 900; color: var(--blanc); letter-spacing: -.05em; text-decoration: none; }
+.logo:hover { color: var(--blanc-survol); }
   .nav-links { display: flex; gap: 2rem; }
   .nav-links a { color: rgba(255, 255, 255, .8); text-decoration: none;
                  font-size: .925rem; font-weight: 600; }
@@ -76,6 +79,10 @@
   .btn-cta { background: var(--surface); color: var(--teal); padding: .45rem 1.2rem; border-radius: .5rem;
              font-weight: 700; font-size: .925rem; border: none; cursor: pointer;
              font-family: inherit; white-space: nowrap; }
+  /* Le bouton ne reagissait a rien. Pose sur le fond clair — en mode nuit
+     aussi — son survol s'eclaire et sa bordure se marque. */
+  .btn-cta:hover { background: var(--teal-survol-element); border-color: var(--teal);
+                    color: var(--encre); }
 
   /* Bouton burger — masqué hors téléphone, comme sur le board. */
   .btn-burger {
@@ -132,7 +139,14 @@
           border-radius: 9999px; background: var(--surface); color: var(--gris); font-size: .925rem;
           font-weight: 500; border: 1px solid var(--bord-doux); cursor: pointer;
           white-space: nowrap; flex-shrink: 0; transition: background .15s; font-family: inherit; }
-  .chip:hover { background: var(--teal-survol); }
+  /* Le survol d'un filtre doit se VOIR. Le fond de survol est un jeton
+   dedie : --teal-survol reste le fond des badges, ou un fond clair le
+   jour eclaircissait le badge au lieu de le lire. */
+.chip:hover { background: var(--teal-survol-element); border-color: var(--teal-bord);
+             /* Le texte suit le fond. Sans cela, le texte secondaire du
+                filtre tombait a 3,7 de contraste sur le fond de survol :
+                le survol rendait le filtre illisible. */
+             color: var(--encre); }
   select.chip { appearance: none; -webkit-appearance: none; padding-right: 2rem;
     background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23515f78' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
     background-repeat: no-repeat; background-position: right .7rem center; }
@@ -336,6 +350,10 @@
   .pied .env { max-width: 1000px; }
   .pied .haut { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 44ch);
                 gap: 2.5rem; align-items: start; }
+  /* Le logo du pied est sur fond clair : son survol l'assombrit. La regle
+     generale (logo:hover) l'eclaircit, car elle vaut pour l'en-tete ou le
+     logo est blanc sur aplat de marque. Ici, c'est l'inverse. */
+  .pied .logo:hover { color: var(--teal); }
   .pied .logo { color: var(--encre); font-size: 1.25rem; font-weight: 900;
                 letter-spacing: -.05em; text-decoration: none; }
   .pied .nav2 { display: flex; gap: 1.75rem; flex-wrap: wrap; margin-top: .55rem; }
