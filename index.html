@@ -115,7 +115,8 @@
      Repris trait pour trait du board : mêmes icônes, même pilule, même bouton,
      mêmes listes déroulantes. Seule la largeur s'adapte — l'accueil n'a pas de
      colonne d'offres à droite, la barre reste donc bornée à 50 rem. */
-  .sbar { display: flex; align-items: center; background: var(--surface); border-radius: 9999px;
+  .sbar { display: flex; align-items: center; background: var(--surface);
+          border: 1px solid var(--bord-carte); border-radius: .625rem;
           padding: .3rem; max-width: 50rem; box-shadow: 0 1px 4px rgba(0, 0, 0, .07);
           margin-bottom: .5rem; }
   .sf { flex: 1; display: flex; align-items: center; padding: 0 1rem; gap: .4rem; min-width: 0; }
@@ -126,18 +127,20 @@
      l'indicateur sans rien mettre a la place. Le focus se voit desormais sur
      le champ lui-meme. */
   .sf input:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
-  .sf input::placeholder { color: rgba(108, 121, 124, .6); }
+  /* Le placeholder suit le theme : la valeur fixe d'origine tombait a
+     2,2:1 dans les deux modes, sous le seuil AA. */
+  .sf input::placeholder { color: rgba(var(--gris-doux-rgb), .9); }
   .sdiv { width: 1px; height: 1.4rem; background: var(--bord-doux); flex-shrink: 0; }
   .btn-srch { background: linear-gradient(135deg, var(--teal-fond), var(--teal-fonce)); color: var(--blanc); border: none;
-              cursor: pointer; padding: .5rem 1.5rem; border-radius: 9999px; font-weight: 700;
+              cursor: pointer; padding: .5rem 1.5rem; border-radius: .375rem; font-weight: 700;
               font-size: .925rem; font-family: inherit; white-space: nowrap; }
   .btn-srch:hover { filter: brightness(1.08); }
 
   .chips { display: flex; gap: .5rem; overflow-x: auto; padding-bottom: .15rem; }
   .chips::-webkit-scrollbar { display: none; }
   .chip { display: flex; align-items: center; gap: .3rem; padding: .38rem .85rem;
-          border-radius: 9999px; background: var(--surface); color: var(--gris); font-size: .925rem;
-          font-weight: 500; border: 1px solid var(--bord-doux); cursor: pointer;
+          border-radius: .375rem; background: var(--surface); color: var(--gris); font-size: .925rem;
+          font-weight: 500; border: 1px solid var(--bord-carte); cursor: pointer;
           white-space: nowrap; flex-shrink: 0; transition: background .15s; font-family: inherit; }
   /* Le survol d'un filtre doit se VOIR. Le fond de survol est un jeton
    dedie : --teal-survol reste le fond des badges, ou un fond clair le
@@ -431,12 +434,12 @@
                           padding: .65rem 1rem; font-size: .925rem; border-radius: .5rem; }
 
     .hero { padding: 1.5rem 0 1.25rem; }
-    .sbar { flex-direction: column; border-radius: .875rem; padding: .25rem;
+    .sbar { flex-direction: column; border-radius: .625rem; padding: .25rem;
             gap: 0; align-items: stretch; }
     .sf { padding: .3rem .75rem; }
-    .sf.loc-field { border-top: 1px solid rgba(187, 201, 204, .3); }
+    .sf.loc-field { border-top: 1px solid var(--bord-doux); }
     .sdiv { display: none; }
-    .btn-srch { border-radius: .625rem; padding: .5rem 1rem; font-size: .85rem;
+    .btn-srch { border-radius: .375rem; padding: .5rem 1rem; font-size: .85rem;
                 margin: .2rem .1rem .1rem; width: calc(100% - .2rem); text-align: center; }
     .chips { gap: .3rem; }
     .chip { font-size: .825rem; padding: .28rem .7rem; }

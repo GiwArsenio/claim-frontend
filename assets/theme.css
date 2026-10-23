@@ -49,6 +49,7 @@
   --encre-forte: #24363d;    /* valeurs chiffrées, titres de fait */
   --gris: #515f78;           /* texte secondaire */
   --gris-doux: #5c6870;      /* texte tertiaire, dates */
+  --gris-doux-rgb: 92,104,112; /* le meme, en composante : pour un alpha */
   --gris-texte: #3c494c;     /* corps de description */
   --gris-icone: #65747c;     /* icônes secondaires */
   --gris-pale: #bbc9cc;      /* ascenseurs, points vides */
@@ -156,6 +157,7 @@ html[data-theme="nuit"] {
   --encre-forte: #cfdade;
   --gris: #a9b8be;
   --gris-doux: #8b9aa0;
+  --gris-doux-rgb: 139,154,160;
   --gris-texte: #aebcc1;
   --gris-icone: #8b9aa0;
   --gris-pale: #5a6a70;
