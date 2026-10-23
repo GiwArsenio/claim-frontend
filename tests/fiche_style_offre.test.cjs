@@ -114,9 +114,14 @@ assert.ok(variable, 'la page déclare sa largeur de lecture');
 assert.ok(parseFloat(variable[1]) >= 46 * 1.25 - 0.01,
   `la fiche garde au moins la largeur du modèle, majorée de 25 % (lu: ${variable[1]}rem)`);
 assert.ok(dc.includes('padding: 1.5rem 1.25rem 4rem'), 'et ses marges');
-assert.ok(/\.dc \{[\s\S]{0,400}border-radius: \.75rem;/.test(html),
-  'la fiche est une carte : angles arrondis');
-assert.ok(/\.d-entete \{[\s\S]{0,900}border-radius: \.75rem \.75rem 0 0;/.test(html),
+// La fiche est une carte a angles arrondis, et le rayon suit celui du
+// site : .625rem, comme la barre de recherche et les cards de l'accueil.
+const RAYON_CARTE = '.625rem';
+assert.ok(new RegExp('\\.dc \\{[\\s\\S]{0,400}border-radius: \\' + RAYON_CARTE + ';').test(html),
+  `la fiche est une carte : angles arrondis a ${RAYON_CARTE}`);
+// L'en-tete fige coiffe la carte : il en reprend les angles hauts.
+assert.ok(new RegExp('\\.d-entete \\{[\\s\\S]{0,900}border-radius: '
+  + RAYON_CARTE + ' ' + RAYON_CARTE + ' 0 0;').test(html),
   "l'en-tete fige reprend les angles hauts de la carte");
 
 // ── Défilement : l'en-tête de la fiche se fige, et lui seul ──

@@ -125,12 +125,24 @@ for (const selecteur of PARTAGE) {
 }
 
 // La fiche reste une carte blanche, angles arrondis, et son en-tete se fige.
-assert.ok(/\.dc \{[\s\S]{0,300}border-radius: \.75rem;/.test(board),
-  'la fiche reste une carte, angles arrondis');
+//
+// Le rayon suit celui du site : .625rem, comme la barre de recherche et
+// les cards de l'accueil. Le test verifie que les DEUX fiches — celle du
+// board et celle de la page d'offre — portent le meme rayon : c'est la
+// regle qui compte, la valeur seule n'en dit rien.
+const RAYON_CARTE = '.625rem';
+const rayonDc = /\.dc \{\s*background: var\(--surface\);[\s\S]{0,200}?border-radius: ([^;]+);/.exec(board);
+const rayonEnveloppe = /\.enveloppe \{[\s\S]{0,300}?border-radius: ([^;]+);/.exec(offre);
+assert.ok(rayonDc, 'la fiche du board declare un rayon');
+assert.ok(rayonEnveloppe, 'la page d offre declare un rayon');
+assert.equal(rayonDc[1], RAYON_CARTE,
+  `la fiche du board garde la courbure du site (${RAYON_CARTE})`);
+assert.equal(rayonEnveloppe[1], rayonDc[1],
+  'la page d offre et la fiche du board portent le meme rayon');
 assert.ok(/\.d-entete \{[\s\S]{0,400}position: sticky;/.test(board),
   "et son en-tete se fige toujours au defilement");
-assert.ok(/\.enveloppe \{[\s\S]{0,300}border-radius: \.75rem;/.test(offre),
-  "la page d'offre garde sa carte");
+assert.ok(/\.d-entete \{[\s\S]{0,900}border-radius: \.625rem \.625rem 0 0;/.test(board),
+  "l'en-tete fige reprend les angles hauts de la carte");
 
 console.log('Rail de la fiche tests passed —', annuaire.PROFILS.length,
   'profils,', PARTAGE.length, 'selecteurs partages, rail retire');
