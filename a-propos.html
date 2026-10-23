@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>À propos | Claim!</title>
+<meta name="description" content="Claim! relève les offres d'emploi en actuariat et IA dans le secteur assurantiel, et renvoie chaque annonce à sa source d'origine.">
+<link rel="canonical" href="https://claimyourjob.fr/a-propos.html">
+<meta property="og:title" content="À propos | Claim!">
+<meta property="og:description" content="Claim! relève les offres d'emploi en actuariat et IA dans le secteur assurantiel, et renvoie chaque annonce à sa source d'origine.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://claimyourjob.fr/a-propos.html">
+<meta property="og:image" content="https://claimyourjob.fr/assets/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/assets/favicon.png">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<style>
+
+  /* ══ CHARTE COMMUNE — en-tête, pied, pages de contenu ══ */
+  html, body { margin: 0; }
+  body { font-family: 'Inter', system-ui, -apple-system, sans-serif;
+         color: var(--encre); background: var(--fond); line-height: 1.65; }
+
+  #hd { background: var(--teal-fond); position: sticky; top: 0; z-index: 200; }
+  #hd nav { display: flex; justify-content: space-between; align-items: center; padding: .75rem 2rem; }
+  .logo { font-size: 1.5rem; font-weight: 900; color: var(--blanc); letter-spacing: -.05em; text-decoration: none; }
+  .logo:hover { color: var(--blanc-survol); }
+  .nav-links { display: flex; gap: 2rem; }
+  .nav-links a { color: rgba(255, 255, 255, .8); text-decoration: none; font-size: .925rem; font-weight: 600; }
+  .nav-links a:hover { color: var(--blanc); }
+  .nav-links a.on { color: var(--blanc); border-bottom: 2px solid #fff; padding-bottom: 2px; }
+  .nav-links a.on:hover { color: var(--blanc); border-bottom-color: var(--blanc-survol); }
+  .btn-cta { background: var(--surface); color: var(--teal); padding: .45rem 1.2rem; border-radius: .5rem;
+             font-weight: 700; font-size: .925rem; border: none; cursor: pointer; font-family: inherit;
+             white-space: nowrap; text-decoration: none; display: inline-block;
+             transition: background .15s, border-color .15s, color .15s; }
+  .btn-cta:hover { background: var(--teal-survol-element); border-color: var(--teal); color: var(--encre); }
+  .btn-burger { display: none; background: none; border: none; cursor: pointer; padding: .4rem;
+                flex-direction: column; gap: 5px; }
+  .btn-burger span { display: block; width: 22px; height: 2px; background: var(--blanc); border-radius: 2px; }
+
+  /* ── Pied de page ── */
+  #ft { background: var(--teal-fond); color: rgba(255,255,255,.65);
+        padding: 1.25rem 1.375rem 1rem; display: flex; flex-direction: column; gap: .75rem;
+        border-top: 2px solid rgba(255,255,255,.1); }
+  #ft .ft-top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+  #ft .ft-logo { font-size: 1.1rem; font-weight: 900; color: var(--blanc); letter-spacing: -.05em; text-decoration: none; }
+  #ft .ft-logo:hover { color: var(--blanc-survol); }
+  #ft .ft-tagline { font-size: 0.7rem; color: rgba(255,255,255,.5); font-style: italic; margin-top: 1px; }
+  #ft .ft-links { display: flex; gap: .625rem; flex-wrap: wrap; }
+  #ft .ft-links a { color: rgba(255,255,255,.6); text-decoration: none; font-size: 0.7rem; font-weight: 500;
+                    padding: .2rem .5rem; border-radius: .25rem; border: 1px solid rgba(255,255,255,.15);
+                    transition: background .15s, color .15s; }
+  #ft .ft-links a:hover { background: var(--surbrillance); color: var(--blanc); }
+  #ft .ft-divider { height: 1px; background: rgba(255,255,255,.1); }
+  #ft .ft-copy { font-size: 0.65rem; color: rgba(255,255,255,.35); display: flex; align-items: center; gap: .3rem; flex-wrap: wrap; }
+  #ft .ft-copy .heart { color: var(--coeur); font-size: 0.75rem; }
+  #ft .ft-copy a { color: rgba(255,255,255,.6); text-decoration: none; }
+  #ft .ft-copy a:hover { color: var(--blanc); text-decoration: underline; }
+
+  /* ── Menu mobile ── */
+  #burger-menu { display: none; }
+  .bm-panel { background: var(--teal-fond); }
+  .bm-head { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.25rem; }
+  .bm-logo { font-size: 1.3rem; font-weight: 900; color: var(--blanc); letter-spacing: -.05em; text-decoration: none; }
+  .bm-logo:hover { color: var(--blanc-survol); }
+  .bm-close { background: none; border: none; color: var(--blanc); cursor: pointer; font-size: 1.4rem; padding: .2rem; }
+  .bm-nav { flex: 1; display: flex; flex-direction: column; padding: .75rem 0; gap: .1rem; }
+  .bm-nav a { display: flex; align-items: center; gap: .75rem; color: rgba(255, 255, 255, .85);
+              padding: .7rem 1.25rem; text-decoration: none; font-weight: 600; }
+  .bm-nav a.on { color: var(--blanc); background: var(--surbrillance); }
+  .bm-nav a .ms { font-size: 20px; color: rgba(255, 255, 255, .6); }
+  .bm-nav a.on .ms { color: rgba(255, 255, 255, .9); }
+  .bm-footer { padding: 1rem 1.25rem 1.5rem; border-top: 1px solid rgba(255, 255, 255, .12); }
+  .bm-footer .btn-cta { display: flex; width: 100%; justify-content: center; }
+  .bm-mentions { display: flex; gap: 1rem; margin-top: 1rem; flex-wrap: wrap; }
+  .bm-mentions a { color: rgba(255,255,255,.6); font-size: .75rem; text-decoration: none; }
+  .bm-mentions a:hover { color: var(--blanc); text-decoration: underline; }
+
+  /* ── Contenu ── */
+  .enveloppe { max-width: 46rem; margin: 0 auto; padding: 2.5rem 1.25rem 4rem; }
+  .fil { font-size: .8rem; color: var(--gris); margin-bottom: 1.2rem; }
+  .fil a { color: var(--gris); text-decoration: none; }
+  .fil a:hover { color: var(--teal); text-decoration: underline; }
+  h1 { font-size: clamp(1.6rem, 3.5vw, 2.3rem); font-weight: 900; letter-spacing: -.02em;
+       line-height: 1.15; margin: 0 0 .5rem; color: var(--encre); }
+  .chapo { font-size: 1.05rem; color: var(--gris); margin: 0 0 2rem; line-height: 1.6; }
+  h2 { font-size: 1.2rem; font-weight: 800; letter-spacing: -.01em; color: var(--encre);
+       margin: 2.2rem 0 .7rem; padding-top: 1.4rem; border-top: 1px solid var(--bord); }
+  h3 { font-size: 1rem; font-weight: 800; color: var(--encre); margin: 1.5rem 0 .5rem; }
+  p, li { color: var(--gris-texte); font-size: .95rem; }
+  p { margin: 0 0 1rem; line-height: 1.7; }
+  ul, ol { margin: 0 0 1rem; padding-left: 1.3rem; }
+  li { margin-bottom: .45rem; line-height: 1.65; }
+  strong { color: var(--encre); }
+  a { color: var(--teal); }
+  a:hover { color: var(--teal-texte); }
+  .encart { background: var(--surface); border: 1px solid var(--bord); border-radius: .75rem;
+            padding: 1.1rem 1.25rem; margin: 1.5rem 0; }
+  .encart p:last-child { margin-bottom: 0; }
+  .encart-titre { font-weight: 800; color: var(--encre); font-size: .95rem; margin: 0 0 .35rem; }
+  .carte { background: var(--surface); border: 1px solid var(--bord); border-radius: .75rem;
+           padding: 1.25rem 1.4rem; margin: 1.2rem 0; }
+  .carte h3 { margin-top: 0; }
+  .liste-def { display: grid; gap: .1rem; margin: 0 0 1.2rem; }
+  .liste-def div { display: grid; grid-template-columns: 11rem minmax(0,1fr); gap: 1rem;
+                   padding: .55rem 0; border-bottom: 1px solid var(--bord); }
+  .liste-def dt { font-weight: 700; color: var(--encre); font-size: .9rem; }
+  .liste-def dd { margin: 0; color: var(--gris-texte); font-size: .9rem; }
+  .bouton { display: inline-block; background: var(--teal-fond); color: var(--blanc);
+            padding: .65rem 1.4rem; border-radius: .5rem; font-weight: 700; font-size: .95rem;
+            text-decoration: none; border: 1px solid var(--teal-fond);
+            transition: background .15s, border-color .15s; }
+  .bouton:hover { background: var(--teal-aplat-survol); border-color: var(--teal-aplat-survol); color: var(--blanc); }
+  .form-ligne { display: grid; gap: .35rem; margin-bottom: 1rem; }
+  .form-ligne label { font-weight: 700; color: var(--encre); font-size: .9rem; }
+  .form-ligne input, .form-ligne textarea { font: inherit; font-size: .95rem; padding: .65rem .8rem;
+    border: 1px solid var(--bord-fort); border-radius: .5rem; background: var(--surface); color: var(--encre); }
+  .form-ligne input:focus-visible, .form-ligne textarea:focus-visible { outline: 2px solid var(--teal); outline-offset: 1px; }
+  .form-ligne textarea { min-height: 9rem; resize: vertical; }
+  .aide { font-size: .85rem; color: var(--gris-doux); margin: -.5rem 0 1rem; }
+
+  @media (max-width: 768px) {
+    #hd nav { padding: .6rem 1rem; }
+    .nav-links, .btn-cta { display: none; }
+    .btn-burger { display: flex; }
+    #burger-menu { display: block; position: fixed; inset: 0; z-index: 300; pointer-events: none; }
+    #burger-menu.open { pointer-events: all; }
+    .bm-overlay { position: absolute; inset: 0; background: rgba(0,0,0,.5); opacity: 0; transition: opacity .2s; }
+    #burger-menu.open .bm-overlay { opacity: 1; }
+    .bm-panel { position: absolute; top: 0; right: 0; bottom: 0; width: min(20rem, 86vw);
+                display: flex; flex-direction: column; transform: translateX(100%);
+                transition: transform .25s cubic-bezier(.4,0,.2,1); }
+    #burger-menu.open .bm-panel { transform: translateX(0); }
+    .enveloppe { padding: 1.75rem 1.1rem 3rem; }
+    .liste-def div { grid-template-columns: 1fr; gap: .15rem; }
+    h2 { margin-top: 1.8rem; }
+  }
+</style>
+<link rel="stylesheet" href="/assets/theme.css">
+<script>(function(){try{var t=localStorage.getItem('claim-theme');if(t==='nuit'||(!t&&window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.setAttribute('data-theme','nuit');}}catch(e){}})();</script>
+<script src="/assets/theme.js" defer></script>
+</head>
+<body>
+  <header id="hd">
+    <nav>
+      <div style="display:flex;align-items:center;gap:2.5rem;">
+        <a class="logo" href="/">Claim!</a>
+        <div class="nav-links">
+          <a href="/job-board.html">Offres d'emploi</a>
+          <a href="/claim-entreprises.html">Entreprises</a>
+          <a href="/claim-observatoire.html">Observatoire de l'assurance</a>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:.75rem;">
+        <a class="btn-cta" href="/contact.html">Contactez-nous</a>
+        <button class="btn-burger" id="btn-burger" onclick="toggleBurger()" aria-label="Menu" aria-expanded="false" aria-controls="burger-menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </nav>
+  </header>
+<main class="enveloppe">
+  <nav class="fil" aria-label="Fil d'Ariane"><a href="/">Accueil</a> › À propos</nav>
+
+  <h1>À propos de Claim!</h1>
+  <p class="chapo">Claim! est un relevé d'offres d'emploi, pas un forum d'emploi. Chaque annonce
+     est relevée sur le site carrière de l'employeur ou sur la plateforme qui la publie, et
+     chaque fiche renvoie à l'annonce d'origine.</p>
+
+  <h2>Ce que fait Claim!</h2>
+  <p>Le service relève quotidiennement les offres publiées par les employeurs du secteur
+     assurantiel — assureurs, mutuelles, réassureurs, courtiers et cabinets de conseil
+     actuariel — sur leurs sites carrières et sur les plateformes de recrutement qu'ils
+     utilisent. Les annonces sont classées par spécialité, par contrat et par niveau
+     d'expérience, et le relevé est consultable librement.</p>
+
+  <h2>Ce que Claim! ne fait pas</h2>
+  <div class="encart">
+    <p class="encart-titre">Aucune candidature ne transite par ce site.</p>
+    <p>Le bouton « Postuler » d'une fiche d'offre ouvre l'annonce publiée par l'employeur.
+       Claim! ne reçoit pas de candidature, ne conserve aucune donnée de candidat et ne
+       propose aucun parcours de candidature. C'est une règle du site, pas une promesse.</p>
+  </div>
+  <ul>
+    <li><strong>Aucune candidature n'est collectée.</strong> Claim! ne propose ni formulaire
+        de candidature, ni espace candidat, ni suivi de candidature.</li>
+    <li><strong>Aucune donnée personnelle n'est stockée</strong> relative aux personnes qui
+        consultent le site.</li>
+    <li><strong>Chaque annonce renvoie à sa source.</strong> Le lien « l'annonce d'origine »
+        mène à la page publiée par l'employeur, sur le site qui l'a produite.</li>
+  </ul>
+
+  <h2>Les sources</h2>
+  <p>Le relevé agrège les sites carrières des employeurs et les plateformes de recrutement
+     qu'ils utilisent. Certains logos d'employeurs proviennent de
+     <a href="https://hunter.io" rel="noopener" target="_blank">Hunter.io</a>, dont l'usage
+     gratuit est conditionné à la mention d'un lien de retour — il figure en bas des fiches
+     concernées.</p>
+
+  <h2>Comment corriger une fiche</h2>
+  <p>Une offre mal relevée, une entreprise manquante, un lien périmé : signalez-le. Le relevé
+     est refait chaque jour, et une correction est en ligne au cycle suivant.</p>
+  <p><a class="bouton" href="/contact.html">Signaler une correction</a></p>
+
+  <h2>Le nom</h2>
+  <p>Claim! se lit « Claim your job » : prendre sa chance, en langage du recrutement. Le
+     service s'adresse à celles et ceux qui cherchent dans le secteur du risque : actuaires,
+     data scientists, profils IA — et à ceux qui les embauchent.</p>
+</main>
+  <footer id="ft">
+    <div class="ft-top">
+      <div>
+        <a class="ft-logo" href="/">Claim!</a>
+        <div class="ft-tagline">pour les actuaires, data scientists &amp; profils IA</div>
+      </div>
+      <div class="ft-links">
+        <a href="/a-propos.html">À propos</a>
+        <a href="/cgu.html">CGU</a>
+        <a href="/confidentialite.html">Confidentialité</a>
+        <a href="/contact.html">Contact</a>
+      </div>
+    </div>
+    <div class="ft-divider"></div>
+    <div class="ft-copy">
+      <span>© 2026 Claim your job</span>
+      <span>·</span>
+      <span>Fait avec <span class="heart">♥</span> pour les experts du risque assurantiel</span>
+      <span>·</span>
+      <span>Logos : <a href="https://hunter.io" rel="noopener" target="_blank">Hunter.io</a></span>
+    </div>
+  </footer>
+  <div id="burger-menu">
+    <div class="bm-overlay" onclick="closeBurger()"></div>
+    <div class="bm-panel">
+      <div class="bm-head">
+        <a class="bm-logo" href="/" onclick="closeBurger()">Claim!</a>
+        <button class="bm-close" onclick="closeBurger()" aria-label="Fermer le menu">
+          <span class="ms">close</span>
+        </button>
+      </div>
+      <nav class="bm-nav" aria-label="Navigation principale">
+        <a href="/" onclick="closeBurger()"><span class="ms">home</span>Accueil</a>
+        <a href="/job-board.html" onclick="closeBurger()"><span class="ms">work</span>Offres d'emploi</a>
+        <a href="/claim-entreprises.html" onclick="closeBurger()"><span class="ms">business</span>Entreprises</a>
+        <a href="/claim-observatoire.html" onclick="closeBurger()"><span class="ms">bar_chart</span>Observatoire de l'assurance</a>
+      </nav>
+      <div class="bm-footer">
+        <a class="btn-cta" href="/contact.html" onclick="closeBurger()">Contactez-nous</a>
+        <div class="bm-mentions">
+          <a href="/a-propos.html" onclick="closeBurger()">À propos</a>
+          <a href="/cgu.html" onclick="closeBurger()">CGU</a>
+          <a href="/confidentialite.html" onclick="closeBurger()">Confidentialité</a>
+        </div>
+      </div>
+    </div>
+  </div>
+<script>
+
+function toggleBurger() {
+  var m = document.getElementById('burger-menu');
+  var b = document.getElementById('btn-burger');
+  if (!m) return;
+  var ouvert = m.classList.toggle('open');
+  if (b) b.setAttribute('aria-expanded', ouvert ? 'true' : 'false');
+  document.body.style.overflow = ouvert ? 'hidden' : '';
+}
+function closeBurger() {
+  var m = document.getElementById('burger-menu');
+  var b = document.getElementById('btn-burger');
+  if (m) m.classList.remove('open');
+  if (b) b.setAttribute('aria-expanded', 'false');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape') closeBurger();
+});
+</script>
+</body>
+</html>
