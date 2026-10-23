@@ -9,13 +9,24 @@
  * blanc, et les pastilles conservaient leur fond clair.
  *
  * Usage : node tests/theme.test.cjs
- * Prérequis : le serveur static tourne sur le port 8099.
+ *
+ * Le serveur est demarre par le test lui-meme, sur un port libre obtenu par
+ * le systeme. Avant, le fichier exigeait un serveur deja tourne sur le port
+ * 8099 : lance seul, il echouait sur une connexion refusee, et un resultat
+ * rouge ne distinguait pas un defaut du theme d'un environnement oublie.
  */
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const { chromium } = require('playwright');
 
-const BASE = process.env.CLAIM_BASE || 'http://127.0.0.1:8099';
+const aide = require('./aide-parcours.cjs');
+
+/* La base du serveur : soit celle imposee par l'environnement, soit celle
+   du serveur que le test a demarre. La lire au moment de l'usage evite un
+   ecrasement : BASE etait figee au chargement du fichier. */
+function base() {
+  return process.env.CLAIM_BASE || aide.BASE;
+}
 
 const PAGES = [
   { nom: 'accueil', url: '/index.html' },
@@ -85,6 +96,16 @@ async function nouvellePage(browser, format) {
     locale: 'fr-FR',
     colorScheme: 'light',
   });
+
+  /* Le backend simule repond a la place de la production : le test du theme
+     ne doit dependre d'aucun service externe, ni de l'etat de la production
+     au moment de l'execution. */
+  if (!process.env.CLAIM_BASE) {
+    await ctx.addInitScript((b) => {
+      window.CLAIM_API_BASE = b + '/api/v1';
+    }, aide.BASE);
+  }
+
   const page = await ctx.newPage();
   return { ctx, page };
 }
@@ -97,12 +118,29 @@ async function attendreStabilite(page) {
 
 /* ── Tests ───────────────────────────────────────────────────────────────── */
 
+/* Le serveur est demarre une fois pour toute la suite, puis arrete. Chaque
+   test conserve son navigateur : seul l'etat du serveur est partage. */
+let serveurPret = false;
+
+test.before(async () => {
+  if (!process.env.CLAIM_BASE) {
+    await aide.demarrerServeur();
+  }
+  serveurPret = true;
+});
+
+test.after(async () => {
+  if (serveurPret && !process.env.CLAIM_BASE) {
+    await aide.arreterServeur();
+  }
+});
+
 test('la bascule pose et retire l’attribut de thème', async () => {
   const browser = await chromium.launch();
   try {
     for (const format of FORMATS) {
       const { ctx, page } = await nouvellePage(browser, format);
-      await page.goto(BASE + '/index.html', { waitUntil: 'domcontentloaded' });
+      await page.goto(base() + '/index.html', { waitUntil: 'domcontentloaded' });
       await attendreStabilite(page);
 
       const bouton = page.locator('.bascule-theme').first();
@@ -133,7 +171,7 @@ test('la préférence survit à un rechargement', async () => {
   const browser = await chromium.launch();
   try {
     const { ctx, page } = await nouvellePage(browser, FORMATS[0]);
-    await page.goto(BASE + '/index.html', { waitUntil: 'domcontentloaded' });
+    await page.goto(base() + '/index.html', { waitUntil: 'domcontentloaded' });
     await attendreStabilite(page);
 
     await page.locator('.bascule-theme').first().click();
@@ -163,7 +201,7 @@ test('aucune surface ne reste claire en mode nuit', async () => {
     for (const p of PAGES) {
       for (const format of FORMATS) {
         const { ctx, page } = await nouvellePage(browser, format);
-        await page.goto(BASE + p.url, { waitUntil: 'domcontentloaded' });
+        await page.goto(base() + p.url, { waitUntil: 'domcontentloaded' });
         await attendreStabilite(page);
 
         await page.locator('.bascule-theme').first().click();
@@ -219,7 +257,7 @@ test('tout texte reste lisible en mode nuit', async () => {
     for (const p of PAGES) {
       for (const format of FORMATS) {
         const { ctx, page } = await nouvellePage(browser, format);
-        await page.goto(BASE + p.url, { waitUntil: 'domcontentloaded' });
+        await page.goto(base() + p.url, { waitUntil: 'domcontentloaded' });
         await attendreStabilite(page);
 
         await page.locator('.bascule-theme').first().click();
@@ -287,7 +325,7 @@ test('le mode jour garde ses surfaces claires', async () => {
   try {
     for (const p of PAGES) {
       const { ctx, page } = await nouvellePage(browser, FORMATS[0]);
-      await page.goto(BASE + p.url, { waitUntil: 'domcontentloaded' });
+      await page.goto(base() + p.url, { waitUntil: 'domcontentloaded' });
       await attendreStabilite(page);
 
       /* Seules les surfaces de contenu sont verifiees. Les aplats de marque
@@ -339,7 +377,7 @@ test('le bandeau de consentement reste lisible dans les deux thèmes', async () 
   try {
     for (const theme of ['jour', 'nuit']) {
       const { ctx, page } = await nouvellePage(browser, FORMATS[0]);
-      await page.goto(BASE + '/index.html', { waitUntil: 'domcontentloaded' });
+      await page.goto(base() + '/index.html', { waitUntil: 'domcontentloaded' });
       await attendreStabilite(page);
 
       if (theme === 'nuit') {
