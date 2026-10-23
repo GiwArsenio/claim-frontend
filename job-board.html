@@ -80,10 +80,15 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
 
 .sbar { display: flex; align-items: center; background: var(--surface); border-radius: 9999px; padding: .3rem; max-width: 50rem; box-shadow: 0 1px 4px rgba(0,0,0,.07); margin-bottom: .5rem; }
 .sf { flex: 1; display: flex; align-items: center; padding: 0 1rem; gap: .4rem; }
-.sf input { width: 100%; border: none; outline: none; background: transparent; font-family: inherit; font-size: 0.925rem; color: var(--encre); }
+.sf input { width: 100%; border: none; outline: none; background: transparent; font-family: inherit; font-size: 0.925rem; color: var(--encre);
+           border-radius: 4px; }
+/* Le champ disparaissait du parcours clavier : `outline: none` supprimait
+   l'indicateur sans rien mettre a la place. Le focus se voit desormais sur
+   le champ lui-meme. */
+.sf input:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
 .sf input::placeholder { color: rgba(108,121,124,.6); }
 .sdiv { width: 1px; height: 1.4rem; background: rgba(187,201,204,.35); flex-shrink: 0; }
-.btn-srch { background: linear-gradient(135deg,var(--teal),var(--teal-vif)); color: var(--blanc); border: none; cursor: pointer; padding: .5rem 1.5rem; border-radius: 9999px; font-weight: 700; font-size: 0.925rem; white-space: nowrap; }
+.btn-srch { background: linear-gradient(135deg,var(--teal-fond),var(--teal-fonce)); color: var(--blanc); border: none; cursor: pointer; padding: .5rem 1.5rem; border-radius: 9999px; font-weight: 700; font-size: 0.925rem; white-space: nowrap; }
 
 .chips { display: flex; gap: .5rem; overflow-x: auto; padding-bottom: .15rem; }
 .chips::-webkit-scrollbar { display: none; }
@@ -740,7 +745,7 @@ en documentation).
 <div id="app">
 
   <!-- ══ HEADER ══ -->
-  <div id="hd">
+  <header id="hd">
     <nav>
       <div style="display:flex;align-items:center;gap:2.5rem;">
         <a class="logo" href="/">Claim!</a>
@@ -758,7 +763,7 @@ en documentation).
         </button>
       </div>
     </nav>
-  </div>
+  </header>
 
   <!-- ══ HERO ══ -->
   <div id="hero">
@@ -767,30 +772,30 @@ en documentation).
     <div class="sbar">
       <div class="sf">
         <span class="ms" style="color:var(--gris-doux);font-size:17px;">search</span>
-        <input id="q-input" type="text" placeholder="Mots-clés (e.g. Actuaire, Data Scientist)"/>
+        <input id="q-input" type="text" placeholder="Mots-clés (e.g. Actuaire, Data Scientist)" aria-label="Mots-clés"/>
       </div>
       <div class="sdiv"></div>
       <div class="sf loc-field">
         <span class="ms" style="color:var(--gris-doux);font-size:17px;">location_on</span>
-        <input id="city-input" type="text" placeholder="Localisation"/>
+        <input id="city-input" type="text" placeholder="Localisation" aria-label="Localisation"/>
       </div>
       <button class="btn-srch" onclick="applySearch()">Rechercher</button>
     </div>
     <div class="chips">
-      <select id="contract-filter" class="chip" onchange="applyFilters()"><option value="">Type de contrat</option><option value="cdi">CDI</option><option value="cdd">CDD</option><option value="alternance">Alternance</option><option value="stage">Stage</option><option value="vie">V.I.E</option><option value="freelance">Freelance</option></select>
-      <select id="specialty-filter" class="chip" onchange="applyFilters()"><option value="">Spécialité</option><option value="actuariat">Actuariat</option><option value="souscription_technique">Souscription technique</option><option value="ia_data">IA / Data</option></select>
-      <select id="experience-filter" class="chip" onchange="applyFilters()"><option value="">Expérience</option><option value="junior">Junior</option><option value="confirmed">Confirmé</option><option value="senior">Senior</option><option value="lead">Lead</option></select>
-      <select id="date-filter" class="chip" onchange="applyFilters()"><option value="">Date de publication</option><option value="1">Moins de 24 h</option><option value="7">7 derniers jours</option><option value="14">14 derniers jours</option></select>
-      <select id="ats-filter" class="chip" onchange="applyFilters()"><option value="">Source ATS</option><option value="workday">Workday</option><option value="smartrecruiters">SmartRecruiters</option><option value="talentsoft">TalentSoft</option><option value="custom">Custom</option><option value="magnet">Magnet</option><option value="greenhouse">Greenhouse</option><option value="ashby">Ashby</option><option value="successfactors">SuccessFactors</option><option value="radancy">Radancy</option><option value="groupama">Groupama</option><option value="oracle_hcm">Oracle HCM</option></select>
+      <select id="contract-filter" class="chip" aria-label="Type de contrat" onchange="applyFilters()"><option value="">Type de contrat</option><option value="cdi">CDI</option><option value="cdd">CDD</option><option value="alternance">Alternance</option><option value="stage">Stage</option><option value="vie">V.I.E</option><option value="freelance">Freelance</option></select>
+      <select id="specialty-filter" class="chip" aria-label="Spécialité" onchange="applyFilters()"><option value="">Spécialité</option><option value="actuariat">Actuariat</option><option value="souscription_technique">Souscription technique</option><option value="ia_data">IA / Data</option></select>
+      <select id="experience-filter" class="chip" aria-label="Expérience" onchange="applyFilters()"><option value="">Expérience</option><option value="junior">Junior</option><option value="confirmed">Confirmé</option><option value="senior">Senior</option><option value="lead">Lead</option></select>
+      <select id="date-filter" class="chip" aria-label="Date de publication" onchange="applyFilters()"><option value="">Date de publication</option><option value="1">Moins de 24 h</option><option value="7">7 derniers jours</option><option value="14">14 derniers jours</option></select>
+      <select id="ats-filter" class="chip" aria-label="Source ATS" onchange="applyFilters()"><option value="">Source ATS</option><option value="workday">Workday</option><option value="smartrecruiters">SmartRecruiters</option><option value="talentsoft">TalentSoft</option><option value="custom">Custom</option><option value="magnet">Magnet</option><option value="greenhouse">Greenhouse</option><option value="ashby">Ashby</option><option value="successfactors">SuccessFactors</option><option value="radancy">Radancy</option><option value="groupama">Groupama</option><option value="oracle_hcm">Oracle HCM</option></select>
       <button class="chip" onclick="resetFilters()"><span class="ms" style="font-size:13px;">restart_alt</span>Réinitialiser</button>
       
     </div>
   </div>
 
   <!-- ══ SPLIT PANE ══ -->
-  <div id="split">
+  <main id="split">
     <div class="pl">
-      <div class="pl-hd">Chargement…</div>
+      <div class="pl-hd" role="status" aria-live="polite">Chargement…</div>
       <div class="feed" id="feed"></div>
       <!-- Footer riche, visible après scroll des cards -->
       <div id="ft">
@@ -821,14 +826,16 @@ en documentation).
       <!-- Bouton retour mobile (injecté par JS) -->
       <div id="detail"></div>
     </div>
-  </div>
+  </main>
 
 </div>
 
 <script src="/assets/companies-data.js"></script>
 <script>
 // ── Configuration ──────────────────────────────────────────────────────────
-const API_BASE    = 'https://claim-api-production-06b3.up.railway.app/api/v1';
+const API_BASE    = (typeof CLAIM_API_BASE === 'string' && CLAIM_API_BASE)
+  ? CLAIM_API_BASE
+  : 'https://claim-api-production-06b3.up.railway.app/api/v1';
 const PAGE_SIZE   = 20;   // offres affichées par page (Load More)
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -876,6 +883,12 @@ const COMPANY_QUERY_ALIASES = {
 // porter la même couleur sur la carte, sur la fiche et sur la page d'offre.
 function companyColor(slug) {
   return (typeof CLAIM_ENTREPRISES !== 'undefined') ? CLAIM_ENTREPRISES.couleurEntreprise(slug) : 'var(--teal)';
+}
+// Le texte des initiales se lit sur la teinte de l'employeur : sur une teinte
+// claire, le blanc serait illisible.
+function companyTextColor(tint) {
+  return (typeof CLAIM_ENTREPRISES !== 'undefined' && CLAIM_ENTREPRISES.couleurTexteSurTeinte)
+    ? CLAIM_ENTREPRISES.couleurTexteSurTeinte(tint) : 'var(--blanc)';
 }
 function companyInitials(name) {
   return (typeof CLAIM_ENTREPRISES !== 'undefined') ? CLAIM_ENTREPRISES.initiales(name)
@@ -1503,6 +1516,17 @@ function renderFeed() {
 
     const el = document.createElement('div');
     el.className = 'jc' + (j.id === activeId ? ' on' : '');
+    /* L'identifiant de l'offre est expose dans le DOM. Sans lui, on ne peut
+       pas verifier qu'une offre n'est pas repetee a la pagination, ni
+       previsualiser quelle offre on ouvre. */
+    el.dataset.id = j.id;
+    /* La carte est un bouton : elle s'active au clavier et se declare
+       comme telle. Elle ne porte PAS d'aria-label : son contenu visible
+       — le titre de l'offre — est son nom accessible. Imposer un libelle
+       a cote du contenu visible viole la regle 2.5.3 (Label in Name),
+       qui exige que le nom accessible contienne le texte visible. */
+    el.setAttribute('role', 'button');
+    el.setAttribute('tabindex', '0');
 
     // Préchargement : le survol donne à l'API le temps de répondre avant le
     // clic. Sur écran tactile, pointerdown joue ce rôle.
@@ -1515,6 +1539,16 @@ function renderFeed() {
       clearTimeout(minuteurPrechargement);
       prechargerDetail(j.id);
     });
+    /* Une carte est un bouton : elle s'active au clavier aussi. Sans cela,
+       la carte annonce « button » au lecteur d'ecran mais reste hors
+       d'atteinte de l'utilisateur clavier. */
+    el.onkeydown = (ev) => {
+      if (ev.key === 'Enter' || ev.key === ' ') {
+        ev.preventDefault();
+        el.click();
+      }
+    };
+
     el.onclick = async () => {
       activeId = j.id;
       // Sélection dans la liste. Distincte de l'ouverture automatique de la

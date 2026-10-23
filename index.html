@@ -113,10 +113,15 @@
           margin-bottom: .5rem; }
   .sf { flex: 1; display: flex; align-items: center; padding: 0 1rem; gap: .4rem; min-width: 0; }
   .sf input { width: 100%; border: none; outline: none; background: transparent;
-              font-family: inherit; font-size: .925rem; color: var(--encre); }
+              font-family: inherit; font-size: .925rem; color: var(--encre);
+              border-radius: 4px; }
+  /* Le champ disparaissait du parcours clavier : `outline: none` supprimait
+     l'indicateur sans rien mettre a la place. Le focus se voit desormais sur
+     le champ lui-meme. */
+  .sf input:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
   .sf input::placeholder { color: rgba(108, 121, 124, .6); }
   .sdiv { width: 1px; height: 1.4rem; background: var(--bord-doux); flex-shrink: 0; }
-  .btn-srch { background: linear-gradient(135deg, var(--teal), var(--teal-vif)); color: var(--blanc); border: none;
+  .btn-srch { background: linear-gradient(135deg, var(--teal-fond), var(--teal-fonce)); color: var(--blanc); border: none;
               cursor: pointer; padding: .5rem 1.5rem; border-radius: 9999px; font-weight: 700;
               font-size: .925rem; font-family: inherit; white-space: nowrap; }
   .btn-srch:hover { filter: brightness(1.08); }
@@ -139,7 +144,7 @@
      se réduisent à un rôle d'étiquette. La séparation entre colonnes est un
      filet qui s'efface à ses extrémités — elle sépare sans découper. */
   .chiffres { border-bottom: 1px solid var(--bord); background: var(--surface); }
-  .chiffres dl { display: grid; grid-template-columns: repeat(4, 1fr);
+  .chiffres dl { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
                  margin: 0; padding: .55rem 0 .65rem; }
   .chiffres dl > div { position: relative; padding: 0 1.6rem; }
   .chiffres dl > div:first-child { padding-left: 0; }
@@ -156,9 +161,15 @@
   .chiffres dt.attente { color: var(--bord); }
   .chiffres dd { display: flex; align-items: center; gap: .4rem; margin: .38rem 0 0;
                  font-size: .69rem; font-weight: 700; letter-spacing: .085em;
-                 color: var(--gris-doux); text-transform: uppercase; }
+                 color: var(--gris-doux); text-transform: uppercase;
+                 /* Sans cela, la colonne ne peut pas descendre sous la largeur
+                    de son libelle : sur un telephone de 360 px, la grille des
+                    chiffres forcait le document a 376 px, et une barre de
+                    defilement horizontale apparait. `min-width: 0` autorise le
+                    retrait ; le libelle passe alors a la ligne. */
+                 min-width: 0; flex-wrap: wrap; }
   .chiffres dd .ms { font-size: 15px; color: var(--teal); opacity: .9;
-                     font-variation-settings: 'wght' 300; }
+                     font-variation-settings: 'wght' 300; flex-shrink: 0; }
 
   /* ── PANNEAUX DE SECTION ──
      Deux sections portaient leur contenu à même le fond blanc : elles se
@@ -345,7 +356,7 @@
     .env { padding: 0 1.25rem; }
     /* Deux colonnes : le filet de gauche ne vaut que pour la seconde, et
        les chiffres du premier rang gardent leur accolade. */
-    .chiffres dl { grid-template-columns: repeat(2, 1fr); gap: 1.5rem 0; }
+    .chiffres dl { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem 0; }
     .chiffres dl > div { padding: 0 1.1rem; }
     .chiffres dl > div:nth-child(odd) { padding-left: 0; }
     .chiffres dl > div:nth-child(odd)::before { display: none; }
@@ -549,7 +560,7 @@ en documentation).
 </head>
 <body>
 
-<div class="hd">
+<header class="hd">
   <nav>
     <div style="display:flex;align-items:center;gap:2.5rem;">
       <a class="logo" href="/">Claim!</a>
@@ -566,10 +577,9 @@ en documentation).
       </button>
     </div>
   </nav>
-</div>
-  </nav>
-</div>
+</header>
 
+<main id="contenu">
 <div class="hero">
   <div class="env">
     <h1>Toutes les offres en <em>actuariat</em>, <em>data</em> et <em>IA</em> en assurance.</h1>
@@ -583,12 +593,12 @@ en documentation).
         <form class="sbar" action="/job-board.html" method="get">
       <div class="sf">
         <span class="ms" style="color:var(--gris-doux);font-size:17px;">search</span>
-        <input id="q" name="q" type="text" placeholder="Mots-clés (e.g. Actuaire, Data Scientist)" autocomplete="off"/>
+        <input id="q" name="q" type="text" placeholder="Mots-clés (e.g. Actuaire, Data Scientist)" autocomplete="off" aria-label="Mots-clés"/>
       </div>
       <div class="sdiv"></div>
       <div class="sf loc-field">
         <span class="ms" style="color:var(--gris-doux);font-size:17px;">location_on</span>
-        <input id="ville" name="ville" type="text" placeholder="Localisation" autocomplete="off"/>
+        <input id="ville" name="ville" type="text" placeholder="Localisation" autocomplete="off" aria-label="Localisation"/>
       </div>
       <button class="btn-srch" type="submit">Rechercher</button>
     </form>
@@ -747,7 +757,8 @@ en documentation).
   </div>
 </section>
 
-<div class="pied">
+</main>
+<footer class="pied">
   <div class="env">
     <div class="haut">
       <div>
@@ -766,7 +777,7 @@ en documentation).
       </p>
     </div>
   </div>
-</div>
+</footer>
 
 <script src="/assets/companies-data.js"></script>
 <script type="application/ld+json">
@@ -786,7 +797,9 @@ en documentation).
 </script>
 <script>
 // ── Configuration ──────────────────────────────────────────────────────────
-const API_BASE = 'https://claim-api-production-06b3.up.railway.app/api/v1';
+const API_BASE = (typeof CLAIM_API_BASE === 'string' && CLAIM_API_BASE)
+  ? CLAIM_API_BASE
+  : 'https://claim-api-production-06b3.up.railway.app/api/v1';
 
 const CONTRATS = { cdi: 'CDI', cdd: 'CDD', alternance: 'Alternance', stage: 'Stage',
                    freelance: 'Freelance', interim: 'Intérim', vie: 'V.I.E', autre: 'Non précisé' };
@@ -795,6 +808,10 @@ const echapper = (v) => String(v == null ? '' : v).replace(/[&<>"']/g,
   (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
 const couleur = (slug) => (annuaire ? annuaire.couleurEntreprise(slug) : 'var(--teal)');
+// Le texte des initiales se lit sur la teinte de l'employeur : sur une teinte
+// claire, le blanc serait illisible.
+const couleurTexte = (teinte) => (annuaire && annuaire.couleurTexteSurTeinte
+  ? annuaire.couleurTexteSurTeinte(teinte) : 'var(--blanc)');
 
 // ── Cartes : le rendu du board ─────────────────────────────────────────────
 // La carte de l'accueil est celle du board, au paramètre de grille près. Les
@@ -1021,6 +1038,7 @@ async function chargerOffres() {
 function tuileEmployeur(p) {
     const nom = echapper(p.nom);
     const fond = echapper(couleur(p.slug));
+    const encre = echapper(couleurTexte(fond));
     const inits = echapper(initiales(p.nom));
     const logo = annuaire.logoEntreprise ? annuaire.logoEntreprise(p.slug) : null;
     // Sans logo, la tuile affiche ses initiales sur la teinte — c'est le
@@ -1030,11 +1048,11 @@ function tuileEmployeur(p) {
     // carré coloré derrière la marque. Elle reste donc dans un span qui
     // s'efface au chargement de l'image — et qui réapparaît si elle casse.
     const dedans = logo
-      ? '<span class="sigle-repli" style="background:' + fond + '">' + inits + '</span>'
+      ? '<span class="sigle-repli" style="background:' + fond + ';color:' + encre + '">' + inits + '</span>'
         + '<img src="' + echapper(logo) + '" alt="" aria-hidden="true" '
         + 'onerror="this.remove()" onload="this.previousElementSibling.remove()"/>'
       : inits;
-    const teinte = logo ? '' : ' style="background:' + fond + '"';
+    const teinte = logo ? '' : ' style="background:' + fond + ';color:' + encre + '"';
     // Le nom n'est pas rendu : la bande ne montre que les logos. Il reste
     // porté par le titre et par `aria-label`, donc lisible au survol et par
     // un lecteur d'écran. La tuile n'est plus un lien : elle ne renvoie plus

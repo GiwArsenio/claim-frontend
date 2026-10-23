@@ -19,8 +19,13 @@
     bouton.setAttribute('aria-label', libelle);
     bouton.title = libelle;
     bouton.setAttribute('aria-pressed', theme === 'nuit' ? 'true' : 'false');
+    /* L'icone passe par le pseudo-element CSS : son nom ne vit pas dans le
+       DOM. Un `aria-label` « Passer en version nuit » et un texte visible
+       « dark_mode » divergeaient : la regle 2.5.3 (Label in Name) exige que
+       le texte visible figure dans le nom accessible. `aria-hidden` ne
+       suffisait pas : il retire la prononciation, pas le rendu. */
     var icone = bouton.querySelector('.ms');
-    if (icone) icone.textContent = theme === 'nuit' ? 'light_mode' : 'dark_mode';
+    if (icone) icone.setAttribute('data-icone', theme === 'nuit' ? 'light_mode' : 'dark_mode');
   }
 
   function basculer() {
@@ -35,7 +40,8 @@
     var bouton = document.createElement('button');
     bouton.type = 'button';
     bouton.className = 'bascule-theme';
-    bouton.innerHTML = '<span class="ms" aria-hidden="true">dark_mode</span>';
+    /* Le contenu du bouton est vide : l'icone est un pseudo-element. */
+    bouton.innerHTML = '<span class="ms" aria-hidden="true" data-icone="dark_mode"></span>';
     bouton.addEventListener('click', basculer);
 
     var nav = document.querySelector('.hd nav') || document.querySelector('#hd nav');

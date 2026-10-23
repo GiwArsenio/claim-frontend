@@ -392,6 +392,40 @@
     return COULEURS_INDEX[cle(slug)] || TEAL;
   }
 
+  // Luminance relative d'une couleur, pour choisir entre texte clair et
+  // texte sombre sur la tuile d'un employeur.
+  function luminance(hex) {
+    var m = /^#?([0-9a-f]{6})$/i.exec(String(hex || '').trim());
+    if (!m) return 0;
+    var n = parseInt(m[1], 16);
+    var r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+    function f(v) {
+      v /= 255;
+      return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+    }
+    return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+  }
+
+  // Le rapport de contraste entre deux couleurs, selon la formule WCAG.
+  function contraste(a, b) {
+    var la = luminance(a), lb = luminance(b);
+    return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
+  }
+
+  /* La couleur du texte des initiales, lue sur la teinte de l'employeur.
+     Sur une teinte claire — le vert BNP, l'orange Pro BTP — le blanc est
+     illisible : les initiales se lisaient a 3,65:1, sous le seuil.
+
+     On ne se guide pas sur un seuil de luminance : le vert BNP pese 0,24,
+     tres loin des seuil usuels, et le blanc y echoue. On compare les DEUX
+     contrastes et on garde le meilleur. Sur les vingt teintes de la table,
+     le resultat est toujours au-dessus de 4,5:1. */
+  function couleurTexteSurTeinte(teinte) {
+    var clair = contraste(teinte, '#FFFFFF');
+    var sombre = contraste(teinte, '#14181A');
+    return sombre > clair ? '#14181A' : '#FFFFFF';
+  }
+
   // Les initiales se lisent sur la tuile de repli, quand le logo manque ou
   // n'a pas encore été chargé. On ne garde que des mots portant une lettre
   // ou un chiffre : « Groupama / Gan » doit donner « GG », pas « G/ ».
@@ -763,6 +797,7 @@
     PROFILS: PROFILS,
     profilEntreprise: profilEntreprise,
     couleurEntreprise: couleurEntreprise,
+    couleurTexteSurTeinte: couleurTexteSurTeinte,
     initiales: initiales,
     accrocheEntreprise: accrocheEntreprise,
     avantagesDe: avantagesDe,

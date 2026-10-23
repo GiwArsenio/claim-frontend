@@ -48,7 +48,7 @@
   --encre: #191c1d;          /* texte principal */
   --encre-forte: #24363d;    /* valeurs chiffrées, titres de fait */
   --gris: #515f78;           /* texte secondaire */
-  --gris-doux: #66737a;      /* texte tertiaire, dates */
+  --gris-doux: #5c6870;      /* texte tertiaire, dates */
   --gris-texte: #3c494c;     /* corps de description */
   --gris-icone: #65747c;     /* icônes secondaires */
   --gris-pale: #bbc9cc;      /* ascenseurs, points vides */
@@ -96,7 +96,10 @@
   --rose-pale: #fce7f3;
   --violet-texte: #6d28d9;
   --violet-pale: #ede9fe;
-  --coeur: #ff6b8a;
+  /* Le coeur se lisait a 2,38:1 sur l'aplat de marque. Sur un fond sombre, un
+     rose doit s'eclaircir, pas s'assombrir : c'est la luminance qui compte,
+     pas l'intuition. */
+  --coeur: #ffd0da;
 
   /* ── Surbrillance d'un element actif sur aplat de marque ──
      En theme jour, l'aplat de marque est clair : on le souligne d'un blanc
@@ -230,6 +233,10 @@ html[data-theme="nuit"] select {
 }
 .bascule-theme:hover { background: rgba(255, 255, 255, .22); }
 .bascule-theme .ms { font-size: 18px; }
+/* L'icone de la bascule passe par le pseudo-element : son nom ne vit pas
+   dans le DOM, et le texte visible ne peut plus diverger du nom accessible
+   (regle 2.5.3, Label in Name). */
+.bascule-theme .ms::before { content: attr(data-icone); }
 html[data-theme="nuit"] .bascule-theme {
   border-color: var(--bord-carte); background: var(--surface-2); color: var(--encre);
 }
