@@ -309,11 +309,13 @@ ${societe.logo_url
  .slogo img { position:absolute; inset:0; width:100%; height:100%; object-fit:contain;
    border-radius:inherit; padding:2px; }
  /* Fond clair pour un logo ; la couleur de la marque garde les initiales. */
- /* La tuile suit le theme ; le cadre de l'image porte le fond sur
-    lequel le logo reste lisible. En mode nuit, l'image est inversee. */
- .slogo.fond-logo { background: var(--surface); }
+ /* La tuile porte un fond pris dans le theme : clair le jour, sombre la
+    nuit. L'image n'a pas de fond — un filtre s'applique aussi au fond de
+    l'element, et celui-ci s'inversait avec le logo.
+    En mode nuit, seul le logo est inverse. */
+ .slogo.fond-logo { background: var(--surface-2); }
  .slogo.fond-logo span { color: var(--encre-forte); }
- .slogo.fond-logo img { background: var(--tuile-logo); padding: 2px; }
+ .slogo.fond-logo img { padding: 2px; }
  html[data-theme="nuit"] .slogo.fond-logo img { filter: invert(1) hue-rotate(180deg); }
  .pastilles { display:flex; flex-wrap:wrap; gap:.4rem; margin-bottom:1.6rem; }
 /* Pastilles : chaque badge tient sur sa ligne, sans jamais déborder. */

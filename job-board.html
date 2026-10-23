@@ -247,12 +247,15 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 2rem;
 .clogo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; border-radius: inherit; padding: 2px; }
 /* Un logo se pose sur un fond clair : il y reste lisible. Le fond suit
    le thème, il n'est donc jamais le même en mode nuit. */
-/* La tuile suit le theme ; le cadre qui contient l'image porte le fond
-   sur lequel le logo reste lisible. En mode nuit, l'image est inversee :
-   un logo sombre y disparatrait. */
-.clogo.fond-logo { background: var(--surface); }
+/* La tuile porte un fond pris dans le theme : clair le jour, sombre la
+   nuit. L'image n'a pas de fond — un filtre s'applique a tout ce que
+   l'element dessine, fond compris : celui de l'image s'inversait avec
+   le logo, et le logo se retrouvait clair sur un fond clair.
+   En mode nuit, seul le logo est inverse : il garde sa teinte et gagne
+   en luminosite, ce qui le rend lisible sur la tuile sombre. */
+.clogo.fond-logo { background: var(--surface-2); }
 .clogo.fond-logo span { color: var(--encre-forte); }
-.clogo.fond-logo img { background: var(--tuile-logo); padding: 3px; }
+.clogo.fond-logo img { padding: 3px; }
 html[data-theme="nuit"] .clogo.fond-logo img { filter: invert(1) hue-rotate(180deg); }
 .bcv { display: inline-flex; align-items: center; gap: .3rem; padding: .5rem .875rem; border-radius: .5rem; background: var(--encre); color: var(--blanc); font-weight: 700; font-size: 0.8rem; text-decoration: none; }
 
