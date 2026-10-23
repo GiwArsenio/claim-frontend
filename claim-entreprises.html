@@ -335,7 +335,7 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
 
 /* ── FOOTER ── */
 #ft {
-  flex-shrink: 0; background: var(--teal-fond); color: rgba(255,255,255,.65);
+  flex-shrink: 0; background: var(--teal-fond); color: rgba(255,255,255,0.9);
   padding: .6rem 2rem; display: flex; align-items: center;
   justify-content: space-between; gap: 1rem;
   font-size: .675rem; font-weight: 500;
@@ -343,9 +343,9 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
 }
 #ft .ft-logo { font-size: .9rem; font-weight: 900; color: var(--blanc); letter-spacing: -.04em; }
 #ft .ft-links { display: flex; gap: 1.25rem; }
-#ft .ft-links a { color: rgba(255,255,255,.55); text-decoration: none; font-size: .675rem; font-weight: 500; transition: color .15s; }
+#ft .ft-links a { color: rgba(255,255,255,0.9); text-decoration: none; font-size: .675rem; font-weight: 500; transition: color .15s; }
 #ft .ft-links a:hover { color: var(--blanc); }
-#ft .ft-copy { color: rgba(255,255,255,.4); font-size: .625rem; }
+#ft .ft-copy { color: rgba(255,255,255,0.9); font-size: .625rem; }
 
 /* Burger menu caché par défaut (affiché uniquement en mobile via @media) */
 #burger-menu { display: none; }
@@ -653,22 +653,22 @@ en documentation).
   /* ══ EN-TÊTE ET PIED — alignés sur le board ══ */
   #hd { background: var(--teal-fond); position: sticky; top: 0; z-index: 200; }
   #hd nav { display: flex; justify-content: space-between; align-items: center; padding: .75rem 2rem; }
-  #ft { background: var(--teal-fond); color: rgba(255,255,255,.65);
+  #ft { background: var(--teal-fond); color: rgba(255,255,255,0.9);
         padding: 1.25rem 1.375rem 1rem; display: flex; flex-direction: column; gap: .75rem;
         border-top: 2px solid rgba(255,255,255,.1); }
   #ft .ft-top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
   #ft .ft-logo { font-size: 1.1rem; font-weight: 900; color: var(--blanc); letter-spacing: -.05em; text-decoration: none; }
   #ft .ft-logo:hover { color: var(--blanc-survol); }
-  #ft .ft-tagline { font-size: 0.7rem; color: rgba(255,255,255,.5); font-style: italic; margin-top: 1px; }
+  #ft .ft-tagline { font-size: 0.7rem; color: rgba(255,255,255,0.9); font-style: italic; margin-top: 1px; }
   #ft .ft-links { display: flex; gap: .625rem; flex-wrap: wrap; }
-  #ft .ft-links a { color: rgba(255,255,255,.6); text-decoration: none; font-size: 0.7rem; font-weight: 500;
+  #ft .ft-links a { color: rgba(255,255,255,0.9); text-decoration: none; font-size: 0.7rem; font-weight: 500;
                     padding: .2rem .5rem; border-radius: .25rem; border: 1px solid rgba(255,255,255,.15);
                     transition: background .15s, color .15s; }
   #ft .ft-links a:hover { background: var(--surbrillance); color: var(--blanc); }
-  #ft .ft-divider { height: 1px; background: rgba(255,255,255,.1); }
-  #ft .ft-copy { font-size: 0.65rem; color: rgba(255,255,255,.35); display: flex; align-items: center; gap: .3rem; flex-wrap: wrap; }
+  #ft .ft-divider { height: 1px; background: rgba(255,255,255,0.9); }
+  #ft .ft-copy { font-size: 0.65rem; color: rgba(255,255,255,0.9); display: flex; align-items: center; gap: .3rem; flex-wrap: wrap; }
   #ft .ft-copy .heart { color: var(--coeur); font-size: 0.75rem; }
-  #ft .ft-copy a { color: rgba(255,255,255,.6); text-decoration: none; }
+  #ft .ft-copy a { color: rgba(255,255,255,0.9); text-decoration: none; }
   #ft .ft-copy a:hover { color: var(--blanc); text-decoration: underline; }
   .bm-logo:hover { color: var(--blanc-survol); }
   .bm-mentions { display: flex; gap: 1rem; margin-top: 1rem; flex-wrap: wrap; }
