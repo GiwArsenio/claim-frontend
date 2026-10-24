@@ -357,14 +357,28 @@ html[data-theme="nuit"] select.chip {
   /* ── CONTACT ── */
   /* La section de contact et le pied sont tous deux teal : sans un
      espace, ils se lisent comme un seul bloc. Le filet ne suffisait pas —
-     il faut de l'air. La page est blanche : cette marge se voit. */
-  .contact { background: var(--teal-fond); color: var(--blanc); margin-bottom: 2.5rem; }
+     il faut de l'air. La page est blanche : cette marge se voit.
+
+     La hauteur : la section mesurait 209 px. Le contenu en fait 113, le
+     reste etait du vide — 48 px de padding en haut et en bas. Le padding
+     tombe a 1.375rem (22 px) : 157 px, soit 25 % de moins. */
+  .contact { background: var(--teal-fond); color: var(--blanc); margin-bottom: 2.5rem;
+             padding-block: 1.375rem; }
   .contact .env { display: flex; justify-content: space-between; align-items: center; gap: 2rem;
                   flex-wrap: wrap; }
   .contact h2 { color: var(--blanc); font-size: 1.3rem; }
   .contact p { margin: .35rem 0 0; color: rgba(255, 255, 255, .85); font-size: .92rem; max-width: 58ch; }
   .bblanc { background: var(--surface); color: var(--teal); padding: .6rem 1.4rem; border-radius: .5rem;
-            font-weight: 700; font-size: .925rem; text-decoration: none; white-space: nowrap; }
+            font-weight: 700; font-size: .925rem; text-decoration: none; white-space: nowrap;
+            display: inline-block;
+            transition: background .15s, color .15s, transform .1s; }
+  /* Le bouton ne reagissait a rien : il n'avait aucun style de survol.
+     En mode nuit, il restait blanc sur un aplat sombre, immobile.
+     Le jeton de survol existe dans les deux themes : il s'eclaircit en
+     jour, il s'assombrit en nuit, et le texte reste lisible. */
+  .bblanc:hover { background: var(--teal-survol-element); color: var(--teal-texte);
+                  transform: translateY(-1px); }
+  .bblanc:focus-visible { outline: 2px solid var(--blanc); outline-offset: 3px; }
 
   /* ── PIED ── */
   /* ── PIED ──

@@ -522,7 +522,10 @@ html, body { font-family: 'Inter', sans-serif; color: var(--encre); background: 
   @media (max-width: 560px) {
     .chantier .form { flex-direction: column; border-radius: .625rem; }
     .chantier .form button { width: 100%; }
-    .chantier { padding: 2rem 1rem; }
+    /* Le contenu etait centre verticalement dans min-height: 100vh - 6rem :
+       sur telephone, il restait 193 px de vide entre l'en-tete et le mot
+       « En construction ». Il remonte sous l'en-tete. */
+    .chantier { padding: 2rem 1rem; justify-content: flex-start; }
   }
 
 </style>
