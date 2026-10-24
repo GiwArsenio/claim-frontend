@@ -782,21 +782,6 @@ en documentation).
        Le contenu de la page est archive ci-dessous (contenu-archive, hidden).
        Pour reactiver : retirer `hidden` sur #contenu-archive, et commenter
        ce bloc affiche. -->
-  <section class="chantier" role="status" aria-live="polite">
-    <span class="etiquette">En construction</span>
-    <h1 class="h1">L'annuaire des entreprises est <em>en construction</em>.</h1>
-    <p class="lede">Les fiches employeurs, les filtres et les avantages arrivent bientôt. Laissez votre email : vous serez prévenu dès l'ouverture.</p>
-    <form class="form" action="mailto:contact@claimyourjob.fr" method="post" enctype="text/plain">
-      <input id="chantier-email" name="email" type="email" required
-             placeholder="vous@exemple.fr" autocomplete="email">
-      <button type="submit">Me prévenir</button>
-    </form>
-    <p class="note">Aucun spam. Un seul message le jour de l'ouverture.</p>
-    <p class="retour">D'ici là, tout le reste du site est ouvert :
-      <a href="/job-board.html">offres d'emploi</a> · <a href="/">accueil</a>.</p>
-  </section>
-
-  <!-- ══ HEADER ══ -->
   <header id="hd">
     <nav>
       <div style="display:flex;align-items:center;gap:2.5rem;">
@@ -815,6 +800,23 @@ en documentation).
       </div>
     </nav>
   </header>
+
+  <section class="chantier" role="status" aria-live="polite">
+    <span class="etiquette">En construction</span>
+    <h1 class="h1">L'annuaire des entreprises est <em>en construction</em>.</h1>
+    <p class="lede">Les fiches employeurs, les filtres et les avantages arrivent bientôt. Laissez votre email : vous serez prévenu dès l'ouverture.</p>
+    <form class="form" action="mailto:contact@claimyourjob.fr" method="post" enctype="text/plain">
+      <input id="chantier-email" name="email" type="email" required
+             placeholder="vous@exemple.fr" autocomplete="email">
+      <button type="submit">Me prévenir</button>
+    </form>
+    <p class="note">Aucun spam. Un seul message le jour de l'ouverture.</p>
+    <p class="retour">D'ici là, tout le reste du site est ouvert :
+      <a href="/job-board.html">offres d'emploi</a> · <a href="/">accueil</a>.</p>
+  </section>
+
+  <!-- ══ HEADER ══ -->
+  
 
   <div id="contenu-archive" hidden>
   
@@ -969,6 +971,8 @@ en documentation).
   </div>
 
   <!-- ══ FOOTER ══ -->
+  
+
   <footer id="ft">
         <div class="ft-top">
           <div>
@@ -992,7 +996,6 @@ en documentation).
           <span>Logos : <a href="https://hunter.io" rel="noopener" target="_blank">Hunter.io</a></span>
         </div>
       </footer>
-
 </div><!-- /contenu-archive -->
   </div><!-- /app -->
 

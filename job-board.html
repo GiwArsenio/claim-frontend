@@ -23,7 +23,10 @@
    et l'en-tête mesurait 56 px au lieu des 64 de la page d'accueil. */
 html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; color: var(--encre); background: var(--champ); margin: 0; line-height: 1.65; }
 
-#app { display: grid; grid-template-rows: auto auto 1fr; height: 100%; overflow: hidden; }
+/* Quatre lignes : en-tete, hero, les deux colonnes, et le pied.
+   Le pied occupe toute la largeur, sous les deux colonnes : un pied
+   cantonne a la colonne de gauche n'est pas un pied de page. */
+#app { display: grid; grid-template-rows: auto auto 1fr auto; height: 100%; overflow: hidden; }
 
 /* Largeurs de référence de la mise en page bureau.
 
@@ -919,7 +922,15 @@ en documentation).
       <!-- Footer riche, visible après scroll des cards.
            C'est un <footer> : un lecteur d'écran doit pouvoir le sauter,
            et le pied de page est un repère, pas un bloc de mise en page. -->
-      <footer id="ft">
+      
+    </div>
+    <div class="pr" id="pr">
+      <!-- Bouton retour mobile (injecté par JS) -->
+      <div id="detail"></div>
+    </div>
+  </main>
+
+  <footer id="ft">
         <div class="ft-top">
           <div>
             <a class="ft-logo" href="/">Claim!</a>
@@ -942,12 +953,6 @@ en documentation).
           <span>Logos : <a href="https://hunter.io" rel="noopener" target="_blank">Hunter.io</a></span>
         </div>
       </footer>
-    </div>
-    <div class="pr" id="pr">
-      <!-- Bouton retour mobile (injecté par JS) -->
-      <div id="detail"></div>
-    </div>
-  </main>
 
 </div>
 
