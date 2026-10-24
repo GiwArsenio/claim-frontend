@@ -355,7 +355,10 @@ html[data-theme="nuit"] select.chip {
   }
 
   /* ── CONTACT ── */
-  .contact { background: var(--teal-fond); color: var(--blanc); }
+  /* La section de contact et le pied sont tous deux teal : sans un
+     espace, ils se lisent comme un seul bloc. Le filet ne suffisait pas —
+     il faut de l'air. La page est blanche : cette marge se voit. */
+  .contact { background: var(--teal-fond); color: var(--blanc); margin-bottom: 2.5rem; }
   .contact .env { display: flex; justify-content: space-between; align-items: center; gap: 2rem;
                   flex-wrap: wrap; }
   .contact h2 { color: var(--blanc); font-size: 1.3rem; }
@@ -584,7 +587,6 @@ en documentation).
   #ft .ft-top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
   #ft .ft-logo { font-size: 1.1rem; font-weight: 900; color: var(--blanc); letter-spacing: -.05em; text-decoration: none; }
   #ft .ft-logo:hover { color: var(--blanc-survol); }
-  #ft .ft-tagline { font-size: 0.7rem; color: rgba(255,255,255,0.9); font-style: italic; margin-top: 1px; }
   #ft .ft-links { display: flex; gap: .625rem; flex-wrap: wrap; }
   #ft .ft-links a { color: rgba(255,255,255,0.9); text-decoration: none; font-size: 0.7rem; font-weight: 500;
                     padding: .2rem .5rem; border-radius: .25rem; border: 1px solid rgba(255,255,255,.15);
@@ -604,7 +606,6 @@ en documentation).
     /* Les liens du pied resteraient inaccessibles sur téléphone si on les
        masquait : c'est le seul endroit où l'on peut lire les mentions. */
     #ft .ft-links { display: flex; }
-    #ft .ft-tagline { display: none; }
   }
 
 
@@ -899,7 +900,6 @@ en documentation).
     <div class="ft-top">
       <div>
         <a class="ft-logo" href="/">Claim!</a>
-        <div class="ft-tagline">pour les actuaires, data scientists &amp; profils IA</div>
         <div class="ft-copy">
           <span>© 2026 Claim your job</span>
           <span>·</span>

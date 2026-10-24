@@ -341,7 +341,6 @@ html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1)
 }
 #ft .ft-top { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
 #ft .ft-logo { font-size: 1.1rem; font-weight: 900; color: var(--blanc); letter-spacing: -.05em; }
-#ft .ft-tagline { font-size: 0.7rem; color: rgba(255,255,255,0.9); font-style: italic; margin-top: 1px; }
 #ft .ft-links { display: flex; gap: .625rem; flex-wrap: wrap; }
 #ft .ft-links a { color: rgba(255,255,255,0.9); text-decoration: none; font-size: 0.7rem; font-weight: 500; padding: .2rem .5rem; border-radius: .25rem; border: 1px solid rgba(255,255,255,.15); transition: background .15s, color .15s; }
 #ft .ft-links a:hover { background: var(--surbrillance); color: var(--blanc); }
@@ -484,9 +483,14 @@ html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1)
      Elles etaient masquees sous 768 px : le telephone perdait le titre
      et la promesse, et la page commencait par une barre de recherche
      sans dire ce qu'elle cherche. */
-  #hero { padding: .625rem 1rem .5rem; max-height: 260px; text-align: center; }
-  #hero h1 { display: block; font-size: 1.1rem; text-align: center; margin-bottom: .35rem; }
-  #hero .sub { display: block; font-size: .85rem; text-align: center; margin-bottom: .65rem; }
+  #hero { padding: 1.2rem 1rem .7rem; max-height: 320px; text-align: center; }
+  /* line-height: le titre se coupe sur deux lignes en telephone. A 1,15
+     — la valeur du bureau, ou il tient sur une ligne — les deux lignes
+     se touchent. 1,32 leur donne de l'air sans ecarter le bloc. */
+  #hero h1 { display: block; font-size: 1.1rem; line-height: 1.32;
+             text-align: center; margin-bottom: .5rem; }
+  #hero .sub { display: block; font-size: .85rem; line-height: 1.5;
+               text-align: center; margin-bottom: .7rem; }
   /* Barre de recherche : 2 lignes sur mobile */
   .sbar {
     flex-direction: column;
@@ -930,7 +934,6 @@ en documentation).
     <div class="ft-top">
       <div>
         <a class="ft-logo" href="/">Claim!</a>
-        <div class="ft-tagline">pour les actuaires, data scientists &amp; profils IA</div>
         <div class="ft-copy">
           <span>© 2026 Claim your job</span>
           <span>·</span>
