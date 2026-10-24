@@ -173,6 +173,13 @@ const CSS_REFERENTIEL = `
        dediees accessibles sur un ecran de poche. Le board les masquait :
        son pied etait donc le seul des huit a ne pas les montrer. */
     #ft .ft-links { display: flex; }
+    /* La tagline disparait sur telephone : elle ne tient pas a cote des
+       menus, et elle repousse la signature vers le bas. */
+    #ft .ft-tagline { display: none; }
+    /* La rangee du haut passe en colonne : sur 390 px, les menus et la
+       tagline sur la meme ligne se tassent. */
+    #ft .ft-top { flex-direction: column; align-items: flex-start; gap: .75rem; }
+    #ft .ft-links { gap: .5rem; }
   }`;
 
 /* ── La pose sur une page ───────────────────────────────────────────────── */
