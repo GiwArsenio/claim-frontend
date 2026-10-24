@@ -14,6 +14,14 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/assets/favicon.png">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<!-- La meme police que le reste du site. Sans elle, le pied de page
+     tombe sur la police de repli, qui est plus large : la signature se
+     repliait sur un nombre de lignes different, et le pied n'etait plus
+     identique a celui du board. -->
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <style>
 
   /* ══ CHARTE COMMUNE — en-tête, pied, pages de contenu ══ */
@@ -40,22 +48,22 @@
   .btn-burger span { display: block; width: 22px; height: 2px; background: var(--blanc); border-radius: 2px; }
 
   /* ── Pied de page ── */
-  #ft { background: var(--teal-fond); color: rgba(255,255,255,0.9);
+  #ft { background: var(--teal-fond); color: rgba(255,255,255,.65);
         padding: 1.25rem 1.375rem 1rem; display: flex; flex-direction: column; gap: .75rem;
         border-top: 2px solid rgba(255,255,255,.1); }
   #ft .ft-top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
   #ft .ft-logo { font-size: 1.1rem; font-weight: 900; color: var(--blanc); letter-spacing: -.05em; text-decoration: none; }
   #ft .ft-logo:hover { color: var(--blanc-survol); }
-  #ft .ft-tagline { font-size: 0.7rem; color: rgba(255,255,255,0.9); font-style: italic; margin-top: 1px; }
+  #ft .ft-tagline { font-size: 0.7rem; color: rgba(255,255,255,.5); font-style: italic; margin-top: 1px; }
   #ft .ft-links { display: flex; gap: .625rem; flex-wrap: wrap; }
-  #ft .ft-links a { color: rgba(255,255,255,0.9); text-decoration: none; font-size: 0.7rem; font-weight: 500;
+  #ft .ft-links a { color: rgba(255,255,255,.6); text-decoration: none; font-size: 0.7rem; font-weight: 500;
                     padding: .2rem .5rem; border-radius: .25rem; border: 1px solid rgba(255,255,255,.15);
                     transition: background .15s, color .15s; }
   #ft .ft-links a:hover { background: var(--surbrillance); color: var(--blanc); }
-  #ft .ft-divider { height: 1px; background: rgba(255,255,255,0.9); }
-  #ft .ft-copy { font-size: 0.65rem; color: rgba(255,255,255,0.9); display: flex; align-items: center; gap: .3rem; flex-wrap: wrap; }
+  #ft .ft-divider { height: 1px; background: rgba(255,255,255,.1); }
+  #ft .ft-copy { font-size: 0.65rem; color: rgba(255,255,255,.35); display: flex; align-items: center; gap: .3rem; flex-wrap: wrap; }
   #ft .ft-copy .heart { color: var(--coeur); font-size: 0.75rem; }
-  #ft .ft-copy a { color: rgba(255,255,255,0.9); text-decoration: none; }
+  #ft .ft-copy a { color: rgba(255,255,255,.6); text-decoration: none; }
   #ft .ft-copy a:hover { color: var(--blanc); text-decoration: underline; }
 
   /* ── Menu mobile ── */
@@ -95,11 +103,11 @@
   strong { color: var(--encre); }
   a { color: var(--teal); }
   a:hover { color: var(--teal-texte); }
-  .encart { background: var(--surface); border: 1px solid var(--bord); border-radius: .625rem;
+  .encart { background: var(--surface); border: 1px solid var(--bord); border-radius: .75rem;
             padding: 1.1rem 1.25rem; margin: 1.5rem 0; }
   .encart p:last-child { margin-bottom: 0; }
   .encart-titre { font-weight: 800; color: var(--encre); font-size: .95rem; margin: 0 0 .35rem; }
-  .carte { background: var(--surface); border: 1px solid var(--bord); border-radius: .625rem;
+  .carte { background: var(--surface); border: 1px solid var(--bord); border-radius: .75rem;
            padding: 1.25rem 1.4rem; margin: 1.2rem 0; }
   .carte h3 { margin-top: 0; }
   .liste-def { display: grid; gap: .1rem; margin: 0 0 1.2rem; }
@@ -136,12 +144,6 @@
     .liste-def div { grid-template-columns: 1fr; gap: .15rem; }
     h2 { margin-top: 1.8rem; }
   }
-
-
-
-
-
-
 
   /* ══ RÉFÉRENTIEL — en-tête de l'accueil, pied du board ══
      Ces regles sont posees en fin de feuille : plus specifiques que
