@@ -168,6 +168,11 @@ const CSS_REFERENTIEL = `
     #hd .nav-links, #hd .btn-cta { display: none; }
     #hd .btn-burger { display: flex; }
     #ft { padding: .875rem 1rem .75rem; }
+    /* Les menus du pied restent visibles sur telephone. C'est le seul
+       endroit ou lire les mentions, et c'est ce qui rend les pages
+       dediees accessibles sur un ecran de poche. Le board les masquait :
+       son pied etait donc le seul des huit a ne pas les montrer. */
+    #ft .ft-links { display: flex; }
   }`;
 
 /* ── La pose sur une page ───────────────────────────────────────────────── */
