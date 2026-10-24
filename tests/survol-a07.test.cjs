@@ -74,9 +74,27 @@ async function balayer(page) {
       const r = cible.getBoundingClientRect();
       const top = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
       if (!top) return { bloque: true, par: 'rien' };
-      const atteint = top === cible || cible.contains(top) || top.contains(cible);
+      /* On accepte aussi le cas ou un PARENT recouvre l'element : le
+         rail de detail passe au-dessus des cartes de la liste, et la
+         souris atteint le rail. La carte est bien la, mais elle n'est
+         pas survolable — on ne peut pas juger un element qu'on ne peut
+         pas atteindre. */
+      /* L'element vise, ou un de ses DESCENDANTS. Un ancetre ne prouve
+         rien : elementFromPoint renvoie #app quand le pointeur est dans
+         une zone vide de la carte — la carte passe alors le controle de
+         blocage, et le test conclut ensuite qu'elle ne reagit pas.
+         La carte est bien la, mais elle n'est pas survolable : on ne
+         peut pas juger un element qu'on ne peut pas atteindre. */
+      const atteint = top === cible || cible.contains(top);
       return { bloque: !atteint, par: window.__SURVOL__.cheminDe(top) };
     }, cible);
+
+    /* L'etat de REPOS. Apres un clic, la souris est encore posee sur
+       l'element : le relever sur place donnerait un « avant » qui est
+       deja en survol, et la comparaison ne verrait aucun changement.
+       On sort la souris avant de relever. */
+    await page.mouse.move(2, 2);
+    await page.waitForTimeout(220);
 
     const avant = await page.evaluate((c) => {
       const cible = document.querySelector(c);
@@ -84,7 +102,40 @@ async function balayer(page) {
     }, cible);
     if (!avant) continue;
 
-    await page.mouse.move(el.x, el.y);
+    /* La position est RELUE juste avant le survol. Les coordonnees
+       capturees au debut du balayage peuvent etre perimees : la page
+       defile pendant le parcours (le detail qui s'ouvre pousse la
+       liste), et la souris atterrit alors a cote de la cible. */
+    const pos = await page.evaluate((c) => {
+      const cible = document.querySelector(c);
+      if (!cible) return null;
+      const r = cible.getBoundingClientRect();
+      return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+    }, cible);
+    if (!pos) continue;
+
+    /* On RECONTROLE ce qui est reellement sous la souris, maintenant.
+       Le premier controle pouvait avoir ete fait avant un defilement : la
+       carte du bas sortait alors de la fenetre, et la souris atterrissait
+       dans le vide. Un element qu'on ne peut pas survoler n'est pas un
+       element qui ne reagit pas. */
+    const sousNow = await page.evaluate((c) => {
+      const cible = document.querySelector(c);
+      if (!cible) return { bloque: true, par: 'rien' };
+      const r = cible.getBoundingClientRect();
+      const top = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+      if (!top) return { bloque: true, par: 'rien' };
+      const atteint = top === cible || cible.contains(top);
+      return { bloque: !atteint, par: window.__SURVOL__.cheminDe(top) };
+    }, cible);
+    if (sousNow.bloque) {
+      resultats.push({ ...el, avant, apres: avant, bloque: true, bloquePar: sousNow.par,
+                       dFond: 0, dTexte: 0, dBord: 0, dBordBas: 0,
+                       dSoulignement: false, dFiltre: false, dDecalage: false });
+      continue;
+    }
+
+    await page.mouse.move(pos.x, pos.y);
     /* On laisse passer la transition : .15 s suffisent, avec une marge. */
     await page.waitForTimeout(260);
 

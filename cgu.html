@@ -221,6 +221,7 @@
 
 
 
+
   /* ══ LE PIED PRÉCÉDENT — référence ══
      Un pied clair, sur le fond de surface, en deux colonnes : l'identité
      et la navigation d'un côté, le texte de mentions de l'autre. Le texte
@@ -269,7 +270,13 @@
   .pied .nav2 a:hover::after { transform: scaleX(1); }
   .pied .mentions { margin: 0; font-size: .78rem; line-height: 1.45; color: var(--gris-doux); }
   .pied .mentions a { color: var(--gris); text-decoration: underline;
-                      text-decoration-thickness: 1px; text-underline-offset: 2px; }
+                      text-decoration-thickness: 1px; text-underline-offset: 2px;
+                      transition: color .15s ease; }
+  /* Le lien des mentions reagissait a rien : il n'avait aucun style de
+     survol. Dans le pied navy, il etait dans .ft-copy, qui en avait un ;
+     dans le pied precedent, il revient dans .mentions, qui n'en avait
+     pas. Un lien doit dire qu'il est vivant. */
+  .pied .mentions a:hover { color: var(--teal); }
 
   @media (max-width: 900px) {
     .pied .env { padding: 0 1.25rem; }
