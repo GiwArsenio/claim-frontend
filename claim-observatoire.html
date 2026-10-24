@@ -18,7 +18,11 @@
 }
 
 html, body { height: 100%; font-family: 'Inter', sans-serif; color: var(--encre); background: var(--champ); }
-#app { display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+/* La colonne est etiree : le pied est un enfant de #app, et un flex
+   en colonne CENTRE ses enfants par defaut. Le pied se retrouvait donc
+   au milieu de la page, au lieu d'etre aligne a gauche comme partout
+   ailleurs. */
+#app { display: flex; flex-direction: column; align-items: stretch; height: 100%; overflow: hidden; }
 
 /* ══════════════════════════════════════
    HEADER
