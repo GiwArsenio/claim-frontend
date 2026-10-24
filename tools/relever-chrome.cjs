@@ -138,12 +138,34 @@ function comparer(ref, page) {
   return ecarts;
 }
 
+/* La reference, relevee seule : elle sert de point de comparaison.
+   L'en-tete de reference est celui de l'accueil ; le pied, celui du board. */
+async function releverReference(format, selecteur, url) {
+  const { ctx, page } = await aide.ouvrirPage(format);
+  try {
+    await page.goto(aide.BASE + url, { waitUntil: 'domcontentloaded' });
+    await aide.attendre(page, 1400);
+    await page.evaluate(() => {
+      const b = document.querySelector('#claim-consentement');
+      if (b) b.remove();
+    });
+    await page.waitForTimeout(200);
+    return await empreinte(page, selecteur);
+  } finally {
+    await ctx.close();
+  }
+}
+
 (async () => {
   await aide.demarrerServeur();
   const nav = await aide.demarrerNavigateur();
 
   try {
     fs.mkdirSync(SORTIE, { recursive: true });
+
+    /* Les releves, tous formats confondus : la comparaison se fait
+       apres la boucle, une fois les deux references connues. */
+    const releves = [];
 
     for (const format of FORMATS) {
       console.log(`\n${'═'.repeat(72)}\n  ${format.nom.toUpperCase()} (${format.viewport.width}×${format.viewport.height})\n${'═'.repeat(72)}`);
@@ -177,8 +199,10 @@ function comparer(ref, page) {
           if (p.refEntete) refEntete[format.nom] = entete;
           if (p.refPied) refPied[format.nom] = pied;
 
-          const ecartsEntete = p.refEntete ? [] : comparer(refEntete[format.nom], entete);
-          const ecartsPied = p.refPied ? [] : comparer(refPied[format.nom], pied);
+          /* La comparaison se fait en deuxieme temps : la reference du
+             pied (le board) n'est pas encore relevee quand l'accueil est
+             traite, et l'accueil sert de reference pour l'en-tete. */
+          releves.push({ p, entete, pied, format: format.nom });
 
           /* Les captures. */
           const haut = await page.evaluate(() => {
@@ -212,23 +236,44 @@ function comparer(ref, page) {
             ? `${entete.balise} fond ${entete.fond} y=${entete.logo ? entete.logo.y : '—'} taille ${entete.largeur}x${entete.hauteur}` +
               (entete.cacheur ? ` [MASQUÉ PAR ${entete.cacheur}]` : '')
             : 'ABSENT'}`);
-          if (ecartsEntete.length) {
-            console.log('    ✖ ÉCART EN-TÊTE :');
-            for (const e of ecartsEntete) console.log('        ' + e);
-          }
+          /* Les écarts sont rapportés en deuxième temps, quand les deux
+             références sont connues. */
+
           console.log(`    pied    : ${pied.present
             ? `${pied.balise} fond ${pied.fond} ${pied.largeur}x${pied.hauteur}` +
               (pied.cacheur ? ` [MASQUÉ PAR ${pied.cacheur}]` : '')
             : 'ABSENT'}`);
-          if (ecartsPied.length) {
-            console.log('    ✖ ÉCART PIED :');
-            for (const e of ecartsPied) console.log('        ' + e);
-          }
+
         } finally {
           await ctx.close();
         }
       }
     }
+
+    /* ── Deuxieme temps : la comparaison, une fois les deux references
+       connues. ── */
+    console.log('\n' + '='.repeat(72));
+    console.log("  COMPARAISON — en-tête : référence = l'accueil | pied : référence = le board");
+    console.log('='.repeat(72));
+
+    let ecartsTotaux = 0;
+    for (const format of FORMATS) {
+      const refE = await releverReference(format, 'header#hd, header.hd', '/index.html');
+      const refP = await releverReference(format, 'footer#ft, footer.pied', '/job-board.html');
+
+      for (const r of releves.filter((x) => x.format === format.nom)) {
+        const ecE = comparer(refE, r.entete);
+        const ecP = comparer(refP, r.pied);
+        if (!ecE.length && !ecP.length) continue;
+        ecartsTotaux++;
+        console.log(`\n  ✖ ${format.nom} / ${r.p.nom}`);
+        if (ecE.length) console.log('        EN-TÊTE : ' + ecE.join(' · '));
+        if (ecP.length) console.log('        PIED    : ' + ecP.join(' · '));
+      }
+    }
+    console.log(ecartsTotaux === 0
+      ? '\n  Aucun écart : en-tête et pied identiques à la référence, partout.'
+      : `\n  ${ecartsTotaux} page(s) avec un écart.`);
 
     console.log(`\nCaptures dans ${SORTIE}`);
   } finally {
