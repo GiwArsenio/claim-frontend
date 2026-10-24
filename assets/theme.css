@@ -279,7 +279,16 @@ html[data-theme="nuit"] select {
    et le bouton « Rechercher » — et le texte y reste blanc, lisible dans
    les deux themes. */
 .bascule-theme:hover { background: var(--teal-aplat-survol); border-color: var(--teal-texte); }
-.bascule-theme .ms { font-size: 18px; }
+/* La police d'icones. Elle etait definie page par page : les quatre
+   pages de mentions ne l'avaient pas, et le bouton de theme y affichait
+   « light_mode » en toutes lettres au lieu de l'icone. Une feuille
+   partagee est le bon endroit pour une police partagee. */
+.bascule-theme .ms { font-family: 'Material Symbols Outlined'; font-weight: normal;
+                     font-style: normal; font-size: 18px; line-height: 1;
+                     letter-spacing: normal; text-transform: none;
+                     display: inline-block; white-space: nowrap;
+                     direction: ltr; -webkit-font-feature-settings: 'liga';
+                     -webkit-font-smoothing: antialiased; }
 /* L'icone de la bascule passe par le pseudo-element : son nom ne vit pas
    dans le DOM, et le texte visible ne peut plus diverger du nom accessible
    (regle 2.5.3, Label in Name). */
