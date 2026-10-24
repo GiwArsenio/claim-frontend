@@ -609,6 +609,7 @@ en documentation).
   }
 
 
+
   /* ══ RÉFÉRENTIEL — en-tête de l'accueil, pied du board ══
      Ces regles sont posees en fin de feuille : plus specifiques que
      celles du milieu de la page, elles ne peuvent pas etre annulees
@@ -652,8 +653,12 @@ en documentation).
   #hd .btn-burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
   /* ── Pied (référence : le board), en pleine largeur ── */
+  /* align-items: stretch, et non center : sur Entreprises et Observatoire,
+     le pied avait align-items: center, et son contenu se retrouvait
+     au milieu de la page — le logo a x=464 au lieu de x=22. */
   #ft { flex-shrink: 0; background: var(--teal-fond); color: rgba(255,255,255,0.9);
-        padding: 1.25rem 1.375rem 1rem; display: flex; flex-direction: column; gap: .75rem;
+        padding: 1.25rem 1.375rem 1rem; display: flex; flex-direction: column;
+        align-items: stretch; gap: .75rem;
         border-top: 2px solid rgba(255,255,255,.1); }
   #ft .ft-top { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
   #ft .ft-logo { font-size: 1.1rem; font-weight: 900; color: var(--blanc);
