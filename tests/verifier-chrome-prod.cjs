@@ -16,7 +16,7 @@ const { chromium } = require('playwright');
         footer: ft ? ft.tagName : null,
         logoPiedTag: logoPied ? logoPied.tagName.toLowerCase() : null,
         logoPiedHref: logoPied ? logoPied.getAttribute('href') : null,
-        menus: ft ? Array.from(ft.querySelectorAll('.ft-links a')).map(a => a.getAttribute('href')) : [],
+        menus: ft ? Array.from(ft.querySelectorAll('.nav2 a')).map(a => a.getAttribute('href')) : [],
         footerVisible: ft ? getComputedStyle(ft).display !== 'none' : false,
       };
     });
