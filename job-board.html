@@ -772,6 +772,7 @@ en documentation).
   .consent button { height: 42px; padding: 0 .75rem; }
 }
 
+
   /* ══ RÉFÉRENTIEL — en-tête de l'accueil, pied du board ══
      Ces regles sont posees en fin de feuille : plus specifiques que
      celles du milieu de la page, elles ne peuvent pas etre annulees
@@ -779,7 +780,13 @@ en documentation).
      garantit que l'en-tete et le pied se ressemblent exactement. */
 
   /* ── En-tête (référence : l'accueil) ── */
-  #hd { background: var(--teal-fond); position: sticky; top: 0; z-index: 200; }
+  /* L'interligne est pose ICI, et non herite du corps de page. Sur
+     certaines pages le corps est a line-height: normal, sur d'autres a
+     1,65 : le logo passait alors de 40 px a 28 px de haut, et l'en-tete
+     de 64 px a 58. Un en-tete de reference ne peut pas dependre du
+     reste de la page. */
+  #hd { background: var(--teal-fond); position: sticky; top: 0; z-index: 200;
+        line-height: 1.65; }
   #hd nav { display: flex; justify-content: space-between; align-items: center;
             padding: .75rem 2rem; }
   #hd .logo { font-size: 1.5rem; font-weight: 900; color: var(--blanc);
