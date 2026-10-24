@@ -768,6 +768,70 @@ en documentation).
   .consent-boutons { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
   .consent button { height: 42px; padding: 0 .75rem; }
 }
+
+  /* ══ RÉFÉRENTIEL — en-tête de l'accueil, pied du board ══
+     Ces regles sont posees en fin de feuille : plus specifiques que
+     celles du milieu de la page, elles ne peuvent pas etre annulees
+     par elles. Et elles sont IDENTIQUES sur les huit pages, ce qui
+     garantit que l'en-tete et le pied se ressemblent exactement. */
+
+  /* ── En-tête (référence : l'accueil) ── */
+  #hd { background: var(--teal-fond); position: sticky; top: 0; z-index: 200; }
+  #hd nav { display: flex; justify-content: space-between; align-items: center;
+            padding: .75rem 2rem; }
+  #hd .logo { font-size: 1.5rem; font-weight: 900; color: var(--blanc);
+              letter-spacing: -.05em; text-decoration: none; }
+  #hd .logo:hover { color: var(--blanc-survol); }
+  #hd .nav-links { display: flex; gap: 2rem; }
+  #hd .nav-links a { color: rgba(255, 255, 255, .8); text-decoration: none;
+                     font-size: .925rem; font-weight: 600; }
+  #hd .nav-links a:hover { color: var(--blanc); }
+  #hd .nav-links a.on { color: var(--blanc); border-bottom: 2px solid #fff; padding-bottom: 2px; }
+  #hd .nav-links a.on:hover { color: var(--blanc); border-bottom-color: var(--blanc-survol); }
+  #hd .btn-cta { background: var(--surface); color: var(--teal); padding: .45rem 1.2rem;
+                 border-radius: .5rem; font-weight: 700; font-size: .925rem; border: none;
+                 cursor: pointer; font-family: inherit; white-space: nowrap;
+                 text-decoration: none; display: inline-block;
+                 transition: background .15s, border-color .15s, color .15s; }
+  #hd .btn-cta:hover { background: var(--teal-survol-element); border-color: var(--teal);
+                       color: var(--encre); }
+  #hd .btn-burger { display: none; flex-direction: column; justify-content: center; gap: 5px;
+                     width: 36px; height: 36px; background: rgba(255, 255, 255, .15);
+                     border: none; border-radius: .4rem; cursor: pointer;
+                     padding: 7px 8px; flex-shrink: 0; }
+  #hd .btn-burger span { display: block; height: 2px; background: var(--surface);
+                         border-radius: 2px; transition: transform .25s, opacity .2s; }
+  #hd .btn-burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  #hd .btn-burger.open span:nth-child(2) { opacity: 0; }
+  #hd .btn-burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  /* ── Pied (référence : le board), en pleine largeur ── */
+  #ft { flex-shrink: 0; background: var(--teal-fond); color: rgba(255,255,255,0.9);
+        padding: 1.25rem 1.375rem 1rem; display: flex; flex-direction: column; gap: .75rem;
+        border-top: 2px solid rgba(255,255,255,.1); }
+  #ft .ft-top { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+  #ft .ft-logo { font-size: 1.1rem; font-weight: 900; color: var(--blanc);
+                 letter-spacing: -.05em; text-decoration: none; }
+  #ft .ft-logo:hover { color: var(--blanc-survol); }
+  #ft .ft-tagline { font-size: 0.7rem; color: rgba(255,255,255,0.9); font-style: italic; margin-top: 1px; }
+  #ft .ft-links { display: flex; gap: .625rem; flex-wrap: wrap; }
+  #ft .ft-links a { color: rgba(255,255,255,0.9); text-decoration: none; font-size: 0.7rem;
+                    font-weight: 500; padding: .2rem .5rem; border-radius: .25rem;
+                    border: 1px solid rgba(255,255,255,.15); transition: background .15s, color .15s; }
+  #ft .ft-links a:hover { background: var(--surbrillance); color: var(--blanc); }
+  #ft .ft-divider { height: 1px; background: rgba(255,255,255,0.9); }
+  #ft .ft-copy { font-size: 0.65rem; color: rgba(255,255,255,0.9); display: flex;
+                 align-items: center; gap: .3rem; flex-wrap: wrap; }
+  #ft .ft-copy .heart { color: var(--coeur); font-size: 0.75rem; }
+  #ft .ft-copy a { color: rgba(255,255,255,0.9); text-decoration: none; }
+  #ft .ft-copy a:hover { color: var(--blanc); text-decoration: underline; }
+
+  @media (max-width: 768px) {
+    #hd nav { padding: .6rem 1rem; }
+    #hd .nav-links, #hd .btn-cta { display: none; }
+    #hd .btn-burger { display: flex; }
+    #ft { padding: .875rem 1rem .75rem; }
+  }
 </style>
 <script>
 (function () {
@@ -806,15 +870,14 @@ en documentation).
       <div style="display:flex;align-items:center;gap:2.5rem;">
         <a class="logo" href="/">Claim!</a>
         <div class="nav-links">
-          <a href="/job-board.html" class="on">Offres d'emploi</a>
-          <a href="/claim-entreprises.html">Entreprises</a>
-          <a href="/claim-observatoire.html">Observatoire de l'assurance</a>
+        <a href="/job-board.html" class="on">Offres d'emploi</a>
+        <a href="/claim-entreprises.html">Entreprises</a>
+        <a href="/claim-observatoire.html">Observatoire de l'assurance</a>
         </div>
       </div>
       <div style="display:flex;align-items:center;gap:.75rem;">
-        <button class="btn-cta">Contactez-nous</button>
-        <!-- Burger mobile -->
-        <button class="btn-burger" id="btn-burger" onclick="toggleBurger()" aria-label="Menu">
+        <a class="btn-cta" href="/contact.html">Contactez-nous</a>
+        <button class="btn-burger" id="btn-burger" onclick="toggleBurger()" aria-label="Menu" aria-expanded="false" aria-controls="burger-menu">
           <span></span><span></span><span></span>
         </button>
       </div>
