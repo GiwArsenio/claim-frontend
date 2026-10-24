@@ -65,6 +65,14 @@ const FORMATS = [
       await page.waitForTimeout(250);
 
       /* L'etat du pied, mesure. */
+      await page.evaluate(() => {
+        const hd = document.querySelector('header#hd, header.hd');
+        if (hd && hd.dataset.posAvant !== undefined) {
+          hd.style.position = hd.dataset.posAvant;
+          delete hd.dataset.posAvant;
+        }
+      });
+
       const etat = await page.evaluate(() => {
         const ft = document.querySelector('footer#ft, footer.pied');
         if (!ft) return { present: false };
@@ -112,34 +120,69 @@ const FORMATS = [
         };
       });
 
-      /* La capture du pied : on defile jusqu'a lui. */
-      await page.evaluate(() => {
-        const ft = document.querySelector('footer#ft, footer.pied');
-        if (ft) ft.scrollIntoView({ block: 'end' });
-      });
-      await page.waitForTimeout(700);
-
-      const pied = await page.evaluate(() => {
+      /* LA CAPTURE DU PIED.
+         On capture l'ELEMENT lui-meme : Playwright gere le defilement, le
+         cadrage et la mise a l'echelle. Calculer un clip a la main
+         etait fragile — sur l'accueil, le clip attrapait l'en-tete, et la
+         comparaison pixel par pixel comparait du teal a du blanc. */
+      const rectPied = await page.evaluate(() => {
         const ft = document.querySelector('footer#ft, footer.pied');
         if (!ft) return null;
         const r = ft.getBoundingClientRect();
-        return {
-          x: 0,
-          y: Math.max(0, Math.round(r.y) - 10),
-          width: window.innerWidth,
-          height: Math.min(Math.round(r.height) + 20, window.innerHeight),
-          onEcran: r.height > 0,
-        };
+        return { x: r.x + window.scrollX, y: r.y + window.scrollY,
+                 w: r.width, h: r.height };
       });
 
-      if (pied && pied.onEcran) {
-        await page.screenshot({
-          path: path.join(SORTIE, `${format.nom}-${p.nom}-pied.png`),
-          clip: pied,
-        });
+      const pied = rectPied ? {
+        x: 0,
+        y: Math.max(0, Math.round(rectPied.y) - 10),
+        width: Math.min(rectPied.w, 1440),
+        height: Math.round(rectPied.h) + 20,
+        onEcran: rectPied.h > 0,
+      } : null;
+
+      /* On descend jusqu'EN BAS de la page, ET on neutralise l'en-tete
+         collant pendant la capture.
+
+         Playwright capture l'element dans le viewport. L'en-tete est
+         collant (position: sticky) : il recouvre le haut du pied, et la
+         capture attrapait du teal au lieu du pied. Sur l'accueil, la
+         page defile de 1192 px, donc le pied passe sous l'en-tete ; sur
+         les pages a chantier, elle ne defile que de 94 px, et le pied
+         reste en dessous — d'ou des captures qui concordaient entre
+         elles mais pas avec la reference.
+
+         On retire donc l'en-tete du flux le temps de la capture. */
+      await page.evaluate(() => {
+        const de = document.documentElement;
+        const av = de.style.scrollBehavior;
+        de.style.scrollBehavior = 'auto';
+        window.scrollTo(0, de.scrollHeight);
+
+        const hd = document.querySelector('header#hd, header.hd');
+        if (hd) { hd.dataset.posAvant = hd.style.position; hd.style.position = 'static'; }
+        de.style.scrollBehavior = av;
+      });
+      await page.waitForTimeout(600);
+
+      const elementPied = await page.$('footer.pied, footer#ft');
+      /* L'en-tete est restaure juste apres la capture. */
+      if (elementPied) {
+        try {
+          await elementPied.screenshot({
+            path: path.join(SORTIE, `${format.nom}-${p.nom}-pied.png`),
+          });
+        } catch (e) {
+          /* L'element n'a pas pu etre capture : on prend la page entiere. */
+          await page.screenshot({
+            path: path.join(SORTIE, `${format.nom}-${p.nom}-pied.png`),
+            fullPage: true,
+          });
+        }
       } else {
         await page.screenshot({
           path: path.join(SORTIE, `${format.nom}-${p.nom}-pied.png`),
+          fullPage: true,
         });
       }
 
