@@ -613,6 +613,7 @@ en documentation).
 
 
 
+
   /* ══ RÉFÉRENTIEL — en-tête de l'accueil, pied du board ══
      Ces regles sont posees en fin de feuille : plus specifiques que
      celles du milieu de la page, elles ne peuvent pas etre annulees
@@ -666,7 +667,15 @@ en documentation).
         /* Comme l'en-tete, l'interligne est pose ici : le pied mesure 131 px
            sur le board et 111 px sur Entreprises, selon l'interligne du
            corps de page. Un pied de reference ne depend pas du reste. */
-        line-height: 1.65; }
+        line-height: 1.65;
+        /* La PILE de polices est posee ici, et non heritee du corps de
+           page. Les pages n'avaient pas la meme pile : le board tombait
+           sur 'Inter', sans-serif, l'accueil sur 'Inter', system-ui, ...
+           Sans la police web — hors reseau, dans les tests — chacune
+           retombait sur une police differente, et le meme texte mesurait
+           228 px sur l'une et 260 px sur l'autre. Le pied se repliait
+           donc sur un nombre de lignes different. */
+        font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
   #ft .ft-top { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
   #ft .ft-logo { font-size: 1.1rem; font-weight: 900; color: var(--blanc);
                  letter-spacing: -.05em; text-decoration: none; }
