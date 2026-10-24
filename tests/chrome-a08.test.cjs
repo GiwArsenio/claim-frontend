@@ -44,14 +44,11 @@ const PAGES = [
   { nom: 'contact', url: '/contact.html', actif: null },
 ];
 
-/* Le pied porte la navigation du site — la version precedente du pied.
-   Les quatre pages de mentions (À propos, CGU, Confidentialité, Contact)
-   sont accessibles depuis l'en-tête (« Contactez-nous ») et depuis le
-   tiroir mobile : le pied n'est plus leur seul point d'entrée. */
 const MENUS_PIED = [
-  { texte: "Offres d'emploi", href: '/job-board.html' },
-  { texte: 'Entreprises', href: '/claim-entreprises.html' },
-  { texte: "Observatoire de l'assurance", href: '/claim-observatoire.html' },
+  { texte: 'À propos', href: '/a-propos.html' },
+  { texte: 'CGU', href: '/cgu.html' },
+  { texte: 'Confidentialité', href: '/confidentialite.html' },
+  { texte: 'Contact', href: '/contact.html' },
 ];
 
 test('A08 — chaque page a un en-tête et un pied de page', async (t) => {
@@ -113,7 +110,7 @@ test('A08 — chaque page a un en-tête et un pied de page', async (t) => {
             `c'était du texte, le clic ne menait nulle part`
           );
 
-          /* Les menus de navigation du pied, partout. */
+          /* Les quatre menus du pied, partout. */
           for (const menu of MENUS_PIED) {
             const trouve = etat.menus.find((m) => m.texte === menu.texte);
             assert.ok(
@@ -263,12 +260,12 @@ test('A08 — sur téléphone, le tiroir s\'ouvre et son logo mène à l\'accuei
             const ft = document.querySelector('footer#ft, footer.pied');
             if (!ft) return null;
             const st = getComputedStyle(ft);
-            const lien = ft.querySelector('.nav2 a');
+            const lien = ft.querySelector('.ft-links a');
             const stLien = lien ? getComputedStyle(lien) : null;
             return {
               visible: st.display !== 'none' && st.visibility !== 'hidden',
               lienVisible: stLien ? stLien.display !== 'none' : false,
-              nbMenus: ft.querySelectorAll('.nav2 a').length,
+              nbMenus: ft.querySelectorAll('.ft-links a').length,
             };
           });
 
