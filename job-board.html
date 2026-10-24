@@ -774,6 +774,7 @@ en documentation).
 
 
 
+
   /* ══ RÉFÉRENTIEL — en-tête de l'accueil, pied du board ══
      Ces regles sont posees en fin de feuille : plus specifiques que
      celles du milieu de la page, elles ne peuvent pas etre annulees
@@ -823,7 +824,11 @@ en documentation).
   #ft { flex-shrink: 0; background: var(--teal-fond); color: rgba(255,255,255,0.9);
         padding: 1.25rem 1.375rem 1rem; display: flex; flex-direction: column;
         align-items: stretch; gap: .75rem;
-        border-top: 2px solid rgba(255,255,255,.1); }
+        border-top: 2px solid rgba(255,255,255,.1);
+        /* Comme l'en-tete, l'interligne est pose ici : le pied mesure 131 px
+           sur le board et 111 px sur Entreprises, selon l'interligne du
+           corps de page. Un pied de reference ne depend pas du reste. */
+        line-height: 1.65; }
   #ft .ft-top { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
   #ft .ft-logo { font-size: 1.1rem; font-weight: 900; color: var(--blanc);
                  letter-spacing: -.05em; text-decoration: none; }
