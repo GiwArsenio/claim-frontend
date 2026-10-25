@@ -362,7 +362,10 @@ html[data-theme="nuit"] select.chip {
      La hauteur : la section mesurait 209 px. Le contenu en fait 113, le
      reste etait du vide — 48 px de padding en haut et en bas. Le padding
      tombe a 1.375rem (22 px) : 157 px, soit 25 % de moins. */
-  .contact { background: var(--teal-fond); color: var(--blanc); margin-bottom: 2.5rem;
+  /* Pas de marge sous la section : le pied est de la meme teinte, et la
+     marge laissait voir le fond du body — une bande blanche le jour,
+     sombre la nuit, entre deux zones teal qui devraient se toucher. */
+  .contact { background: var(--teal-fond); color: var(--blanc);
              padding-block: 1.375rem; }
   .contact .env { display: flex; justify-content: space-between; align-items: center; gap: 2rem;
                   flex-wrap: wrap; }
