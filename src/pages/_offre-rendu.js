@@ -294,7 +294,7 @@ en documentation).
   })();
 
   const html = `<!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" style="--plan: var(--champ);">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -318,6 +318,8 @@ ${societe.logo_url
  /* Les couleurs viennent de assets/theme.css (source unique). */
  * { box-sizing:border-box; }
  body { margin:0; font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; color:var(--encre); line-height:1.65; }
+
+
  .enveloppe { max-width:46rem; margin:0 auto; padding:1.5rem 1.25rem 4rem; }
  .retour { display:inline-block; margin-bottom:1.25rem; color:var(--teal); text-decoration:none; font-weight:600; font-size:.9rem; }
  h1 { font-size:1.6rem; margin:0 0 .4rem; line-height:1.25; }

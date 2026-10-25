@@ -127,6 +127,7 @@ ${items}
 const CSS_COMMUN = `
   /* ══ CHARTE COMMUNE — en-tête, pied, pages de contenu ══ */
   html, body { margin: 0; }
+
   /* La feuille Material Symbols est chargee, mais sans cette regle la
      classe .ms n'applique pas la police : les noms d'icones s'affichent en
      clair dans le menu burger — « home », « work », « business ». */
@@ -318,7 +319,7 @@ document.addEventListener('keydown', function (e) {
 /* ── L'assemblage d'une page ─────────────────────────────────────────────── */
 function construire({ slug, titre, description, pageActive, corps }) {
   return `<!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" style="--plan: var(--fond);">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">

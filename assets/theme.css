@@ -37,6 +37,9 @@
 
   /* ── Surfaces ── */
   --fond: #fff;              /* le plan de la page */
+  /* Le fond reel du plan. Par defaut, c'est le fond de la page ; les
+     pages qui ont un fond propre le redontinent. */
+  --plan: var(--fond);
   --surface: #fff;           /* cartes, panneaux, bandeaux */
   --surface-2: #f5f8f9;      /* sous-surfaces : faits, tuiles, tableaux */
   --surface-3: #fafafa;      /* pieds de cartes */
@@ -144,6 +147,39 @@
   --ombre: 0 1px 2px rgba(25, 44, 52, .06), 0 4px 14px rgba(25, 44, 52, .05);
   --ombre-forte: 0 -10px 30px rgba(25, 44, 52, .10);
 }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   LE PLAN DE LA PAGE
+
+   Le fond est pose sur html ET sur body.
+
+   Pourquoi les deux : quand html n'a pas de fond, c'est le body qui
+   peint le canvas du navigateur. Or le body ne couvre que la hauteur
+   de son contenu, alors que le canvas fait la fenetre entiere. Sur
+   iPad Safari, quand le document est tire au-dela de sa fin — le
+   rebond du geste, ou la barre d'outils qui se retracte en laissant la
+   fenetre visible plus courte que le viewport — le canvas deborde du
+   body. C'est la que le vide apparaissait sous le pied de page, dans
+   une couleur qui n'appartenait pas au site.
+
+   Le fond est --plan : le fond reel de la page, que chaque page
+   redontine si le sien differe du fond par defaut.
+
+   Le debordement est desactive : le defilement s'arrete au pied.
+   ───────────────────────────────────────────────────────────────────────────── */
+html {
+  background: var(--plan);
+  overscroll-behavior-y: none;
+  min-height: 100%;
+}
+body {
+  background: var(--plan);
+  overscroll-behavior-y: none;
+}
+
+
+
+
 
 html[data-theme="nuit"] {
   color-scheme: dark;

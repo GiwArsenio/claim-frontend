@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" style="--plan: var(--champ);">
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
@@ -18,6 +18,8 @@
 }
 
 html, body { font-family: 'Inter', sans-serif; color: var(--encre); background: var(--champ); }
+
+
 /* La colonne est etiree : le pied est un enfant de #app, et un flex
    en colonne CENTRE ses enfants par defaut. Le pied se retrouvait donc
    au milieu de la page, au lieu d'etre aligne a gauche comme partout
@@ -639,7 +641,14 @@ html, body { font-family: 'Inter', sans-serif; color: var(--encre); background: 
      meme ombre que les cartes. Le contenu existant reste dans le HTML,
      masque (hidden) — il se reactive en changeant un seul attribut. */
   .chantier {
+    /* 100dvh, pas 100vh : sur iPad, 100vh inclut la barre d'outils,
+       qui se retracte en scroll. La hauteur calculee sur 100vh est
+       alors plus grande que la fenetre visible, et le document
+       deborde — le pied de page devenait inatteignable. 100dvh est
+       la fenetre visible. Le repli 100vh precede, pour les
+       navigateurs qui ignorent dvh. */
     min-height: calc(100vh - 6rem);
+    min-height: calc(100dvh - 6rem);
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     text-align: center; padding: 3rem 1.5rem;
     background: var(--champ, var(--champ));
