@@ -1,0 +1,104 @@
+# CLAIM! — Deploiement du frontend sur Cloudflare Workers.
+#
+# Le code reste versionne sur GitHub : c'est la source de verite. Ce
+# workflow ne decide de rien, il applique ce que le depot contient.
+#
+# Ce qui a change le 25 octobre 2026 : le site est servi par un Worker
+# Cloudflare, et plus par Vercel. Le deploiement se fait donc par
+# `wrangler deploy`. Avant, la fusion dans `main` suffisait : Vercel
+# buildait et publiait tout seul. Sans ce workflow, une fusion
+# deployerait... rien.
+#
+# Le jeton de deploiement est un secret du depot
+# (`CLOUDFLARE_API_TOKEN`). Il n'apparait jamais dans les journaux.
+
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Une seule publication a la fois : deux deploiements qui se chevauchent
+# sur le meme Worker se marchent dessus, et le second ecrase le premier
+# sans qu on le voie.
+concurrency:
+  group: deploy-cloudflare
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Preparer, verifier, deployer
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    environment: production
+
+    steps:
+      - name: Recuperer le code
+        uses: actions/checkout@v4
+
+      - name: Installer Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Installer les dependances
+        run: npm ci
+
+      # Les tests navigateur demandent un vrai navigateur. Sans lui, les
+      # tests de parcours et d'accessibilite ne s'executent pas — et un
+      # test qui ne s'execute pas passe en silence. C'est exactement le
+      # piege du 25 octobre : tout etait vert parce que rien ne
+      # regardait ce que voyait le visiteur.
+      - name: Installer le navigateur des tests
+        run: npx playwright install --with-deps chromium
+
+      # Les tests hors production bloquent le deploiement. Ceux qui
+      # parlent a la production alertent sans bloquer : la production
+      # peut tomber sans que le code soit en cause.
+      - name: Tests hors production
+        run: node tools/run-tests.cjs
+
+      # L'alignement du rendu : le Worker rend les fiches d'offre, et ce
+      # rendu doit rester identique a celui de la production de
+      # reference (api/offre.js). Le script echoue aussi si l'annuaire a
+      # ete duplique — la copie qui avait divergi en silence.
+      - name: Verifier l'alignement du rendu
+        run: npm run aligner:rendu:verifier
+
+      - name: Preparer les assets statiques
+        run: bash scripts/prepare-assets.sh
+
+      - name: Verifier la configuration Cloudflare
+        run: npx wrangler deploy --dry-run --outdir=./_dist
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Deployer
+        run: npx wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      # Le deploiement reussi ne prouve pas que le site marche. Ce controle
+      # le prouve : les adresses rendues par le Worker, avec les en-tetes
+      # de navigation d'un vrai navigateur.
+      #
+      # Sec-Fetch-Mode: navigate n'est pas un detail : c'est l'en-tete que
+      # Cloudflare regarde pour court-circuiter le Worker. Sans lui, le
+      # controle voit 200 la ou le navigateur voit 404 — exactement ce
+      # qui est arrive le 25 octobre.
+      - name: Verifier le site en ligne
+        run: node tests-portage/verifier-rendu.js --worker https://claimyourjob.fr --ref https://claimyourjob.fr
+
+      - name: Publier le resultat
+        if: always()
+        run: npx wrangler deployments list | head -5
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
