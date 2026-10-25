@@ -1,13 +1,38 @@
 {
-  "name": "claim-frontend-workers",
+  "name": "claim-frontend",
   "version": "1.0.0",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "dev": "wrangler dev",
-    "deploy": "wrangler deploy"
+  "description": "CLAIM! — Job board actuariat & IA en assurance",
+  "directories": {
+    "test": "tests"
   },
-  "dependencies": {
+  "scripts": {
+    "serve": "python3 -m http.server 8099",
+    "test": "node --test tests/",
+    "test:theme": "node --test tests/theme.test.cjs",
+    "captures": "node tools/captures.cjs captures",
+    "audit:theme": "node tools/audit-theme.cjs",
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "assets": "bash scripts/prepare-assets.sh",
+    "test:workers": "node tests-portage/verifier-rendu.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GiwArsenio/claim-frontend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/GiwArsenio/claim-frontend/issues"
+  },
+  "homepage": "https://github.com/GiwArsenio/claim-frontend#readme",
+  "devDependencies": {
+    "axe-core": "^4.14.0",
+    "pixelmatch": "^5.3.0",
+    "playwright": "^1.64.1",
+    "pngjs": "^7.0.0",
     "wrangler": "^4.152.0"
   }
 }
