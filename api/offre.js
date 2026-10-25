@@ -270,7 +270,10 @@ en documentation).
     // Un logo a fond sombre n'est pas inverse en mode nuit.
     const inversable = (ANNUAIRE && ANNUAIRE.logoInversable)
       ? ANNUAIRE.logoInversable(societe.slug || '') : true;
-    return `<span class="slogo fond-logo${inversable ? ' logo-inversable' : ''}"><span>${inits}</span>`
+    // Ce logo n'existe qu'en version claire : il lui faut son fond.
+    const surFondSombre = (ANNUAIRE && ANNUAIRE.logoSurFondSombre)
+      ? ANNUAIRE.logoSurFondSombre(societe.slug || '') : false;
+    return `<span class="slogo fond-logo${inversable ? ' logo-inversable' : ''}${surFondSombre ? ' logo-fond-sombre' : ''}"><span>${inits}</span>`
       + `<img src="${echapper(logoSociete)}" alt="Logo ${echapper(nomSociete)}" `
       + `onerror="this.remove()" onload="this.previousElementSibling.remove()"/></span>`;
   })();
@@ -317,6 +320,7 @@ ${societe.logo_url
     l'element, et celui-ci s'inversait avec le logo.
     En mode nuit, seul le logo est inverse. */
  .slogo.fond-logo { background: var(--surface-2); }
+ .slogo.fond-logo.logo-fond-sombre { background: #0b1c2c; }
  .slogo.fond-logo span { color: var(--encre-forte); }
  .slogo.fond-logo img { padding: 2px; }
  html[data-theme="nuit"] .slogo.fond-logo.logo-inversable img { filter: invert(1) hue-rotate(180deg); }

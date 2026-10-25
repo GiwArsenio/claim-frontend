@@ -335,6 +335,9 @@ html[data-theme="nuit"] select.chip {
    En mode nuit, seul le logo est inverse : il garde sa teinte et gagne
    en luminosite, ce qui le rend lisible sur la tuile sombre. */
 .clogo.fond-logo { background: var(--surface-2); }
+/* Un logo dessine pour un fond bleu nuit garde ce fond : sur la tuile
+   claire, ses deux couleurs claires s'effaceraient. */
+.clogo.fond-logo.logo-fond-sombre { background: #0b1c2c; }
 .clogo.fond-logo span { color: var(--encre-forte); }
 .clogo.fond-logo img { padding: 3px; }
 html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1) hue-rotate(180deg); }
@@ -1068,8 +1071,13 @@ function renderCompanyLogo(company, cssClass) {
     const inversable = (typeof CLAIM_ENTREPRISES !== 'undefined'
       && CLAIM_ENTREPRISES.logoInversable)
       ? CLAIM_ENTREPRISES.logoInversable(slugLogo) : true;
+    // Ce logo n'existe qu'en version claire : il lui faut son fond.
+    const surFondSombre = (typeof CLAIM_ENTREPRISES !== 'undefined'
+      && CLAIM_ENTREPRISES.logoSurFondSombre)
+      ? CLAIM_ENTREPRISES.logoSurFondSombre(slugLogo) : false;
     return '<div class="' + cssClass + ' fond-logo'
-      + (inversable ? ' logo-inversable' : '') + '">' +
+      + (inversable ? ' logo-inversable' : '')
+      + (surFondSombre ? ' logo-fond-sombre' : '') + '">' +
       '<span>' + initials + '</span>' +
       '<img src="' + logoUrl + '" alt="Logo ' + (company.name||'') + '" onerror="this.remove()" onload="this.previousElementSibling.remove()" />' +
       '</div>';
