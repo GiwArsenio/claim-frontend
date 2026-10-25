@@ -53,10 +53,33 @@ const ADRESSES_FIXES = [
   { chemin: '/adresse-inexistante',    attendu: 404, note: 'adresse inconnue' },
 ];
 
+// Les en-tetes qu un navigateur envoie quand on suit un lien ou qu on tape
+// une adresse. Ils ne sont pas decoratifs.
+//
+// `Sec-Fetch-Mode: navigate` est ce qui distingue une navigation d une
+// requete de ressource. Cloudflare court-circuite le Worker pour les
+// navigations (drapeau assets_navigation_prefers_asset_serving) : sans
+// cet en-tete, le harnais verrait 200 la ou le navigateur verrait 404.
+//
+// C est exactement ce qui est arrive le 25 octobre 2026 : l accueil
+// repondait 200 a curl et a Googlebot, et 404 dans un vrai navigateur.
+// Un harnais qui n imite pas le navigateur ne prouve rien pour le
+// visiteur.
+const EN_TETES_NAVIGATION = {
+  'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+  'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+  'accept-language': 'fr-FR,fr;q=0.9,en;q=0.8',
+  'sec-fetch-dest': 'document',
+  'sec-fetch-mode': 'navigate',
+  'sec-fetch-site': 'none',
+  'sec-fetch-user': '?1',
+  'upgrade-insecure-requests': '1',
+};
+
 async function lire(url) {
   const reponse = await fetch(url, {
     redirect: 'manual',
-    headers: { 'user-agent': 'claim-verifier-rendu/1.0' },
+    headers: { ...EN_TETES_NAVIGATION },
     signal: AbortSignal.timeout(TIMEOUT),
   });
   const corps = await reponse.text();
@@ -99,6 +122,20 @@ async function trouverSlugs() {
     return [];
   }
 }
+
+// ATTENTION : `wrangler dev` n emule PAS le court-circuit de navigation.
+// En local, une requete avec Sec-Fetch-Mode: navigate atteint toujours le
+// Worker, alors qu en production Cloudflare la court-circuite (drapeau
+// assets_navigation_prefers_asset_serving). Un Worker local peut donc
+// paraitre correct alors qu il repond 404 a un navigateur.
+//
+// Ce controle n a de valeur que sur un Worker deploye. C est pourquoi le
+// script compare par defaut a la production, et pourquoi la reference et
+// l Worker doivent etre deux origines reelles.
+//
+// (Le 25 octobre 2026, l accueil repondait 404 dans le navigateur et 200
+// a curl, a Googlebot, et a wrangler dev. Les trois etaient d accord : le
+// defaut ne se voyait que chez le visiteur.)
 
 // L'annuaire des entreprises doit etre UN SEUL fichier : le job board le
 // charge dans le navigateur, le Worker l'importe. Une copie divergerait
