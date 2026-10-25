@@ -758,7 +758,7 @@
      Criblage des 45 domaines confiés à Google, en navigateur : un seul reçoit
      cette icône, Mutuelle des Motards. Hunter n'en a pas non plus. Mieux vaut
      ses initiales qu'un globe gris. */
-  var SANS_LOGO = { "mutuelledesmotards.fr": true };
+  var SANS_LOGO = {};  /* La Mutuelle des Motards a fourni le sien. */
 
   /* ── Recherche ───────────────────────────────────────────────────────────
      Trois essais, du plus précis au plus tolérant : le slug exact, l'alias
@@ -806,11 +806,35 @@
 
   };
 
+  /* ── Les logos que l'employeur ne publie qu'en une version ─────────────
+     La Mutuelle des Motards n'a qu'un fichier : bleu clair (#c4d6e9) et
+     lime (#ddfe55), sur fond transparent, dessine pour son propre bleu
+     nuit. Pose sur une tuile claire, il disparait — contraste mesure 1,3
+     sur blanc. On lui rend donc son fond de marque, et on ne l'inverse
+     jamais : l'inversion denaturerait les deux couleurs qui le font
+     exister. */
+  var LOGO_FOURNI = {
+    'mutuelledesmotards.fr': 'https://www.mutuelledesmotards.fr/themes/custom/lmdm/assets/images/MDM_Horiz_Bleu-clair_Bleu-nuit.svg'
+  };
+
+  /* Ceux-la ont besoin d'un fond sombre en mode JOUR : la tuile claire
+     les efface. En nuit, --surface-2 est deja sombre. */
+  var LOGO_SUR_FOND_SOMBRE = {
+    'mutuelledesmotards.fr': 1
+  };
+
   // Le logo doit-il etre inverse en mode nuit ?
   function logoInversable(slug) {
     var cible = domaineEntreprise(slug);
     if (!cible) return true;
+    if (LOGO_SUR_FOND_SOMBRE[cible]) return false;
     return !LOGOS_A_FOND_SOMBRE[cible];
+  }
+
+  // Ce logo a-t-il besoin de son propre fond sombre ?
+  function logoSurFondSombre(slug) {
+    var cible = domaineEntreprise(slug);
+    return Boolean(cible && LOGO_SUR_FOND_SOMBRE[cible]);
   }
 
   // L'adresse de l'image, ou null : la tuile affiche alors les initiales.
@@ -822,6 +846,7 @@
     // l'envoyer a Google la transformerait en nom de domaine.
     if (cible.charAt(0) === '/') return cible;
     if (cible.indexOf('://') !== -1) return cible;
+    if (LOGO_FOURNI[cible]) return LOGO_FOURNI[cible];
     if (SANS_LOGO[cible]) return null;
     return FOURNISSEUR_HUNTER[cible]
       ? 'https://logos.hunter.io/' + cible
@@ -846,6 +871,7 @@
     ALIAS_LOGOS: ALIAS_LOGOS,
     domaineEntreprise: domaineEntreprise,
     logoEntreprise: logoEntreprise,
-    logoInversable: logoInversable
+    logoInversable: logoInversable,
+    logoSurFondSombre: logoSurFondSombre
   };
 }));
