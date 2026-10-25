@@ -35,8 +35,13 @@ La contrepartie : avec `none`, Cloudflare ne résout plus `/` vers
 
 ### `not_found_handling: "404-page"`
 
-Cloudflare cherche la page d'erreur dans `public/404/index.html`. La page
+Cloudflare cherche la page d'erreur dans `public/404.html` — le fichier
+le plus proche de l'adresse demandée. La page
 porte `noindex` : une adresse inexistante ne doit jamais entrer à l'index.
+
+C'est un gain par rapport à Vercel, qui renvoyait sa page d'erreur par
+défaut de la plateforme (79 octets) : l'utilisateur voit désormais le
+gabarit du site.
 
 ## Le quota
 
@@ -44,6 +49,37 @@ Les requêtes vers les fichiers statiques sont gratuites et illimitées. Seul
 le passage par le Worker compte dans le quota d'invocations (100 000 par
 jour en gratuit). Comme le Worker n'est interrogé que pour les adresses
 ci-dessus, le trafic SEO — HTML, CSS, images — n'est jamais compté.
+
+## Le rendu doit rester identique a la production
+
+Le Worker ne sert pas une copie du site : il rend la meme page que Vercel,
+au caractere pres. C'est la regle qui permet de basculer le DNS sans
+risque SEO — les 355 fiches d'offre doivent produire le meme HTML avant et
+apres.
+
+Cette regle a un corollaire : `api/offre.js` (Vercel) et
+`src/pages/_offre-rendu.js` (Worker) portent le meme rendu, et le site
+continue d'evoluer. Un correctif de style arrive dans `api/offre.js` : sans
+report, le Worker servirait une page differente de la production —
+silencieusement, et pour toutes les fiches.
+
+Le report est automatise :
+
+```sh
+npm run aligner:rendu              # regenere _offre-rendu.js depuis api/offre.js
+npm run aligner:rendu:verifier    # dit si les deux sont alignes
+```
+
+Et la verification, une fois le Worker lance (`npm run dev`) :
+
+```sh
+npm run test:workers               # quelques offres temoins
+npm run test:workers:complet       # les 355 fiches
+```
+
+Le harnais compare le Worker a la reference (la production Vercel par
+defaut, modifiable avec `--ref`). Il controlle aussi les adresses fixes :
+la racine, le board, la redirection, la 404.
 
 ## Lancer en local
 

@@ -1,5 +1,20 @@
-// API_BASE et SITE_URL sont injectes par le Worker : le module de rendu
-// ne connait pas l'environnement, il recoit ce dont il a besoin.
+// src/pages/_offre-rendu.js — Construction du HTML d'une fiche d'offre.
+//
+// Le rendu vient de api/offre.js (Vercel), repris tel quel : le Worker
+// doit rendre exactement la meme page que la production, au caractere
+// pres. Ce fichier ne fait que lbracketing Workers : l'environnement est
+// injecte, le HTML est renvoye.
+//
+// Ce qui change par rapport a la version Vercel :
+//   - les URL sont injectees (configurerUrls) au lieu de lues dans
+//     process.env ;
+//   - l'annuaire des entreprises est importe en ESM (il est CommonJS
+//     pour rester partage avec le job board) ;
+//   - `construire` est exporte : c'est src/pages/offre.js qui l'appelle.
+//
+// Toute evolution de api/offre.js doit etre reportee ici. Le script
+// scripts/aligner-rendu.py fait ce report et verifie l'alignement.
+
 let API_BASE = 'https://api.claimyourjob.fr/api/v1';
 let SITE_URL = 'https://claimyourjob.fr';
 
@@ -267,7 +282,10 @@ en documentation).
     // Un logo a fond sombre n'est pas inverse en mode nuit.
     const inversable = (ANNUAIRE && ANNUAIRE.logoInversable)
       ? ANNUAIRE.logoInversable(societe.slug || '') : true;
-    return `<span class="slogo fond-logo${inversable ? ' logo-inversable' : ''}"><span>${inits}</span>`
+    // Ce logo n'existe qu'en version claire : il lui faut son fond.
+    const surFondSombre = (ANNUAIRE && ANNUAIRE.logoSurFondSombre)
+      ? ANNUAIRE.logoSurFondSombre(societe.slug || '') : false;
+    return `<span class="slogo fond-logo${inversable ? ' logo-inversable' : ''}${surFondSombre ? ' logo-fond-sombre' : ''}"><span>${inits}</span>`
       + `<img src="${echapper(logoSociete)}" alt="Logo ${echapper(nomSociete)}" `
       + `onerror="this.remove()" onload="this.previousElementSibling.remove()"/></span>`;
   })();
@@ -314,6 +332,7 @@ ${societe.logo_url
     l'element, et celui-ci s'inversait avec le logo.
     En mode nuit, seul le logo est inverse. */
  .slogo.fond-logo { background: var(--surface-2); }
+ .slogo.fond-logo.logo-fond-sombre { background: #0b1c2c; }
  .slogo.fond-logo span { color: var(--encre-forte); }
  .slogo.fond-logo img { padding: 2px; }
  html[data-theme="nuit"] .slogo.fond-logo.logo-inversable img { filter: invert(1) hue-rotate(180deg); }
@@ -427,6 +446,27 @@ ${societe.logo_url
     .consent-boutons { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
     .consent button { height: 42px; padding: 0 .75rem; }
   }
+
+  /* Le pied de navigation. La fiche n'en avait aucun : depuis
+     /offre/{slug}, les mentions legales etaient inatteignables. La teinte
+     et la structure sont celles du pied de l'accueil et du board. */
+  #ft { background: var(--teal-fond); color: rgba(255,255,255,0.9);
+        padding: 1.25rem 1.375rem 1rem; display: flex; flex-direction: column; gap: .75rem;
+        border-top: 2px solid rgba(255,255,255,.28); }
+  #ft .ft-top { display: flex; align-items: center; justify-content: space-between;
+                gap: 1rem; flex-wrap: wrap; max-width: 62rem; margin: 0 auto; width: 100%; }
+  #ft .ft-logo { font-size: 1.1rem; font-weight: 900; color: var(--blanc);
+                 letter-spacing: -.05em; text-decoration: none; }
+  #ft .ft-logo:hover { color: var(--blanc-survol); }
+  #ft .ft-links { display: flex; gap: .625rem; flex-wrap: wrap; }
+  #ft .ft-links a { color: rgba(255,255,255,0.9); text-decoration: none; font-size: 0.7rem;
+                    font-weight: 500; padding: .2rem .5rem; border-radius: .25rem;
+                    border: 1px solid rgba(255,255,255,.15); transition: background .15s, color .15s; }
+  #ft .ft-links a:hover { background: var(--surbrillance); color: var(--blanc); }
+  #ft .ft-copy { font-size: 0.65rem; color: rgba(255,255,255,0.9); margin-top: .35rem; }
+  @media (max-width: 768px) {
+    #ft { padding: .875rem 1rem .75rem; }
+  }
 </style>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-SKQQXZW4LH"></script>
@@ -457,6 +497,20 @@ ${BLOC_CONSENTEMENT}
   </div>
 </main>
 </div>
+<footer id="ft">
+  <div class="ft-top">
+    <div>
+      <a class="ft-logo" href="/">Claim!</a>
+      <div class="ft-copy">© 2026 Claim your job</div>
+    </div>
+    <div class="ft-links">
+      <a href="/a-propos.html">À propos</a>
+      <a href="/cgu.html">CGU</a>
+      <a href="/confidentialite.html">Confidentialité</a>
+      <a href="/contact.html">Contact</a>
+    </div>
+  </div>
+</footer>
 <script>
   (function () {
     var d = window.__claimMesure || {};

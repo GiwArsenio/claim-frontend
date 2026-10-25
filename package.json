@@ -15,6 +15,9 @@
     "deploy": "bash scripts/prepare-assets.sh && wrangler deploy",
     "assets": "bash scripts/prepare-assets.sh",
     "test:workers": "node tests-portage/verifier-rendu.js",
+    "test:workers:complet": "node tests-portage/verifier-rendu.js --complet",
+    "aligner:rendu": "python3 scripts/aligner-rendu.py",
+    "aligner:rendu:verifier": "python3 scripts/aligner-rendu.py --verifier",
     "deploy:check": "bash scripts/prepare-assets.sh && wrangler deploy --dry-run"
   },
   "repository": {
