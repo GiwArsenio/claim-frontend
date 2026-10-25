@@ -10,7 +10,15 @@
     "test": "node --test tests/",
     "test:theme": "node --test tests/theme.test.cjs",
     "captures": "node tools/captures.cjs captures",
-    "audit:theme": "node tools/audit-theme.cjs"
+    "audit:theme": "node tools/audit-theme.cjs",
+    "dev": "wrangler dev",
+    "deploy": "bash scripts/prepare-assets.sh && wrangler deploy",
+    "assets": "bash scripts/prepare-assets.sh",
+    "test:workers": "node tests-portage/verifier-rendu.js",
+    "test:workers:complet": "node tests-portage/verifier-rendu.js --complet",
+    "aligner:rendu": "python3 scripts/aligner-rendu.py",
+    "aligner:rendu:verifier": "python3 scripts/aligner-rendu.py --verifier",
+    "deploy:check": "bash scripts/prepare-assets.sh && wrangler deploy --dry-run"
   },
   "repository": {
     "type": "git",
@@ -28,6 +36,7 @@
     "axe-core": "^4.14.0",
     "pixelmatch": "^5.3.0",
     "playwright": "^1.64.1",
-    "pngjs": "^7.0.0"
+    "pngjs": "^7.0.0",
+    "wrangler": "^4.152.0"
   }
 }

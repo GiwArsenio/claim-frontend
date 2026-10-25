@@ -1,0 +1,6 @@
+# Variables d'environnement locales pour `wrangler dev`.
+# En production, elles sont dans wrangler.jsonc (vars) ou dans le tableau de
+# bord Cloudflare (secrets). Ce fichier ne doit jamais etre versionne avec
+# ses valeurs reelles.
+API_URL=https://api.claimyourjob.fr/api/v1
+SITE_URL=https://claimyourjob.fr

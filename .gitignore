@@ -10,3 +10,15 @@ api/.offre-test-*.js
 # Les captures de REFERENCE, elles, sont versionnees : elles appartiennent
 # a une revision et ne sont jamais acceptees automatiquement.
 captures/ecarts/
+
+# Workers Cloudflare
+.wrangler/
+_dist/
+dev*.log
+verif.log
+
+# `public/` est genere par scripts/prepare-assets.sh : les fichiers du site
+# restent a la racine du depot, ou ils ont toujours ete. Les versionner ici
+# aussi les ferait diverger a la premiere edition.
+public/*
+!public/404.html

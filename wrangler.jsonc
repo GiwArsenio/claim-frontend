@@ -1,0 +1,59 @@
+{
+  // CLAIM! — Cloudflare Workers (Static Assets + SSR)
+  //
+  // Le site est du HTML/CSS/JS vanilla, sans build : les fichiers de
+  // `public/` sont servis tels quels. Les trois adresses dynamiques
+  // (/offre/{slug}, /sitemap.xml, /robots.txt) sont rendues par le Worker.
+  //
+  // Pourquoi `run_worker_first` n'est pas activé globalement : avec cette
+  // option, TOUTE requête traverse le Worker et consomme le quota
+  // d'invocations (100 000/jour en gratuit). Or le trafic SEO — HTML, CSS,
+  // JS, images — est servi directement par le CDN, sans Workers. Seul
+  // `/offre/*` passe par le Worker. C'est le routage sélectif du bloc
+  // `routes` ci-dessous qui garantit cela.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "claim-frontend",
+  "compatibility_date": "2026-10-24",
+  "compatibility_flags": ["nodejs_compat"],
+  "main": "src/index.js",
+
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    // Une page 404 explicite : le gabarit du site, pas la page par défaut
+    // de la plateforme. `none` laisserait un trou nu sur les adresses
+    // inexistantes.
+    "not_found_handling": "404-page",
+
+    // ── Point critique du portage ──────────────────────────────────────
+    // Par défaut, Workers Static Assets redirige (307) toute adresse
+    // `.html` vers sa version sans extension : /job-board.html devient
+    // /job-board. Sur CLAIM!, c'est un piège : le board, l'accueil, les
+    // pages Entreprises et Observatoire sont des adresses `.html` connues,
+    // indexées par Google et partagées. Les faire basculer en 307
+    // casserait les liens existants et affaiblirait le signal SEO.
+    //
+    // `none` sert l'adresse exacte, sans redirection ni réécriture.
+    // Le site garde ainsi ses adresses, et le board reste coherent avec
+    // les liens publishes sur la page Entreprises et dans les emails.
+    "html_handling": "none"
+  },
+
+  // Le domaine custom : la racine du site est attachee au Worker, qui
+  // decide ce qui est rendu et ce qui est servi depuis le CDN.
+  "routes": [
+    { "pattern": "claimyourjob.fr", "custom_domain": true },
+    { "pattern": "www.claimyourjob.fr", "custom_domain": true }
+  ],
+
+  "vars": {
+    "API_URL": "https://api.claimyourjob.fr/api/v1",
+    "SITE_URL": "https://claimyourjob.fr"
+  },
+
+  // Observabilité : les erreurs de rendu doivent se voir, comme sur Vercel.
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  }
+}
