@@ -25,6 +25,7 @@ silencieusement, et pour toutes les fiches.
 --verifier ne modifie rien : il se contente de dire si les deux fichiers
 sont alignes, et sort en erreur sinon.
 """
+import os
 import re
 import sys
 
@@ -95,9 +96,12 @@ export function configurerUrls(apiBase, siteUrl) {
 // L'annuaire des entreprises est un module partage avec le job board. Il
 // expose la meme source dans les deux surfaces : le rendu ne peut pas
 // diverger entre la carte du board et la fiche lue en direct.
-// Le fichier est un module CommonJS (il sert aussi le job board dans le
-// navigateur). En ESM, on l'importe par defaut.
-import ANNUAIRE_CJS from './companies-data.cjs';
+//
+// SOURCE UNIQUE. Le fichier est assets/companies-data.js : il est charge
+// par le job board dans le navigateur, et importe ici par le Worker. Il
+// n'y a pas de copie — une copie divergerait en silence, comme l'a fait
+// celle qui precedait ce portage.
+import ANNUAIRE_CJS from '../../assets/companies-data.js';
 const ANNUAIRE = ANNUAIRE_CJS;
 
 """
@@ -110,6 +114,24 @@ sortie = (
     + corps
     + "\n"
 )
+
+# ── 5. L'annuaire des entreprises : une seule source ──────────────────────
+# L'annuaire est charge par le job board dans le navigateur et importe par
+# le Worker. Il doit etre UN SEUL fichier : une copie divergerait en
+# silence — ce qui est arrive avec la copie que le portage initial avait
+# creee dans src/pages/. On verifie qu'il n'en reste pas.
+COPIES_ATTENDUES = []
+for racine, _, fichiers in os.walk("src"):
+    for nom in fichiers:
+        if nom.startswith("companies-data"):
+            COPIES_ATTENDUES.append(os.path.join(racine, nom))
+
+if COPIES_ATTENDUES:
+    print("  ANNULAIRE : copie detectee dans le Worker — elle divergera")
+    for copie in COPIES_ATTENDUES:
+        print(f"    {copie}")
+    sys.exit(1)
+print("  ANNULAIRE : source unique (assets/companies-data.js)")
 
 if VERIFIER:
     with open(DST, encoding="utf-8") as f:

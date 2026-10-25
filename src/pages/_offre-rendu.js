@@ -29,9 +29,12 @@ export function configurerUrls(apiBase, siteUrl) {
 // L'annuaire des entreprises est un module partage avec le job board. Il
 // expose la meme source dans les deux surfaces : le rendu ne peut pas
 // diverger entre la carte du board et la fiche lue en direct.
-// Le fichier est un module CommonJS (il sert aussi le job board dans le
-// navigateur). En ESM, on l'importe par defaut.
-import ANNUAIRE_CJS from './companies-data.cjs';
+//
+// SOURCE UNIQUE. Le fichier est assets/companies-data.js : il est charge
+// par le job board dans le navigateur, et importe ici par le Worker. Il
+// n'y a pas de copie — une copie divergerait en silence, comme l'a fait
+// celle qui precedait ce portage.
+import ANNUAIRE_CJS from '../../assets/companies-data.js';
 const ANNUAIRE = ANNUAIRE_CJS;
 
 const LABELS_CONTRAT = {
@@ -451,21 +454,51 @@ ${societe.logo_url
      /offre/{slug}, les mentions legales etaient inatteignables. La teinte
      et la structure sont celles du pied de l'accueil et du board. */
   #ft { background: var(--teal-fond); color: rgba(255,255,255,0.9);
-        padding: 1.25rem 1.375rem 1rem; display: flex; flex-direction: column; gap: .75rem;
+        padding: .625rem 1.375rem .5rem; display: flex; flex-direction: column; gap: .4rem;
         border-top: 2px solid rgba(255,255,255,.28); }
   #ft .ft-top { display: flex; align-items: center; justify-content: space-between;
                 gap: 1rem; flex-wrap: wrap; max-width: 62rem; margin: 0 auto; width: 100%; }
-  #ft .ft-logo { font-size: 1.1rem; font-weight: 900; color: var(--blanc);
+  #ft .ft-logo { font-size: .95rem; font-weight: 900; color: var(--blanc);
                  letter-spacing: -.05em; text-decoration: none; }
   #ft .ft-logo:hover { color: var(--blanc-survol); }
-  #ft .ft-links { display: flex; gap: .625rem; flex-wrap: wrap; }
-  #ft .ft-links a { color: rgba(255,255,255,0.9); text-decoration: none; font-size: 0.7rem;
+  #ft .ft-links { display: flex; gap: .4rem; flex-wrap: wrap; }
+  #ft .ft-links a { color: rgba(255,255,255,0.9); text-decoration: none; font-size: .68rem;
                     font-weight: 500; padding: .2rem .5rem; border-radius: .25rem;
                     border: 1px solid rgba(255,255,255,.15); transition: background .15s, color .15s; }
   #ft .ft-links a:hover { background: var(--surbrillance); color: var(--blanc); }
-  #ft .ft-copy { font-size: 0.65rem; color: rgba(255,255,255,0.9); margin-top: .35rem; }
+  #ft .ft-copy { font-size: .62rem; color: rgba(255,255,255,0.9); margin-top: .15rem; }
+
+/* ── PIED SUR TELEPHONE ───────────────────────────────────────────────
+   Le logo et les liens partagent une ligne ; la copie passe dessous.
+   Sans cela, le logo prenait une ligne entiere pour rien, et la copie
+   s'etalait sur cinq lignes dans le pied cantonne a la colonne de
+   gauche du board. display: contents promeut les enfants du div au
+   rang de flex ; order les replace.
+
+   Le gap du ft-top passe de 1rem a .4rem : a 320 px, le logo (45 px)
+   et les liens (267 px) ne tenaient pas dans 288 px avec 16 px de
+   separation. Les liens sont resserres pour que « Confidentialite »
+   ne passe pas a la ligne.
+
+   Ces regles viennent apres le bloc principal du footer : en CSS, la
+   regle qui vient plus tard gagne. */
   @media (max-width: 768px) {
-    #ft { padding: .875rem 1rem .75rem; }
+    #ft .ft-top { flex-wrap: wrap; align-items: center; gap: .4rem; }
+    #ft .ft-top > div:first-child { display: contents; }
+    #ft .ft-logo { order: 1; }
+    #ft .ft-links { order: 2; gap: .3rem; }
+    #ft .ft-copy { order: 3; flex-basis: 100%; margin-top: 0; gap: .12rem; }
+  }
+
+/* Sous 380 px, la copie tient sur deux lignes seulement a cette taille.
+   Au-dessus, elle tient deja en deux lignes : inutile de la reduire la
+   ou elle n'a pas besoin de l'etre. */
+  @media (max-width: 380px) {
+    #ft .ft-copy { font-size: .58rem; line-height: 1.3; }
+    #ft .ft-copy .heart { font-size: .66rem; }
+  }
+  @media (max-width: 768px) {
+    #ft { padding: .625rem 1rem .5rem; }
   }
 </style>
 <!-- Google tag (gtag.js) -->

@@ -100,6 +100,30 @@ async function trouverSlugs() {
   }
 }
 
+// L'annuaire des entreprises doit etre UN SEUL fichier : le job board le
+// charge dans le navigateur, le Worker l'importe. Une copie divergerait
+// en silence — celle du portage initial avait divergi, et le rendu de la
+// fiche n'affichait plus le logo de l'entreprise.
+function verifierAnnuaireUnique() {
+  const copies = [];
+  const parcourir = (dossier) => {
+    let entrees = [];
+    try {
+      entrees = require('node:fs').readdirSync(dossier, { withFileTypes: true });
+    } catch { return; }
+    for (const entree of entrees) {
+      const chemin = dossier + '/' + entree.name;
+      if (entree.isDirectory()) parcourir(chemin);
+      else if (entree.name.startsWith('companies-data')) copies.push(chemin);
+    }
+  };
+  parcourir('src');
+  const ok = copies.length === 0;
+  noter('annuaire unique', ok, ok ? 'source unique' : `copie(s) : ${copies.join(', ')}`);
+  console.log(`  ${ok ? '\u2713' : '\u2717'} annuaire unique${ok ? '' : ' — ' + copies.join(', ')}`);
+  return ok;
+}
+
 async function comparerOffres(slugs) {
   console.log(`\n${'═'.repeat(72)}\n  Fiches d'offre — Worker vs ${REF}\n${'═'.repeat(72)}`);
   let identiques = 0;
@@ -142,6 +166,7 @@ async function comparerOffres(slugs) {
   console.log(`Mode : ${COMPLET ? 'complet' : 'témoin'}`);
 
   await verifierAdressesFixes();
+  verifierAnnuaireUnique();
 
   const tous = await trouverSlugs();
   if (!tous.length) {
