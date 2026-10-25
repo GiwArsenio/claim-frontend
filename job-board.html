@@ -287,6 +287,18 @@ html[data-theme="nuit"] select.chip {
 .desc-source em, .desc-source i { font-style: italic; }
 .desc-source blockquote { margin: 0 0 .9rem; padding-left: .8rem; border-left: 3px solid var(--teal-bord); color: var(--gris-texte); }
 .desc-source a, .mi a { color: var(--teal); }
+/* Le corps de la fiche attend le detail. Peindre le texte de la liste
+   puis le remplacer par la structure d'origine faisait voir un texte sans
+   mise en forme pendant la requete. */
+.desc-attente { display: flex; flex-direction: column; gap: .55rem; margin: .3rem 0 1.2rem; }
+.desc-attente span { display: block; height: .7rem; border-radius: .25rem;
+  background: linear-gradient(90deg, var(--surface-2), var(--bord), var(--surface-2));
+  background-size: 200% 100%; animation: attente 1.2s linear infinite; }
+.desc-attente span:nth-child(2) { width: 92%; }
+.desc-attente span:nth-child(3) { width: 97%; }
+.desc-attente span.court { width: 58%; }
+@keyframes attente { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+@media (prefers-reduced-motion: reduce) { .desc-attente span { animation: none; } }
 .desc-more { margin-top: .35rem; padding: .3rem .7rem; border-radius: 9999px; border: 1px solid rgba(0,104,118,.3);
   background: var(--surface); color: var(--teal); font-family: inherit; font-size: .78rem; font-weight: 700; cursor: pointer; }
 .desc-more:hover { background: var(--teal-survol); }
@@ -555,8 +567,9 @@ html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1)
   /* La fiche garde les valeurs de la page d'offre sur téléphone : la
      mise en page ne se resserre pas avec l'écran. */
 
-  /* Footer mobile simplifié */
-  #ft .ft-links { display: none; }
+  /* Les liens du pied restent visibles sur telephone : c'est le seul
+     endroit ou l'on peut lire les mentions legales depuis le board. */
+  #ft .ft-links { display: flex; }
   #ft { padding: .875rem 1rem .75rem; }
 }
 
@@ -1903,7 +1916,12 @@ function poserAdresseOffre(slug) {
 // On dessine donc immédiatement ce que la liste contient, et on remplace
 // quand le détail arrive. L'écran « Chargement du détail… » ne sert plus qu'au
 // cas où l'on n'a vraiment rien : un lien direct, par exemple.
-function dessinerDetail(j) {
+// `sansCorps` : la fiche vient de la liste, sans la structure
+// d'origine. On peint l'entete tout de suite — c'est ce qui donne la
+// sensation d'ouverture immediate — mais pas le corps : le texte de la
+// liste n'a pas la mise en forme du detail, et le remplacer sous les yeux
+// du lecteur se voit. Le corps arrive avec le detail, ou jamais.
+function dessinerDetail(j, sansCorps) {
   offreCourante = j;
   const co = j.companies || {};
   const skillsBloc = skillsHtml(j);
@@ -1926,11 +1944,13 @@ function dessinerDetail(j) {
     : (blocsTexte.length ? [{ titre: 'Aperçu du poste', paragraphes: blocsTexte }] : []);
   descExpanded = {};
   const resumeIa = j.ai_summary ? `<p class="desc-ia">${escapeHtml(j.ai_summary)}</p>` : '';
-  const summary = descHtmlSource
-    ? resumeIa + `<div class="desc-source">${descHtmlSource}</div>`
-    : (descSections.length
-        ? resumeIa + descriptionSectionsHtml()
-        : '<p>Description non disponible.</p>');
+  const summary = sansCorps
+    ? '<div class="desc-attente" aria-hidden="true"><span></span><span></span><span></span><span class="court"></span></div>'
+    : (descHtmlSource
+        ? resumeIa + `<div class="desc-source">${descHtmlSource}</div>`
+        : (descSections.length
+            ? resumeIa + descriptionSectionsHtml()
+            : '<p>Description non disponible.</p>'));
 
   document.getElementById('detail').innerHTML = `
     <div class="dc-wrap">
@@ -1976,7 +1996,7 @@ async function renderDetail(id) {
   const depart = enCache || enListe;
 
   if (depart) {
-    dessinerDetail(depart);
+    dessinerDetail(depart, !enCache);
   } else {
     document.getElementById('detail').innerHTML = `
       <button class="btn-back" onclick="closeDetail()">
@@ -2012,6 +2032,11 @@ async function renderDetail(id) {
           Erreur : ${e.message}
         </div>
       `;
+    } else if (!enCache) {
+      // La requete a echoue : on peint le texte de la liste. Il n'a pas la
+      // mise en forme du detail, mais c'est toujours mieux qu'un squelette
+      // qui ne s'arreterait jamais.
+      dessinerDetail(depart);
     }
     console.error('[CLAIM!] renderDetail error:', e);
   }

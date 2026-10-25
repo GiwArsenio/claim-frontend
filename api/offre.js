@@ -430,6 +430,27 @@ ${societe.logo_url
     .consent-boutons { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
     .consent button { height: 42px; padding: 0 .75rem; }
   }
+
+  /* Le pied de navigation. La fiche n'en avait aucun : depuis
+     /offre/{slug}, les mentions legales etaient inatteignables. La teinte
+     et la structure sont celles du pied de l'accueil et du board. */
+  #ft { background: var(--teal-fond); color: rgba(255,255,255,0.9);
+        padding: 1.25rem 1.375rem 1rem; display: flex; flex-direction: column; gap: .75rem;
+        border-top: 2px solid rgba(255,255,255,.28); }
+  #ft .ft-top { display: flex; align-items: center; justify-content: space-between;
+                gap: 1rem; flex-wrap: wrap; max-width: 62rem; margin: 0 auto; width: 100%; }
+  #ft .ft-logo { font-size: 1.1rem; font-weight: 900; color: var(--blanc);
+                 letter-spacing: -.05em; text-decoration: none; }
+  #ft .ft-logo:hover { color: var(--blanc-survol); }
+  #ft .ft-links { display: flex; gap: .625rem; flex-wrap: wrap; }
+  #ft .ft-links a { color: rgba(255,255,255,0.9); text-decoration: none; font-size: 0.7rem;
+                    font-weight: 500; padding: .2rem .5rem; border-radius: .25rem;
+                    border: 1px solid rgba(255,255,255,.15); transition: background .15s, color .15s; }
+  #ft .ft-links a:hover { background: var(--surbrillance); color: var(--blanc); }
+  #ft .ft-copy { font-size: 0.65rem; color: rgba(255,255,255,0.9); margin-top: .35rem; }
+  @media (max-width: 768px) {
+    #ft { padding: .875rem 1rem .75rem; }
+  }
 </style>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-SKQQXZW4LH"></script>
@@ -460,6 +481,20 @@ ${BLOC_CONSENTEMENT}
   </div>
 </main>
 </div>
+<footer id="ft">
+  <div class="ft-top">
+    <div>
+      <a class="ft-logo" href="/">Claim!</a>
+      <div class="ft-copy">© 2026 Claim your job</div>
+    </div>
+    <div class="ft-links">
+      <a href="/a-propos.html">À propos</a>
+      <a href="/cgu.html">CGU</a>
+      <a href="/confidentialite.html">Confidentialité</a>
+      <a href="/contact.html">Contact</a>
+    </div>
+  </div>
+</footer>
 <script>
   (function () {
     var d = window.__claimMesure || {};

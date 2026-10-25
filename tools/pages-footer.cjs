@@ -127,6 +127,17 @@ ${items}
 const CSS_COMMUN = `
   /* ══ CHARTE COMMUNE — en-tête, pied, pages de contenu ══ */
   html, body { margin: 0; }
+  /* La feuille Material Symbols est chargee, mais sans cette regle la
+     classe .ms n'applique pas la police : les noms d'icones s'affichent en
+     clair dans le menu burger — « home », « work », « business ». */
+  .ms {
+    font-family: 'Material Symbols Outlined';
+    font-weight: normal; font-style: normal;
+    line-height: 1; letter-spacing: normal; text-transform: none;
+    display: inline-block; white-space: nowrap;
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    vertical-align: middle;
+  }
   body { font-family: 'Inter', system-ui, -apple-system, sans-serif;
          color: var(--encre); background: var(--fond); line-height: 1.65; }
 
