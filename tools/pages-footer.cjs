@@ -161,22 +161,52 @@ const CSS_COMMUN = `
 
   /* ── Pied de page ── */
   #ft { background: var(--teal-fond); color: rgba(255,255,255,.65);
-        padding: 1.25rem 1.375rem 1rem; display: flex; flex-direction: column; gap: .75rem;
+        padding: .625rem 1.375rem .5rem; display: flex; flex-direction: column; gap: .4rem;
         border-top: 2px solid rgba(255,255,255,.1); }
   #ft .ft-top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
-  #ft .ft-logo { font-size: 1.1rem; font-weight: 900; color: var(--blanc); letter-spacing: -.05em; text-decoration: none; }
+  #ft .ft-logo { font-size: .95rem; font-weight: 900; color: var(--blanc); letter-spacing: -.05em; text-decoration: none; }
   #ft .ft-logo:hover { color: var(--blanc-survol); }
   #ft .ft-tagline { font-size: 0.7rem; color: rgba(255,255,255,.5); font-style: italic; margin-top: 1px; }
-  #ft .ft-links { display: flex; gap: .625rem; flex-wrap: wrap; }
-  #ft .ft-links a { color: rgba(255,255,255,.6); text-decoration: none; font-size: 0.7rem; font-weight: 500;
+  #ft .ft-links { display: flex; gap: .4rem; flex-wrap: wrap; }
+  #ft .ft-links a { color: rgba(255,255,255,.6); text-decoration: none; font-size: .68rem; font-weight: 500;
                     padding: .2rem .5rem; border-radius: .25rem; border: 1px solid rgba(255,255,255,.15);
                     transition: background .15s, color .15s; }
   #ft .ft-links a:hover { background: var(--surbrillance); color: var(--blanc); }
   #ft .ft-divider { height: 1px; background: rgba(255,255,255,.1); }
-  #ft .ft-copy { font-size: 0.65rem; color: rgba(255,255,255,.35); display: flex; align-items: center; gap: .3rem; flex-wrap: wrap; }
-  #ft .ft-copy .heart { color: var(--coeur); font-size: 0.75rem; }
+  #ft .ft-copy { font-size: .62rem; color: rgba(255,255,255,.35); display: flex; align-items: center; gap: .3rem; flex-wrap: wrap; }
+  #ft .ft-copy .heart { color: var(--coeur); font-size: .7rem; }
   #ft .ft-copy a { color: rgba(255,255,255,.6); text-decoration: none; }
   #ft .ft-copy a:hover { color: var(--blanc); text-decoration: underline; }
+
+/* ── PIED SUR TELEPHONE ───────────────────────────────────────────────
+   Le logo et les liens partagent une ligne ; la copie passe dessous.
+   Sans cela, le logo prenait une ligne entiere pour rien, et la copie
+   s'etalait sur cinq lignes dans le pied cantonne a la colonne de
+   gauche du board. display: contents promeut les enfants du div au
+   rang de flex ; order les replace.
+
+   Le gap du ft-top passe de 1rem a .4rem : a 320 px, le logo (45 px)
+   et les liens (267 px) ne tenaient pas dans 288 px avec 16 px de
+   separation. Les liens sont resserres pour que « Confidentialite »
+   ne passe pas a la ligne.
+
+   Ces regles viennent apres le bloc principal du footer : en CSS, la
+   regle qui vient plus tard gagne. */
+  @media (max-width: 768px) {
+    #ft .ft-top { flex-wrap: wrap; align-items: center; gap: .4rem; }
+    #ft .ft-top > div:first-child { display: contents; }
+    #ft .ft-logo { order: 1; }
+    #ft .ft-links { order: 2; gap: .3rem; }
+    #ft .ft-copy { order: 3; flex-basis: 100%; margin-top: 0; gap: .12rem; }
+  }
+
+/* Sous 380 px, la copie tient sur deux lignes seulement a cette taille.
+   Au-dessus, elle tient deja en deux lignes : inutile de la reduire la
+   ou elle n'a pas besoin de l'etre. */
+  @media (max-width: 380px) {
+    #ft .ft-copy { font-size: .58rem; line-height: 1.3; }
+    #ft .ft-copy .heart { font-size: .66rem; }
+  }
 
   /* ── Menu mobile ── */
   #burger-menu { display: none; }
@@ -191,8 +221,12 @@ const CSS_COMMUN = `
   .bm-nav a.on { color: var(--blanc); background: var(--surbrillance); }
   .bm-nav a .ms { font-size: 20px; color: rgba(255, 255, 255, .6); }
   .bm-nav a.on .ms { color: rgba(255, 255, 255, .9); }
-  .bm-footer { padding: 1rem 1.25rem 1.5rem; border-top: 1px solid rgba(255, 255, 255, .12); }
-  .bm-footer .btn-cta { display: flex; width: 100%; justify-content: center; }
+  /* Une colonne flex : le bouton s'etire sans calcul de largeur. */
+  .bm-footer { padding: 1rem 1.25rem 1.5rem; border-top: 1px solid rgba(255, 255, 255, .12);
+               display: flex; flex-direction: column; }
+  .bm-footer .btn-cta { display: flex; justify-content: center; align-self: stretch;
+                        box-sizing: border-box; width: auto; margin: 0;
+                        padding: .65rem 1rem; font-size: .925rem; border-radius: .5rem; }
   .bm-mentions { display: flex; gap: 1rem; margin-top: 1rem; flex-wrap: wrap; }
   .bm-mentions a { color: rgba(255,255,255,.6); font-size: .75rem; text-decoration: none; }
   .bm-mentions a:hover { color: var(--blanc); text-decoration: underline; }
