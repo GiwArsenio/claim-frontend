@@ -56,7 +56,10 @@
     font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     color: var(--encre);
     line-height: 1.65;
-    background: var(--surface);
+    /* La teinte des sections, pas le blanc pur. Le body n'est visible
+       qu'entre la section contact et le pied : c'est la seule bande ou
+       le blanc apparaissait, une couleur absente du reste de la page. */
+    background: var(--champ);
   }
   a { color: var(--teal); }
   .env { max-width: var(--enveloppe); margin: 0 auto; padding: 0 2rem; }
@@ -365,10 +368,9 @@ html[data-theme="nuit"] select.chip {
      La hauteur : la section mesurait 209 px. Le contenu en fait 113, le
      reste etait du vide — 48 px de padding en haut et en bas. Le padding
      tombe a 1.375rem (22 px) : 157 px, soit 25 % de moins. */
-  /* Pas de marge sous la section : le pied est de la meme teinte, et la
-     marge laissait voir le fond du body — une bande blanche le jour,
-     sombre la nuit, entre deux zones teal qui devraient se toucher. */
-  .contact { background: var(--teal-fond); color: var(--blanc);
+  /* L'espace entre le bandeau et le pied : deux zones teal separees par
+     une respiration a la teinte du reste de la page. */
+  .contact { background: var(--teal-fond); color: var(--blanc); margin-bottom: 2.5rem;
              padding-block: 1.375rem; }
   .contact .env { display: flex; justify-content: space-between; align-items: center; gap: 2rem;
                   flex-wrap: wrap; }
@@ -476,8 +478,13 @@ html[data-theme="nuit"] select.chip {
     .bm-nav a .ms { font-size: 20px; color: rgba(255, 255, 255, .6); }
     .bm-nav a.on .ms { color: rgba(255, 255, 255, .9); }
 
-    .bm-footer { padding: 1rem 1.25rem 1.5rem; border-top: 1px solid rgba(255, 255, 255, .12); }
-    .bm-footer .btn-cta { display: flex; width: 100%; justify-content: center;
+    /* Une colonne flex : le bouton s'etire par align-self, sans calcul de
+       largeur. `width: 100%` avec un padding horizontal ne tient que si
+       box-sizing vaut border-box partout — et le padding droit sautait. */
+    .bm-footer { padding: 1rem 1.25rem 1.5rem; border-top: 1px solid rgba(255, 255, 255, .12);
+                 display: flex; flex-direction: column; }
+    .bm-footer .btn-cta { display: flex; justify-content: center; align-self: stretch;
+                          box-sizing: border-box; width: auto; margin: 0;
                           padding: .65rem 1rem; font-size: .925rem; border-radius: .5rem; }
 
     .hero { padding: 1.5rem 0 1.25rem; }

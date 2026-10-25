@@ -88,8 +88,12 @@
   .bm-nav a.on { color: var(--blanc); background: var(--surbrillance); }
   .bm-nav a .ms { font-size: 20px; color: rgba(255, 255, 255, .6); }
   .bm-nav a.on .ms { color: rgba(255, 255, 255, .9); }
-  .bm-footer { padding: 1rem 1.25rem 1.5rem; border-top: 1px solid rgba(255, 255, 255, .12); }
-  .bm-footer .btn-cta { display: flex; width: 100%; justify-content: center; }
+  /* Une colonne flex : le bouton s'etire sans calcul de largeur. */
+  .bm-footer { padding: 1rem 1.25rem 1.5rem; border-top: 1px solid rgba(255, 255, 255, .12);
+               display: flex; flex-direction: column; }
+  .bm-footer .btn-cta { display: flex; justify-content: center; align-self: stretch;
+                        box-sizing: border-box; width: auto; margin: 0;
+                        padding: .65rem 1rem; font-size: .925rem; border-radius: .5rem; }
   .bm-mentions { display: flex; gap: 1rem; margin-top: 1rem; flex-wrap: wrap; }
   .bm-mentions a { color: rgba(255,255,255,.6); font-size: .75rem; text-decoration: none; }
   .bm-mentions a:hover { color: var(--blanc); text-decoration: underline; }
