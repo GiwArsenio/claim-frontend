@@ -1,0 +1,11 @@
+node_modules/
+_dist/
+.wrangler/
+dev*.log
+verif.log
+
+# `public/` est genere par scripts/prepare-assets.sh : les fichiers du site
+# restent a la racine du depot, ou ils ont toujours ete. Les versionner ici
+# aussi les ferait diverger a la premiere edition.
+public/*
+!public/404.html

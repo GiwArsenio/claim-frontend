@@ -1,0 +1,2118 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Offres d'emploi Actuariat & IA en assurance — Claim your job</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+.ms {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal; font-style: normal;
+  line-height: 1; letter-spacing: normal; text-transform: none;
+  display: inline-block; white-space: nowrap;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  vertical-align: middle;
+}
+
+/* ── LAYOUT PRINCIPAL ── */
+/* L'interligne de l'accueil, repris : sans lui le navigateur en choisit un,
+   et l'en-tête mesurait 56 px au lieu des 64 de la page d'accueil. */
+html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; color: var(--encre); background: var(--champ); margin: 0; line-height: 1.65; }
+
+/* Quatre lignes : en-tete, hero, les deux colonnes, et le pied.
+   Le pied occupe toute la largeur, sous les deux colonnes : un pied
+   cantonne a la colonne de gauche n'est pas un pied de page. */
+#app { display: grid; grid-template-rows: auto auto 1fr auto; height: 100%; overflow: hidden; }
+
+/* Largeurs de référence de la mise en page bureau.
+
+   --colonne-liste     la colonne des offres, à gauche.
+   --enveloppe-lecture l'enveloppe de la page d'offre, marges internes
+                       comprises (46 rem). C'est la largeur de lecture.
+   --enveloppe-large   la même, une fois la place pour la prendre.
+   --marge-page        les marges de page. Elles valent 100 px à 1 920 px de
+                       large — la place exacte à répartir — et absorbent tout
+                       le surplus au-delà. Le bloc garde donc 1 720 px de
+                       large : ni la colonne ni la fiche ne s'étirent sans fin.
+
+   A 1 920 px : 100 + 420 + 32 + 920 + 100 = 1 572, et la fiche prend le reste
+   jusqu'a son plafond. */
+:root {
+  --colonne-liste: 420px;
+  --enveloppe-lecture: 57.5rem; /* 920 px : la largeur de lecture, +25 % */
+  --enveloppe-large: 1032px;    /* + 112 px quand la place existe */
+  --marge-page: max(2rem, calc((100vw - 1720px) / 2));
+}
+
+/* Header */
+/* L'en-tête est celui de l'accueil, repris à l'identique : teinte, hauteur,
+   typographie et bouton. Seules diffèrent les deux marques d'état — le lien
+   courant, que l'accueil n'a pas à marquer, et le comportement du bouton
+   Contact, sans section contact ici. */
+#hd { background: var(--teal-fond); position: sticky; top: 0; z-index: 200; }
+#hd nav { display: flex; justify-content: space-between; align-items: center; padding: .75rem 2rem; }
+/* Le logo reagissait a rien : un lien sans aucun signal de survol. La
+   marque est le point de sortie du site : le survol doit le dire. */
+.logo { font-size: 1.5rem; font-weight: 900; color: var(--blanc); letter-spacing: -.05em; text-decoration: none; }
+.logo:hover { color: var(--blanc-survol); }
+.nav-links { display: flex; gap: 2rem; }
+.nav-links a { color: rgba(255, 255, 255, .8); text-decoration: none; font-size: .925rem; font-weight: 600; }
+.nav-links a:hover { color: var(--blanc); }
+.nav-links a.on { color: var(--blanc); border-bottom: 2px solid #fff; padding-bottom: 2px; }
+/* Le lien actif porte deja un soulignement : c'est lui qui dit a
+   l'utilisateur qu'il est sur la page courante. Le survol ne l'efface
+   pas, il le renforce. */
+.nav-links a.on:hover { color: var(--blanc); border-bottom-color: var(--blanc-survol); }
+.btn-cta { background: var(--surface); color: var(--teal); padding: .45rem 1.2rem; border-radius: .5rem; font-weight: 700; font-size: .925rem; border: none; cursor: pointer; font-family: inherit; white-space: nowrap; }
+/* Le bouton ne reagissait a rien. Pose sur le fond clair — en mode nuit
+   aussi — son survol s'eclaire et sa bordure se marque. */
+.btn-cta:hover { background: var(--teal-survol-element); border-color: var(--teal);
+                    color: var(--encre); }
+
+/* ── HERO ── */
+#hero {
+  background: var(--champ);
+  border-bottom: 1px solid rgba(187,201,204,.25);
+  overflow: hidden;
+  max-height: 200px; /* desktop */
+  opacity: 1;
+  padding: 1.25rem 2rem .875rem;
+  transition:
+    max-height .35s cubic-bezier(.4,0,.2,1),
+    opacity    .25s ease,
+    padding    .35s cubic-bezier(.4,0,.2,1);
+}
+#hero.collapsed { max-height: 0; opacity: 0; padding-top: 0; padding-bottom: 0; }
+
+#hero h1 { font-size: clamp(1.3rem, 2.2vw, 2rem); font-weight: 900; color: var(--encre); letter-spacing: -.02em; line-height: 1.15; margin-bottom: .3rem; }
+#hero h1 em { color: var(--teal); font-style: normal; }
+#hero .sub { color: var(--gris); font-size: 0.925rem; margin-bottom: .75rem; }
+
+.sbar { display: flex; align-items: center; background: var(--surface); border: 1px solid var(--bord-carte); border-radius: .625rem; padding: .3rem; max-width: 50rem; box-shadow: 0 1px 4px rgba(0,0,0,.07); margin-bottom: .5rem; }
+.sf { flex: 1; display: flex; align-items: center; padding: 0 1rem; gap: .4rem; }
+.sf input { width: 100%; border: none; outline: none; background: transparent; font-family: inherit; font-size: 0.925rem; color: var(--encre);
+           border-radius: 4px; }
+/* Le champ disparaissait du parcours clavier : `outline: none` supprimait
+   l'indicateur sans rien mettre a la place. Le focus se voit desormais sur
+   le champ lui-meme. */
+.sf input:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+/* Le placeholder suit le theme : la valeur fixe d'origine tombait a
+   2,2:1 dans les deux modes, sous le seuil AA. A .90 du gris doux, il
+   passe a 4,6:1 le jour et 5,0:1 la nuit. */
+.sf input::placeholder { color: rgba(var(--gris-doux-rgb), .9); }
+.sdiv { width: 1px; height: 1.4rem; background: rgba(187,201,204,.35); flex-shrink: 0; }
+.btn-srch { background: linear-gradient(135deg,var(--teal-fond),var(--teal-fonce)); color: var(--blanc); border: none; cursor: pointer; padding: .5rem 1.5rem; border-radius: .375rem; font-weight: 700; font-size: 0.925rem; white-space: nowrap;
+  transition: background .15s, box-shadow .15s; }
+.btn-srch:hover { background: var(--teal-aplat-survol); box-shadow: 0 2px 10px rgba(0,0,0,.18); }
+
+.chips { display: flex; gap: .5rem; overflow-x: auto; padding-bottom: .15rem; }
+.chips::-webkit-scrollbar { display: none; }
+.chip { display: flex; align-items: center; gap: .3rem; padding: .38rem .85rem; border-radius: .375rem; background: var(--surface); color: var(--gris); font-size: 0.925rem; font-weight: 500; border: 1px solid var(--bord-carte); cursor: pointer; white-space: nowrap; flex-shrink: 0; transition: background .15s; }
+/* Le survol d'un filtre doit se VOIR. Le fond de survol est un jeton
+   dedie : --teal-survol reste le fond des badges, ou un fond clair le
+   jour eclaircissait le badge au lieu de le lire. */
+.chip:hover { background-color: var(--surface-survol); border-color: var(--teal-bord);
+             /* Le fond s'eclaircit d'un cran, comme une surface. Une ombre
+                le detache du bandeau. Un aplat de couleur sature se lirait
+                « allume » : ce n'est pas un survol, c'est un changement de
+                nature. */
+             box-shadow: 0 1px 6px rgba(0, 0, 0, .28);
+             /* La fleche suit le fond : sinon elle reste grise sur une
+                surface changee, et le signal parait incomplet. */
+             /* Le texte suit le fond : sinon il garde sa couleur d'origine
+                et le filtre devient illisible sur la surface eclaircie. */
+             color: var(--encre); }
+/* La fleche de la liste deroulante.
+   Elle est une IMAGE dont l'URL est portee par une variable : la variable
+   prend une autre valeur en mode nuit, et la fleche suit le theme.
+
+   En image a couleur figee, elle ne suivait ni le theme, ni le survol, et
+   son trait etait a 2,64 de contraste sur le fond de pause en mode nuit :
+   elle y etait presque invisible.
+
+   Ni raccourci `background`, ni `background-color` seul : le raccourci
+   remet a zero background-position et background-repeat, et la fleche
+   partait dans le coin haut-gauche, repetee sur toute la pastille —
+   101 pixels de fleche au repos, 464 au survol. */
+select.chip { appearance: none; -webkit-appearance: none; padding-right: 2rem;
+  --fleche-pastille: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23515f78' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-image: var(--fleche-pastille);
+  background-repeat: no-repeat; background-position: right .7rem center; }
+/* En mode nuit, la fleche s'eclaircit : sur une surface sombre, le trait
+   d'origine tombait sous le seuil de lisibilite. */
+html[data-theme="nuit"] select.chip {
+  --fleche-pastille: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b9aa0' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+}
+
+/* ── SPLIT PANE ── */
+#split { display: flex; overflow: hidden; height: 100%; min-height: 0; }
+
+/* Colonne gauche */
+.pl { width: var(--colonne-liste); flex-shrink: 0; display: flex; flex-direction: column; background: var(--surface-liste); border-right: 1px solid rgba(187,201,204,.25); overflow-y: auto; overflow-x: hidden; }
+.pl::-webkit-scrollbar { width: 3px; }
+.pl::-webkit-scrollbar-thumb { background: var(--gris-pale); border-radius: 10px; }
+.pl-hd { flex-shrink: 0; padding: .625rem 1.375rem .35rem; font-size: 0.7rem; font-weight: 700; color: var(--gris-doux); text-transform: uppercase; letter-spacing: .1em; background: var(--surface-liste); }
+.feed { padding: .35rem .875rem .875rem; display: flex; flex-direction: column; gap: .65rem; }
+
+/* Colonne droite */
+/* Fond de page du modèle : la fiche est une page, pas une carte. */
+.pr { flex: 1; min-height: 0; overflow-y: auto; background: var(--surface);
+  /* Police, interligne et couleur du texte de la page d'offre. */
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.65; color: var(--encre);
+  /* Marge droite : exactement la marge blanche qui sépare le texte de la
+     colonne des offres. L'enveloppe se centre dans la page, donc sa
+     gouttière vaut (page − enveloppe) / 2, et la marge blanche du texte
+     vaut gouttière + le padding interne de l'enveloppe. En posant
+     « bande = marge blanche », on résout :
+
+         bande = (fenêtre − colonne − enveloppe + 2 × padding) / 3
+
+     Les deux marges du texte deviennent alors égales, à toute largeur, et
+     la colonne de lecture garde la largeur du modèle. Sur un écran étroit
+     la bande s'annule d'elle-même : la page reprend toute la largeur
+     restante après la colonne, comme avant. */
+  margin-right: max(0px, calc((100% - var(--colonne-liste) - var(--enveloppe-lecture) + 2.5rem) / 3)); }
+.pr::-webkit-scrollbar { width: 3px; }
+.pr::-webkit-scrollbar-thumb { background: var(--gris-pale); border-radius: 10px; }
+
+/* ── DETAIL CARD ── */
+/* Enveloppe de lecture reprise du modèle : largeur tenue, marges
+   généreuses. Ni bordure ni ombre — sur fond blanc, la carte se voyait. */
+.dc {
+  max-width: var(--enveloppe-lecture);
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 4rem;
+}
+
+/* Enveloppe de la fiche : au telephone, elle ne sert qu'a porter le padding
+   du bloc 769 px — sans 'display: contents', elle ajouterait une boite en trop
+   autour de la fiche et l'espacement serait doublé. */
+.dc-wrap { display: contents; }
+
+/* ── EN-TÊTE STICKY DU DÉTAIL ── */
+/* ── CARDS ── */
+.jc { background: var(--surface); border-radius: .625rem; padding: .875rem; cursor: pointer; transition: transform .15s, box-shadow .15s; position: relative; border: 1.5px solid var(--bord-carte); box-shadow: 0 2px 6px rgba(25,44,52,.08), 0 5px 14px rgba(25,44,52,.04); flex-shrink: 0; }
+.jc:hover { transform: translateY(-1px); border-color: var(--bord-carte-survol); box-shadow: 0 5px 16px rgba(25,44,52,.14); }
+.jc.on { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(0,104,118,.10), 0 4px 12px rgba(25,44,52,.10); }
+/* La carte SELECTIONNEE ne reagissait plus au survol : sa regle .on
+   venait apres .jc:hover, et l'ecrasait. Elle redevient vivante — le
+   survol leve la carte et marque sa bordure, comme les autres. */
+.jc.on:hover { transform: translateY(-1px); border-color: var(--teal-fonce);
+               box-shadow: 0 0 0 3px rgba(0,104,118,.16), 0 5px 16px rgba(25,44,52,.14); }
+.ct { display: flex; align-items: flex-start; margin-bottom: .45rem; }
+.clogo { width: 38px; height: 38px; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: var(--blanc); font-weight: 900; font-size: 9.5px; flex-shrink: 0; position: relative; overflow: hidden; }
+.ci { flex: 1; min-width: 0; padding-left: .5rem; }
+.ctitle { font-size: .875rem; font-weight: 700; color: var(--encre); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.csub { font-size: .75rem; color: var(--gris); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cm { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin: 9px 0; }
+.card-fact { display: inline-flex; align-items: center; flex: 0 0 auto; max-width: 100%; padding: 2px 8px; border: 1px solid var(--bord-carte); border-radius: 4px; background: var(--surface-2); }
+.card-fact-value { color: var(--encre-forte); font-size: 12px; font-weight: 600; line-height: 16px; overflow-wrap: anywhere; }
+.card-fact .ms { font-size: 14px; color: var(--gris-icone); margin-right: 3px; }
+/* La localisation porte sa propre teinte : elle indique un lieu, pas une
+   condition de poste, et doit se distinguer au premier regard. */
+.card-fact--loc { background: var(--teal-clair); border-color: var(--teal-bord); }
+.card-fact--loc .card-fact-value { color: var(--teal-texte); }
+.card-fact--loc .ms { color: var(--teal); }
+.cmi { display: flex; align-items: center; gap: 3px; font-size: .725rem; color: var(--gris); font-weight: 600; }
+.ctags { display: flex; flex-wrap: wrap; gap: 3px; }
+/* Hauteur relevée sans toucher au texte : les badges gagnent en présence sans
+   concurrencer le titre. */
+.jc .ctags .tag { font-size: 9px; padding: 3px 6px; }
+.cdate { position: absolute; bottom: .5rem; right: .875rem; font-size: 9px; color: var(--gris-doux); font-weight: 500; }
+.tag { display: inline-block; padding: 1.5px 5px; border-radius: 3px; font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+.tm { background: var(--cyan-clair); color: var(--cyan-texte); }
+.tp { background: var(--vert-pale); color: var(--vert-texte); border: 1px solid rgba(34,197,94,.2); }
+.tn { background: var(--orange-clair); color: var(--orange-texte); }
+
+/* ── FICHE — alignée sur la page d'offre (/offre/{slug}) ──
+   Échelle de titres, marges, couleurs et pastilles reprennent les valeurs
+   de api/offre.js. Le lecteur doit retrouver la même page, qu'il arrive par
+   la liste ou par une adresse d'offre.
+
+   .ki/.kl/.kv et .toast-claim restent définis : ils servent la proposition
+   IA et la copie du lien, conservées dans le code pour être réactivées. */
+.dtitle { font-size: 1.6rem; font-weight: 700; line-height: 1.25; margin: 0 0 .4rem; color: var(--encre); }
+.dco { color: var(--gris); font-size: 1rem; font-weight: 600; margin-bottom: .9rem; }
+.btn-back { display: inline-block; margin-bottom: 1.25rem; padding: 0; background: none;
+  border: none; color: var(--teal); font-weight: 600; font-size: .9rem; cursor: pointer;
+  font-family: inherit; }
+.btn-back:active { opacity: .7; }
+
+/* Pastilles : reprises trait pour trait de la page d'offre. */
+.pastilles { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: 1.6rem; }
+
+/* Les deux gestes de la fiche : postuler à l'annonce d'origine, et la
+   partager. Le modèle n'en porte aucun ; ici ils sont nécessaires, et ils
+   restent dans le bloc figé pour accompagner toute la lecture. */
+.dact { display: flex; align-items: center; gap: .5rem; margin-bottom: 1.6rem; }
+.bap, .bsh { display: inline-flex; align-items: center; font-family: inherit;
+  font-size: .9rem; font-weight: 600; line-height: 1; padding: .62rem 1.1rem;
+  border-radius: .5rem; text-decoration: none; white-space: nowrap; cursor: pointer; }
+/* Postuler : teal de la maison, plein — c'est l'action attendue. */
+.bap { background: var(--teal-fond); color: var(--blanc); border: 1px solid var(--teal); }
+/* Le survol eclaircit l'APLAT, il ne le remplace pas par la couleur du
+   TEXTE de marque. En mode nuit, --teal-texte vaut #7fd4e0 : du texte
+   blanc dessus tombait a 1,69 de contraste, et le survol rendait le
+   bouton illisible. --teal-aplat-survol reste un aplat. */
+.bap:hover { background: var(--teal-aplat-survol); border-color: var(--teal-aplat-survol); }
+/* Partager : secondaire, en contour, pour ne pas concurrencer Postuler. */
+.bsh { background: var(--surface); color: var(--teal); border: 1px solid var(--teal-bord); }
+/* Comme les filtres, le survol doit se distinguer du fond de repos. */
+.bsh:hover { background: var(--teal-survol-element); border-color: var(--teal);
+              /* Le texte suit le fond, comme sur les filtres. */
+              color: var(--encre); }
+/* Pastilles : chaque badge tient sur sa ligne, sans jamais déborder. */
+.pastille { display: inline-block !important; width: fit-content; max-width: 100%;
+  padding: 3px 10px; border: 1px solid var(--bord-carte); border-radius: 9999px;
+  background: var(--surface-2); font-size: .78rem; font-weight: 600; color: var(--encre-forte);
+  overflow-wrap: anywhere; white-space: normal; line-height: 1.4; }
+.pastille-ville { background: var(--teal-clair); border-color: var(--teal-bord); color: var(--teal-texte); }
+.pastille-salaire { background: var(--vert-clair); border-color: var(--vert-bord); color: var(--vert-texte); }
+.pastille-specialite { background: var(--teal-clair); border-color: var(--teal-bord); color: var(--teal-texte); }
+
+/* Corps : même échelle et mêmes espacements que la page d'offre. */
+.ds { margin-bottom: 1.25rem; }
+.ds h3, .desc-source h3, .desc-source h4, .desc-source h5, .desc-source h6 { font-size: .98rem; font-weight: 700; color: var(--encre); margin: 1.2rem 0 .4rem; }
+.ds h3 { display: flex; align-items: center; gap: .35rem; }
+.ds p, .desc-source p, .mi { margin: 0 0 .7rem; color: var(--gris-texte); }
+.desc-source ul, .desc-source ol, .pb ul { margin: 0 0 .9rem; padding-left: 1.3rem; color: var(--gris-texte); }
+.desc-source li, .pb li { margin: .25rem 0; }
+.desc-source li > ul, .desc-source li > ol { margin: .25rem 0 .1rem; }
+.desc-source strong, .desc-source b { color: var(--encre); }
+.desc-source em, .desc-source i { font-style: italic; }
+.desc-source blockquote { margin: 0 0 .9rem; padding-left: .8rem; border-left: 3px solid var(--teal-bord); color: var(--gris-texte); }
+.desc-source a, .mi a { color: var(--teal); }
+.desc-more { margin-top: .35rem; padding: .3rem .7rem; border-radius: 9999px; border: 1px solid rgba(0,104,118,.3);
+  background: var(--surface); color: var(--teal); font-family: inherit; font-size: .78rem; font-weight: 700; cursor: pointer; }
+.desc-more:hover { background: var(--teal-survol); }
+/* Les puces de mission ne sont plus un encadré : ce sont des listes. */
+.pb { padding: 0; }
+.mi { display: flex; align-items: flex-start; gap: .4rem; }
+.tl { display: flex; flex-wrap: wrap; gap: .3rem; }
+.tt { padding: 3px 10px; border: 1px solid var(--bord-carte); border-radius: 9999px; background: var(--surface-2); font-size: .78rem; font-weight: 600; color: var(--encre-forte); }
+
+/* Pied : filet et texte gris, comme la page d'offre. */
+.pied { margin-top: 2.5rem; padding-top: 1.2rem; border-top: 1px solid var(--bord); font-size: .85rem; color: var(--gris); }
+.pied a { color: var(--teal); font-weight: 600; }
+/* Les liens du pied de la fiche ne reagissaient a rien. */
+.pied a:hover { color: var(--teal-texte); text-decoration: underline; }
+
+
+
+/* Conservés pour les fonctions non affichées (proposition IA, copie). */
+.ki { display: flex; align-items: center; gap: .4rem; }
+.kl { font-size: 10px; font-weight: 700; color: var(--gris-doux); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 2px; }
+.kv { font-size: 0.825rem; font-weight: 700; color: var(--encre); }
+.toast-claim { position: fixed; left: 50%; bottom: 1.5rem; transform: translate(-50%, 1rem);
+  background: var(--encre); color: var(--blanc); padding: .55rem 1.1rem; border-radius: 9999px;
+  font-size: .82rem; font-weight: 600; opacity: 0; pointer-events: none; z-index: 9999;
+  transition: opacity .2s ease, transform .2s ease; }
+.toast-claim.vu { opacity: 1; transform: translate(-50%, 0); }
+.clogo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; border-radius: inherit; padding: 2px; }
+/* Un logo se pose sur un fond clair : il y reste lisible. Le fond suit
+   le thème, il n'est donc jamais le même en mode nuit. */
+/* La tuile porte un fond pris dans le theme : clair le jour, sombre la
+   nuit. L'image n'a pas de fond — un filtre s'applique a tout ce que
+   l'element dessine, fond compris : celui de l'image s'inversait avec
+   le logo, et le logo se retrouvait clair sur un fond clair.
+   En mode nuit, seul le logo est inverse : il garde sa teinte et gagne
+   en luminosite, ce qui le rend lisible sur la tuile sombre. */
+.clogo.fond-logo { background: var(--surface-2); }
+.clogo.fond-logo span { color: var(--encre-forte); }
+.clogo.fond-logo img { padding: 3px; }
+html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1) hue-rotate(180deg); }
+.bcv { display: inline-flex; align-items: center; gap: .3rem; padding: .5rem .875rem; border-radius: .5rem; background: var(--encre); color: var(--blanc); font-weight: 700; font-size: 0.8rem; text-decoration: none; }
+
+/* ── FOOTER RICHE ── */
+#ft {
+  flex-shrink: 0;
+  background: var(--teal-fond);
+  color: rgba(255,255,255,0.9);
+  padding: 1.25rem 1.375rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+  border-top: 2px solid rgba(255,255,255,.28);
+}
+#ft .ft-top { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+#ft .ft-logo { font-size: 1.1rem; font-weight: 900; color: var(--blanc); letter-spacing: -.05em; }
+#ft .ft-links { display: flex; gap: .625rem; flex-wrap: wrap; }
+#ft .ft-links a { color: rgba(255,255,255,0.9); text-decoration: none; font-size: 0.7rem; font-weight: 500; padding: .2rem .5rem; border-radius: .25rem; border: 1px solid rgba(255,255,255,.15); transition: background .15s, color .15s; }
+#ft .ft-links a:hover { background: var(--surbrillance); color: var(--blanc); }
+#ft .ft-copy { font-size: 0.65rem; color: rgba(255,255,255,0.9); display: flex; align-items: center; gap: .3rem; flex-wrap: wrap; margin-top: .35rem; }
+#ft .ft-copy .heart { color: var(--coeur); font-size: 0.75rem; }
+#ft .ft-copy a { color: rgba(255,255,255,0.9); text-decoration: none; }
+#ft .ft-copy a:hover { color: var(--blanc); text-decoration: underline; }
+
+/* ═══════════════════════════════════════════════════
+   MOBILE — Vue liste + Vue détail (slide depuis droite)
+   ═══════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+
+  /* Header simplifié */
+  #hd nav { padding: .6rem 1rem; }
+  .nav-links { display: none; }
+  .btn-cta { display: none; } /* remplacé par le menu burger */
+
+  /* Bouton burger */
+  .btn-burger {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 36px;
+    height: 36px;
+    background: rgba(255,255,255,.15);
+    border: none;
+    border-radius: .4rem;
+    cursor: pointer;
+    padding: 7px 8px;
+    flex-shrink: 0;
+  }
+  .btn-burger span {
+    display: block;
+    height: 2px;
+    background: var(--surface);
+    border-radius: 2px;
+    transition: transform .25s, opacity .2s;
+  }
+  /* Croix quand ouvert */
+  .btn-burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .btn-burger.open span:nth-child(2) { opacity: 0; }
+  .btn-burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  /* Drawer menu */
+  #burger-menu {
+    display: block;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 300;
+    pointer-events: none;
+  }
+  /* Overlay sombre */
+  #burger-menu .bm-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,.45);
+    opacity: 0;
+    transition: opacity .3s;
+  }
+  /* Panel slide depuis la droite */
+  #burger-menu .bm-panel {
+    position: absolute;
+    top: 0; right: 0; bottom: 0;
+    width: 78vw;
+    max-width: 300px;
+    background: var(--teal-fond);
+    transform: translateX(100%);
+    transition: transform .3s cubic-bezier(.4,0,.2,1);
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    box-shadow: -4px 0 24px rgba(0,0,0,.18);
+  }
+  #burger-menu.open { pointer-events: all; }
+  #burger-menu.open .bm-overlay { opacity: 1; }
+  #burger-menu.open .bm-panel { transform: translateX(0); }
+
+  /* En-tête du panel */
+  .bm-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: .875rem 1.25rem;
+    border-bottom: 1px solid rgba(255,255,255,.12);
+  }
+  .bm-logo { font-size: 1.3rem; font-weight: 900; color: var(--blanc); letter-spacing: -.05em;
+             text-decoration: none; }
+  .bm-close {
+    background: var(--surbrillance);
+    border: none;
+    color: var(--blanc);
+    width: 32px; height: 32px;
+    border-radius: .375rem;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* Liens du menu */
+  .bm-nav {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: .75rem 0;
+    gap: .1rem;
+  }
+  .bm-nav a {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    color: rgba(255,255,255,.85);
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 600;
+    padding: .875rem 1.25rem;
+    transition: background .15s, color .15s;
+    border-radius: 0;
+  }
+  .bm-nav a.on { color: var(--blanc); background: var(--surbrillance); }
+  .bm-nav a:active { background: var(--surbrillance-forte); }
+  .bm-nav a .ms { font-size: 20px; color: rgba(255,255,255,.6); }
+  .bm-nav a.on .ms { color: rgba(255,255,255,.9); }
+
+  /* Bouton CTA en bas du panel */
+  .bm-footer {
+    padding: 1rem 1.25rem 1.5rem;
+    border-top: 1px solid rgba(255,255,255,.12);
+  }
+  .bm-footer .btn-cta {
+    display: flex !important;
+    width: 100%;
+    justify-content: center;
+    padding: .65rem 1rem;
+    font-size: 0.925rem;
+    border-radius: .5rem;
+  }
+
+  /* Hero compact — les deux lignes de texte restent, comme en bureau.
+     Elles etaient masquees sous 768 px : le telephone perdait le titre
+     et la promesse, et la page commencait par une barre de recherche
+     sans dire ce qu'elle cherche. */
+  #hero { padding: 1.2rem 1rem .7rem; max-height: 320px; text-align: center; }
+  /* line-height: le titre se coupe sur deux lignes en telephone. A 1,15
+     — la valeur du bureau, ou il tient sur une ligne — les deux lignes
+     se touchent. 1,32 leur donne de l'air sans ecarter le bloc. */
+  #hero h1 { display: block; font-size: 1.1rem; line-height: 1.32;
+             text-align: center; margin-bottom: .5rem; }
+  #hero .sub { display: block; font-size: .85rem; line-height: 1.5;
+               text-align: center; margin-bottom: .7rem; }
+  /* Barre de recherche : 2 lignes sur mobile */
+  .sbar {
+    flex-direction: column;
+    border-radius: .625rem;
+    padding: .25rem .25rem .25rem;
+    gap: 0;
+    align-items: stretch;
+  }
+  .sf { padding: .3rem .75rem; }
+  .sf.loc-field { border-top: 1px solid var(--bord-doux); }
+  .sdiv { display: none; }
+  .btn-srch {
+    border-radius: .375rem;
+    padding: .5rem 1rem;
+    font-size: 0.85rem;
+    margin: .2rem .1rem .1rem;
+    width: calc(100% - .2rem);
+    text-align: center;
+  }
+  .chips { gap: .3rem; }
+  .chip { font-size: 0.825rem; padding: .28rem .7rem; }
+
+  /* Split : les deux colonnes prennent 100% de largeur,
+     positionnées côte à côte en dehors du viewport */
+  #split { position: relative; overflow: hidden; }
+
+  /* Vue liste : toujours visible (translateX 0) */
+  .pl {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    transform: translateX(0);
+    transition: transform .3s cubic-bezier(.4,0,.2,1);
+    z-index: 1;
+  }
+
+  /* Vue détail : hors écran à droite par défaut */
+  .pr {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    transform: translateX(100%);
+    transition: transform .3s cubic-bezier(.4,0,.2,1);
+    z-index: 2;
+    background: var(--surface);
+  }
+
+  /* Quand le détail est actif : slide in */
+  #split.detail-open .pl { transform: translateX(-30%); }
+  #split.detail-open .pr { transform: translateX(0); }
+
+  /* La fiche occupe alors tout l'écran : l'en-tête (logo Claim! et menu
+     burger) est masqué. Le retour se fait par le bouton de la fiche, qui
+     reste en haut de son contenu.
+
+     Hauteur nulle, et non display:none : #app est une grille dont les
+     rangées se remplissent dans l'ordre du DOM. Un élément en display:none
+     n'occupe plus de rangée, #split glisse sur la rangée « auto » au lieu
+     de « 1fr » et s'effondre à zéro — écran blanc sur téléphone. */
+  body.detail-view #hd { height: 0; overflow: hidden; }
+
+  /* La fiche garde les valeurs de la page d'offre sur téléphone : la
+     mise en page ne se resserre pas avec l'écran. */
+
+  /* Footer mobile simplifié */
+  #ft .ft-links { display: none; }
+  #ft { padding: .875rem 1rem .75rem; }
+}
+
+/* Éléments mobiles cachés sur desktop */
+@media (min-width: 769px) {
+  .btn-back { display: none; }
+  .btn-burger { display: none; }
+  #burger-menu { display: none !important; }
+
+  /* Lecture de la fiche : le défilement efface l'en-tête et le bandeau de
+     recherche, la fiche remonte et occupe l'écran. Tout revient en haut.
+
+     Hauteur par max-height et non display:none : #app est une grille dont
+     les rangées se remplissent dans l'ordre du DOM. Un élément retiré du
+     flux ferait glisser #split sur une rangée « auto » et l'effondrerait. */
+  /* L'en-tête de la fiche se fige au défilement : le sujet et ses repères
+     restent sous les yeux pendant la lecture, le corps défile dessous. Le
+     bloc s'arrête après les pastilles.
+
+     Le fond est étiré sur les marges de l'enveloppe (margin négatif compensé
+     par le padding) : sans cela, le texte défilerait visible dans les
+     gouttières de 1.25rem, de part et d'autre du bloc figé. */
+  /* Le bloc figé laisse un demi-rem de vide au-dessus de lui : collé au
+     bord, la fiche semblait plaquée contre le haut de la fenêtre. Ce vide
+     doit être un vrai vide — un décalage — et non un blanc qui s'étend
+     jusqu'au bord : le blanc ne se voit pas, et l'espace disparaissait.
+     Mais une bande laissée ouverte laissait traverser le texte de
+     l'annonce, qui défilait dessous. Les deux ensemble : le décalage creuse
+     le vide, l'aplat le referme. */
+  .d-entete {
+    position: sticky;
+    top: .5rem;
+    z-index: 5;
+    /* Marge négative compensée par le padding : le fond du bloc figé est
+       étiré sur toute la largeur de la fiche, et suit l'enveloppe quand
+       celle-ci change. */
+    margin: 0 -1.25rem;
+    padding: .35rem 1.25rem .5rem;
+    background: var(--surface);
+    transition: box-shadow .2s ease;
+    /* Les gestes se placent à droite du sujet : le titre garde la main. */
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .d-entete-corps { flex: 1; min-width: 0; }
+  .d-entete .dact { flex-shrink: 0; margin-bottom: 0; }
+  /* Une fois collé, le bloc se détache du texte qui passe dessous : sans
+     cette démarcation, il se fond dans la page (relevé à l'inspection). */
+  body.entete-collee .d-entete { box-shadow: 0 8px 12px -10px rgba(0,0,0,.28); }
+  /* Le vide laissé au-dessus du bloc collé est refermé à la teinte du
+     champ : sans lui, le texte de l'annonce traversait la bande en
+     défilant. Il n'existe que collé — au repos, le bloc est au haut de la
+     carte et il n'y a aucun vide à couvrir. */
+  body.entete-collee .d-entete::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 100%;
+    height: .5rem;
+    background: var(--champ);
+  }
+
+  #hd { max-height: 70px; transition: max-height .35s cubic-bezier(.4,0,.2,1), opacity .25s ease; }
+  body.fiche-defilee #hd { max-height: 0; opacity: 0; overflow: hidden; }
+  body.fiche-defilee #hero { max-height: 0; opacity: 0; padding-top: 0; padding-bottom: 0;
+    border-bottom-width: 0; }
+
+  /* ── LA FICHE EST UNE CARTE SUR LE CHAMP GRIS ──
+     Le champ reprend le gris du bandeau de recherche, si bien que le haut de
+     page et le fond du volet ne font qu'une seule teinte. C'est la délimitation
+     du modèle : la fiche se détache sans qu'on trace un trait autour.
+
+     Le volet reste blanc sur téléphone : la fiche y occupe tout l'écran, il
+     n'y a rien à délimiter. */
+  .pr { background: var(--champ); }
+  .dc-wrap { display: block; padding: 1.25rem 1.25rem 3rem; }
+  .dc {
+    background: var(--surface);
+    border-radius: .625rem;
+    box-shadow: 0 1px 2px rgba(25, 44, 52, .06), 0 4px 14px rgba(25, 44, 52, .05);
+  }
+  /* L'en-tête figé devient le haut de la carte : il en reprend les angles. */
+  .d-entete { border-radius: .625rem .625rem 0 0; }
+
+  /* ── LES MARGES DE PAGE ──
+     Le board ne colle plus aux bords : la page prend 100 px de marge de
+     chaque côté à 1 920 px de large. L'en-tête et le bandeau de recherche
+     suivent la même marge, sinon le haut de page ne s'alignerait plus sur la
+     colonne des offres. */
+  #split { padding: 0 var(--marge-page); }
+  #hd nav { padding-left: var(--marge-page); padding-right: var(--marge-page); }
+  /* Le bandeau ne s'aligne plus sur la colonne : il se centre, et ses
+     enfants suivent. La barre de recherche et les filtres gardent leur
+     largeur tenue — c'est leur marge intérieure qui les place. */
+  #hero { padding-left: var(--marge-page); padding-right: var(--marge-page); text-align: center; }
+  #hero h1 { text-align: center; }
+  #hero .sub { text-align: center; }
+  .sbar { margin-left: auto; margin-right: auto; }
+  .chips { justify-content: center; }
+}
+
+</style>
+
+<!-- Balises SEO : titre enrichi, description, URL canonique, partage social -->
+<meta name="description" content="Toutes les offres d'emploi en actuariat, data science et IA en assurance : CDI, stages, alternances et V.I.E, en France et à l'international."/>
+<link rel="canonical" href="https://claimyourjob.fr/job-board.html"/>
+<meta property="og:type" content="website"/>
+<meta property="og:site_name" content="Claim your job"/>
+<meta property="og:locale" content="fr_FR"/>
+<meta property="og:title" content="Offres d'emploi Actuariat & IA en assurance — Claim your job"/>
+<meta property="og:description" content="Toutes les offres d'emploi en actuariat, data science et IA en assurance : CDI, stages, alternances et V.I.E, en France et à l'international."/>
+<meta property="og:url" content="https://claimyourjob.fr/job-board.html"/>
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon.png"/>
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"/>
+<meta property="og:image" content="https://claimyourjob.fr/assets/og-image.png"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
+<meta property="og:image:alt" content="Claim! — offres d'emploi Actuariat, Data et IA en assurance"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-SKQQXZW4LH"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-SKQQXZW4LH');
+</script>
+
+<!-- ── Consentement CNIL ──
+Deux issues, sans SDK ni tiers : rien n'est déposé ni lu depuis un domaine
+étranger. L'acceptation et le refus ont même hauteur et même poids — la CNIL
+demande que refuser soit aussi simple qu'accepter. En mode dégradé la mesure
+reste active : le bandeau informe, il ne bloque rien (choix assumé, consigné
+en documentation).
+-->
+<aside id="claim-consentement" class="consent" role="dialog" aria-live="polite"
+       aria-labelledby="consent-titre" aria-describedby="consent-texte" hidden>
+  <div class="consent-interieur">
+    <div class="consent-corps">
+      <span class="consent-sceau" aria-hidden="true"><span class="ms">cookie</span></span>
+      <div>
+        <p class="consent-titre" id="consent-titre">Mesure d'audience</p>
+        <p class="consent-texte" id="consent-texte">Claim! mesure la fréquentation
+           du site avec Google Analytics. Aucun cookie publicitaire n'est déposé,
+           et aucune donnée n'est partagée avec un tiers.</p>
+      </div>
+    </div>
+    <div class="consent-boutons">
+      <button type="button" class="consent-accepter" data-consent="tout">Tout accepter</button>
+      <button type="button" class="consent-refuser" data-consent="rien">Refuser</button>
+    </div>
+  </div>
+</aside>
+<style>
+/* ── Bandeau de consentement ──
+   Deux issues de même rang : l'acceptation éclaire, elle n'écrase pas le
+   refus. Couleurs, rayons, ombre et typographie sont ceux du site. */
+.consent {
+  position: fixed; inset: auto 0 0 0; z-index: 900;
+  background: var(--surface); border-top: 1px solid var(--bord);
+  box-shadow: 0 -10px 30px rgba(25, 44, 52, .10);
+  padding: 1.15rem 0;
+  animation: consent-entree .3s cubic-bezier(.2, .8, .3, 1);
+}
+@keyframes consent-entree { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) {
+  .consent { animation: none; }
+}
+
+.consent-interieur {
+  max-width: var(--enveloppe); margin: 0 auto; padding: 0 2rem;
+  display: grid; grid-template-columns: minmax(0, 1fr) auto;
+  gap: .9rem 1.8rem; align-items: center;
+}
+
+.consent-corps { display: flex; gap: .85rem; align-items: flex-start; min-width: 0; }
+
+/* Le sceau : même teinte que les pastilles du board. */
+.consent-sceau {
+  flex: 0 0 auto; width: 38px; height: 38px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--teal-clair); border: 1px solid var(--teal-bord);
+  color: var(--teal);
+}
+.consent-sceau .ms { font-size: 20px; }
+
+.consent-titre {
+  margin: 0 0 .1rem; font-size: .95rem; font-weight: 700;
+  color: var(--encre); line-height: 1.35; letter-spacing: -.005em;
+}
+.consent-texte {
+  margin: 0; font-size: .845rem; color: var(--gris);
+  line-height: 1.55; max-width: 48rem;
+}
+
+.consent-boutons { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+
+.consent button {
+  font: inherit; font-size: .845rem; font-weight: 600;
+  height: 40px; padding: 0 1.1rem; border-radius: .5rem;
+  cursor: pointer; white-space: nowrap;
+  transition: background .15s ease, border-color .15s ease, color .15s ease;
+}
+.consent button:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+
+/* Accepter : la couleur de la marque, pleine. */
+.consent-accepter { background: var(--teal-fond); color: var(--blanc); border: 1px solid var(--teal); }
+.consent-accepter:hover { background: var(--teal-fonce); border-color: var(--teal-fonce); }
+
+/* Refuser : même hauteur, même poids typographique, un trait franc — jamais
+   grisé, jamais relégué. C'est la recommandation de la CNIL : refuser doit
+   être aussi simple qu'accepter. */
+.consent-refuser { background: var(--surface); color: var(--encre); border: 1px solid var(--bord-fort); }
+.consent-refuser:hover { background: var(--champ); border-color: var(--bord-fort); }
+
+@media (max-width: 780px) {
+  .consent { padding: .95rem 0; }
+  .consent-interieur { grid-template-columns: 1fr; padding: 0 1.1rem; gap: .8rem; }
+  .consent-texte { font-size: .82rem; }
+  .consent-boutons { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
+  .consent button { height: 42px; padding: 0 .75rem; }
+}
+
+
+
+
+
+
+
+
+  /* ══ RÉFÉRENTIEL — en-tête de l'accueil, pied du board ══
+     Ces regles sont posees en fin de feuille : plus specifiques que
+     celles du milieu de la page, elles ne peuvent pas etre annulees
+     par elles. Et elles sont IDENTIQUES sur les huit pages, ce qui
+     garantit que l'en-tete et le pied se ressemblent exactement. */
+
+  /* ── En-tête (référence : l'accueil) ── */
+  /* L'interligne est pose ICI, et non herite du corps de page. Sur
+     certaines pages le corps est a line-height: normal, sur d'autres a
+     1,65 : le logo passait alors de 40 px a 28 px de haut, et l'en-tete
+     de 64 px a 58. Un en-tete de reference ne peut pas dependre du
+     reste de la page. */
+  #hd { background: var(--teal-fond); position: sticky; top: 0; z-index: 200;
+        line-height: 1.65; }
+  #hd nav { display: flex; justify-content: space-between; align-items: center;
+            padding: .75rem 2rem; }
+  #hd .logo { font-size: 1.5rem; font-weight: 900; color: var(--blanc);
+              letter-spacing: -.05em; text-decoration: none; }
+  #hd .logo:hover { color: var(--blanc-survol); }
+  #hd .nav-links { display: flex; gap: 2rem; }
+  #hd .nav-links a { color: rgba(255, 255, 255, .8); text-decoration: none;
+                     font-size: .925rem; font-weight: 600; }
+  #hd .nav-links a:hover { color: var(--blanc); }
+  #hd .nav-links a.on { color: var(--blanc); border-bottom: 2px solid #fff; padding-bottom: 2px; }
+  #hd .nav-links a.on:hover { color: var(--blanc); border-bottom-color: var(--blanc-survol); }
+  #hd .btn-cta { background: var(--surface); color: var(--teal); padding: .45rem 1.2rem;
+                 border-radius: .5rem; font-weight: 700; font-size: .925rem; border: none;
+                 cursor: pointer; font-family: inherit; white-space: nowrap;
+                 text-decoration: none; display: inline-block;
+                 transition: background .15s, border-color .15s, color .15s; }
+  #hd .btn-cta:hover { background: var(--teal-survol-element); border-color: var(--teal);
+                       color: var(--encre); }
+  #hd .btn-burger { display: none; flex-direction: column; justify-content: center; gap: 5px;
+                     width: 36px; height: 36px; background: rgba(255, 255, 255, .15);
+                     border: none; border-radius: .4rem; cursor: pointer;
+                     padding: 7px 8px; flex-shrink: 0; }
+  #hd .btn-burger span { display: block; height: 2px; background: var(--surface);
+                         border-radius: 2px; transition: transform .25s, opacity .2s; }
+  #hd .btn-burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  #hd .btn-burger.open span:nth-child(2) { opacity: 0; }
+  #hd .btn-burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  @media (max-width: 768px) {
+    #hd nav { padding: .6rem 1rem; }
+    #hd .nav-links, #hd .btn-cta { display: none; }
+    #hd .btn-burger { display: flex; }
+  }
+
+
+
+
+
+
+  </style>
+<script>
+(function () {
+  var CLE = 'claim-consentement';
+  var racine = document.getElementById('claim-consentement');
+  if (!racine) return;
+
+  function lire() { try { return localStorage.getItem(CLE); } catch (e) { return null; } }
+  function ecrire(v) { try { localStorage.setItem(CLE, v); } catch (e) { /* stockage refusé */ } }
+
+  if (lire()) return;             // choix déjà exprimé : le bandeau ne revient pas
+  racine.hidden = false;          // aucun traceur tiers : rien à bloquer au chargement
+
+  racine.addEventListener('click', function (e) {
+    var bouton = e.target.closest('button[data-consent]');
+    if (!bouton) return;
+    // Choix enregistré. En mode dégradé la mesure reste active : c'est un
+    // choix assumé, pas un oubli.
+    ecrire(bouton.getAttribute('data-consent'));
+    racine.hidden = true;
+    racine.setAttribute('aria-hidden', 'true');
+  });
+})();
+</script><!-- Thème jour / nuit : la préférence est posée avant le rendu, pour qu'aucune
+     page ne s'affiche en clair avant de basculer. -->
+<link rel="stylesheet" href="/assets/theme.css">
+<script>(function(){try{var t=localStorage.getItem('claim-theme');if(t==='nuit'||(!t&&window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.setAttribute('data-theme','nuit');}}catch(e){}})();</script>
+<script src="/assets/theme.js" defer></script>
+</head>
+<body>
+<div id="app">
+
+  <!-- ══ HEADER ══ -->
+  <header id="hd">
+    <nav>
+      <div style="display:flex;align-items:center;gap:2.5rem;">
+        <a class="logo" href="/">Claim!</a>
+        <div class="nav-links">
+        <a href="/job-board.html" class="on">Offres d'emploi</a>
+        <a href="/claim-entreprises.html">Entreprises</a>
+        <a href="/claim-observatoire.html">Observatoire de l'assurance</a>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:.75rem;">
+        <a class="btn-cta" href="/contact.html">Contactez-nous</a>
+        <button class="btn-burger" id="btn-burger" onclick="toggleBurger()" aria-label="Menu" aria-expanded="false" aria-controls="burger-menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- ══ HERO ══ -->
+  <div id="hero">
+    <h1>Trouvez le job idéal en Actuariat <em>&amp;</em> Intelligence Artificielle.</h1>
+    <p class="sub">La plateforme de référence pour les experts de la donnée et du risque assurantiel.</p>
+    <div class="sbar">
+      <div class="sf">
+        <span class="ms" style="color:var(--gris-doux);font-size:17px;">search</span>
+        <input id="q-input" type="text" placeholder="Mots-clés (e.g. Actuaire, Data Scientist)" aria-label="Mots-clés"/>
+      </div>
+      <div class="sdiv"></div>
+      <div class="sf loc-field">
+        <span class="ms" style="color:var(--gris-doux);font-size:17px;">location_on</span>
+        <input id="city-input" type="text" placeholder="Localisation" aria-label="Localisation"/>
+      </div>
+      <button class="btn-srch" onclick="applySearch()">Rechercher</button>
+    </div>
+    <div class="chips">
+      <select id="contract-filter" class="chip" aria-label="Type de contrat" onchange="applyFilters()"><option value="">Type de contrat</option><option value="cdi">CDI</option><option value="cdd">CDD</option><option value="alternance">Alternance</option><option value="stage">Stage</option><option value="vie">V.I.E</option><option value="freelance">Freelance</option></select>
+      <select id="specialty-filter" class="chip" aria-label="Spécialité" onchange="applyFilters()"><option value="">Spécialité</option><option value="actuariat">Actuariat</option><option value="souscription_technique">Souscription technique</option><option value="ia_data">IA / Data</option></select>
+      <select id="experience-filter" class="chip" aria-label="Expérience" onchange="applyFilters()"><option value="">Expérience</option><option value="junior">Junior</option><option value="confirmed">Confirmé</option><option value="senior">Senior</option><option value="lead">Lead</option></select>
+      <select id="date-filter" class="chip" aria-label="Date de publication" onchange="applyFilters()"><option value="">Date de publication</option><option value="1">Moins de 24 h</option><option value="7">7 derniers jours</option><option value="14">14 derniers jours</option></select>
+      <select id="ats-filter" class="chip" aria-label="Source ATS" onchange="applyFilters()"><option value="">Source ATS</option><option value="workday">Workday</option><option value="smartrecruiters">SmartRecruiters</option><option value="talentsoft">TalentSoft</option><option value="custom">Custom</option><option value="magnet">Magnet</option><option value="greenhouse">Greenhouse</option><option value="ashby">Ashby</option><option value="successfactors">SuccessFactors</option><option value="radancy">Radancy</option><option value="groupama">Groupama</option><option value="oracle_hcm">Oracle HCM</option></select>
+      <button class="chip" onclick="resetFilters()"><span class="ms" style="font-size:13px;">restart_alt</span>Réinitialiser</button>
+      
+    </div>
+  </div>
+
+  <!-- ══ SPLIT PANE ══ -->
+  <main id="split">
+    <div class="pl">
+      <div class="pl-hd" role="status" aria-live="polite">Chargement…</div>
+      <div class="feed" id="feed"></div>
+      <!-- Footer riche, visible après scroll des cards.
+           C'est un <footer> : un lecteur d'écran doit pouvoir le sauter,
+           et le pied de page est un repère, pas un bloc de mise en page. -->
+      <footer id="ft">
+    <div class="ft-top">
+      <div>
+        <a class="ft-logo" href="/">Claim!</a>
+        <div class="ft-copy">
+          <span>© 2026 Claim your job</span>
+          <span>·</span>
+          <span>Fait avec <span class="heart">♥</span> pour les experts du risque assurantiel</span>
+          <span>·</span>
+          <span>Logos : <a href="https://hunter.io" rel="noopener" target="_blank">Hunter.io</a></span>
+        </div>
+      </div>
+      <div class="ft-links">
+        <a href="/a-propos.html">À propos</a>
+        <a href="/cgu.html">CGU</a>
+        <a href="/confidentialite.html">Confidentialité</a>
+        <a href="/contact.html">Contact</a>
+      </div>
+    </div>
+  </footer>
+    </div>
+    <div class="pr" id="pr">
+      <!-- Bouton retour mobile (injecté par JS) -->
+      <div id="detail"></div>
+    </div>
+  </main>
+
+</div>
+
+<script src="/assets/companies-data.js"></script>
+<script>
+// ── Configuration ──────────────────────────────────────────────────────────
+const API_BASE    = (typeof CLAIM_API_BASE === 'string' && CLAIM_API_BASE)
+  ? CLAIM_API_BASE
+  : 'https://api.claimyourjob.fr/api/v1';
+const PAGE_SIZE   = 20;   // offres affichées par page (Load More)
+
+// ── Helpers ────────────────────────────────────────────────────────────────
+const CONTRACT_LABELS = {
+  cdi: 'CDI', cdd: 'CDD', alternance: 'Alternance',
+  stage: 'Stage', freelance: 'Freelance', interim: 'Intérim', vie: 'V.I.E',
+  // Valeur de l'énumération pour un contrat inconnu : à lire comme une absence.
+  autre: 'Non précisé'
+};
+const SPECIALTY_LABELS = {
+  actuariat: 'Actuariat', actuariat_vie: 'Actuariat Vie', actuariat_sante: 'Actuariat Santé',
+  actuariat_iard: 'Actuariat IARD', actuariat_retraite: 'Actuariat Retraite',
+  data_science: 'Data Science', machine_learning: 'ML / IA', data_engineering: 'Data Eng.',
+  quant_risk: 'Risque Quant.', finance: 'Finance', it: 'IT', autre: 'Autre',
+  nlp: 'NLP', devops: 'DevOps', audit: 'Audit', conformite: 'Conformité',
+  consulting_actuariat: 'Consulting Actua.', direction_technique: 'Dir. Technique',
+  moa: 'MOA', moe: 'MOE', risk_management: 'Risk Mgmt'
+};
+// Libellés Jev (spécialité curation + expérience) — pipeline cascade B
+const JEV_SPECIALTY_LABELS = {
+  actuariat: 'Actuariat', ia_data: 'IA / Data', souscription_technique: 'Souscription tech.',
+  autre: 'Autre'
+};
+const JEV_EXPERIENCE_LABELS = {
+  junior: 'Junior', confirmed: 'Confirmé', senior: 'Senior', lead: 'Lead',
+  not_specified: 'Non précisé'
+};
+const COMPANY_QUERY_ALIASES = {
+  generali: 'generali',
+  axa: 'axa',
+  'oliver wyman': 'oliver_wyman',
+  mazars: 'mazars',
+  kpmg: 'kpmg',
+  ey: 'ey',
+  aon: 'aon',
+  wakam: 'wakam',
+  allianz: 'allianz',
+  'swiss life': 'swiss_life',
+  cnp: 'cnp',
+  apicil: 'apicil',
+  alan: 'alan',
+};
+// Teinte et initiales d'un employeur. La table vit dans
+// assets/companies-data.js, avec ses profils : la même entreprise doit
+// porter la même couleur sur la carte, sur la fiche et sur la page d'offre.
+function companyColor(slug) {
+  return (typeof CLAIM_ENTREPRISES !== 'undefined') ? CLAIM_ENTREPRISES.couleurEntreprise(slug) : 'var(--teal)';
+}
+// Le texte des initiales se lit sur la teinte de l'employeur : sur une teinte
+// claire, le blanc serait illisible.
+function companyTextColor(tint) {
+  return (typeof CLAIM_ENTREPRISES !== 'undefined' && CLAIM_ENTREPRISES.couleurTexteSurTeinte)
+    ? CLAIM_ENTREPRISES.couleurTexteSurTeinte(tint) : 'var(--blanc)';
+}
+function companyInitials(name) {
+  return (typeof CLAIM_ENTREPRISES !== 'undefined') ? CLAIM_ENTREPRISES.initiales(name)
+    : (name || '?').split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+}
+// La table des logos vit dans assets/companies-data.js : une seule source
+// pour les cartes, les fiches d'entreprise et la page d'offre. On passe par
+// sa fonction et non par la table brute — elle essaie le slug exact, son
+// alias déclaré, puis sa forme normalisée, là où la table seule exigeait
+// l'écriture exacte. Le repli sur null garde le rendu intact si le fichier
+// partagé n'est pas chargé.
+function logoEntreprise(slug) {
+  return (typeof CLAIM_ENTREPRISES !== 'undefined' && CLAIM_ENTREPRISES.logoEntreprise)
+    ? CLAIM_ENTREPRISES.logoEntreprise(slug) : null;
+}
+
+function renderCompanyLogo(company, cssClass) {
+  const color = companyColor((company && company.slug) || '');
+  const initials = companyInitials((company && company.name) || '?');
+  // Priorité 1: logo_url de l'API, Priorité 2: mapping statique
+  const logoUrl = (company && company.logo_url) || logoEntreprise((company && company.slug) || '');
+  // Le fond change selon ce qu'il y a à montrer. Un logo transparent posé
+  // sur la couleur de la marque disparaît : mesuré sur le catalogue, 33
+  // logos sur 35 se lisent mieux sur fond clair que sur la couleur de
+  // leur marque — l'écart y est de 400 contre 90 en moyenne. Un logo
+  // gagne donc toujours sur fond clair.
+  //
+  // La couleur de la marque ne disparait pas : elle porte la tuile des
+  // initiales, là où elle est le seul signe de la marque.
+  if (logoUrl) {
+    // Un logo a fond sombre n'est pas inverse en mode nuit : l'inversion
+    // denature son aplat de marque. Les autres le sont : c'est la seule
+    // facon de les voir sur du sombre.
+    const slugLogo = (company && company.slug) || '';
+    const inversable = (typeof CLAIM_ENTREPRISES !== 'undefined'
+      && CLAIM_ENTREPRISES.logoInversable)
+      ? CLAIM_ENTREPRISES.logoInversable(slugLogo) : true;
+    return '<div class="' + cssClass + ' fond-logo'
+      + (inversable ? ' logo-inversable' : '') + '">' +
+      '<span>' + initials + '</span>' +
+      '<img src="' + logoUrl + '" alt="Logo ' + (company.name||'') + '" onerror="this.remove()" onload="this.previousElementSibling.remove()" />' +
+      '</div>';
+  }
+  return '<div class="' + cssClass + '" style="background:' + color + ';">' + initials + '</div>';
+}
+
+function formatDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso), now = new Date();
+  const diff = Math.floor((now - d) / 86400000);
+  if (diff === 0) return "Aujourd'hui";
+  if (diff === 1) return 'Il y a 1 jour';
+  if (diff < 7)  return `Il y a ${diff} jours`;
+  if (diff < 14) return 'Il y a 1 semaine';
+  if (diff < 30) return `Il y a ${Math.floor(diff/7)} semaines`;
+  return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+}
+function contractTagClass(ct) {
+  if (ct === 'cdi') return 'tm';
+  if (ct === 'alternance' || ct === 'stage') return 'tp';
+  return 'tn';
+}
+function normalizeLocationQuery(city) {
+  const v = (city || '').trim().toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[-_]/g, ' ')
+    .replace(/\s+/g, ' ');
+  if (!v || v === 'france') return '';
+  if ([
+    'ile de france', 'idf', 'ile-de-france', 'île de france',
+    'region parisienne', 'région parisienne', 'paris region'
+  ].includes(v)) return 'Paris';
+  return city.trim();
+}
+function decodeEntities(value) {
+  const txt = document.createElement('textarea');
+  txt.innerHTML = value || '';
+  return txt.value;
+}
+function plainTextFromHtml(value) {
+  let text = decodeEntities(value || '');
+  // Plusieurs flux stockent du HTML déjà échappé (&lt;p&gt;...). Décoder puis retirer les tags.
+  for (let i = 0; i < 3 && /<\/?[a-z][\s\S]*>/i.test(text); i++) {
+    const div = document.createElement('div');
+    div.innerHTML = text;
+    text = div.textContent || div.innerText || '';
+    text = decodeEntities(text);
+  }
+  return text.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+}
+function escapeHtml(value) {
+  return String(value || '').replace(/[&<>'"]/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+  }[c]));
+}
+
+// ── State ──────────────────────────────────────────────────────────────────
+let ALL_JOBS      = [];   // toutes les offres chargées côté client
+let VISIBLE_COUNT = PAGE_SIZE; // combien sont affichées
+let TOTAL_SERVER  = 0;   // total réel côté serveur
+let SERVER_PAGE   = 1;   // page API courante (pour load more serveur)
+let SERVER_PAGES  = 1;   // nb total de pages serveur
+let activeId      = null;
+// Offre actuellement affichee. Le partage s'appuie sur elle, et non sur
+// window.location.href : l'adresse ne designait aucun poste.
+let offreCourante = null;
+
+// ── Mesure ────────────────────────────────────────────────────────────────
+// Un plan d'événements unique, commun au board et aux pages d'offre, pour
+// répondre à la seule question qui compte ici : quels canaux amènent des
+// candidats qui trouvent une offre pertinente, et cliquent pour postuler.
+//
+// Rien n'est envoyé si gtag est absent (bloqueur de réseau ou de publicité) :
+// la mesure ne doit jamais casser la page.
+let origineDetail  = 'auto';  // 'auto' au chargement, sinon action de l'utilisateur
+let mesureEnAttente = null;   // recherche ou filtre, envoyé avec son nombre de résultats
+
+function tronquer(valeur, max) {
+  const t = String(valeur == null ? '' : valeur);
+  return t.length > max ? t.slice(0, max) : t;
+}
+
+function mesurer(nom, params) {
+  if (typeof gtag !== 'function') return;
+  const propres = {};
+  Object.keys(params || {}).forEach(k => {
+    const v = params[k];
+    if (v === '' || v == null) return;
+    propres[k] = typeof v === 'string' ? tronquer(v, 100) : v;
+  });
+  gtag('event', nom, propres);
+}
+
+// Paramètres métier portés par tous les événements qui concernent une offre.
+// item_id et item_name n'existent que dans le tableau items[] du e-commerce.
+// Au premier niveau, GA4 les ignore en silence.
+function paramOffre(j, contexte) {
+  const co = (j && j.companies) || {};
+  return {
+    items: [{
+      item_id:   tronquer(j && j.id, 100),
+      item_name: tronquer(j && j.title, 100),
+    }],
+    company_name:     tronquer(co.name || (j && j.source), 100),
+    job_specialty:    tronquer(j && (j.jev_specialty || j.specialty), 100),
+    contract_type:    tronquer(j && j.contract_type, 100),
+    experience_level: tronquer(j && j.jev_experience, 100),
+    job_source:       tronquer(j && j.source, 100),
+    view_context:     contexte,
+  };
+}
+
+// Filtres actifs : ce que les visiteurs cherchent réellement.
+function paramsFiltres(reinitialise) {
+  const f = currentFilters();
+  const p = {};
+  if (f.contract)   p.filtre_contrat    = f.contract;
+  if (f.specialty)  p.filtre_specialite = f.specialty;
+  if (f.experience) p.filtre_experience = f.experience;
+  if (f.ats)        p.filtre_source     = f.ats;
+  if (f.city)       p.filtre_ville      = f.city;
+  if (reinitialise) p.filtres_reinitialises = true;
+  return p;
+}
+
+// Nombre de filtres simultanément actifs. GA4 ne compte pas de lui-même :
+// contract_type et filtre_contrat disent la même chose deux fois sans
+// jamais la compter.
+function compteFiltres() {
+  const f = currentFilters();
+  const actifs = [f.contract, f.specialty, f.experience, f.ats, f.city].filter(Boolean).length;
+  return { filters_count: actifs };
+}
+
+// Le clic « Postuler » est la conversion du site : l'intention de candidature.
+// Une intention, pas une candidature envoyée — Claim! ne voit pas ce qui se
+// passe ensuite sur le site de l'employeur.
+function mesurerClicPostuler() {
+  if (!offreCourante) return;
+  mesurer('job_apply_click', paramOffre(offreCourante, 'board'));
+}
+let detailCache   = {};
+let KNOWN_SOURCES  = new Set(Object.values(COMPANY_QUERY_ALIASES));
+
+const feedEl  = document.getElementById('feed');
+const plEl    = document.querySelector('.pl');
+const prEl    = document.getElementById('pr');
+const splitEl = document.getElementById('split');
+const hero    = document.getElementById('hero');
+
+// En bureau, lire la fiche efface le haut de la page : l'en-tête du site et
+// le bandeau de recherche s'effacent, la fiche remonte et occupe l'écran.
+// Tout revient dès qu'on remonte en haut de la fiche.
+//
+// Le suivi est posé une fois ici, et non à chaque rendu : un écouteur ajouté
+// par rendu s'accumulerait, et l'ancien code le retirait au premier
+// défilement ({ once: true }), donc il ne servait qu'une fois.
+//
+// Sur téléphone, l'en-tête est déjà effacé par la classe detail-view : ce
+// suivi ne concerne que le bureau.
+const SEUIL_LECTURE_FICHE = 24;
+prEl.addEventListener('scroll', function () {
+  if (isMobile()) return;
+  const colle = this.scrollTop > SEUIL_LECTURE_FICHE;
+  document.body.classList.toggle('fiche-defilee', colle);
+  // Le bloc se colle des que le defilement atteint son retrait du haut, soit
+  // 1.5rem : c'est le meme seuil qui marque sa demarcation.
+  document.body.classList.toggle('entete-collee', colle);
+});
+
+// ── Lecture de ?page= dans l'URL (SEO) ────────────────────────────────────
+function getUrlPage() {
+  const p = parseInt(new URLSearchParams(window.location.search).get('page') || '1', 10);
+  return isNaN(p) || p < 1 ? 1 : p;
+}
+
+// ── Les filtres peuvent venir de l'adresse ────────────────────────────────
+// C'est par là que l'accueil transmet sa recherche : /job-board.html?q=…
+// Les deux écritures sont acceptées — la française et celle de l'API — pour que
+// les adresses déjà partagées continuent de fonctionner.
+//
+// Les paramètres sont posés sur les champs, pas passés à la requête : les
+// selects affichent alors le filtre appliqué, et la liste se charge par le même
+// chemin que si l'internaute l'avait choisi lui-même. Une seule logique.
+const PARAMETRES_URL = {
+  q: 'q-input',
+  ville: 'city-input', city: 'city-input',
+  contrat: 'contract-filter', contract: 'contract-filter',
+  specialite: 'specialty-filter', specialty: 'specialty-filter',
+  experience: 'experience-filter',
+  ats: 'ats-filter',
+  days: 'date-filter', jours: 'date-filter',
+};
+
+function remplirDepuisAdresse() {
+  const params = new URLSearchParams(window.location.search);
+  Object.entries(PARAMETRES_URL).forEach(([cle, id]) => {
+    const valeur = params.get(cle);
+    if (!valeur) return;
+    const champ = document.getElementById(id);
+    if (champ) champ.value = valeur;
+  });
+}
+
+// ── Fetch une page serveur ─────────────────────────────────────────────────
+function currentFilters() {
+  return {
+    q: document.getElementById('q-input')?.value.trim() || '',
+    city: document.getElementById('city-input')?.value.trim() || '',
+    contract: document.getElementById('contract-filter')?.value || '',
+    specialty: document.getElementById('specialty-filter')?.value || '',
+    experience: document.getElementById('experience-filter')?.value || '',
+    ats: document.getElementById('ats-filter')?.value || '',
+    days: document.getElementById('date-filter')?.value || '',
+  };
+}
+function buildJobsUrl(page) {
+  const f = currentFilters();
+  const qKey = f.q.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[- ]/g, '_');
+  const companySource = COMPANY_QUERY_ALIASES[f.q.toLowerCase()] || (KNOWN_SOURCES.has(qKey) ? qKey : '');
+  const isSearch = f.q.length >= 2;
+  const params = new URLSearchParams({ per_page: PAGE_SIZE, limit: PAGE_SIZE, page });
+  if (isSearch) params.set('q', f.q);
+  const normalizedCity = normalizeLocationQuery(f.city);
+  if (normalizedCity) params.set('city', normalizedCity);
+  if (f.contract) params.set('contract', f.contract);
+  if (f.specialty) params.set('specialty', f.specialty);
+  if (f.experience) params.set('experience', f.experience);
+  if (f.ats) params.set('ats', f.ats);
+  if (f.days) params.set('days', f.days);
+  // Plus de filtre France côté navigateur : la portée géographique est
+  // appliquée à la collecte (cabinets de conseil uniquement).
+  if (!isSearch) params.set('order', 'desc');
+  return `${API_BASE}/${isSearch ? 'jobs/search' : 'jobs'}?${params.toString()}`;
+}
+async function fetchPage(page) {
+  const r = await fetch(buildJobsUrl(page));
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  const d = await r.json();
+  if (!d.pagination) d.pagination = { page, per_page: PAGE_SIZE, total: d.data?.length || 0, pages: 1 };
+  return d;
+}
+function applySearch() {
+  const f = currentFilters();
+  mesureEnAttente = { nom: 'search', params: { search_term: f.q || f.city } };
+  loadJobs(1);
+}
+function applyFilters() {
+  mesureEnAttente = { nom: 'filter_apply', params: paramsFiltres(false) };
+  loadJobs(1);
+}
+function resetFilters() {
+  mesureEnAttente = { nom: 'filter_apply', params: paramsFiltres(true) };
+  ['q-input','city-input','contract-filter','specialty-filter','experience-filter','ats-filter','date-filter'].forEach(id => { const el=document.getElementById(id); if (el) el.value=''; });
+  loadJobs(1);
+}
+
+// ── Chargement initial ─────────────────────────────────────────────────────
+async function loadJobs(forcedPage) {
+  feedEl.innerHTML = '<div style="padding:1.5rem;color:var(--gris-doux);font-size:.8rem;">Chargement des offres…</div>';
+  try {
+    const urlPage = forcedPage || getUrlPage();
+    const d = await fetchPage(urlPage);
+
+    ALL_JOBS      = d.data || [];
+    ALL_JOBS.forEach(j => { if (j.source) KNOWN_SOURCES.add(j.source); });
+    const qKey = currentFilters().q.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[- ]/g, '_');
+    const companySource = COMPANY_QUERY_ALIASES[currentFilters().q.toLowerCase()] || (KNOWN_SOURCES.has(qKey) ? qKey : '');
+    if (companySource) ALL_JOBS = ALL_JOBS.filter(j => j.source === companySource);
+    TOTAL_SERVER  = companySource ? ALL_JOBS.length : (d.pagination?.total || ALL_JOBS.length);
+    SERVER_PAGES  = d.pagination?.pages || 1;
+    SERVER_PAGE   = urlPage;
+    VISIBLE_COUNT = ALL_JOBS.length; // on affiche tout ce qu'on a chargé
+
+    document.querySelector('.pl-hd').textContent =
+      `${TOTAL_SERVER} offre${TOTAL_SERVER > 1 ? 's' : ''} disponible${TOTAL_SERVER > 1 ? 's' : ''}`;
+
+    // Injecter les liens SEO invisibles vers toutes les pages
+    injectSeoLinks(SERVER_PAGES);
+
+    // Ce que le visiteur voit après un chargement, une recherche ou un filtre.
+    // Pas de paramètre « page » : ce nom est réservé à GA4, qui gère déjà
+    // la pagination de son côté. Émis par nos soins, il rend l'événement
+    // entier invalide (HTTP 400) — et un événement invalide n'est jamais compté.
+    mesurer('view_item_list', {
+      results_count: TOTAL_SERVER,
+      view_context: 'board',
+      ...paramsFiltres(false),
+      ...compteFiltres(),
+    });
+    if (mesureEnAttente) {
+      mesurer(mesureEnAttente.nom, { ...mesureEnAttente.params, results_count: TOTAL_SERVER });
+      mesureEnAttente = null;
+    }
+
+    if (ALL_JOBS.length > 0) {
+      activeId = ALL_JOBS[0].id;
+      origineDetail = 'auto';
+      renderFeed();
+      await renderDetail(activeId);
+    } else {
+      feedEl.innerHTML = '<div style="padding:1.5rem;color:var(--gris-doux);font-size:.8rem;">Aucune offre disponible.</div>';
+    }
+  } catch (e) {
+    feedEl.innerHTML = `<div style="padding:1.5rem;color:var(--rouge);font-size:.8rem;">Erreur : ${e.message}</div>`;
+    console.error('[CLAIM!] loadJobs error:', e);
+  }
+}
+
+// ── Load More ──────────────────────────────────────────────────────────────
+async function loadMore() {
+  const btn = document.getElementById('load-more-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Chargement…'; }
+
+  try {
+    const nextPage = SERVER_PAGE + 1;
+    const d = await fetchPage(nextPage);
+    let newJobs = d.data || [];
+    newJobs.forEach(j => { if (j.source) KNOWN_SOURCES.add(j.source); });
+    const qKey = currentFilters().q.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[- ]/g, '_');
+    const companySource = COMPANY_QUERY_ALIASES[currentFilters().q.toLowerCase()] || (KNOWN_SOURCES.has(qKey) ? qKey : '');
+    if (companySource) newJobs = newJobs.filter(j => j.source === companySource);
+
+    ALL_JOBS      = ALL_JOBS.concat(newJobs);
+    SERVER_PAGE   = nextPage;
+    VISIBLE_COUNT = ALL_JOBS.length;
+
+    renderFeed();
+  } catch (e) {
+    if (btn) { btn.disabled = false; btn.textContent = 'Voir plus d\'offres'; }
+    console.error('[CLAIM!] loadMore error:', e);
+  }
+}
+
+// ── Liens SEO invisibles (pour les robots Google) ─────────────────────────
+function injectSeoLinks(totalPages) {
+  // Supprimer les anciens
+  document.querySelectorAll('.seo-pagination').forEach(el => el.remove());
+
+  if (totalPages <= 1) return;
+
+  const nav = document.createElement('nav');
+  nav.setAttribute('aria-label', 'Pagination SEO');
+  nav.className = 'seo-pagination';
+  nav.style.cssText = 'position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;';
+
+  const currentPage = getUrlPage();
+
+  // Lien page précédente (rel=prev)
+  if (currentPage > 1) {
+    const prev = document.createElement('link');
+    prev.rel = 'prev';
+    prev.href = `${window.location.pathname}?page=${currentPage - 1}`;
+    document.head.appendChild(prev);
+  }
+  // Lien page suivante (rel=next)
+  if (currentPage < totalPages) {
+    const next = document.createElement('link');
+    next.rel = 'next';
+    next.href = `${window.location.pathname}?page=${currentPage + 1}`;
+    document.head.appendChild(next);
+  }
+
+  // Liens <a> invisibles vers toutes les pages (crawlables par Google)
+  for (let p = 1; p <= totalPages; p++) {
+    const a = document.createElement('a');
+    a.href  = `?page=${p}`;
+    a.textContent = `Page ${p}`;
+    if (p === currentPage) a.setAttribute('aria-current', 'page');
+    nav.appendChild(a);
+  }
+
+  document.body.appendChild(nav);
+}
+
+
+// ── Domain tag extraction ──────────────────────────────────────────────────
+const DOMAIN_TAGS = [
+  { tag: 'IFRS 17',       kw: ['ifrs 17', 'ifrs17', 'ifrs'] },
+  { tag: 'Solvabilité II', kw: ['solvabilité', 'solvency', 'scr', 'mcr', 'orsa'] },
+  { tag: 'Tarification',   kw: ['tarif', 'pricing', 'tarification', 'prime pure'] },
+  { tag: 'IARD',           kw: ['iard', 'non.vie', 'non vie', 'dommages', 'incendie', 'auto', 'habitation', 'rc', 'responsabilité civile'] },
+  { tag: 'Vie',            kw: ['assurance vie', 'viager', 'épargne', 'epargne', 'retraite'] },
+  { tag: 'Santé',          kw: ['santé', 'sante', 'mutuelle', 'prévoyance', 'prevoyance', 'frais de santé'] },
+  { tag: 'Réassurance',    kw: ['réassurance', 'reassurance', 'cession', 'traité', 'traite'] },
+  { tag: 'Risque',         kw: ['risque', 'risk manag', 'gestion des risques', 'erm'] },
+  { tag: 'Provisionnement', kw: ['provision', 'best estimate', 'sap', 'gaap', 'réserves', 'reserves'] },
+  { tag: 'ML / IA',        kw: ['machine learning', 'deep learning', 'réseau de neurones', 'neural', 'intelligence artificielle', 'ia générative'] },
+  { tag: 'MLOps',          kw: ['mlops', 'ml ops'] },
+  { tag: 'NLP / LLM',      kw: ['nlp', 'llm', 'natural language', 'chatgpt', 'gpt'] },
+  { tag: 'Python',         kw: ['python'] },
+  { tag: 'Data Science',   kw: ['data scien', 'data analyst', 'data engin'] },
+  { tag: 'Actuariat',      kw: ['actuair', 'actuari'] },
+  { tag: 'ALM',            kw: ['alm', 'asset.liability'] },
+  { tag: 'Sinistres',      kw: ['sinistre', 'gestion des sinistres', 'claims'] },
+  { tag: 'Souscription',   kw: ['souscription', 'underwriting'] },
+  { tag: 'R',              kw: ['\br\b', 'r studio'] },
+  { tag: 'SAS',            kw: ['\bsas\b'] },
+  { tag: 'SQL',            kw: ['\bsql\b'] },
+  { tag: 'Cloud',          kw: ['azure', 'aws', 'gcp', 'cloud'] },
+  { tag: 'Tableau / BI',   kw: ['tableau', 'power bi', 'business intelligence'] },
+];
+
+function extractDomainTags(job) {
+  const text = ((job.title || '') + ' ' + (job.description_raw || job.description || '') + ' ' + (job.ai_summary || '')).toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const found = [];
+  for (const dt of DOMAIN_TAGS) {
+    for (const kw of dt.kw) {
+      const escaped = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      try {
+        if (new RegExp(escaped, 'i').test(text)) {
+          found.push(dt.tag);
+          break;
+        }
+      } catch(e) {}
+    }
+  }
+  return found.slice(0, 4); // max 4 domain tags
+}
+
+
+// ── Proposition IA (spécialité/contrat Jev) vs valeurs publiées ──────────
+// Règles: la valeur publiée reste celle de la source (ATS). La curation Jev est
+// une proposition indicative, jamais présentée comme une information certaine.
+// La spécialité "autre" n'est pas publiée: ni badge, ni proposition.
+// ── Proposition IA (curation Jev) face aux valeurs de l'offre ─────────────
+// Règles: la valeur publiée reste celle de l'offre (contrat et spécialité ATS).
+// Une proposition sous le seuil de confiance n'est jamais présentée comme un
+// attribut : elle n'apparaît qu'ici, explicitement signalée comme incertaine.
+function jevProposalHtml(j) {
+  if (j.jev_curation_status !== 'done') return '';
+
+  const publie = j.jev_publishable || {};
+  const lignes = [];
+  const sansInteret = { specialty: ['autre'], experience: ['not_specified'] };
+
+  [['Spécialité', 'jev_specialty', 'jev_specialty_probability', JEV_SPECIALTY_LABELS, 'specialty'],
+   ['Expérience', 'jev_experience', 'jev_experience_probability', JEV_EXPERIENCE_LABELS, 'experience'],
+  ].forEach(([titre, champ, champProba, libelles, cle]) => {
+    const valeur = j[champ];
+    if (!valeur || sansInteret[cle].includes(valeur)) return;
+    // Une valeur déjà fiable est affichée comme attribut : pas de doublon ici.
+    if (cle === 'experience' && publie[cle]) return;
+    const proba = j[champProba];
+    const texte = escapeHtml(libelles[valeur] || valeur) +
+      (typeof proba === 'number' ? ' (' + Math.round(proba * 100) + ' %)' : '');
+    const doute = publie[cle] ? '' : ' <span style="color:var(--ambre);">confiance faible, à vérifier</span>';
+    lignes.push(titre + ' proposée : <strong>' + texte + '</strong>' + doute);
+  });
+
+  // Contrat : l'offre garde son propre contrat, on signale seulement l'écart.
+  const contratPublie = j.contract_type ? (CONTRACT_LABELS[j.contract_type] || j.contract_type) : '';
+  const contratPropose = j.jev_contract ? (CONTRACT_LABELS[j.jev_contract] || j.jev_contract) : '';
+  const divergence = Boolean(j.jev_curation_ats_conflict) ||
+    Boolean(j.jev_contract && j.contract_type && j.jev_contract !== j.contract_type);
+  if (divergence) {
+    const proba = j.jev_contract_probability;
+    lignes.push('Contrat : offre annoncée <strong>' + escapeHtml(contratPublie || 'non précisé') +
+      '</strong>, IA propose <strong>' + escapeHtml(contratPropose) +
+      (typeof proba === 'number' ? ' (' + Math.round(proba * 100) + ' %)' : '') +
+      '</strong> — divergence à vérifier');
+  }
+
+  if (!lignes.length) return '';
+  return `<div class="ki" style="background:var(--teal-pale);border-radius:.5rem;"><span class="ms" style="color:var(--teal);font-size:18px;">auto_awesome</span>
+    <div><div class="kl">Proposition IA — à confirmer</div><div class="kv" style="font-size:.83rem;line-height:1.5;">${lignes.map(l => `<div>${l}</div>`).join('')}</div></div>
+  </div>`;
+}
+
+// ── Jev helpers (expérience affichée depuis jev_experience si curée) ──────
+function experienceLabel(j) {
+  // Une proposition n'est présentée comme attribut de l'offre que si la
+  // curation la juge publiable (curee, informative, confiance suffisante).
+  // Sinon elle n'apparait que dans le bloc de proposition, signalee incertaine.
+  // experience_level est vide (not_specified) sur la quasi-totalite du stock:
+  // il ne constitue pas un repli utilisable.
+  const publie = (j.jev_publishable || {}).experience;
+  if (j.jev_curation_status === 'done' && publie && j.jev_experience) {
+    return JEV_EXPERIENCE_LABELS[j.jev_experience] || j.jev_experience;
+  }
+  if (j.experience_level && j.experience_level !== 'not_specified') return j.experience_level;
+  return '';
+}
+// Compétences citées dans l'offre, détectées dans le texte par l'API.
+// Ce ne sont pas des valeurs de curation : Jev ne les produit pas. L'intitulé
+// du bloc doit donc rester prudent.
+const SKILLS_FAMILIES = { outils: 'Outils', reglementation: 'Réglementation' };
+
+function skillLabels(j) {
+  const s = j.skills || {};
+  return Object.keys(SKILLS_FAMILIES).flatMap(f => (s[f] || []).map(l => ({ famille: f, label: l })));
+}
+
+function skillChips(j, max) {
+  return skillLabels(j).slice(0, max)
+    .map(x => `<span class="tag tm">${escapeHtml(x.label)}</span>`).join('');
+}
+
+function skillsHtml(j) {
+  const s = j.skills || {};
+  const familles = Object.keys(SKILLS_FAMILIES).filter(f => (s[f] || []).length);
+  if (!familles.length) return '';
+  const blocs = familles.map(f => `<div style="margin-bottom:.5rem;">
+      <div style="font-size:.73rem;text-transform:uppercase;letter-spacing:.04em;color:var(--gris);font-weight:700;margin-bottom:.2rem;">${SKILLS_FAMILIES[f]}</div>
+      <div class="tl">${s[f].map(l => `<span class="tt">${escapeHtml(l)}</span>`).join('')}</div>
+    </div>`).join('');
+  return `<div class="ds">
+      <h3><span class="ms" style="color:var(--teal);">construction</span> Outils et réglementation cités</h3>
+      ${blocs}
+      <div style="font-size:.75rem;color:var(--gris-doux);">Repérés dans le texte de l'offre. Ce ne sont pas des valeurs validées par la curation.</div>
+    </div>`;
+}
+
+function specialtyLabel(j) {
+  if (j.jev_curation_status !== 'done' || !(j.jev_publishable || {}).specialty) return '';
+  return JEV_SPECIALTY_LABELS[j.jev_specialty] && j.jev_specialty !== 'autre'
+    ? JEV_SPECIALTY_LABELS[j.jev_specialty] : '';
+}
+
+// Pastilles de la fiche, dans l'ordre de la page d'offre : lieu, contrat,
+// expérience, salaire, spécialité. Ce sont les fonctions de publication du
+// board qui décident — rien n'apparaît sans fondement, comme sur la carte.
+function pastillesOffreHtml(j) {
+  const p = [`<span class="pastille pastille-ville">${escapeHtml(j.ville || 'Lieu non précisé')}</span>`];
+  const ct = j.contract_type ? (CONTRACT_LABELS[j.contract_type] || j.contract_type) : '';
+  if (ct) p.push(`<span class="pastille">${escapeHtml(ct)}</span>`);
+  const exp = experienceLabel(j);
+  if (exp) p.push(`<span class="pastille">${escapeHtml(exp)}</span>`);
+  const sal = salaryLabel(j);
+  if (sal) p.push(`<span class="pastille pastille-salaire">${escapeHtml(sal)}</span>`);
+  const sp = specialtyLabel(j);
+  if (sp) p.push(`<span class="pastille pastille-specialite">${escapeHtml(sp)}</span>`);
+  if (j.remote_policy && j.remote_policy !== 'not_specified') {
+    p.push(`<span class="pastille">${escapeHtml(j.remote_policy)}</span>`);
+  }
+  return p.join('');
+}
+
+function cardFactHtml(label, value) {
+  const accessibleLabel = escapeHtml(`${label} : ${value}`);
+  return `<span class="card-fact" title="${accessibleLabel}" aria-label="${accessibleLabel}"><span class="card-fact-value">${escapeHtml(value)}</span></span>`;
+}
+
+function cardExperienceHtml(j) {
+  const label = experienceLabel(j);
+  return label ? cardFactHtml('Expérience', label) : '';
+}
+
+function salaryLabel(j) {
+  // Le montant vient du texte de l'offre. Il n'est affiché que si l'API le
+  // déclare publiable : au-dessus du seuil de confiance, sans contradiction.
+  // Rien n'est estimé ni complété.
+  const publie = (j.jev_publishable || {}).salaire === true;
+  const libelle = j.jev_salaire_libelle;
+  return publie && libelle ? libelle : '';
+}
+
+function cardSalaryHtml(j) {
+  // Troisième pastille, à côté du contrat et de l'expérience.
+  const libelle = salaryLabel(j);
+  return libelle ? cardFactHtml('Salaire', libelle) : '';
+}
+
+function cardLocationHtml(j) {
+  // Seule pastille avec une icône : la ville seule ne se lit pas comme une
+  // localisation, alors que « CDI » ou « Senior » sont explicites.
+  const ville = j.ville;
+  if (!ville) return '';
+  const accessibleLabel = escapeHtml(`Localisation : ${ville}`);
+  return `<span class="card-fact card-fact--loc" title="${accessibleLabel}" aria-label="${accessibleLabel}">`
+    + `<span class="ms">location_on</span>`
+    + `<span class="card-fact-value">${escapeHtml(ville)}</span></span>`;
+}
+
+function cardMetadataHtml(j) {
+  const contract = CONTRACT_LABELS[j.contract_type] || j.contract_type || 'Non précisé';
+  return `<div class="cm">${cardLocationHtml(j)}${cardFactHtml('Contrat', contract)}`
+    + `${cardExperienceHtml(j)}${cardSalaryHtml(j)}</div>`;
+}
+
+// ── Render feed ────────────────────────────────────────────────────────────
+function renderFeed() {
+  feedEl.innerHTML = '';
+
+  ALL_JOBS.forEach(j => {
+    const co = j.companies || {};
+    const ct      = j.contract_type || '';
+    const sp = specialtyLabel(j);
+    const tags = sp ? [{ l: sp, t: 'tn' }] : [];
+    const skillTagHtml = skillChips(j, 3);
+
+
+    const el = document.createElement('div');
+    el.className = 'jc' + (j.id === activeId ? ' on' : '');
+    /* L'identifiant de l'offre est expose dans le DOM. Sans lui, on ne peut
+       pas verifier qu'une offre n'est pas repetee a la pagination, ni
+       previsualiser quelle offre on ouvre. */
+    el.dataset.id = j.id;
+    /* La carte est un bouton : elle s'active au clavier et se declare
+       comme telle. Elle ne porte PAS d'aria-label : son contenu visible
+       — le titre de l'offre — est son nom accessible. Imposer un libelle
+       a cote du contenu visible viole la regle 2.5.3 (Label in Name),
+       qui exige que le nom accessible contienne le texte visible. */
+    el.setAttribute('role', 'button');
+    el.setAttribute('tabindex', '0');
+
+    // Préchargement : le survol donne à l'API le temps de répondre avant le
+    // clic. Sur écran tactile, pointerdown joue ce rôle.
+    el.addEventListener('pointerenter', () => {
+      clearTimeout(minuteurPrechargement);
+      minuteurPrechargement = setTimeout(() => prechargerDetail(j.id), 80);
+    });
+    el.addEventListener('pointerleave', () => clearTimeout(minuteurPrechargement));
+    el.addEventListener('pointerdown', () => {
+      clearTimeout(minuteurPrechargement);
+      prechargerDetail(j.id);
+    });
+    /* Une carte est un bouton : elle s'active au clavier aussi. Sans cela,
+       la carte annonce « button » au lecteur d'ecran mais reste hors
+       d'atteinte de l'utilisateur clavier. */
+    el.onkeydown = (ev) => {
+      if (ev.key === 'Enter' || ev.key === ' ') {
+        ev.preventDefault();
+        el.click();
+      }
+    };
+
+    el.onclick = async () => {
+      activeId = j.id;
+      // Sélection dans la liste. Distincte de l'ouverture automatique de la
+      // première offre au chargement : celle-ci n'est pas un choix.
+      mesurer('select_item', paramOffre(j, 'board'));
+      origineDetail = 'liste';
+
+      // La lecture en cours ne se perd pas. Changer d'offre ne doit pas
+      // ramener la fiche en haut : l'en-tête reste collé, et la fiche suivante
+      // se lit à la même hauteur. On relève donc les deux défilements avant
+      // le rendu — ils retombent à zéro pendant le temps de chargement, puis
+      // on les remet en place.
+      const lectureFiche = prEl.scrollTop;
+      const lectureListe = plEl.scrollTop;
+
+      renderFeed();
+      if (lectureListe) plEl.scrollTop = lectureListe;
+
+      await renderDetail(j.id);
+
+      // Après le rendu, pas avant : c'est renderDetail qui remplace le contenu
+      // par un écran de chargement, et c'est ce contenu court qui ramène le
+      // défilement à zéro. Restaurer ici le repose sur le texte définitif.
+      if (!isMobile() && lectureFiche) prEl.scrollTop = lectureFiche;
+      openDetail();
+      poserAdresseOffre(j.slug);
+    };
+    el.innerHTML = `
+      <div class="ct">
+        ${renderCompanyLogo(co, 'clogo')}
+        <div class="ci">
+          <div class="ctitle">${j.title}</div>
+          <div class="csub">${co.name || j.source}</div>
+        </div>
+        <span class="ms" style="color:var(--gris-doux);font-size:17px;flex-shrink:0;margin-left:.35rem;">notifications</span>
+      </div>
+      ${cardMetadataHtml(j)}
+      <div class="ctags">
+        ${tags.map(t => `<span class="tag ${t.t}">${t.l}</span>`).join('')}
+        ${skillTagHtml}
+      </div>
+      <div class="cdate">${formatDate(j.source_published_at)}</div>
+    `;
+    feedEl.appendChild(el);
+  });
+
+  // Bouton Load More si d'autres pages serveur existent
+  if (SERVER_PAGE < SERVER_PAGES) {
+    const remaining = TOTAL_SERVER - ALL_JOBS.length;
+    const btn = document.createElement('button');
+    btn.id        = 'load-more-btn';
+    btn.innerHTML = `<span class="ms" style="font-size:16px;vertical-align:middle;">expand_more</span> Voir plus d'offres <span style="color:var(--gris-doux);font-size:.75em;">(${remaining} restantes)</span>`;
+    btn.style.cssText = `
+      display:block; width:calc(100% - 1.75rem); margin:.5rem .875rem 1rem;
+      padding:.65rem 1rem; border-radius:.625rem;
+      background: var(--surface); border:1.5px solid rgba(0,104,118,.25);
+      color:var(--teal); font-weight:700; font-size:.825rem;
+      cursor:pointer; font-family:inherit;
+      transition:background .15s, border-color .15s;
+    `;
+    btn.onmouseover = () => { btn.style.background='var(--teal-survol)'; btn.style.borderColor='var(--teal)'; };
+    btn.onmouseout  = () => { btn.style.background='var(--surface)'; btn.style.borderColor='rgba(0,104,118,.25)'; };
+    btn.onclick = loadMore;
+    feedEl.appendChild(btn);
+  }
+}
+
+// ── Fetch detail ───────────────────────────────────────────────────────────
+async function fetchDetail(id) {
+  if (detailCache[id]) return detailCache[id];
+  const r = await fetch(`${API_BASE}/jobs/${id}`);
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  const d = await r.json();
+  detailCache[id] = d;
+  return d;
+}
+
+// ── Description de l'offre ─────────────────────────────────────────────────
+// La description complète est disponible : elle est présentée en aperçu, puis
+// dépliable. Rien n'est tronqué définitivement, et les paragraphes sont
+// conservés — sans quoi un texte de 20 000 caractères devient un bloc illisible.
+const DESCRIPTION_PREVIEW_CHARS = 600;
+let descExpanded = {};
+let descSections = [];
+// Structure éditoriale de l'annonce, conservée à la collecte et nettoyée.
+// Prioritaire sur la découpe automatique : c'est la rédaction d'origine.
+let descHtmlSource = '';
+
+// Décodage sans DOM : la mise en forme d'une description ne doit pas dépendre
+// du navigateur, et reste ainsi vérifiable par les tests.
+function decodeBasicEntities(value) {
+  return String(value || '')
+    .replace(/&#(\d+);/g, (_, d) => String.fromCharCode(parseInt(d, 10)))
+    .replace(/&#x([0-9a-f]+);/gi, (_, x) => String.fromCharCode(parseInt(x, 16)))
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;|&apos;/gi, "'")
+    // Décodé en dernier : « &amp;lt; » reste un « &lt; » littéral.
+    .replace(/&amp;/gi, '&');
+}
+
+function descriptionBlocks(value) {
+  let texte = decodeBasicEntities(value || '');
+  // Les balises de bloc portent les séparations avant leur suppression.
+  texte = texte.replace(/<\s*\/?\s*(p|div|br|li|tr|h[1-6]|section|article)\b[^>]*>/gi, '\n');
+  for (let i = 0; i < 3 && /<\/?[a-z][\s\S]*>/i.test(texte); i++) {
+    texte = decodeBasicEntities(texte.replace(/<[^>]+>/g, ' '));
+  }
+  return texte
+    .split(/\n+/)
+    .map(p => p.replace(/<[^>]+>/g, ' ').replace(/[ \t\u00a0]+/g, ' ').trim())
+    .filter(Boolean);
+}
+
+function descriptionHtml(blocks, expanded, index) {
+  if (!blocks.length) return '';
+  let choisis = blocks;
+  if (!expanded) {
+    choisis = [];
+    let total = 0;
+    for (const paragraphe of blocks) {
+      if (total > 0 && total + paragraphe.length > DESCRIPTION_PREVIEW_CHARS) break;
+      choisis.push(paragraphe);
+      total += paragraphe.length;
+    }
+  }
+  const corps = choisis.map(p => `<p>${escapeHtml(p)}</p>`).join('');
+  const reste = choisis.length < blocks.length;
+  if (!reste && !expanded) return corps;
+  return corps + `<button class="desc-more" onclick="toggleDescription(${index})">`
+    + `${expanded ? 'Réduire' : 'Lire la suite'}</button>`;
+}
+
+function toggleDescription(index) {
+  const cible = document.getElementById('desc-body-' + index);
+  if (!cible) return;
+  descExpanded[index] = !descExpanded[index];
+  cible.innerHTML = descriptionHtml(descSections[index].paragraphes, descExpanded[index], index);
+}
+
+// Icône propre à chaque section, pour les distinguer d'un coup d'œil.
+const SECTION_ICONS = { "Le poste": "work", "Missions": "checklist", "Profil recherché": "person" };
+
+function descriptionSectionsHtml() {
+  return descSections.map((section, index) => `<div class="ds">
+      <h3><span class="ms" style="color:var(--teal);">${SECTION_ICONS[section.titre] || 'article'}</span>
+        ${escapeHtml(section.titre)}</h3>
+      <div id="desc-body-${index}">${descriptionHtml(section.paragraphes, false, index)}</div>
+    </div>`).join('');
+}
+
+// ── Render detail ──────────────────────────────────────────────────────────
+// ── Adresse et partage d'une offre ────────────────────────────────────────
+// Chaque offre a une adresse : /offre/{slug}. Ouvrir une offre ne changeait
+// pas l'adresse, donc rien n'était copiable ni partageable.
+
+function urlOffre(slug) {
+  return slug ? `${location.origin}/offre/${encodeURIComponent(slug)}` : location.href;
+}
+
+// Retour visuel bref : sur mobile, sans lui, on ne sait pas si le lien est copié.
+function signaler(message) {
+  let bulle = document.getElementById('toast-claim');
+  if (!bulle) {
+    bulle = document.createElement('div');
+    bulle.id = 'toast-claim';
+    bulle.className = 'toast-claim';
+    document.body.appendChild(bulle);
+  }
+  bulle.textContent = message;
+  bulle.classList.add('vu');
+  clearTimeout(bulle._minuteur);
+  bulle._minuteur = setTimeout(() => bulle.classList.remove('vu'), 2600);
+}
+
+async function partagerOffre() {
+  const j = offreCourante;
+  if (!j || !j.slug) return;
+  const url = urlOffre(j.slug);
+  // Sur mobile, la feuille de partage du système est le geste attendu.
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: j.title || 'Offre', url });
+      mesurer('share', { ...paramOffre(j, 'board'), method: 'partage_systeme' });
+      return;
+    } catch (e) {
+      // Partage annulé par l'utilisateur : on retombe sur la copie.
+    }
+  }
+  try {
+    await navigator.clipboard.writeText(url);
+    signaler('Lien de l\'offre copié');
+    mesurer('share', { ...paramOffre(j, 'board'), method: 'copie_lien' });
+  } catch (e) {
+    window.prompt('Copiez le lien de cette offre :', url);
+  }
+}
+
+// L'adresse suit l'offre ouverte : le lien devient copiable depuis la barre.
+function poserAdresseOffre(slug) {
+  if (!slug) return;
+  const cible = `/offre/${encodeURIComponent(slug)}`;
+  if (location.pathname === cible) return;
+  try { history.pushState({ offre: slug }, '', cible); } catch (e) { /* sans history */ }
+}
+
+// ── Dessin de la fiche ─────────────────────────────────────────────────────
+// Le contenu de la fiche ne dépend pas de la requête de détail : celle-ci
+// n'apporte que la structure éditoriale (description_html, sections), que la
+// liste ne porte pas. Le texte, lui, est déjà là — description_raw est dans
+// la réponse de liste.
+//
+// On dessine donc immédiatement ce que la liste contient, et on remplace
+// quand le détail arrive. L'écran « Chargement du détail… » ne sert plus qu'au
+// cas où l'on n'a vraiment rien : un lien direct, par exemple.
+function dessinerDetail(j) {
+  offreCourante = j;
+  const co = j.companies || {};
+  const skillsBloc = skillsHtml(j);
+
+  // Priorité à la structure éditoriale de la source quand elle a été
+  // conservée à la collecte : paragraphes, puces et emphases sont ceux de la
+  // rédaction d'origine. Le HTML a été nettoyé à la collecte ; il n'est
+  // jamais évalué, seulement inséré.
+  const htmlSource = typeof j.description_html === 'string' ? j.description_html.trim() : '';
+  descHtmlSource = (htmlSource && /<(p|ul|ol|li|h[2-6]|blockquote)\b/i.test(htmlSource))
+    ? htmlSource : '';
+
+  // Sans structure d'origine : découpe automatique quand les intitulés sont
+  // reconnaissables, sinon le texte entier. Rien n'est perdu.
+  const sectionsApi = (Array.isArray(j.sections) ? j.sections : [])
+    .filter(s => (s.paragraphes || []).length);
+  const blocsTexte = descriptionBlocks(j.description_raw);
+  descSections = sectionsApi.length
+    ? sectionsApi.map(s => ({ titre: s.titre, paragraphes: s.paragraphes }))
+    : (blocsTexte.length ? [{ titre: 'Aperçu du poste', paragraphes: blocsTexte }] : []);
+  descExpanded = {};
+  const resumeIa = j.ai_summary ? `<p class="desc-ia">${escapeHtml(j.ai_summary)}</p>` : '';
+  const summary = descHtmlSource
+    ? resumeIa + `<div class="desc-source">${descHtmlSource}</div>`
+    : (descSections.length
+        ? resumeIa + descriptionSectionsHtml()
+        : '<p>Description non disponible.</p>');
+
+  document.getElementById('detail').innerHTML = `
+    <div class="dc-wrap">
+    <div class="dc">
+      <button class="btn-back" onclick="closeDetail()">← Toutes les offres</button>
+      <div class="d-entete">
+        <div class="d-entete-corps">
+          <h1 class="dtitle">${j.title}</h1>
+          <div class="dco">${co.name || j.source}${j.ville ? ' · ' + escapeHtml(j.ville) : ''}</div>
+          <div class="pastilles">${pastillesOffreHtml(j)}</div>
+        </div>
+        <div class="dact">
+          ${j.source_url ? `<a class="bap" href="${escapeHtml(j.source_url)}" target="_blank" rel="nofollow noopener" onclick="mesurerClicPostuler()">Postuler</a>` : ''}
+          <button class="bsh" type="button" onclick="partagerOffre()">Partager</button>
+        </div>
+      </div>
+      ${summary}
+      ${skillsBloc}
+      <div class="pied">
+        Offre publiée sur <a href="/job-board.html">Claim!</a>.
+        ${j.source_url ? `Source : <a href="${escapeHtml(j.source_url)}" rel="nofollow noopener" target="_blank">l'annonce d'origine</a>.` : ''}
+      </div>
+    </div>
+    </div>
+  `;
+}
+
+// ── Préchargement ──────────────────────────────────────────────────────────
+// L'API met de 300 ms à plus de 1 500 ms à répondre. Le survol d'une carte
+// donne cet intervalle : la requête part avant le clic, et la fiche s'ouvre
+// alors sans attente. Un délai de 80 ms évite de déclencher une requête pour
+// chaque carte traversée au passage de la souris.
+let minuteurPrechargement = null;
+function prechargerDetail(id) {
+  if (detailCache[id]) return;
+  fetchDetail(id).catch(() => { /* l'erreur sera vue au clic */ });
+}
+
+// ── Rendu de la fiche ──────────────────────────────────────────────────────
+async function renderDetail(id) {
+  const enListe = ALL_JOBS.find(x => x.id === id);
+  const enCache = detailCache[id];
+  const depart = enCache || enListe;
+
+  if (depart) {
+    dessinerDetail(depart);
+  } else {
+    document.getElementById('detail').innerHTML = `
+      <button class="btn-back" onclick="closeDetail()">
+        ← Toutes les offres
+      </button>
+      <div class="dc" style="padding:2rem;color:var(--gris-doux);font-size:.85rem;">Chargement du détail…</div>
+    `;
+  }
+
+  try {
+    const j = await fetchDetail(id);
+    offreCourante = j;
+    if (origineDetail !== 'auto') mesurer('view_item', paramOffre(j, 'board'));
+
+    // Le cache a servi : ce qui est à l'écran est déjà la bonne version.
+    if (j === depart) return;
+
+    // Sinon la fiche affichée vient de la liste, sans la structure d'origine.
+    // On la remplace sans déplacer le lecteur : le texte est le même, seule
+    // sa mise en forme s'affine.
+    const lecture = prEl.scrollTop;
+    dessinerDetail(j);
+    if (!isMobile() && lecture > 0) prEl.scrollTop = lecture;
+  } catch (e) {
+    // Si la liste a déjà fourni de quoi lire, on la garde : mieux vaut une
+    // fiche sans structure qu'un écran d'erreur.
+    if (!depart) {
+      document.getElementById('detail').innerHTML = `
+        <button class="btn-back" onclick="closeDetail()">
+          ← Toutes les offres
+        </button>
+        <div class="dc" style="padding:2rem;color:var(--rouge);font-size:.85rem;">
+          Erreur : ${e.message}
+        </div>
+      `;
+    }
+    console.error('[CLAIM!] renderDetail error:', e);
+  }
+}
+
+// ── Mobile navigation ──────────────────────────────────────────────────────
+const isMobile = () => window.innerWidth <= 768;
+function openDetail() {
+  if (isMobile()) {
+    splitEl.classList.add('detail-open');
+    hero.classList.add('collapsed');
+    // L'en-tête est masqué : la classe est posée sur <body> et non sur
+    // #split, car l'en-tête est un frère de #split et non un descendant.
+    document.body.classList.add('detail-view');
+    prEl.scrollTop = 0;
+  }
+}
+function closeDetail() {
+  splitEl.classList.remove('detail-open');
+  hero.classList.remove('collapsed');
+  document.body.classList.remove('detail-view');
+  document.body.classList.remove('fiche-defilee');
+  document.body.classList.remove('entete-collee');
+}
+// Le bouton retour du navigateur : revenir à la liste ferme le détail,
+// revenir en avant le rouvre. Sans cela, l'adresse et l'écran divergeraient.
+window.addEventListener('popstate', async () => {
+  const trouve = location.pathname.match(/^\/offre\/(.+)$/);
+  if (trouve) {
+    const slug = decodeURIComponent(trouve[1]);
+    const cible = ALL_JOBS.find(x => x.slug === slug);
+    if (cible) {
+      activeId = cible.id;
+      renderFeed();
+      origineDetail = 'historique';
+      await renderDetail(cible.id);
+      openDetail();
+    }
+    return;
+  }
+  closeDetail();
+});
+
+plEl.addEventListener('scroll', function () {
+  hero.classList.toggle('collapsed', this.scrollTop > 30);
+});
+let touchStartX = 0;
+prEl.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+prEl.addEventListener('touchend', e => {
+  if (e.changedTouches[0].clientX - touchStartX > 60 && isMobile()) closeDetail();
+}, { passive: true });
+
+// ── Menu burger ────────────────────────────────────────────────────────────
+function toggleBurger() {
+  const menu = document.getElementById('burger-menu');
+  const btn  = document.getElementById('btn-burger');
+  const open = menu.classList.toggle('open');
+  btn.classList.toggle('open', open);
+  document.body.style.overflow = open ? 'hidden' : '';
+}
+function closeBurger() {
+  document.getElementById('burger-menu').classList.remove('open');
+  document.getElementById('btn-burger').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeBurger(); });
+
+// ── Search events ─────────────────────────────────────────────────────────
+document.getElementById('q-input')?.addEventListener('keydown', e => { if (e.key === 'Enter') applySearch(); });
+document.getElementById('city-input')?.addEventListener('keydown', e => { if (e.key === 'Enter') applySearch(); });
+
+// ── Init ───────────────────────────────────────────────────────────────────
+remplirDepuisAdresse();
+loadJobs();
+</script>
+<!-- ══ BURGER MENU DRAWER ══ -->
+<div id="burger-menu">
+  <div class="bm-overlay" onclick="closeBurger()"></div>
+  <div class="bm-panel">
+    <div class="bm-header">
+      <a class="bm-logo" href="/" onclick="closeBurger()">Claim!</a>
+      <button class="bm-close" onclick="closeBurger()">
+        <span class="ms" style="font-size:18px;">close</span>
+      </button>
+    </div>
+    <nav class="bm-nav">
+      <a href="/job-board.html" class="on" onclick="closeBurger()">
+        <span class="ms">work</span>Offres d'emploi
+      </a>
+      <a href="claim-entreprises.html" onclick="closeBurger()">
+        <span class="ms">business</span>Entreprises
+      </a>
+      <a href="claim-observatoire.html" onclick="closeBurger()">
+        <span class="ms">bar_chart</span>Observatoire de l'assurance
+      </a>
+    </nav>
+    <div class="bm-footer">
+      <button class="btn-cta" onclick="closeBurger()">Contactez-nous</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

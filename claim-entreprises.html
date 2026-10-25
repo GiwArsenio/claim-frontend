@@ -1,0 +1,1283 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Les entreprises qui recrutent en Actuariat & IA — Claim!</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+.ms {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal; font-style: normal; line-height: 1;
+  letter-spacing: normal; text-transform: none;
+  display: inline-block; white-space: nowrap;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  vertical-align: middle;
+}
+
+html, body { font-family: 'Inter', sans-serif; color: var(--encre); background: var(--champ); }
+/* La colonne est etiree : le pied est un enfant de #app, et un flex
+   en colonne CENTRE ses enfants par defaut. Le pied se retrouvait donc
+   au milieu de la page, au lieu d'etre aligne a gauche comme partout
+   ailleurs. */
+/* La page doit pouvoir defiler : le pied de page est sous le
+     contenu, et un document verrouille a height: 100% le rendait
+     inatteignable. Sur le board, ce verrouillage est voulu — c'est un
+     ecran plein en deux colonnes — mais ici la page est un document
+     ordinaire, qui deborde. */
+#app { display: flex; flex-direction: column; align-items: stretch;
+       min-height: 100%; overflow: visible; }
+
+/* ── HEADER ── */
+#hd { flex-shrink: 0; background: var(--teal-fond); z-index: 200; }
+#hd nav { display: flex; justify-content: space-between; align-items: center; padding: .75rem 2rem; }
+.logo { font-size: 1.5rem; font-weight: 900; color: var(--blanc); letter-spacing: -.05em; cursor: pointer; text-decoration: none; }
+.nav-links { display: flex; gap: 2rem; }
+.nav-links a { color: rgba(255,255,255,.8); text-decoration: none; font-size: .875rem; font-weight: 600; transition: color .15s; }
+.nav-links a:hover { color: var(--blanc); }
+.nav-links a.on { color: var(--blanc); border-bottom: 2px solid #fff; padding-bottom: 2px; }
+.btn-cta { background: var(--surface); color: var(--teal); padding: .45rem 1.2rem; border-radius: .5rem; font-weight: 700; font-size: .875rem; border: none; cursor: pointer; }
+
+/* ── HERO ── */
+#hero-co {
+  flex-shrink: 0;
+  background: var(--champ);
+  border-bottom: 1px solid rgba(187,201,204,.25);
+  padding: 1.25rem 2rem .875rem;
+}
+#hero-co h1 { font-size: clamp(1.2rem, 2vw, 1.75rem); font-weight: 900; color: var(--encre); letter-spacing: -.02em; margin-bottom: .2rem; }
+#hero-co h1 em { color: var(--teal); font-style: normal; }
+#hero-co .sub { color: var(--gris); font-size: .825rem; margin-bottom: .875rem; }
+
+/* ── BARRE RECHERCHE + FILTRES ── */
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  flex-wrap: wrap;
+}
+
+/* Barre de recherche */
+.sbar {
+  display: flex; align-items: center;
+  background: var(--surface); border: 1px solid var(--bord-carte);
+  border-radius: .625rem;
+  padding: .3rem; max-width: 36rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,.07);
+  flex: 1;
+}
+.sf { flex: 1; display: flex; align-items: center; padding: 0 .875rem; gap: .4rem; }
+.sf input { width: 100%; border: none; outline: none; background: transparent; font-family: inherit; font-size: .825rem; color: var(--encre); }
+.sf input::placeholder { color: rgba(108,121,124,.6); }
+.btn-srch { background: linear-gradient(135deg,var(--teal),var(--teal-vif)); color: var(--blanc); border: none; cursor: pointer; padding: .42rem 1.25rem; border-radius: 9999px; font-weight: 700; font-size: .8rem; white-space: nowrap; }
+
+/* Séparateur */
+.bar-sep { width: 1px; height: 1.5rem; background: rgba(187,201,204,.3); flex-shrink: 0; margin: 0 .15rem; }
+
+/* ── DROPDOWN CHIP ── */
+.dd-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* Bouton déclencheur */
+.dd-trigger {
+  display: inline-flex; align-items: center; gap: .3rem;
+  padding: .28rem .75rem;
+  border-radius: 9999px;
+  background: var(--surface);
+  color: var(--gris);
+  font-size: .72rem;
+  font-weight: 500;
+  border: 1px solid rgba(187,201,204,.25);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background .15s, border-color .15s, color .15s;
+  user-select: none;
+}
+.dd-trigger:hover { background: var(--teal-survol); }
+.dd-trigger.active {
+  background: var(--teal-fond);
+  color: var(--blanc);
+  border-color: var(--teal);
+}
+.dd-trigger.active .dd-arrow { color: var(--blanc); }
+.dd-arrow {
+  font-size: 13px;
+  color: var(--gris-doux);
+  transition: transform .2s;
+  flex-shrink: 0;
+}
+.dd-wrap.open .dd-arrow { transform: rotate(180deg); }
+
+/* Badge compteur sur le trigger */
+.dd-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--surface); color: var(--teal);
+  font-size: .55rem; font-weight: 900;
+  flex-shrink: 0;
+}
+.dd-trigger:not(.active) .dd-badge { background: var(--teal-fond); color: var(--blanc); }
+
+/* Panel déroulant */
+.dd-panel {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 200px;
+  background: var(--surface);
+  border-radius: .625rem;
+  border: 1px solid rgba(187,201,204,.25);
+  box-shadow: 0 8px 28px rgba(0,0,0,.1);
+  padding: .5rem;
+  z-index: 300;
+}
+.dd-wrap.open .dd-panel { display: block; }
+
+/* Titre du panel */
+.dd-panel-title {
+  font-size: .6rem; font-weight: 800; color: var(--gris-doux);
+  text-transform: uppercase; letter-spacing: .08em;
+  padding: .25rem .5rem .4rem;
+}
+
+/* Options dans le panel */
+.dd-option {
+  display: flex; align-items: center; gap: .5rem;
+  padding: .38rem .625rem;
+  border-radius: .5rem;
+  font-size: .775rem; font-weight: 500; color: var(--gris-texte);
+  cursor: pointer;
+  transition: background .12s;
+  white-space: nowrap;
+}
+.dd-option:hover { background: var(--champ); }
+.dd-option.on { background: var(--teal-survol); color: var(--teal); font-weight: 700; }
+.dd-option .check {
+  width: 14px; height: 14px; border-radius: 50%;
+  border: 1.5px solid rgba(187,201,204,.5);
+  flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  transition: all .12s;
+}
+.dd-option.on .check { background: var(--teal); border-color: var(--teal); }
+.dd-option.on .check::after { content: ''; display: block; width: 5px; height: 5px; border-radius: 50%; background: var(--surface); }
+
+/* Séparateur dans panel */
+.dd-divider { height: 1px; background: rgba(187,201,204,.2); margin: .35rem .5rem; }
+
+/* ── Chip toggle "Recrute activement" (pas de dropdown) ── */
+.chip-toggle {
+  display: inline-flex; align-items: center; gap: .3rem;
+  padding: .28rem .75rem;
+  border-radius: 9999px;
+  background: var(--vert-pale);
+  color: var(--vert-texte);
+  font-size: .72rem;
+  font-weight: 600;
+  border: 1px solid rgba(34,197,94,.3);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all .15s;
+  user-select: none;
+}
+.chip-toggle:hover { background: var(--vert-pale); border-color: var(--vert); }
+.chip-toggle.on { background: var(--vert); color: var(--blanc); border-color: var(--vert); }
+.chip-toggle .dot-live {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--vert);
+  flex-shrink: 0; animation: pulse 1.8s ease-in-out infinite;
+}
+.chip-toggle.on .dot-live { background: var(--surface); }
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: .5; transform: scale(.75); }
+}
+
+/* Bouton reset */
+.btn-reset {
+  display: inline-flex; align-items: center; gap: .2rem;
+  padding: .28rem .65rem;
+  border-radius: 9999px;
+  background: transparent; color: var(--gris-doux);
+  font-size: .68rem; font-weight: 600;
+  border: 1px solid rgba(187,201,204,.3);
+  cursor: pointer; white-space: nowrap;
+  transition: all .15s; flex-shrink: 0;
+}
+.btn-reset:hover { color: #E30613; border-color: rgba(227,6,19,.3); background: var(--rouge-pale); }
+.btn-reset.hidden { display: none; }
+
+/* Compteur */
+.co-count {
+  font-size: .7rem; font-weight: 600; color: var(--gris-doux);
+  padding: .5rem 0 .4rem;
+  display: flex; align-items: center; gap: .4rem; flex-wrap: wrap;
+}
+.co-count strong { color: var(--teal); font-weight: 800; }
+.afs-tag {
+  display: inline-flex; align-items: center; gap: .2rem;
+  padding: 1px 7px; border-radius: 9999px;
+  background: var(--teal-survol); color: var(--teal);
+  font-size: .6rem; font-weight: 700;
+}
+
+/* ── GRILLE ── */
+#grid-wrap { flex: 1; min-height: 0; overflow-y: auto; padding: 0 2rem 1.5rem; }
+#grid-wrap::-webkit-scrollbar { width: 4px; }
+#grid-wrap::-webkit-scrollbar-thumb { background: var(--gris-pale); border-radius: 10px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 1rem; }
+
+/* ── CARD ENTREPRISE ── */
+.ec {
+  background: var(--surface); border-radius: .625rem;
+  border: 1.5px solid rgba(187,201,204,.18);
+  box-shadow: 0 1px 4px rgba(0,0,0,.04);
+  overflow: hidden; cursor: pointer;
+  transition: transform .18s, box-shadow .18s, border-color .18s;
+  display: flex; flex-direction: column;
+}
+.ec:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,104,118,.1); border-color: rgba(0,104,118,.25); }
+
+.ec-banner { height: 68px; position: relative; flex-shrink: 0; }
+.ec-logo {
+  position: absolute; bottom: -18px; left: 1.25rem;
+  width: 52px; height: 52px; border-radius: .625rem;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--blanc); font-weight: 900; font-size: 11px;
+  border: 3px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,.12);
+  overflow: hidden;
+}
+.ec-logo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; border-radius: inherit; padding: 3px; }
+.ec-badge {
+  position: absolute; top: .625rem; right: .875rem;
+  background: rgba(255,255,255,.92); color: var(--vert);
+  font-size: .6rem; font-weight: 800;
+  padding: 2px 8px; border-radius: 9999px;
+  display: flex; align-items: center; gap: 4px;
+}
+.ec-badge .dot-pulse { width: 6px; height: 6px; border-radius: 50%; background: var(--vert); flex-shrink: 0; animation: pulse 1.8s ease-in-out infinite; }
+
+.ec-body { padding: 1.375rem 1.25rem .875rem; flex: 1; display: flex; flex-direction: column; }
+.ec-name { font-size: 1rem; font-weight: 800; color: var(--encre); margin-bottom: 2px; }
+.ec-sector { font-size: .72rem; color: var(--teal); font-weight: 600; margin-bottom: .5rem; }
+.ec-desc { font-size: .775rem; color: var(--gris); line-height: 1.65; margin-bottom: .75rem; flex: 1; }
+
+.ec-kpis { display: flex; gap: 1rem; margin-bottom: .75rem; flex-wrap: wrap; }
+.ec-kpi { display: flex; flex-direction: column; }
+.ec-kl { font-size: .6rem; font-weight: 700; color: var(--gris-doux); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 1px; }
+.ec-kv { font-size: .775rem; font-weight: 700; color: var(--encre); }
+.ec-remote {
+  display: inline-flex; align-items: center; gap: 3px;
+  padding: 2px 8px; border-radius: 4px;
+  font-size: .65rem; font-weight: 700;
+  background: var(--teal-pale); color: var(--teal);
+  border: 1px solid rgba(0,104,118,.15);
+}
+.ec-tags { display: flex; flex-wrap: wrap; gap: 3px; margin-bottom: .75rem; }
+.ec-tag { padding: 2px 8px; border-radius: 4px; font-size: .65rem; font-weight: 700; background: var(--champ); color: var(--gris); border: 1px solid rgba(187,201,204,.2); }
+.ec-tag.hl { background: var(--teal-survol); color: var(--teal); border-color: rgba(0,104,118,.15); }
+.ec-avantages { display: flex; flex-wrap: wrap; gap: 3px; margin-bottom: .875rem; }
+.ec-av { display: inline-flex; align-items: center; gap: 2px; padding: 2px 7px; border-radius: 4px; font-size: .6rem; font-weight: 700; background: var(--ambre-pale); color: var(--ambre-texte); border: 1px solid rgba(234,179,8,.2); }
+
+.ec-foot {
+  border-top: 1px solid rgba(187,201,204,.15);
+  padding: .625rem 1.25rem;
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--surface-3);
+}
+.ec-jobs { display: flex; align-items: center; gap: .3rem; font-size: .72rem; font-weight: 700; color: var(--teal); }
+.ec-jobs .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--vert); flex-shrink: 0; }
+.ec-jobs.no-jobs { color: var(--gris-doux); }
+.ec-jobs.no-jobs .dot { background: var(--gris-pale); }
+.ec-see { font-size: .7rem; font-weight: 700; color: var(--gris); display: flex; align-items: center; gap: 2px; transition: color .15s; }
+.ec:hover .ec-see { color: var(--teal); }
+
+.empty-state { grid-column: 1/-1; text-align: center; padding: 3rem 1rem; color: var(--gris-doux); }
+.empty-state .ms { font-size: 2.5rem; display: block; margin-bottom: .75rem; opacity: .4; }
+.empty-state p { font-size: .875rem; font-weight: 600; }
+.empty-state small { font-size: .75rem; opacity: .7; }
+
+/* ── BANDEAU CTA ── */
+#cta-band {
+  margin: 1.5rem 0 .5rem;
+  background: var(--surface);
+  border: 1px solid rgba(187,201,204,.25);
+  border-radius: .625rem;
+  padding: 1.375rem 1.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,.04);
+}
+.cta-text h3 {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--encre);
+  margin-bottom: .2rem;
+  letter-spacing: -.01em;
+}
+.cta-text p {
+  font-size: .8rem;
+  color: var(--gris);
+  font-weight: 400;
+}
+.btn-cta-band {
+  flex-shrink: 0;
+  background: var(--teal-fond);
+  color: var(--blanc);
+  border: none;
+  cursor: pointer;
+  padding: .6rem 1.375rem;
+  border-radius: .5rem;
+  font-weight: 700;
+  font-size: .825rem;
+  white-space: nowrap;
+  transition: background .15s, transform .1s;
+  font-family: inherit;
+}
+.btn-cta-band:hover { background: var(--teal-fonce); transform: translateY(-1px); }
+
+/* ── FOOTER ── le pied unifie est defini plus bas (bloc #ft complet) ── */
+
+/* Burger menu caché par défaut (affiché uniquement en mobile via @media) */
+#burger-menu { display: none; }
+
+@media (max-width: 768px) {
+  .nav-links { display: none; }
+  #ft .ft-links { display: none; }
+  .btn-cta { display: none; }
+
+  /* Bouton burger */
+  .btn-burger {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 36px;
+    height: 36px;
+    background: rgba(255,255,255,.15);
+    border: none;
+    border-radius: .4rem;
+    cursor: pointer;
+    padding: 7px 8px;
+    flex-shrink: 0;
+  }
+  .btn-burger span {
+    display: block;
+    height: 2px;
+    background: var(--surface);
+    border-radius: 2px;
+    transition: transform .25s, opacity .2s;
+  }
+  .btn-burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .btn-burger.open span:nth-child(2) { opacity: 0; }
+  .btn-burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  #burger-menu {
+    display: block;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 300;
+    pointer-events: none;
+  }
+  #burger-menu .bm-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,.45);
+    opacity: 0;
+    transition: opacity .3s;
+  }
+  #burger-menu .bm-panel {
+    position: absolute;
+    top: 0; right: 0; bottom: 0;
+    width: 78vw;
+    max-width: 300px;
+    background: var(--teal-fond);
+    transform: translateX(100%);
+    transition: transform .3s cubic-bezier(.4,0,.2,1);
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    box-shadow: -4px 0 24px rgba(0,0,0,.18);
+  }
+  #burger-menu.open { pointer-events: all; }
+  #burger-menu.open .bm-overlay { opacity: 1; }
+  #burger-menu.open .bm-panel { transform: translateX(0); }
+  .bm-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: .875rem 1.25rem;
+    border-bottom: 1px solid rgba(255,255,255,.12);
+  }
+  .bm-logo { font-size: 1.3rem; font-weight: 900; color: var(--blanc); letter-spacing: -.05em; }
+  .bm-close {
+    background: var(--surbrillance);
+    border: none;
+    color: var(--blanc);
+    width: 32px; height: 32px;
+    border-radius: .375rem;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .bm-nav {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: .75rem 0;
+    gap: .1rem;
+  }
+  .bm-nav a {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    color: rgba(255,255,255,.85);
+    text-decoration: none;
+    font-size: .9rem;
+    font-weight: 600;
+    padding: .875rem 1.25rem;
+    transition: background .15s, color .15s;
+  }
+  .bm-nav a.on { color: var(--blanc); background: var(--surbrillance); }
+  .bm-nav a:active { background: var(--surbrillance-forte); }
+  .bm-nav a .ms { font-size: 20px; color: rgba(255,255,255,.6); }
+  .bm-nav a.on .ms { color: rgba(255,255,255,.9); }
+  .bm-footer {
+    padding: 1rem 1.25rem 1.5rem;
+    border-top: 1px solid rgba(255,255,255,.12);
+  }
+  .bm-footer .btn-cta {
+    display: flex !important;
+    width: 100%;
+    justify-content: center;
+    padding: .65rem 1rem;
+    font-size: .875rem;
+    border-radius: .5rem;
+  }
+}
+
+/* Burger caché sur desktop */
+@media (min-width: 769px) {
+  .btn-burger { display: none; }
+  #burger-menu { display: none !important; }
+}
+
+
+  /* ── L'AFFICHE DE CHANTIER ──
+     Sur la charte du site : le teal du bandeau, le champ gris du hero, la
+     meme ombre que les cartes. Le contenu existant reste dans le HTML,
+     masque (hidden) — il se reactive en changeant un seul attribut. */
+  .chantier {
+    min-height: calc(100vh - 6rem);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 3rem 1.5rem;
+    background: var(--champ, var(--champ));
+    border-bottom: 1px solid var(--bord, var(--bord));
+  }
+  .chantier .etiquette {
+    display: inline-block; font-size: .68rem; font-weight: 800; letter-spacing: .1em;
+    text-transform: uppercase; background: var(--teal, var(--teal)); color: var(--blanc);
+    border-radius: 9999px; padding: .3rem .9rem; margin-bottom: 1rem;
+    animation: chantier-clignote 2.4s steps(1, end) infinite;
+  }
+  .chantier .h1 {
+    font-size: clamp(1.7rem, 3.6vw, 2.6rem); font-weight: 900; letter-spacing: -.03em;
+    color: var(--encre, var(--encre)); margin: 0 0 .9rem; max-width: 22ch; line-height: 1.12;
+  }
+  .chantier .h1 em { font-style: normal; color: var(--teal, var(--teal)); }
+  .chantier .lede { font-size: 1.05rem; color: var(--gris, var(--gris)); max-width: 54ch; margin: 0 0 2rem; line-height: 1.6; }
+  .chantier .form {
+    display: flex; gap: .5rem; background: var(--surface); padding: .4rem; border-radius: 9999px;
+    box-shadow: var(--ombre, 0 1px 2px rgba(25, 44, 52, .06), 0 4px 14px rgba(25, 44, 52, .05));
+    max-width: 480px; width: 100%; border: 1px solid var(--bord, var(--bord));
+  }
+  .chantier .form input {
+    flex: 1; border: none; outline: none; background: transparent; font-family: inherit;
+    font-size: .95rem; color: var(--encre, var(--encre)); padding: .65rem .75rem; min-width: 0;
+  }
+  .chantier .form input::placeholder { color: var(--gris-doux, var(--gris-doux)); }
+  .chantier .form button {
+    background: var(--teal, var(--teal)); color: var(--blanc); border: none; border-radius: 9999px;
+    padding: .65rem 1.3rem; font-weight: 700; font-size: .925rem; font-family: inherit;
+    cursor: pointer; white-space: nowrap; min-height: 44px; transition: background .15s;
+  }
+  .chantier .form button:hover { background: var(--teal-fonce); }
+  .chantier .form:focus-within { outline: 3px solid var(--teal, var(--teal)); outline-offset: 2px; }
+  .chantier .note { font-size: .78rem; color: var(--gris-doux, var(--gris-doux)); margin-top: .75rem; }
+  .chantier .retour { font-size: .9rem; color: var(--gris, var(--gris)); margin-top: 2.5rem;
+    text-align: center; line-height: 1.8; }
+  .chantier .retour a { color: var(--teal, var(--teal)); font-weight: 700; white-space: nowrap; }
+  .chantier .retour a:hover { text-decoration: underline; }
+  @keyframes chantier-clignote {
+    0%, 70%   { opacity: 1; }
+    85%, 100% { opacity: .45; }
+  }
+  @media (prefers-reduced-motion: reduce) { .chantier .etiquette { animation: none; } }
+  @media (max-width: 560px) {
+    .chantier .form { flex-direction: column; border-radius: .625rem; }
+    .chantier .form button { width: 100%; }
+    /* Le contenu etait centre verticalement dans min-height: 100vh - 6rem :
+       sur telephone, il restait 193 px de vide entre l'en-tete et le mot
+       « En construction ». Il remonte sous l'en-tete. */
+    .chantier { padding: 2rem 1rem; justify-content: flex-start; }
+  }
+
+</style>
+
+<!-- Balises SEO : titre enrichi, description, URL canonique, partage social -->
+<meta name="description" content="Assureurs, mutuelles, réassureurs, courtiers, InsurTech et cabinets de conseil : découvrez les entreprises qui recrutent en actuariat, data science et IA."/>
+<link rel="canonical" href="https://claimyourjob.fr/claim-entreprises.html"/>
+<meta property="og:type" content="website"/>
+<meta property="og:site_name" content="Claim your job"/>
+<meta property="og:locale" content="fr_FR"/>
+<meta property="og:title" content="Les entreprises qui recrutent en Actuariat & IA — Claim!"/>
+<meta property="og:description" content="Assureurs, mutuelles, réassureurs, courtiers, InsurTech et cabinets de conseil : découvrez les entreprises qui recrutent en actuariat, data science et IA."/>
+<meta property="og:url" content="https://claimyourjob.fr/claim-entreprises.html"/>
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon.png"/>
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"/>
+<meta property="og:image" content="https://claimyourjob.fr/assets/og-image.png"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
+<meta property="og:image:alt" content="Claim! — offres d'emploi Actuariat, Data et IA en assurance"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-SKQQXZW4LH"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-SKQQXZW4LH');
+</script>
+
+
+<!-- ── Consentement CNIL ──
+Deux issues, sans SDK ni tiers : rien n'est déposé ni lu depuis un domaine
+étranger. L'acceptation et le refus ont même hauteur et même poids — la CNIL
+demande que refuser soit aussi simple qu'accepter. En mode dégradé la mesure
+reste active : le bandeau informe, il ne bloque rien (choix assumé, consigné
+en documentation).
+-->
+<aside id="claim-consentement" class="consent" role="dialog" aria-live="polite"
+       aria-labelledby="consent-titre" aria-describedby="consent-texte" hidden>
+  <div class="consent-interieur">
+    <div class="consent-corps">
+      <span class="consent-sceau" aria-hidden="true"><span class="ms">cookie</span></span>
+      <div>
+        <p class="consent-titre" id="consent-titre">Mesure d'audience</p>
+        <p class="consent-texte" id="consent-texte">Claim! mesure la fréquentation
+           du site avec Google Analytics. Aucun cookie publicitaire n'est déposé,
+           et aucune donnée n'est partagée avec un tiers.</p>
+      </div>
+    </div>
+    <div class="consent-boutons">
+      <button type="button" class="consent-accepter" data-consent="tout">Tout accepter</button>
+      <button type="button" class="consent-refuser" data-consent="rien">Refuser</button>
+    </div>
+  </div>
+</aside>
+<style>
+/* ── Bandeau de consentement ──
+   Deux issues de même rang : l'acceptation éclaire, elle n'écrase pas le
+   refus. Couleurs, rayons, ombre et typographie sont ceux du site. */
+.consent {
+  position: fixed; inset: auto 0 0 0; z-index: 900;
+  background: var(--surface); border-top: 1px solid var(--bord);
+  box-shadow: 0 -10px 30px rgba(25, 44, 52, .10);
+  padding: 1.15rem 0;
+  animation: consent-entree .3s cubic-bezier(.2, .8, .3, 1);
+}
+@keyframes consent-entree { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) {
+  .consent { animation: none; }
+}
+
+.consent-interieur {
+  max-width: var(--enveloppe); margin: 0 auto; padding: 0 2rem;
+  display: grid; grid-template-columns: minmax(0, 1fr) auto;
+  gap: .9rem 1.8rem; align-items: center;
+}
+
+.consent-corps { display: flex; gap: .85rem; align-items: flex-start; min-width: 0; }
+
+/* Le sceau : même teinte que les pastilles du board. */
+.consent-sceau {
+  flex: 0 0 auto; width: 38px; height: 38px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--teal-clair); border: 1px solid var(--teal-bord);
+  color: var(--teal);
+}
+.consent-sceau .ms { font-size: 20px; }
+
+.consent-titre {
+  margin: 0 0 .1rem; font-size: .95rem; font-weight: 700;
+  color: var(--encre); line-height: 1.35; letter-spacing: -.005em;
+}
+.consent-texte {
+  margin: 0; font-size: .845rem; color: var(--gris);
+  line-height: 1.55; max-width: 48rem;
+}
+
+.consent-boutons { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+
+.consent button {
+  font: inherit; font-size: .845rem; font-weight: 600;
+  height: 40px; padding: 0 1.1rem; border-radius: .5rem;
+  cursor: pointer; white-space: nowrap;
+  transition: background .15s ease, border-color .15s ease, color .15s ease;
+}
+.consent button:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+
+/* Accepter : la couleur de la marque, pleine. */
+.consent-accepter { background: var(--teal-fond); color: var(--blanc); border: 1px solid var(--teal); }
+.consent-accepter:hover { background: var(--teal-fonce); border-color: var(--teal-fonce); }
+
+/* Refuser : même hauteur, même poids typographique, un trait franc — jamais
+   grisé, jamais relégué. C'est la recommandation de la CNIL : refuser doit
+   être aussi simple qu'accepter. */
+.consent-refuser { background: var(--surface); color: var(--encre); border: 1px solid var(--bord-fort); }
+.consent-refuser:hover { background: var(--champ); border-color: var(--bord-fort); }
+
+@media (max-width: 780px) {
+  .consent { padding: .95rem 0; }
+  .consent-interieur { grid-template-columns: 1fr; padding: 0 1.1rem; gap: .8rem; }
+  .consent-texte { font-size: .82rem; }
+  .consent-boutons { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
+  .consent button { height: 42px; padding: 0 .75rem; }
+}
+
+  /* ══ EN-TÊTE ET PIED — alignés sur le board ══ */
+  #hd { background: var(--teal-fond); position: sticky; top: 0; z-index: 200; }
+  #hd nav { display: flex; justify-content: space-between; align-items: center; padding: .75rem 2rem; }
+  #ft { background: var(--teal-fond); color: rgba(255,255,255,0.9);
+        padding: 1.25rem 1.375rem 1rem; display: flex; flex-direction: column; gap: .75rem;
+        border-top: 2px solid rgba(255,255,255,.28); }
+  #ft .ft-top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+  #ft .ft-logo { font-size: 1.1rem; font-weight: 900; color: var(--blanc); letter-spacing: -.05em; text-decoration: none; }
+  #ft .ft-logo:hover { color: var(--blanc-survol); }
+  #ft .ft-links { display: flex; gap: .625rem; flex-wrap: wrap; }
+  #ft .ft-links a { color: rgba(255,255,255,0.9); text-decoration: none; font-size: 0.7rem; font-weight: 500;
+                    padding: .2rem .5rem; border-radius: .25rem; border: 1px solid rgba(255,255,255,.15);
+                    transition: background .15s, color .15s; }
+  #ft .ft-links a:hover { background: var(--surbrillance); color: var(--blanc); }
+  #ft .ft-copy { font-size: 0.65rem; color: rgba(255,255,255,0.9); display: flex; align-items: center; gap: .3rem; flex-wrap: wrap; margin-top: .35rem; }
+  #ft .ft-copy .heart { color: var(--coeur); font-size: 0.75rem; }
+  #ft .ft-copy a { color: rgba(255,255,255,0.9); text-decoration: none; }
+  #ft .ft-copy a:hover { color: var(--blanc); text-decoration: underline; }
+  .bm-logo:hover { color: var(--blanc-survol); }
+  .bm-mentions { display: flex; gap: 1rem; margin-top: 1rem; flex-wrap: wrap; }
+  .bm-mentions a { color: rgba(255,255,255,.6); font-size: .75rem; text-decoration: none; }
+  .bm-mentions a:hover { color: var(--blanc); text-decoration: underline; }
+  @media (max-width: 768px) {
+    #hd nav { padding: .6rem 1rem; }
+    #ft { padding: .875rem 1rem .75rem; }
+    /* Les liens du pied resteraient inaccessibles sur téléphone si on les
+       masquait : c'est le seul endroit où l'on peut lire les mentions. */
+    #ft .ft-links { display: flex; }
+  }
+
+
+
+
+
+
+
+
+  /* ══ RÉFÉRENTIEL — en-tête de l'accueil, pied du board ══
+     Ces regles sont posees en fin de feuille : plus specifiques que
+     celles du milieu de la page, elles ne peuvent pas etre annulees
+     par elles. Et elles sont IDENTIQUES sur les huit pages, ce qui
+     garantit que l'en-tete et le pied se ressemblent exactement. */
+
+  /* ── En-tête (référence : l'accueil) ── */
+  /* L'interligne est pose ICI, et non herite du corps de page. Sur
+     certaines pages le corps est a line-height: normal, sur d'autres a
+     1,65 : le logo passait alors de 40 px a 28 px de haut, et l'en-tete
+     de 64 px a 58. Un en-tete de reference ne peut pas dependre du
+     reste de la page. */
+  #hd { background: var(--teal-fond); position: sticky; top: 0; z-index: 200;
+        line-height: 1.65; }
+  #hd nav { display: flex; justify-content: space-between; align-items: center;
+            padding: .75rem 2rem; }
+  #hd .logo { font-size: 1.5rem; font-weight: 900; color: var(--blanc);
+              letter-spacing: -.05em; text-decoration: none; }
+  #hd .logo:hover { color: var(--blanc-survol); }
+  #hd .nav-links { display: flex; gap: 2rem; }
+  #hd .nav-links a { color: rgba(255, 255, 255, .8); text-decoration: none;
+                     font-size: .925rem; font-weight: 600; }
+  #hd .nav-links a:hover { color: var(--blanc); }
+  #hd .nav-links a.on { color: var(--blanc); border-bottom: 2px solid #fff; padding-bottom: 2px; }
+  #hd .nav-links a.on:hover { color: var(--blanc); border-bottom-color: var(--blanc-survol); }
+  #hd .btn-cta { background: var(--surface); color: var(--teal); padding: .45rem 1.2rem;
+                 border-radius: .5rem; font-weight: 700; font-size: .925rem; border: none;
+                 cursor: pointer; font-family: inherit; white-space: nowrap;
+                 text-decoration: none; display: inline-block;
+                 transition: background .15s, border-color .15s, color .15s; }
+  #hd .btn-cta:hover { background: var(--teal-survol-element); border-color: var(--teal);
+                       color: var(--encre); }
+  #hd .btn-burger { display: none; flex-direction: column; justify-content: center; gap: 5px;
+                     width: 36px; height: 36px; background: rgba(255, 255, 255, .15);
+                     border: none; border-radius: .4rem; cursor: pointer;
+                     padding: 7px 8px; flex-shrink: 0; }
+  #hd .btn-burger span { display: block; height: 2px; background: var(--surface);
+                         border-radius: 2px; transition: transform .25s, opacity .2s; }
+  #hd .btn-burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  #hd .btn-burger.open span:nth-child(2) { opacity: 0; }
+  #hd .btn-burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  @media (max-width: 768px) {
+    #hd nav { padding: .6rem 1rem; }
+    #hd .nav-links, #hd .btn-cta { display: none; }
+    #hd .btn-burger { display: flex; }
+  }
+
+
+
+
+
+
+  </style>
+<script>
+(function () {
+  var CLE = 'claim-consentement';
+  var racine = document.getElementById('claim-consentement');
+  if (!racine) return;
+
+  function lire() { try { return localStorage.getItem(CLE); } catch (e) { return null; } }
+  function ecrire(v) { try { localStorage.setItem(CLE, v); } catch (e) { /* stockage refusé */ } }
+
+  if (lire()) return;             // choix déjà exprimé : le bandeau ne revient pas
+  racine.hidden = false;          // aucun traceur tiers : rien à bloquer au chargement
+
+  racine.addEventListener('click', function (e) {
+    var bouton = e.target.closest('button[data-consent]');
+    if (!bouton) return;
+    // Choix enregistré. En mode dégradé la mesure reste active : c'est un
+    // choix assumé, pas un oubli.
+    ecrire(bouton.getAttribute('data-consent'));
+    racine.hidden = true;
+    racine.setAttribute('aria-hidden', 'true');
+  });
+})();
+</script><!-- Thème jour / nuit : la préférence est posée avant le rendu, pour qu'aucune
+     page ne s'affiche en clair avant de basculer. -->
+<link rel="stylesheet" href="/assets/theme.css">
+<script>(function(){try{var t=localStorage.getItem('claim-theme');if(t==='nuit'||(!t&&window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.setAttribute('data-theme','nuit');}}catch(e){}})();</script>
+<script src="/assets/theme.js" defer></script>
+</head>
+<body>
+<div id="app">
+
+  <!-- ══ AFFICHE DE CHANTIER ══
+       Le contenu de la page est archive ci-dessous (contenu-archive, hidden).
+       Pour reactiver : retirer `hidden` sur #contenu-archive, et commenter
+       ce bloc affiche. -->
+  <header id="hd">
+    <nav>
+      <div style="display:flex;align-items:center;gap:2.5rem;">
+        <a class="logo" href="/">Claim!</a>
+        <div class="nav-links">
+        <a href="/job-board.html">Offres d'emploi</a>
+        <a href="/claim-entreprises.html" class="on">Entreprises</a>
+        <a href="/claim-observatoire.html">Observatoire de l'assurance</a>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:.75rem;">
+        <a class="btn-cta" href="/contact.html">Contactez-nous</a>
+        <button class="btn-burger" id="btn-burger" onclick="toggleBurger()" aria-label="Menu" aria-expanded="false" aria-controls="burger-menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <section class="chantier" role="status" aria-live="polite">
+    <span class="etiquette">En construction</span>
+    <h1 class="h1">L'annuaire des entreprises est <em>en construction</em>.</h1>
+    <p class="lede">Les fiches employeurs, les filtres et les avantages arrivent bientôt. Laissez votre email : vous serez prévenu dès l'ouverture.</p>
+    <form class="form" action="mailto:contact@claimyourjob.fr" method="post" enctype="text/plain">
+      <input id="chantier-email" name="email" type="email" required
+             placeholder="vous@exemple.fr" autocomplete="email">
+      <button type="submit">Me prévenir</button>
+    </form>
+    <p class="note">Aucun spam. Un seul message le jour de l'ouverture.</p>
+  </section>
+
+  <!-- ══ HEADER ══ -->
+  
+
+  <div id="contenu-archive" hidden>
+  
+
+  <!-- ══ HERO ══ -->
+  <div id="hero-co">
+    <h1>Les entreprises qui recrutent en <em>Actuariat &amp; IA</em></h1>
+    <p class="sub">Découvrez les acteurs de l'assurance qui cherchent des talents comme vous.</p>
+
+    <!-- Barre recherche + filtres déroulants -->
+    <div class="filter-row">
+
+      <!-- Recherche -->
+      <div class="sbar">
+        <div class="sf">
+          <span class="ms" style="color:var(--gris-doux);font-size:17px;">search</span>
+          <input type="text" id="search-input" placeholder="Entreprise, secteur, technologie…"/>
+        </div>
+        <button class="btn-srch">Rechercher</button>
+      </div>
+
+      <div class="bar-sep"></div>
+
+      <!-- Dropdown 1 : Type d'entreprise -->
+      <div class="dd-wrap" id="dd-type">
+        <button class="dd-trigger" id="trig-type">
+          <span class="ms" style="font-size:13px;">domain</span>
+          <span class="dd-label">Type</span>
+          <span class="ms dd-arrow">expand_more</span>
+        </button>
+        <div class="dd-panel">
+          <div class="dd-panel-title">Type d'entreprise</div>
+          <div class="dd-option on" data-group="type" data-val="all">
+            <span class="check"></span>Toutes
+          </div>
+          <div class="dd-divider"></div>
+          <div class="dd-option" data-group="type" data-val="assureur">
+            <span class="check"></span><span class="ms" style="font-size:14px;color:var(--gris-doux);">shield</span>Assureur
+          </div>
+          <div class="dd-option" data-group="type" data-val="mutuelle">
+            <span class="check"></span><span class="ms" style="font-size:14px;color:var(--gris-doux);">favorite</span>Mutuelle / IP
+          </div>
+          <div class="dd-option" data-group="type" data-val="reassurance">
+            <span class="check"></span><span class="ms" style="font-size:14px;color:var(--gris-doux);">public</span>Réassurance
+          </div>
+          <div class="dd-option" data-group="type" data-val="courtier">
+            <span class="check"></span><span class="ms" style="font-size:14px;color:var(--gris-doux);">handshake</span>Courtier
+          </div>
+          <div class="dd-option" data-group="type" data-val="insurtech">
+            <span class="check"></span><span class="ms" style="font-size:14px;color:var(--gris-doux);">rocket_launch</span>InsurTech
+          </div>
+          <div class="dd-option" data-group="type" data-val="conseil">
+            <span class="check"></span><span class="ms" style="font-size:14px;color:var(--gris-doux);">analytics</span>Conseil / Audit
+          </div>
+          <div class="dd-option" data-group="type" data-val="recrutement">
+            <span class="check"></span><span class="ms" style="font-size:14px;color:var(--gris-doux);">person_search</span>Cabinet RH
+          </div>
+        </div>
+      </div>
+
+      <!-- Dropdown 2 : Télétravail -->
+      <div class="dd-wrap" id="dd-remote">
+        <button class="dd-trigger" id="trig-remote">
+          <span class="ms" style="font-size:13px;">home_work</span>
+          <span class="dd-label">Télétravail</span>
+          <span class="ms dd-arrow">expand_more</span>
+        </button>
+        <div class="dd-panel">
+          <div class="dd-panel-title">Mode de travail</div>
+          <div class="dd-option on" data-group="remote" data-val="all">
+            <span class="check"></span>Tous modes
+          </div>
+          <div class="dd-divider"></div>
+          <div class="dd-option" data-group="remote" data-val="full">
+            <span class="check"></span><span class="ms" style="font-size:14px;color:var(--gris-doux);">laptop_mac</span>Full remote
+          </div>
+          <div class="dd-option" data-group="remote" data-val="3j">
+            <span class="check"></span><span class="ms" style="font-size:14px;color:var(--gris-doux);">home_work</span>3 jours / semaine
+          </div>
+          <div class="dd-option" data-group="remote" data-val="2j">
+            <span class="check"></span><span class="ms" style="font-size:14px;color:var(--gris-doux);">home_work</span>2 jours / semaine
+          </div>
+          <div class="dd-option" data-group="remote" data-val="1j">
+            <span class="check"></span><span class="ms" style="font-size:14px;color:var(--gris-doux);">home_work</span>1 jour / semaine
+          </div>
+          <div class="dd-option" data-group="remote" data-val="none">
+            <span class="check"></span><span class="ms" style="font-size:14px;color:var(--gris-doux);">location_city</span>Présentiel uniquement
+          </div>
+        </div>
+      </div>
+
+      <!-- Dropdown 3 : Avantages -->
+      <div class="dd-wrap" id="dd-avantages">
+        <button class="dd-trigger" id="trig-avantages">
+          <span class="ms" style="font-size:13px;">savings</span>
+          <span class="dd-label">Avantages</span>
+          <span class="ms dd-arrow">expand_more</span>
+        </button>
+        <div class="dd-panel">
+          <div class="dd-panel-title">Avantages entreprise</div>
+          <div class="dd-option on" data-group="avantages" data-val="all">
+            <span class="check"></span>Tous les avantages
+          </div>
+          <div class="dd-divider"></div>
+          <div class="dd-option" data-group="avantages" data-val="pee">
+            <span class="check"></span><span class="ms" style="font-size:14px;color:var(--gris-doux);">account_balance</span>PEE — Plan Épargne Entreprise
+          </div>
+          <div class="dd-option" data-group="avantages" data-val="participation">
+            <span class="check"></span><span class="ms" style="font-size:14px;color:var(--gris-doux);">pie_chart</span>Participation aux bénéfices
+          </div>
+          <div class="dd-option" data-group="avantages" data-val="interessement">
+            <span class="check"></span><span class="ms" style="font-size:14px;color:var(--gris-doux);">trending_up</span>Intéressement
+          </div>
+          <div class="dd-option" data-group="avantages" data-val="abondement">
+            <span class="check"></span><span class="ms" style="font-size:14px;color:var(--gris-doux);">add_circle</span>Abondement
+          </div>
+          <div class="dd-option" data-group="avantages" data-val="cse">
+            <span class="check"></span><span class="ms" style="font-size:14px;color:var(--gris-doux);">celebration</span>CSE — Comité Social &amp; Éco.
+          </div>
+        </div>
+      </div>
+
+      <!-- Toggle : Recrute activement -->
+      <button class="chip-toggle" id="chip-recruiting">
+        <span class="dot-live"></span>
+        Recrute activement
+      </button>
+
+      <!-- Reset -->
+      <button class="btn-reset hidden" id="btn-reset">
+        <span class="ms" style="font-size:11px;">close</span>Réinitialiser
+      </button>
+
+    </div>
+  </div>
+
+
+  <!-- ══ GRILLE ══ -->
+  <div id="grid-wrap">
+    <div class="co-count" id="co-count"></div>
+    <div class="grid" id="grid"></div>
+
+    <!-- ══ BANDEAU CTA ══ -->
+    <div id="cta-band">
+      <div class="cta-text">
+        <h3>Votre entreprise n'est pas encore listée ?</h3>
+        <p>Rejoignez la plateforme de référence pour les métiers de l'actuariat et de l'IA.</p>
+      </div>
+      <button class="btn-cta-band">Référencer mon entreprise</button>
+    </div>
+
+  </div>
+
+  <!-- ══ FOOTER ══ -->
+  
+
+  
+</div><!-- /contenu-archive -->
+
+  <footer id="ft">
+    <div class="ft-top">
+      <div>
+        <a class="ft-logo" href="/">Claim!</a>
+        <div class="ft-copy">
+          <span>© 2026 Claim your job</span>
+          <span>·</span>
+          <span>Fait avec <span class="heart">♥</span> pour les experts du risque assurantiel</span>
+          <span>·</span>
+          <span>Logos : <a href="https://hunter.io" rel="noopener" target="_blank">Hunter.io</a></span>
+        </div>
+      </div>
+      <div class="ft-links">
+        <a href="/a-propos.html">À propos</a>
+        <a href="/cgu.html">CGU</a>
+        <a href="/confidentialite.html">Confidentialité</a>
+        <a href="/contact.html">Contact</a>
+      </div>
+    </div>
+  </footer>
+  </div><!-- /app -->
+
+<script src="/assets/companies-data.js"></script>
+<script>
+/* ══════════════════════════════════════════════
+   DONNÉES
+══════════════════════════════════════════════ */
+const COMPANIES = [
+  { id:1,  name:"AXA France", slug:"axa",                  sector:"Assurance IARD & Vie",              type:"assureur",    color:"#00395D", logo:"AXA", banner:"linear-gradient(135deg,#00395D,#005b96)", desc:"Leader mondial de l'assurance, AXA France développe des modèles de tarification et de risque de pointe. La direction data & actuariat recrute activement des profils quantitatifs.",                                                                                   size:"12 000+ collaborateurs", hq:"Paris 8e",    jobs:4, remote:"2j",   avantages:["pee","participation","interessement","abondement","cse"], tags:["IARD","Vie","Tarification","Data Science","Solvabilité II"] },
+  { id:2,  name:"Allianz France", slug:"allianz",               sector:"Assurance IARD & Vie",              type:"assureur",    color:"#003781", logo:"ALZ", banner:"linear-gradient(135deg,#003781,#0055b3)", desc:"Filiale française du groupe Allianz, 2e assureur mondial. Forte culture data avec un lab IA interne dédié à la modélisation des risques et au pricing.",                                                                                                              size:"8 500+ collaborateurs",  hq:"La Défense", jobs:3, remote:"2j",   avantages:["pee","participation","interessement","cse"],               tags:["Pricing","IFRS 17","MLOps","Actuariat","IA"] },
+  { id:3,  name:"BNP Paribas Cardif", slug:"bnp_cardif",           sector:"Assurance Vie & Épargne",           type:"assureur",    color:"#009966", logo:"BNP", banner:"linear-gradient(135deg,#009966,#00c47f)", desc:"Spécialiste de l'assurance vie et de l'épargne au sein du groupe BNP Paribas. Acteur majeur de la transition IFRS 17 avec des équipes actuarielles en pleine transformation.",                                                                                   size:"2 300+ collaborateurs",  hq:"Paris 8e",   jobs:2, remote:"2j",   avantages:["pee","participation","interessement","abondement","cse"], tags:["Vie","Épargne","IFRS 17","ALM","Prophet"] },
+  { id:4,  name:"Covéa", slug:"covea",                        sector:"Assurance IARD (Mutualiste)",       type:"mutuelle",    color:"#E30613", logo:"CVA", banner:"linear-gradient(135deg,#E30613,#ff4d5a)", desc:"1er groupe d'assurance mutualiste français (MMA, MAAF, GMF). Covéa investit massivement dans l'IA et le MLOps pour industrialiser ses modèles de détection de fraude et de tarification.",                                                                        size:"22 000+ collaborateurs", hq:"Paris 15e",  jobs:3, remote:"full", avantages:["pee","participation","interessement","abondement","cse"], tags:["MLOps","IA / ML","RGPD","Fraude","Full Remote"] },
+  { id:5,  name:"Mazars Actuariat", slug:"mazars",             sector:"Conseil & Audit actuariel",         type:"conseil",     color:"#E4003A", logo:"MZR", banner:"linear-gradient(135deg,#E4003A,#ff3366)", desc:"Cabinet de conseil et d'audit de référence pour les acteurs de l'assurance. L'équipe actuariat accompagne les assureurs sur Solvabilité II, IFRS 17 et les risques émergents.",                                                                                   size:"500+ actuaires",         hq:"Paris 8e",   jobs:2, remote:"2j",   avantages:["pee","interessement","cse"],                               tags:["Conseil","Solvabilité II","Risques émergents","IFRS 17","Audit"] },
+  { id:6,  name:"Generali France", slug:"generali",              sector:"Assurance IARD & Vie",              type:"assureur",    color:"#C8102E", logo:"GNL", banner:"linear-gradient(135deg,#C8102E,#e8354f)", desc:"Filiale française du groupe Generali, 3e assureur européen. Le Digital & Innovation Lab développe des solutions NLP et IA générative pour automatiser la gestion des sinistres.",                                                                                 size:"5 800+ collaborateurs",  hq:"Paris 9e",   jobs:2, remote:"2j",   avantages:["pee","participation","interessement","cse"],               tags:["NLP","LLM","Sinistres","IA générative","RGPD"] },
+  { id:7,  name:"Malakoff Humanis", slug:"malakoff_humanis",             sector:"Protection sociale complémentaire", type:"mutuelle",    color:"#005B8E", logo:"MH",  banner:"linear-gradient(135deg,#005B8E,#0080c8)", desc:"1er groupe de protection sociale complémentaire en France. Recrute des actuaires santé et prévoyance pour accompagner sa transformation digitale et réglementaire.",                                                                                              size:"10 000+ collaborateurs", hq:"Paris 13e",  jobs:2, remote:"2j",   avantages:["pee","participation","interessement","abondement","cse"], tags:["Santé","Prévoyance","ANI","Paritaire","Collectif"] },
+  { id:8,  name:"SCOR SE", slug:"scor",                      sector:"Réassurance mondiale",              type:"reassurance", color:"#1A1A2E", logo:"SCR", banner:"linear-gradient(135deg,#1A1A2E,#2d2d4e)", desc:"4e réassureur mondial, SCOR recrute des quants d'excellence pour modéliser les risques extrêmes (catastrophes naturelles, pandémies, cyber) et piloter le capital économique.",                                                                                  size:"3 000+ collaborateurs",  hq:"Paris 1er",  jobs:1, remote:"3j",   avantages:["pee","participation","interessement","abondement","cse"], tags:["Réassurance","Capital économique","Monte Carlo","Stress-test","ORSA"] },
+  { id:9,  name:"Société Générale Assurances", slug:"societe-generale-assurances",  sector:"Assurance Vie & Prévoyance",        type:"assureur",    color:"#E60028", logo:"SGA", banner:"linear-gradient(135deg,#E60028,#ff1a42)", desc:"Filiale assurance du groupe Société Générale, spécialisée en assurance vie, prévoyance et assurance emprunteur. Équipes actuarielles en pleine montée en puissance data.",                                                                                    size:"1 800+ collaborateurs",  hq:"Paris 17e",  jobs:2, remote:"2j",   avantages:["pee","participation","interessement","abondement","cse"], tags:["Vie","Emprunteur","Prévoyance","IFRS 17","Python"] },
+  { id:10, name:"Milliman", slug:"milliman",                     sector:"Conseil actuariel international",   type:"conseil",     color:"#0066CC", logo:"MLM", banner:"linear-gradient(135deg,#0066CC,#3399ff)", desc:"Cabinet de conseil actuariel indépendant de référence mondiale. Le bureau parisien accompagne les assureurs et réassureurs sur des missions à fort enjeu quantitatif.",                                                                                          size:"4 000+ actuaires (monde)",hq:"Paris 2e",  jobs:3, remote:"1j",   avantages:["pee","interessement"],                                     tags:["Conseil","Actuariat","Vie","IARD","International"] },
+  { id:11, name:"Groupama", slug:"groupama_gan",                     sector:"Assurance IARD & Vie (Mutualiste)", type:"mutuelle",    color:"#009B3A", logo:"GRP", banner:"linear-gradient(135deg,#009B3A,#00c44a)", desc:"Groupe mutualiste agricole et rural, Groupama développe ses capacités data et actuariat pour moderniser sa tarification IARD et améliorer la gestion des sinistres.",                                                                                          size:"13 000+ collaborateurs", hq:"Paris 8e",   jobs:2, remote:"2j",   avantages:["pee","participation","interessement","abondement","cse"], tags:["IARD","Mutualiste","Tarification","Agricole","Data"] },
+  { id:12, name:"Willis Towers Watson", slug:"wtw",         sector:"Conseil & Courtage actuariel",      type:"courtier",    color:"#C8102E", logo:"WTW", banner:"linear-gradient(135deg,#C8102E,#e83050)", desc:"Leader mondial du conseil en risques et actuariat. L'équipe Insurance Consulting & Technology développe des outils de modélisation avancés pour les assureurs européens.",                                                                                     size:"45 000+ (monde)",        hq:"Paris 9e",   jobs:2, remote:"3j",   avantages:["pee","participation","interessement","cse"],               tags:["Conseil","Modélisation","Risques","Technologie","International"] },
+];
+
+/* ══════════════════════════════════════════════
+   ÉTAT
+══════════════════════════════════════════════ */
+const state = { type:'all', remote:'all', avantages:'all', recruiting:false, search:'' };
+
+const LABELS = {
+  type:      { assureur:'Assureur', mutuelle:'Mutuelle / IP', reassurance:'Réassurance', courtier:'Courtier', insurtech:'InsurTech', conseil:'Conseil / Audit', recrutement:'Cabinet RH' },
+  remote:    { full:'Full remote', '3j':'3j/sem.', '2j':'2j/sem.', '1j':'1j/sem.', none:'Présentiel' },
+  avantages: { pee:'PEE', participation:'Participation', interessement:'Intéressement', abondement:'Abondement', cse:'CSE' }
+};
+
+const REMOTE_LABEL = { full:'Full remote', '3j':'3j/sem.', '2j':'2j/sem.', '1j':'1j/sem.', none:'Présentiel' };
+const REMOTE_ICON  = { full:'laptop_mac', '3j':'home_work', '2j':'home_work', '1j':'home_work', none:'location_city' };
+const AV_LABEL     = { pee:'PEE', participation:'Participation', interessement:'Intéressement', abondement:'Abondement', cse:'CSE' };
+
+/* ══════════════════════════════════════════════
+   DROPDOWNS — ouverture / fermeture
+══════════════════════════════════════════════ */
+const ddWraps = document.querySelectorAll('.dd-wrap');
+
+function closeAll(except) {
+  ddWraps.forEach(w => { if (w !== except) w.classList.remove('open'); });
+}
+
+ddWraps.forEach(wrap => {
+  wrap.querySelector('.dd-trigger').addEventListener('click', function(e) {
+    e.stopPropagation();
+    const wasOpen = wrap.classList.contains('open');
+    closeAll(null);
+    wrap.classList.toggle('open', !wasOpen);
+  });
+
+  // Clic sur une option
+  wrap.querySelectorAll('.dd-option').forEach(opt => {
+    opt.addEventListener('click', function() {
+      const group = this.dataset.group;
+      const val   = this.dataset.val;
+      // Marquer l'option active
+      wrap.querySelectorAll('.dd-option').forEach(o => o.classList.remove('on'));
+      this.classList.add('on');
+      state[group] = val;
+      // Mettre à jour le label du trigger
+      updateTriggerLabel(group, val);
+      closeAll(null);
+      updateResetBtn();
+      render();
+    });
+  });
+});
+
+// Fermer les dropdowns au clic extérieur
+document.addEventListener('click', () => closeAll(null));
+
+function updateTriggerLabel(group, val) {
+  const trig = document.getElementById(`trig-${group}`);
+  const labelEl = trig.querySelector('.dd-label');
+  const badgeEl = trig.querySelector('.dd-badge');
+
+  if (val === 'all') {
+    // Texte par défaut
+    const defaults = { type:'Type', remote:'Télétravail', avantages:'Avantages' };
+    labelEl.textContent = defaults[group];
+    trig.classList.remove('active');
+    if (badgeEl) badgeEl.remove();
+  } else {
+    labelEl.textContent = LABELS[group][val];
+    trig.classList.add('active');
+    // Ajouter badge si absent
+    if (!trig.querySelector('.dd-badge')) {
+      const badge = document.createElement('span');
+      badge.className = 'dd-badge';
+      badge.textContent = '1';
+      trig.insertBefore(badge, trig.querySelector('.dd-arrow'));
+    }
+  }
+}
+
+/* ══════════════════════════════════════════════
+   TOGGLE "Recrute activement"
+══════════════════════════════════════════════ */
+document.getElementById('chip-recruiting').addEventListener('click', function() {
+  state.recruiting = !state.recruiting;
+  this.classList.toggle('on', state.recruiting);
+  updateResetBtn();
+  render();
+});
+
+/* ══════════════════════════════════════════════
+   RECHERCHE
+══════════════════════════════════════════════ */
+document.getElementById('search-input').addEventListener('input', function() {
+  state.search = this.value.toLowerCase().trim();
+  updateResetBtn();
+  render();
+});
+
+/* ══════════════════════════════════════════════
+   RESET
+══════════════════════════════════════════════ */
+document.getElementById('btn-reset').addEventListener('click', function() {
+  state.type = 'all'; state.remote = 'all'; state.avantages = 'all';
+  state.recruiting = false; state.search = '';
+  document.getElementById('search-input').value = '';
+
+  // Reset options visuelles dans chaque dropdown
+  ['type','remote','avantages'].forEach(g => {
+    const wrap = document.getElementById(`dd-${g}`);
+    wrap.querySelectorAll('.dd-option').forEach(o => o.classList.toggle('on', o.dataset.val === 'all'));
+    updateTriggerLabel(g, 'all');
+  });
+  document.getElementById('chip-recruiting').classList.remove('on');
+
+  updateResetBtn();
+  render();
+});
+
+function isFiltered() {
+  return state.type !== 'all' || state.remote !== 'all' || state.avantages !== 'all' || state.recruiting || state.search !== '';
+}
+function updateResetBtn() {
+  document.getElementById('btn-reset').classList.toggle('hidden', !isFiltered());
+}
+
+/* ══════════════════════════════════════════════
+   RENDU
+══════════════════════════════════════════════ */
+// Le logo vient de la source partagée, comme sur le board et sur la page
+// d'offre : un slug réel, et la même cascade. La table de domaines locale et
+// son accesseur sont supprimés — c'était une troisième copie de la même
+// information, à tenir à jour à la main.
+function renderEcLogo(c) {
+  const annuaire = typeof CLAIM_ENTREPRISES !== 'undefined' ? CLAIM_ENTREPRISES : null;
+  const logoUrl = annuaire && c.slug ? annuaire.logoEntreprise(c.slug) : null;
+  const initials = c.logo || (annuaire ? annuaire.initiales(c.name) : '');
+  if (logoUrl) {
+    return '<div class="ec-logo" style="background:' + c.color + ';">' +
+      '<span>' + initials + '</span>' +
+      '<img src="' + logoUrl + '" alt="Logo ' + c.name + '" onerror="this.remove()" onload="this.previousElementSibling.remove()" />' +
+      '</div>';
+  }
+  return '<div class="ec-logo" style="background:' + c.color + ';">' + initials + '</div>';
+}
+
+function render() {
+  const list = COMPANIES.filter(c => {
+    if (state.type !== 'all' && c.type !== state.type) return false;
+    if (state.remote !== 'all' && c.remote !== state.remote) return false;
+    if (state.avantages !== 'all' && !c.avantages.includes(state.avantages)) return false;
+    if (state.recruiting && c.jobs === 0) return false;
+    if (state.search) {
+      const hay = [c.name, c.sector, ...c.tags].join(' ').toLowerCase();
+      if (!hay.includes(state.search)) return false;
+    }
+    return true;
+  });
+
+  // Compteur
+  const countEl = document.getElementById('co-count');
+  let summary = '';
+  if (isFiltered()) {
+    const parts = [];
+    if (state.type !== 'all') parts.push(LABELS.type[state.type]);
+    if (state.remote !== 'all') parts.push(LABELS.remote[state.remote]);
+    if (state.avantages !== 'all') parts.push(LABELS.avantages[state.avantages]);
+    if (state.recruiting) parts.push('Recrute activement');
+    if (state.search) parts.push(`"${state.search}"`);
+    summary = '&nbsp;·&nbsp;' + parts.map(p => `<span class="afs-tag">${p}</span>`).join('');
+  }
+  countEl.innerHTML = `<strong>${list.length}</strong>&nbsp;entreprise${list.length > 1 ? 's' : ''} trouvée${list.length > 1 ? 's' : ''}${summary}`;
+
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+
+  if (list.length === 0) {
+    grid.innerHTML = `<div class="empty-state">
+      <span class="ms">search_off</span>
+      <p>Aucune entreprise ne correspond à vos filtres.</p>
+      <small>Essayez de modifier ou réinitialiser vos critères.</small>
+    </div>`;
+    return;
+  }
+
+  list.forEach(c => {
+    const recruiting = c.jobs > 0;
+    const el = document.createElement('div');
+    el.className = 'ec';
+    el.innerHTML = `
+      <div class="ec-banner" style="background:${c.banner};">
+        ${renderEcLogo(c)}
+        ${recruiting ? `<div class="ec-badge"><span class="dot-pulse"></span>Recrute activement</div>` : ''}
+      </div>
+      <div class="ec-body">
+        <div class="ec-name">${c.name}</div>
+        <div class="ec-sector">${c.sector}</div>
+        <div class="ec-desc">${c.desc}</div>
+        <div class="ec-kpis">
+          <div class="ec-kpi"><div class="ec-kl">Effectif</div><div class="ec-kv">${c.size}</div></div>
+          <div class="ec-kpi"><div class="ec-kl">Siège</div><div class="ec-kv">${c.hq}</div></div>
+          <div class="ec-kpi">
+            <div class="ec-kl">Télétravail</div>
+            <div class="ec-kv"><span class="ec-remote"><span class="ms" style="font-size:12px;">${REMOTE_ICON[c.remote]}</span>${REMOTE_LABEL[c.remote]}</span></div>
+          </div>
+        </div>
+        <div class="ec-tags">${c.tags.map((t,i) => `<span class="ec-tag${i<2?' hl':''}">${t}</span>`).join('')}</div>
+        <div class="ec-avantages">${c.avantages.map(a => `<span class="ec-av"><span class="ms" style="font-size:10px;">savings</span>${AV_LABEL[a]}</span>`).join('')}</div>
+      </div>
+      <div class="ec-foot">
+        <div class="ec-jobs${recruiting ? '' : ' no-jobs'}">
+          <div class="dot"></div>
+          ${recruiting ? `${c.jobs} offre${c.jobs>1?'s':''} en cours` : 'Aucune offre active'}
+        </div>
+        <div class="ec-see">Voir le profil <span class="ms" style="font-size:14px;">arrow_forward</span></div>
+      </div>
+    `;
+    grid.appendChild(el);
+  });
+}
+
+render();
+
+/* ── Menu burger ── */
+function toggleBurger() {
+  const menu = document.getElementById('burger-menu');
+  const btn  = document.getElementById('btn-burger');
+  const open = menu.classList.toggle('open');
+  btn.classList.toggle('open', open);
+  document.body.style.overflow = open ? 'hidden' : '';
+}
+function closeBurger() {
+  document.getElementById('burger-menu').classList.remove('open');
+  document.getElementById('btn-burger').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeBurger(); });
+</script>
+
+<!-- ══ BURGER MENU DRAWER ══ -->
+<div id="burger-menu">
+  <div class="bm-overlay" onclick="closeBurger()"></div>
+  <div class="bm-panel">
+    <div class="bm-header">
+      <a class="bm-logo" href="/" onclick="closeBurger()">Claim!</a>
+      <button class="bm-close" onclick="closeBurger()">
+        <span class="ms" style="font-size:18px;">close</span>
+      </button>
+    </div>
+    <nav class="bm-nav">
+      <a href="job-board.html" onclick="closeBurger()">
+        <span class="ms">work</span>Offres d'emploi
+      </a>
+      <a href="/claim-entreprises.html" class="on" onclick="closeBurger()">
+        <span class="ms">business</span>Entreprises
+      </a>
+      <a href="claim-observatoire.html" onclick="closeBurger()">
+        <span class="ms">bar_chart</span>Observatoire de l'assurance
+      </a>
+    </nav>
+    <div class="bm-footer">
+      <button class="btn-cta" onclick="closeBurger()">Contactez-nous</button>
+    <div class="bm-mentions">
+          <a href="/a-propos.html" onclick="closeBurger()">À propos</a>
+          <a href="/cgu.html" onclick="closeBurger()">CGU</a>
+          <a href="/confidentialite.html" onclick="closeBurger()">Confidentialité</a>
+        </div>
+      </div>
+  </div>
+</div>
+
+</body>
+</html>

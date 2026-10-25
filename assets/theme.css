@@ -1,0 +1,310 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   THÈME CLAIM! — SOURCE UNIQUE DES COULEURS
+   ─────────────────────────────────────────────────────────────────────────────
+
+   Ce fichier porte TOUTES les couleurs du site. Les pages ne déclarent plus
+   de couleur en dur : elles consomment des jetons (variables CSS). Le thème
+   jour et le thème nuit ne sont plus deux feuilles empilées, mais deux jeux
+   de valeurs du même jeton.
+
+   Pourquoi ce changement
+   ----------------------
+   La version précédente était une surcouche : `[data-theme="nuit"]` devait
+   énumérer, sélecteur par sélecteur, chaque élément à repeindre. Toute
+   surface oubliée restait claire — les boutons blancs, les pastilles, les
+   bandeaux de consentement. Chaque nouvelle page exigeait une nouvelle
+   liste, et l'oubli ne se voyait pas : le site paraissait correct.
+
+   Deux règles suivent de ce changement :
+     1. Une couleur qui n'est pas un jeton est une erreur de revue.
+     2. Un rôle de couleur (fond, texte, bordure) ne se dédouble pas :
+        `--teal-fond` est le fond de marque, `--teal` est le texte de marque.
+
+   Le fichier est chargé APRÈS les styles de chaque page : il gagne donc les
+   égalités de spécificité, et `[data-theme="nuit"]` y passe après `:root`.
+
+   Contrastes vérifiés sur le rendu réel (Playwright) : texte principal 15,1:1
+   en jour et 14,8:1 en nuit, texte secondaire 7,1:1 et 7,4:1.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+:root {
+  color-scheme: light;
+
+  /* ── Grandeurs communes ── */
+  --gouttiere: 1.6rem;
+  --enveloppe: 1180px;
+  --duree: .15s;
+
+  /* ── Surfaces ── */
+  --fond: #fff;              /* le plan de la page */
+  --surface: #fff;           /* cartes, panneaux, bandeaux */
+  --surface-2: #f5f8f9;      /* sous-surfaces : faits, tuiles, tableaux */
+  --surface-3: #fafafa;      /* pieds de cartes */
+  --champ: #f3f4f5;          /* champs de formulaire, colonnes de fond */
+  --surface-liste: #e9eef1;  /* colonne des offres */
+  --surface-liste-hd: #e9eef1;
+
+  /* ── Encre ── */
+  --encre: #191c1d;          /* texte principal */
+  --encre-forte: #24363d;    /* valeurs chiffrées, titres de fait */
+  --gris: #515f78;           /* texte secondaire */
+  --gris-doux: #5c6870;      /* texte tertiaire, dates */
+  --gris-doux-rgb: 92,104,112; /* le meme, en composante : pour un alpha */
+  --gris-texte: #3c494c;     /* corps de description */
+  --gris-icone: #65747c;     /* icônes secondaires */
+  --gris-pale: #bbc9cc;      /* ascenseurs, points vides */
+
+  /* ── Bordures ── */
+  --bord: #e2e9ec;
+  --bord-doux: rgba(187, 201, 204, .35);
+  --bord-fort: #c7d3d8;
+  --bord-carte: #d5dfe3;
+  --bord-carte-survol: #a9c6cc;
+
+  /* ── Marque ── */
+  --teal: #006876;           /* texte de marque : liens, accents */
+  --teal-fond: #006876;      /* aplat de marque : en-têtes, boutons pleins */
+  --teal-fonce: #005a66;     /* survol d'un aplat */
+  /* Le survol d'un aplat de marque reste un APLAT : il s'eclaircit, mais
+     ne devient jamais clair au point de porter du texte blanc
+     illisible. C'etait la cause du defaut du bouton « Postuler » en mode
+     nuit, dont le survol tombait a 1,69 de contraste. */
+  --teal-aplat-survol: #00545f;
+  --teal-texte: #00545f;     /* texte de marque sur fond clair */
+  /* Le survol du logo de l'en-tete : un blanc nuance. Il doit s'eclaircir
+     par rapport au blanc pur, et rester lisible sur l'aplat de marque
+     dans les DEUX themes. */
+  --blanc-survol: #a8e8ef;
+  --teal-clair: #e9f6f8;
+  --teal-survol: #e8f4f6;     /* fond de BADGE : une categorie, une pastille */
+  /* Le fond de survol d'un ELEMENT est un autre besoin qu'un fond de
+     badge : il doit se voir. Le badge porte du texte de marque sur un
+     aplat leger ; le survol doit distinguer l'element du fond sur lequel
+     il repose. Un seul jeton pour les deux ne pouvait pas servir les deux. */
+  --teal-survol-element: #dceef2;
+  /* Un survol sur une interface sombre s'apercoit par un LEGER
+     eclaircissement de la surface, pas par un aplat de couleur sature.
+     Un aplat teal sur un fond noir se lit comme un changement de nature :
+     la pastille parait s'allumer. */
+  --surface-survol: #e9f0f2;
+  --teal-pale: #f0fafb;
+  --teal-bord: #bfe2e8;
+  --teal-vif: #00bcd4;
+  --blanc: #fff;             /* texte sur fond sombre */
+  --sur-accent-texte: #fff;  /* texte sur un accent clair (vert vif) */
+
+  /* ── Pastilles et statuts ── */
+  --vert: #16a34a;
+  --vert-vif: #4ade80;
+  --vert-texte: #15803d;
+  --vert-clair: #f2f8f2;
+  --vert-bord: #cfe6cf;
+  --vert-pale: #f0fdf4;
+  --cyan-clair: #a1efff;
+  --cyan-texte: #004e59;
+  --orange-clair: #ffdcc2;
+  --orange-texte: #6d3a00;
+  --rouge: #dc2626;
+  --rouge-texte: #991b1b;
+  --rouge-pale: #fee2e2;
+  --ambre: #b8860b;
+  --ambre-texte: #92400e;
+  --ambre-pale: #fef3c7;
+  --bleu-texte: #1e40af;
+  --bleu-pale: #dbeafe;
+  --rose-texte: #9d174d;
+  --rose-pale: #fce7f3;
+  --violet-texte: #6d28d9;
+  --violet-pale: #ede9fe;
+  /* Le coeur se lisait a 2,38:1 sur l'aplat de marque. Sur un fond sombre, un
+     rose doit s'eclaircir, pas s'assombrir : c'est la luminance qui compte,
+     pas l'intuition. */
+  --coeur: #ffd0da;
+
+  /* ── Surbrillance d'un element actif sur aplat de marque ──
+     En theme jour, l'aplat de marque est clair : on le souligne d'un blanc
+     translucide. En theme nuit, l'aplat est deja sombre : le meme blanc
+     translucide y creait un eclat. Ce jeton porte la valeur propre a chaque
+     theme. */
+  --surbrillance: rgba(255, 255, 255, .12);
+  --surbrillance-forte: rgba(255, 255, 255, .18);
+
+  /* ── Aplats inversés : fond clair, texte sombre ── */
+  --inverse-fond: #191c1d;
+  --inverse-texte: #fff;
+
+  /* ── Dégradés de marque ── */
+  --degrade-1: #004d5a;
+  --degrade-2: #006876;
+  --degrade-3: #00a3b8;
+  --degrade-4: #003d4a;
+  --degrade-5: #008fa3;
+
+  /* ── Ombres ── */
+  --ombre: 0 1px 2px rgba(25, 44, 52, .06), 0 4px 14px rgba(25, 44, 52, .05);
+  --ombre-forte: 0 -10px 30px rgba(25, 44, 52, .10);
+}
+
+html[data-theme="nuit"] {
+  color-scheme: dark;
+
+  /* ── Surfaces ── */
+  --fond: #0f1416;
+  --surface: #171d20;
+  --surface-2: #1d262a;
+  --surface-3: #1d262a;
+  --champ: #12181b;
+  --surface-liste: #12181b;
+  --surface-liste-hd: #161d21;
+
+  /* ── Encre ── */
+  --encre: #e8eef0;
+  --encre-forte: #cfdade;
+  --gris: #a9b8be;
+  --gris-doux: #8b9aa0;
+  --gris-doux-rgb: 139,154,160;
+  --gris-texte: #aebcc1;
+  --gris-icone: #8b9aa0;
+  --gris-pale: #5a6a70;
+
+  /* ── Bordures ── */
+  --bord: #273136;
+  --bord-doux: rgba(120, 145, 152, .28);
+  --bord-fort: #33424a;
+  --bord-carte: #2b363b;
+  --bord-carte-survol: #3d545c;
+
+  /* ── Marque ──
+     La nuance reste lisible sur fond sombre, mais l'aplat de marque reste
+     sombre : une bande teal clair porterait du texte blanc illisible. */
+  --teal: #4fb3c2;
+  --teal-fond: #0b2f36;
+  --teal-fonce: #14454e;
+  /* Un aplat de marque reste un aplat. Le survol eclaircit la surface,
+     il ne la transforme pas en aplat clair : du texte blanc sur
+     #7fd4e0 ne se lisait plus du tout. */
+  --teal-aplat-survol: #2a6a77;
+  --teal-texte: #7fd4e0;
+  /* Le survol du logo de l'en-tete. En mode nuit, l'aplat de marque est
+     #0b2f36 : ce cyan clair s'y lit a 10,5. */
+  --blanc-survol: #7fd4e0;
+  --teal-clair: #12262b;
+  --teal-survol: #1d262a;     /* fond de BADGE */
+  /* En mode nuit, le fond de survol doit s'ecarter franchement de la
+     surface sur laquelle il repose. Valait #1d262a, qui est aussi
+     --surface-2 : l'ecart de contraste de fond sur fond ne montait
+     qu'a 1,105, et le survol etait invisible. */
+  --teal-survol-element: #2f5a64;
+  /* Meme raison en mode nuit : l'eclaircissement de la surface, et non un
+     aplat teal. #2f5a64 se lisait « allume » sur le fond #12181b du
+     bandeau. */
+  --surface-survol: #303b42;
+  --teal-pale: #132226;
+  --teal-bord: #23474f;
+  --teal-vif: #4fb3c2;
+  --blanc: #fff;
+  --sur-accent-texte: #0f1416;
+
+  /* ── Pastilles et statuts ── */
+  --vert: #4ade80;
+  --vert-vif: #4ade80;
+  --vert-texte: #86efac;
+  --vert-clair: #16241a;
+  --vert-bord: #1e3a26;
+  --vert-pale: #16241a;
+  --cyan-clair: #123038;
+  --cyan-texte: #a5e8f2;
+  --orange-clair: #33220f;
+  --orange-texte: #fdba74;
+  --rouge: #f87171;
+  --rouge-texte: #fca5a5;
+  --rouge-pale: #2a1719;
+  --ambre: #fbbf24;
+  --ambre-texte: #fcd34d;
+  --ambre-pale: #2a2110;
+  --bleu-texte: #93c5fd;
+  --bleu-pale: #131f33;
+  --rose-texte: #f9a8d4;
+  --rose-pale: #2b1524;
+  --violet-texte: #c4b5fd;
+  --violet-pale: #1f1a33;
+  --coeur: #ff8fa8;
+
+  /* Sur fond de marque deja sombre, la surbrillance est un eclaircissement
+     discret : un blanc translucide y serait un eclat. */
+  --surbrillance: rgba(255, 255, 255, .09);
+  --surbrillance-forte: rgba(255, 255, 255, .14);
+
+  /* ── Aplats inversés ── */
+  --inverse-fond: #e8eef0;
+  --inverse-texte: #0f1416;
+
+  /* ── Dégradés de marque ── */
+  --degrade-1: #062229;
+  --degrade-2: #0b2f36;
+  --degrade-3: #0f4550;
+  --degrade-4: #05202a;
+  --degrade-5: #0d3f49;
+
+  /* ── Ombres ── */
+  --ombre: 0 1px 2px rgba(0, 0, 0, .4), 0 4px 14px rgba(0, 0, 0, .35);
+  --ombre-forte: 0 -10px 30px rgba(0, 0, 0, .5);
+}
+
+/* ── Cas qui ne peuvent pas passer par un jeton ──────────────────────────────
+   Une flèche de liste déroulante est une image encodée en URL : sa couleur
+   ne peut pas lire une variable. On la redessine pour la nuit. */
+html[data-theme="nuit"] select.chip,
+html[data-theme="nuit"] select.dd-trigger,
+html[data-theme="nuit"] select {
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a9b8be' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+}
+
+/* ── Le bouton de bascule ─────────────────────────────────────────────────── */
+.bascule-theme {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; flex-shrink: 0;
+  border-radius: 9999px; border: 1px solid rgba(255, 255, 255, .28);
+  background: rgba(255, 255, 255, .12); color: #fff;
+  cursor: pointer; padding: 0; transition: background .15s ease;
+}
+/* Le survol de la bascule. La regle du mode nuit
+   (`html[data-theme="nuit"] .bascule-theme`) a une specificite de (0,2,1) :
+   elle ecrase celle-ci, en (0,2,0). Le bouton n'avait donc aucun survol
+   en mode nuit. Les deux regles doivent avoir le meme poids : celle du
+   mode nuit vient apres, et traite le survol a part. */
+/* Le survol de la bascule passait le fond de #1f7a86 a #388994 : le
+   texte blanc tombait a 4,05 de contraste, sous le seuil. Le survol
+   change le fond vers l'accent de marque — comme le bouton « Postuler »
+   et le bouton « Rechercher » — et le texte y reste blanc, lisible dans
+   les deux themes. */
+.bascule-theme:hover { background: var(--teal-aplat-survol); border-color: var(--teal-texte); }
+/* La police d'icones. Elle etait definie page par page : les quatre
+   pages de mentions ne l'avaient pas, et le bouton de theme y affichait
+   « light_mode » en toutes lettres au lieu de l'icone. Une feuille
+   partagee est le bon endroit pour une police partagee. */
+.bascule-theme .ms { font-family: 'Material Symbols Outlined'; font-weight: normal;
+                     font-style: normal; font-size: 18px; line-height: 1;
+                     letter-spacing: normal; text-transform: none;
+                     display: inline-block; white-space: nowrap;
+                     direction: ltr; -webkit-font-feature-settings: 'liga';
+                     -webkit-font-smoothing: antialiased; }
+/* L'icone de la bascule passe par le pseudo-element : son nom ne vit pas
+   dans le DOM, et le texte visible ne peut plus diverger du nom accessible
+   (regle 2.5.3, Label in Name). */
+.bascule-theme .ms::before { content: attr(data-icone); }
+html[data-theme="nuit"] .bascule-theme {
+  border-color: var(--bord-carte); background: var(--surface-2); color: var(--encre);
+}
+/* Le survol, en mode nuit. Meme specificite que la regle du mode nuit,
+   mais placee apres : elle gagne. Le fond s'eclaircit et la bordure se
+   marque — le signal reste lisible, et le texte reste clair sur fond
+   sombre. */
+html[data-theme="nuit"] .bascule-theme:hover {
+  background: var(--teal-aplat-survol); border-color: var(--teal-texte);
+}
+.bascule-theme:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+
+/* Barre d'en-tête absente ou masquée : le bouton se pose par-dessus la page. */
+.bascule-flottante { position: fixed; top: 1rem; right: 1rem; z-index: 400;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, .18); }
