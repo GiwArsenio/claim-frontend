@@ -10,6 +10,10 @@
 # production.
 set -euo pipefail
 
+echo "== preparation des fichiers statiques =="
+bash scripts/prepare-assets.sh
+
+echo
 echo "== verification de la configuration =="
 npx wrangler deploy --dry-run --outdir=./_dist
 

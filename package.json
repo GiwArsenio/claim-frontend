@@ -12,9 +12,10 @@
     "captures": "node tools/captures.cjs captures",
     "audit:theme": "node tools/audit-theme.cjs",
     "dev": "wrangler dev",
-    "deploy": "wrangler deploy",
+    "deploy": "bash scripts/prepare-assets.sh && wrangler deploy",
     "assets": "bash scripts/prepare-assets.sh",
-    "test:workers": "node tests-portage/verifier-rendu.js"
+    "test:workers": "node tests-portage/verifier-rendu.js",
+    "deploy:check": "bash scripts/prepare-assets.sh && wrangler deploy --dry-run"
   },
   "repository": {
     "type": "git",
