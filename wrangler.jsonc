@@ -5,16 +5,29 @@
   // `public/` sont servis tels quels. Les trois adresses dynamiques
   // (/offre/{slug}, /sitemap.xml, /robots.txt) sont rendues par le Worker.
   //
-  // Pourquoi `run_worker_first` n'est pas activé globalement : avec cette
-  // option, TOUTE requête traverse le Worker et consomme le quota
-  // d'invocations (100 000/jour en gratuit). Or le trafic SEO — HTML, CSS,
-  // JS, images — est servi directement par le CDN, sans Workers. Seul
-  // `/offre/*` passe par le Worker. C'est le routage sélectif du bloc
-  // `routes` ci-dessous qui garantit cela.
+  // ── Pourquoi `assets_navigation_has_no_effect` ───────────────────────
+  // Depuis le 1er avril 2025, une requete portee par `Sec-Fetch-Mode:
+  // navigate` — ce qu un navigateur envoie quand on suit un lien ou qu on
+  // tape une adresse — court-circuite le Worker et va directement a la
+  // logique d assets.
+  //
+  // Consequence sur CLAIM! : la racine et /sitemap.xml repondent 404 au
+  // navigateur, alors qu elles repondent 200 a un robot. C etait invisible
+  // pendant les tests — curl et les robots n envoient pas cet en-tete — et
+  // c etait le premier symptome du site qui ne s ouvrait pas le 25 octobre.
+  //
+  // Ce drapeau rend le court-circuit sans effet : les requetes de
+  // navigation atteignent le Worker comme les autres.
+  //
+  // L alternative aurait ete `run_worker_first: true`, qui fait traverser
+  // TOUTE requete au Worker — y compris le trafic SEO des fichiers
+  // statiques, gratuit et illimite sur le CDN. Ce serait du quota
+  // d invocations gaspille. Le drapeau est donc la solution meilleur : il
+  // corrige la navigation sans toucher au routage du reste.
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "claim-frontend",
   "compatibility_date": "2026-10-24",
-  "compatibility_flags": ["nodejs_compat"],
+  "compatibility_flags": ["nodejs_compat", "assets_navigation_has_no_effect"],
   "main": "src/index.js",
 
   "assets": {
