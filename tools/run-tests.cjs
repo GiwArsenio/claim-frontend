@@ -90,7 +90,11 @@ const FAMILLES = {
   ],
 };
 
-const DELAI_DEFAUT = 180000; // 3 minutes par fichier
+// 7 minutes par fichier. Le plus long est survol-a07 : ses deux cas
+// de contraste mesures au pixel prennent a eux seuls 140 s. Avec un
+// delai de 3 minutes, il etait tue alors que toutes ses assertions
+// passaient — un test vert declare rouge.
+const DELAI_DEFAUT = 420000;
 
 const args = process.argv.slice(2);
 const option = (nom) => args.includes(nom);
