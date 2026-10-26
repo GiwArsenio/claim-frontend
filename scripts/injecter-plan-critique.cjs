@@ -74,6 +74,16 @@ function couleurDuPlan(source, defaut) {
   return PLANS[cle] || defaut;
 }
 
+/* Le pied colle ne s'applique pas a l'accueil (son contenu est deja
+ * plus long que l'ecran) ni au board (application a hauteur fixe, son
+ * document ne defile pas). */
+const SANS_PIED_COLLE = ['index.html', 'job-board.html', path.join('public', '404.html')];
+
+function retirerPiedColle(css) {
+  return css.replace(/\/\* __DEBUT_PIED_COLLE__ \*\/[\s\S]*?\/\* __FIN_PIED_COLLE__ \*\//g, '')
+    .replace(/\n{3,}/g, '\n\n');
+}
+
 function blocStyle(css, plan) {
   const rempli = css
     .replace(/__PLAN_JOUR__/g, plan.jour)
@@ -105,7 +115,8 @@ for (const nom of PAGES) {
     continue;
   }
   const plan = couleurDuPlan(s, PLANS['var(--champ)']);
-  s = s.slice(0, i) + blocStyle(CSS, plan) + s.slice(i);
+  const css = SANS_PIED_COLLE.includes(nom) ? retirerPiedColle(CSS) : CSS;
+  s = s.slice(0, i) + blocStyle(css, plan) + s.slice(i);
   fs.writeFileSync(P, s, 'utf8');
   plans.push(nom + ' -> ' + plan.jour);
   traites++;
