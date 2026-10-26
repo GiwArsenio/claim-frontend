@@ -19,7 +19,7 @@ const SITE = process.argv[2] || 'https://claimyourjob.fr';
       locale: 'fr-FR',
     });
     await ctx.addInitScript((t) => {
-      try { localStorage.setItem('claim-theme', t); } catch (e) {}
+      try { localStorage.setItem('claim-theme-v2', t); } catch (e) {}
     }, theme);
 
     const page = await ctx.newPage();

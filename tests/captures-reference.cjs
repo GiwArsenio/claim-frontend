@@ -62,7 +62,12 @@ const SCENARIOS = [
  * signale plutot que de le transformer en echec obscur.
  */
 function comparerPng(reference, actuelle) {
-  if (reference.width !== actuelle.width || actuelle.height !== actuelle.height) {
+  /* La comparaison de hauteur comparait l'image a elle-meme :
+     `actuelle.height !== actuelle.height` est toujours faux. Le
+     controle de hauteur ne jouait donc pas, et pixelmatch levait
+     « Image sizes do not match » sur des images de tailles differentes
+     — une erreur qui parle de l'outil, pas de la cause. */
+  if (reference.width !== actuelle.width || reference.height !== actuelle.height) {
     return {
       comparable: false,
       raison: `dimensions differentes : reference ${reference.width}x${reference.height}, ` +

@@ -185,7 +185,12 @@ test('la préférence survit à un rechargement', async () => {
       'nuit', 'le thème doit survivre au rechargement'
     );
     assert.equal(
-      await page.evaluate(() => localStorage.getItem('claim-theme')),
+      /* La cle a change en « claim-theme-v2 » le 26 octobre 2026 : le
+       * mode jour est devenu le defaut, et la cle a ete renommee pour
+       * invalider les preferences qui imposaient encore la nuit. Le test
+       * cherchait l'ancienne cle : il echouait sur un detail du site,
+       * pas sur le comportement qu il veut verifier. */
+      await page.evaluate(() => localStorage.getItem('claim-theme-v2')),
       'nuit', 'la préférence doit être enregistrée'
     );
 

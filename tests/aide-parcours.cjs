@@ -201,7 +201,7 @@ async function ouvrirPage(format = FORMATS.bureau, options = {}) {
 
   if (options.theme) {
     await ctx.addInitScript((t) => {
-      try { localStorage.setItem('claim-theme', t); } catch (e) {}
+      try { localStorage.setItem('claim-theme-v2', t); } catch (e) {}
     }, options.theme);
   }
 

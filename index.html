@@ -380,7 +380,12 @@ html[data-theme="nuit"] select.chip {
                      gap: 2rem; flex-wrap: wrap; }
   .contact-panneau h2 { font-size: 1.3rem; }
   .contact-panneau p { margin: .35rem 0 0; color: var(--gris); font-size: .92rem; max-width: 58ch; }
-  .bteal { background: var(--teal); color: var(--blanc); padding: .6rem 1.4rem; border-radius: .5rem;
+  /* L'aplat vient de `--teal-fond`, comme tous les autres aplats du
+     site. `--teal` est la couleur du TEXTE de marque : en mode nuit elle
+     vire au turquoise clair (#4fb3c2), et le bouton devenait un aplat
+     clair pose sur une page sombre. Le texte blanc passait encore, mais
+     la surface ne suivait pas le theme. */
+  .bteal { background: var(--teal-fond); color: var(--blanc); padding: .6rem 1.4rem; border-radius: .5rem;
             font-weight: 700; font-size: .925rem; text-decoration: none; white-space: nowrap;
             display: inline-block;
             transition: background .15s, color .15s, transform .1s; }
@@ -388,7 +393,7 @@ html[data-theme="nuit"] select.chip {
      En mode nuit, il restait blanc sur un aplat sombre, immobile.
      Le jeton de survol existe dans les deux themes : il s'eclaircit en
      jour, il s'assombrit en nuit, et le texte reste lisible. */
-  .bteal:hover { background: var(--teal-fonce); color: var(--blanc); }
+  .bteal:hover { background: var(--teal-aplat-survol); color: var(--blanc); }
   .bteal:focus-visible { outline: 2px solid var(--teal); outline-offset: 3px; }
 
   /* ── PIED ── */
