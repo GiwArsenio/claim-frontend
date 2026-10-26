@@ -751,6 +751,60 @@ en documentation).
 })();
 </script><!-- Thème jour / nuit : la préférence est posée avant le rendu, pour qu'aucune
      page ne s'affiche en clair avant de basculer. -->
+<style id="plan-critique">
+/* CSS CRITIQUE DU PLAN — injecte, ne pas modifier ici */
+/* ══ CSS CRITIQUE DU PLAN — doit precéder la feuille de theme ══
+ *
+ * Le symptôme : sur iPad, au chargement d'une page, le défilement
+ * semble dépasser le pied de page. Le fond sous le pied, d'une couleur
+ * qui n'appartient pas au site, s'affiche pendant quelques instants,
+ * puis tout se stabilise.
+ *
+ * La cause : les règles qui pose le fond du plan vivent dans
+ * assets/theme.css — une feuille EXTERNE. Avant qu'elle n'arrive,
+ * le navigateur ne sait rien : --plan, --fond et --champ sont
+ * indefinis, `background: var(--plan)` ne s'applique pas, le fond est
+ * transparent, et `overscroll-behavior-y` reste a `auto` — le geste
+ * de rebond est autorise.
+ *
+ * Mesure, sans la feuille de theme, sur les six pages concernees :
+ *
+ *   --plan  = (vide)      --fond  = (vide)     --champ = (vide)
+ *   fond html = rgba(0, 0, 0, 0)     fond body = rgba(0, 0, 0, 0)
+ *   overscroll-behavior-y = auto      min-height = 0px
+ *
+ * Ce bloc est donc pose dans le <head>, AVANT le lien vers la feuille
+ * de theme, et il ne depend d'aucune variable : les valeurs sont
+ * litterales. Il est autonome — il doit fonctionner meme si la feuille
+ * de theme ne charge jamais.
+ *
+ * Les fallbacks de var() gardent la main pour le mode nuit : la
+ * feuille de theme redonne --plan, et la valeur litterale ne sert que
+ * de filet si la variable manque.
+ *
+ * Attention : ce fichier est la SOURCE. Il est injecte dans les pages
+ * par scripts/prepare-assets.sh et par le generateur de la page
+ * d'offre. Ne pas le recopier a la main dans les pages.
+ */
+
+html {
+  /* Le plan de la page. Le repli litteral est la couleur de fond
+     claire du site ; --plan, pose par la feuille de theme, prime
+     des qu'elle arrive — et en mode nuit, la valeur correcte. */
+  background: var(--plan, #f3f4f5);
+  /* Le rebond du geste est desactive des le premier octet : sans
+     cela, le canvas deborde du body pendant que la feuille arrive. */
+  overscroll-behavior-y: none;
+  min-height: 100%;
+}
+
+body {
+  background: var(--plan, #f3f4f5);
+  overscroll-behavior-y: none;
+  margin: 0;
+}
+
+</style>
 <link rel="stylesheet" href="/assets/theme.css">
 <script>(function(){try{var t=localStorage.getItem('claim-theme');if(t==='nuit'||(!t&&window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.setAttribute('data-theme','nuit');}}catch(e){}})();</script>
 <script src="/assets/theme.js" defer></script>

@@ -13,6 +13,12 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
+echo "== injection du CSS critique du plan =="
+# Le CSS critique doit etre dans le <head>, avant la feuille de theme :
+# sans lui, le fond du plan est transparent et le rebond du geste
+# autorise tant que la feuille externe n'est pas arrivee.
+node scripts/injecter-plan-critique.cjs
+
 echo "== copie des fichiers du site =="
 # Tout ce qui est a la racine, sauf ce qui ne doit pas etre publie.
 for element in *.html assets logos; do
