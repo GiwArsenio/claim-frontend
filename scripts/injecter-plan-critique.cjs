@@ -53,12 +53,37 @@ const RENDU_OFFRE = path.join(RACINE, 'src', 'pages', '_offre-rendu.js');
  * gabarit, pas une chaine JavaScript. */
 const LIEN_THEME_OFFRE = LIEN_THEME;
 
-function blocStyle(css) {
-  return '<style id="plan-critique">\n' + MARQUEUR + '\n' + css + '\n</style>\n';
+/* Toutes les pages n'ont pas le meme plan. Le gabarit porte deux
+ * marqueurs ; on les remplace par la couleur de la page, lue dans son
+ * propre attribut style sur <html>.
+ *
+ *   --plan: var(--champ)  ->  jour #f3f4f5   nuit #12181b
+ *   --plan: var(--fond)   ->  jour #fff      nuit #0f1416
+ *
+ * Mettre le meme repli partout fut l'erreur de la version precedente :
+ * les pages du pied affichaient du gris la ou elles doivent etre
+ * blanches. */
+const PLANS = {
+  'var(--champ)': { jour: '#f3f4f5', nuit: '#12181b' },
+  'var(--fond)': { jour: '#fff', nuit: '#0f1416' },
+};
+
+function couleurDuPlan(source, defaut) {
+  const m = /--plan:\s*(var\(--[a-z0-9-]+\))/.exec(source);
+  const cle = m ? m[1].replace(/\s+/g, '') : null;
+  return PLANS[cle] || defaut;
+}
+
+function blocStyle(css, plan) {
+  const rempli = css
+    .replace(/__PLAN_JOUR__/g, plan.jour)
+    .replace(/__PLAN_NUIT__/g, plan.nuit);
+  return '<style id="plan-critique">\n' + MARQUEUR + '\n' + rempli + '\n</style>\n';
 }
 
 /* ── Les pages statiques ───────────────────────────────────────────────── */
 let traites = 0;
+const plans = [];
 for (const nom of PAGES) {
   const P = path.join(RACINE, nom);
   let s = fs.readFileSync(P, 'utf8');
@@ -79,11 +104,14 @@ for (const nom of PAGES) {
     console.warn('  ATTENTION %s : pas de lien vers theme.css, page non traitee', nom);
     continue;
   }
-  s = s.slice(0, i) + blocStyle(CSS) + s.slice(i);
+  const plan = couleurDuPlan(s, PLANS['var(--champ)']);
+  s = s.slice(0, i) + blocStyle(CSS, plan) + s.slice(i);
   fs.writeFileSync(P, s, 'utf8');
+  plans.push(nom + ' -> ' + plan.jour);
   traites++;
 }
 console.log('  %d page(s) statique(s) traitee(s)', traites);
+for (const p of plans) console.log('    ' + p);
 
 /* ── La page d'offre, rendue par le Worker ─────────────────────────────── */
 if (fs.existsSync(RENDU_OFFRE)) {
@@ -104,8 +132,12 @@ if (fs.existsSync(RENDU_OFFRE)) {
     // Le gabarit est une chaine de template : il faut echapper ce qui
     // a un sens dedans — les accents graves casseraient la chaine, et
     // un dollar declencherait une interpolation.
+    const planOffre = couleurDuPlan(s, PLANS['var(--champ)']);
+    const cssOffre = CSS
+      .replace(/__PLAN_JOUR__/g, planOffre.jour)
+      .replace(/__PLAN_NUIT__/g, planOffre.nuit);
     const bloc = '<style id="plan-critique">\\n' + MARQUEUR + '\\n'
-      + CSS.replace(/\\/g, '\\\\')
+      + cssOffre.replace(/\\/g, '\\\\')
            .replace(/`/g, '\\`')
            .replace(/\$\{/g, '\\${')
            .replace(/\n/g, '\\n')

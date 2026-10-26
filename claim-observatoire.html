@@ -972,44 +972,37 @@ en documentation).
      page ne s'affiche en clair avant de basculer. -->
 <style id="plan-critique">
 /* CSS CRITIQUE DU PLAN — injecte, ne pas modifier ici */
-/* ══ CSS CRITIQUE DU PLAN — doit precéder la feuille de theme ══
+/* ══ CSS CRITIQUE DU PLAN — doit precede la feuille de theme ══
  *
- * Le symptôme : sur iPad, au chargement d'une page, le défilement
- * semble dépasser le pied de page. Le fond sous le pied, d'une couleur
+ * Le symptome : sur iPad, au chargement d'une page, le defilement
+ * semble depasser le pied de page. Le fond sous le pied, d'une couleur
  * qui n'appartient pas au site, s'affiche pendant quelques instants,
  * puis tout se stabilise.
  *
- * La cause : les règles qui pose le fond du plan vivent dans
- * assets/theme.css — une feuille EXTERNE. Avant qu'elle n'arrive,
- * le navigateur ne sait rien : --plan, --fond et --champ sont
- * indefinis, 'background: var(--plan)' ne s'applique pas, le fond est
- * transparent, et 'overscroll-behavior-y' reste a 'auto' — le geste
- * de rebond est autorise.
+ * La cause : les regles qui posent le fond du plan vivent dans
+ * assets/theme.css — une feuille EXTERNE. Avant qu'elle n'arrive, le
+ * navigateur ne sait rien : --plan, --fond et --champ sont indefinis,
+ * `background: var(--plan)` ne s'applique pas, le fond est transparent,
+ * et `overscroll-behavior-y` reste a `auto`.
  *
- * Mesure, sans la feuille de theme, sur les six pages concernees :
+ * CE FICHIER EST UN GABARIT. Les marqueurs #f3f4f5 et
+ * #12181b sont remplaces par scripts/injecter-plan-critique.cjs
+ * avec la couleur de la page : toutes les pages n'ont pas le meme plan.
  *
- *   --plan  = (vide)      --fond  = (vide)     --champ = (vide)
- *   fond html = rgba(0, 0, 0, 0)     fond body = rgba(0, 0, 0, 0)
- *   overscroll-behavior-y = auto      min-height = 0px
+ *   accueil, entreprises, observatoire, offer, 404
+ *       --plan: var(--champ)   jour #f3f4f5   nuit #12181b
+ *   a-propos, cgu, confidentialite, contact
+ *       --plan: var(--fond)    jour #fff      nuit #0f1416
  *
- * Ce bloc est donc pose dans le <head>, AVANT le lien vers la feuille
- * de theme, et il ne depend d'aucune variable : les valeurs sont
- * litterales. Il est autonome — il doit fonctionner meme si la feuille
- * de theme ne charge jamais.
+ * Mettre le meme repli partout etait l'erreur de la version
+ * precedente : les quatre pages du pied affichaient du gris la ou
+ * elles doivent etre blanches — un fond qui n'appartient pas a la page.
  *
- * Les fallbacks de var() gardent la main pour le mode nuit : la
- * feuille de theme redonne --plan, et la valeur litterale ne sert que
- * de filet si la variable manque.
- *
- * Attention : ce fichier est la SOURCE. Il est injecte dans les pages
- * par scripts/prepare-assets.sh et par le generateur de la page
- * d'offre. Ne pas le recopier a la main dans les pages.
+ * Les fallbacks de var() gardent la main des que la feuille de theme
+ * arrive : --plan est alors defini, et c'est lui qui s'applique.
  */
 
 html {
-  /* Le plan de la page. Le repli litteral est la couleur de fond
-     claire du site ; --plan, pose par la feuille de theme, prime
-     des qu'elle arrive — et en mode nuit, la valeur correcte. */
   background: var(--plan, #f3f4f5);
   /* Le rebond du geste est desactive des le premier octet : sans
      cela, le canvas deborde du body pendant que la feuille arrive. */
@@ -1020,7 +1013,22 @@ html {
 body {
   background: var(--plan, #f3f4f5);
   overscroll-behavior-y: none;
+  /* Le body doit couvrir la fenetre MEME quand le contenu est court.
+     Sans cela, quand la page est plus courte que l'ecran — ce qui
+     arrive au premier paint — le pied flotte au milieu et le fond
+     apparait dessous. C'est le « vide sous le pied ». */
+  min-height: 100dvh;
   margin: 0;
+}
+
+/* Le mode nuit, des le premier paint. Le script qui pose data-theme
+   est inline dans le <head> : il s'execute avant le premier rendu.
+   Sans ces deux regles, un lecteur en mode nuit voyait un flash clair. */
+html[data-theme="nuit"] {
+  background: var(--plan, #12181b);
+}
+html[data-theme="nuit"] body {
+  background: var(--plan, #12181b);
 }
 
 </style>
