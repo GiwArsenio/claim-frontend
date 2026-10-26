@@ -322,7 +322,14 @@ ${societe.logo_url
 
  .enveloppe { max-width:46rem; margin:0 auto; padding:1.5rem 1.25rem 4rem; }
  .retour { display:inline-block; margin-bottom:1.25rem; color:var(--teal); text-decoration:none; font-weight:600; font-size:.9rem; }
- h1 { font-size:1.6rem; margin:0 0 .4rem; line-height:1.25; }
+ /* Meme signature que le titre de l'accueil — graisse 900 et
+    interlettrage serre — pour que les deux pages se lisent comme la
+    meme maison. La taille reste celle d'une page de lecture : un titre
+    de poste fait parfois quinze mots, il ne peut pas prendre l'echelle
+    d'une accroche. L'interlettrage et la hauteur de ligne sont donc un
+    peu moins tendus qu'a l'accueil : sur un corps plus petit, un
+    crénage trop serré colle les lettres. */
+ h1 { font-size:1.6rem; font-weight:900; letter-spacing:-.02em; line-height:1.2; margin:0 0 .4rem; }
  .societe { display:flex; align-items:center; gap:.55rem; color:var(--gris); font-size:1rem; font-weight:600; margin-bottom:.9rem; }
  /* Tuile d'identité de l'employeur. Même dessin que les cartes, à l'échelle
     de la page de lecture : elle situe l'entreprise sans concurrencer le titre. */
