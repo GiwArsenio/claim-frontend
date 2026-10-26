@@ -372,13 +372,15 @@ html[data-theme="nuit"] select.chip {
      tombe a 1.375rem (22 px) : 157 px, soit 25 % de moins. */
   /* L'espace entre le bandeau et le pied : deux zones teal separees par
      une respiration a la teinte du reste de la page. */
-  .contact { background: var(--teal-fond); color: var(--blanc); margin-bottom: 2.5rem;
-             padding-block: 1.375rem; }
-  .contact .env { display: flex; justify-content: space-between; align-items: center; gap: 2rem;
-                  flex-wrap: wrap; }
-  .contact h2 { color: var(--blanc); font-size: 1.3rem; }
-  .contact p { margin: .35rem 0 0; color: rgba(255, 255, 255, .85); font-size: .92rem; max-width: 58ch; }
-  .bblanc { background: var(--surface); color: var(--teal); padding: .6rem 1.4rem; border-radius: .5rem;
+  /* La section d'appel prend la forme des sections qui la precedent :
+     une bande .surface contenant un .panneau. Le fond, la bordure, le
+     rayon et l'ombre viennent de .panneau — rien n'est redefini ici, la
+     forme ne peut donc pas deriver. Il ne reste que la disposition. */
+  .contact-panneau { display: flex; justify-content: space-between; align-items: center;
+                     gap: 2rem; flex-wrap: wrap; }
+  .contact-panneau h2 { font-size: 1.3rem; }
+  .contact-panneau p { margin: .35rem 0 0; color: var(--gris); font-size: .92rem; max-width: 58ch; }
+  .bteal { background: var(--teal); color: var(--blanc); padding: .6rem 1.4rem; border-radius: .5rem;
             font-weight: 700; font-size: .925rem; text-decoration: none; white-space: nowrap;
             display: inline-block;
             transition: background .15s, color .15s, transform .1s; }
@@ -386,9 +388,8 @@ html[data-theme="nuit"] select.chip {
      En mode nuit, il restait blanc sur un aplat sombre, immobile.
      Le jeton de survol existe dans les deux themes : il s'eclaircit en
      jour, il s'assombrit en nuit, et le texte reste lisible. */
-  .bblanc:hover { background: var(--teal-survol-element); color: var(--teal-texte);
-                  transform: translateY(-1px); }
-  .bblanc:focus-visible { outline: 2px solid var(--blanc); outline-offset: 3px; }
+  .bteal:hover { background: var(--teal-fonce); color: var(--blanc); }
+  .bteal:focus-visible { outline: 2px solid var(--teal); outline-offset: 3px; }
 
   /* ── PIED ── */
   /* ── PIED ──
@@ -836,7 +837,7 @@ html[data-theme="nuit"] body {
 
 </style>
 <link rel="stylesheet" href="/assets/theme.css">
-<script>(function(){try{var t=localStorage.getItem('claim-theme');if(t==='nuit'||(!t&&window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.setAttribute('data-theme','nuit');}}catch(e){}})();</script>
+<script>(function(){try{var t=localStorage.getItem('claim-theme');if(t==='nuit'){document.documentElement.setAttribute('data-theme','nuit');}}catch(e){}})();</script>
 <script src="/assets/theme.js" defer></script>
 </head>
 <body>
@@ -1026,15 +1027,17 @@ html[data-theme="nuit"] body {
   </div>
 </section>
 
-<section class="contact" id="contact">
+<section class="surface" id="contact">
   <div class="env">
-    <div>
-      <h2>Une offre manque ? Une source à ajouter ?</h2>
-      <p>Claim! est un relevé, pas un mur d'annonces. Dites-nous quel employeur ou quel site
-         carrières nous ne suivons pas encore — il sera dans le relevé du lendemain.</p>
+    <div class="panneau contact-panneau">
+      <div>
+        <h2>Une offre manque ? Une source à ajouter ?</h2>
+        <p>Claim! est un relevé, pas un mur d'annonces. Dites-nous quel employeur ou quel site
+           carrières nous ne suivons pas encore — il sera dans le relevé du lendemain.</p>
+      </div>
+      <!-- À CONFIRMER : cette adresse doit exister, sinon les messages se perdent. -->
+      <a class="bteal" href="mailto:contact@claimyourjob.fr">Écrivez-nous</a>
     </div>
-    <!-- À CONFIRMER : cette adresse doit exister, sinon les messages se perdent. -->
-    <a class="bblanc" href="mailto:contact@claimyourjob.fr">Écrivez-nous</a>
   </div>
 </section>
 

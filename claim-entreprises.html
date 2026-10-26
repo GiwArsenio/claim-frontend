@@ -502,7 +502,7 @@ html, body { font-family: 'Inter', sans-serif; color: var(--encre); background: 
   .chantier .h1 em { font-style: normal; color: var(--teal, var(--teal)); }
   .chantier .lede { font-size: 1.05rem; color: var(--gris, var(--gris)); max-width: 54ch; margin: 0 0 2rem; line-height: 1.6; }
   .chantier .form {
-    display: flex; gap: .5rem; background: var(--surface); padding: .4rem; border-radius: 9999px;
+    display: flex; gap: .5rem; background: var(--surface); padding: .4rem; border-radius: .625rem;
     box-shadow: var(--ombre, 0 1px 2px rgba(25, 44, 52, .06), 0 4px 14px rgba(25, 44, 52, .05));
     max-width: 480px; width: 100%; border: 1px solid var(--bord, var(--bord));
   }
@@ -512,7 +512,7 @@ html, body { font-family: 'Inter', sans-serif; color: var(--encre); background: 
   }
   .chantier .form input::placeholder { color: var(--gris-doux, var(--gris-doux)); }
   .chantier .form button {
-    background: var(--teal, var(--teal)); color: var(--blanc); border: none; border-radius: 9999px;
+    background: var(--teal, var(--teal)); color: var(--blanc); border: none; border-radius: .375rem;
     padding: .65rem 1.3rem; font-weight: 700; font-size: .925rem; font-family: inherit;
     cursor: pointer; white-space: nowrap; min-height: 44px; transition: background .15s;
   }
@@ -902,7 +902,7 @@ body {
 
 </style>
 <link rel="stylesheet" href="/assets/theme.css">
-<script>(function(){try{var t=localStorage.getItem('claim-theme');if(t==='nuit'||(!t&&window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.setAttribute('data-theme','nuit');}}catch(e){}})();</script>
+<script>(function(){try{var t=localStorage.getItem('claim-theme');if(t==='nuit'){document.documentElement.setAttribute('data-theme','nuit');}}catch(e){}})();</script>
 <script src="/assets/theme.js" defer></script>
 </head>
 <body>
