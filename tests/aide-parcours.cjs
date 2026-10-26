@@ -88,6 +88,37 @@ async function arreterNavigateur() {
 }
 
 /**
+ * Sert la police Inter depuis le serveur de test local.
+ *
+ * Le site charge Inter depuis Google Fonts. Le reseau externe etant
+ * coupe dans les suites locales, cette police n arrive jamais : le rendu
+ * retombe sur la police systeme, qui n est pas la meme d une machine a
+ * l autre. La hauteur de page change, et les captures de reference ne
+ * sont plus comparables.
+ *
+ * On intercepte donc la requete vers Google Fonts et on la sert par le
+ * serveur local. Le site n a pas a changer : seule la maniere de lui
+ * fournir la police change. Le rendu devient identique partout, sur le
+ * runner de GitHub comme en local.
+ */
+function servirPoliceInter(page, base) {
+  return page.route('**/fonts.googleapis.com/**', async (route) => {
+    const css = `@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: block;
+  src: url('${base}/tests/polices/InterVariable.woff2') format('woff2');
+}`;
+    await route.fulfill({
+      status: 200,
+      contentType: 'text/css; charset=utf-8',
+      body: css,
+    });
+  });
+}
+
+/**
  * Bloque tout appel reseau hors du serveur local de test.
  *
  * La regle du catalogue (4.2) est explicite : le reseau externe est interdit
@@ -176,6 +207,12 @@ async function ouvrirPage(format = FORMATS.bureau, options = {}) {
     erreurs.push(m.text());
   });
   page.erreurs = erreurs;
+
+  /* La police est servie par le serveur de test, meme quand le reseau
+     est libre : c est elle qui rend le rendu reproductible d une
+     machine a l autre. Elle est installee AVANT le garde reseau, qui
+     laisse passer la base de toute facon. */
+  await servirPoliceInter(page, BASE);
 
   /* Le reseau externe est coupe par defaut : une suite locale qui sort
      d'elle-meme doit echouer, pas dependre du monde. */
@@ -347,6 +384,7 @@ module.exports = {
   ouvrirPage,
   ouvrirEtAttendre,
   installerGardeReseau,
+  servirPoliceInter,
   attendre,
   attendreChargementTermine,
   avecReponse,

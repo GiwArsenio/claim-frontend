@@ -250,6 +250,31 @@ const serveur = http.createServer(async (req, res) => {
     return;
   }
 
+
+/* ── La police Inter ─────────────────────────────────────────────────────── */
+
+/**
+ * Sert le fichier de police Inter, versionne dans le depot.
+ *
+ * Inter est sous licence SIL Open Font License 1.1 : la licence est
+ * dans tests/polices/LICENSE.txt.
+ */
+function servirPoliceInter(res) {
+  const fichier = path.join(RACINE, 'tests', 'polices', 'InterVariable.woff2');
+  try {
+    const contenu = fs.readFileSync(fichier);
+    res.writeHead(200, {
+      'Content-Type': 'font/woff2',
+      'Content-Length': contenu.length,
+      'Cache-Control': 'no-store',
+    });
+    res.end(contenu);
+  } catch (e) {
+    res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+    res.end('police absente du depot');
+  }
+}
+
   /* API simulee. */
   if (url.pathname.startsWith('/api/v1')) {
     await traiterAPI(req, res, url);
@@ -274,6 +299,23 @@ const serveur = http.createServer(async (req, res) => {
       res.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8' });
       res.end(String(e));
     }
+    return;
+  }
+
+  /* La police Inter, servie en local.
+   *
+   * Les tests coupent tout le reseau externe : la police que charge
+   * d'ordinaire le site (Google Fonts) ne arrive donc jamais, et le
+   * rendu retombe sur la police systeme. Or la police systeme n'est pas
+   * la meme d'une machine a l'autre : la hauteur de page change, et les
+   * captures de reference ne sont plus comparables.
+   *
+   * Servir la police par le serveur de test rend le rendu identique
+   * partout — sur le runner de GitHub comme en local. C'est ce qui
+   * permet aux captures de reference d'avoir un sens.
+   */
+  if (url.pathname === '/tests/polices/InterVariable.woff2') {
+    servirPoliceInter(res);
     return;
   }
 

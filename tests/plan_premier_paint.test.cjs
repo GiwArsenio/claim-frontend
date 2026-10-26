@@ -93,7 +93,11 @@ test('le plan est pose des le premier paint, sans la feuille de theme', async (t
     if (serveurPret) await aide.arreterServeur();
   });
 
-  const base = process.env.CLAIM_BASE || 'http://127.0.0.1:8899';
+  /* La base vient de l'aide, qui elle-meme l'a recue du serveur de
+     test. Un port en dur ne fonctionne pas : le serveur attribue un
+     port libre, et le test se connectait a un port qui n'ecoutait pas
+     — ECONNREFUSED, en une demi-seconde. */
+  const base = process.env.CLAIM_BASE || aide.BASE;
 
   for (const p of PAGES) {
     const ctx = await nav.newContext({

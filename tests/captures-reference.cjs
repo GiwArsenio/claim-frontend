@@ -166,6 +166,8 @@ async function preparerPage(page) {
 async function bloquerImagesDistantes(page, base) {
   await page.route('**/*', async (route) => {
     const url = route.request().url();
+    /* La police locale passe : c est elle qui rend le rendu
+       reproductible d une machine a l autre. */
     if (url.startsWith(base)) return route.continue();
     const type = route.request().resourceType();
     if (type === 'image' || type === 'font') return route.abort('blockedbyclient');
