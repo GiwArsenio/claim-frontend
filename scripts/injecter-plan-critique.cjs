@@ -101,8 +101,15 @@ if (fs.existsSync(RENDU_OFFRE)) {
     console.warn('  ATTENTION : la page d offre n’a pas de lien vers theme.css');
   } else {
     // Le gabarit est du JavaScript : le style est pose dans une chaine.
+    // Le gabarit est une chaine de template : il faut echapper ce qui
+    // a un sens dedans — les accents graves casseraient la chaine, et
+    // un dollar declencherait une interpolation.
     const bloc = '<style id="plan-critique">\\n' + MARQUEUR + '\\n'
-      + CSS.replace(/\n/g, '\\n') + '\\n</style>\\n';
+      + CSS.replace(/\\/g, '\\\\')
+           .replace(/`/g, '\\`')
+           .replace(/\$\{/g, '\\${')
+           .replace(/\n/g, '\\n')
+      + '\\n</style>\\n';
     s = s.slice(0, i) + bloc + s.slice(i);
     fs.writeFileSync(RENDU_OFFRE, s, 'utf8');
     console.log('  la page d’offre est traitee');
