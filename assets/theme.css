@@ -123,6 +123,10 @@
      rose doit s'eclaircir, pas s'assombrir : c'est la luminance qui compte,
      pas l'intuition. */
   --coeur: #ffd0da;
+  /* Rouge d'erreur : un message de saisie doit rester lisible sur fond
+     clair comme sur fond sombre. Deux jetons, pas une valeur en dur. */
+  --alerte-rouge: #c0392b;
+  --alerte-rouge-voile: rgba(192, 57, 43, .22);
 
   /* ── Surbrillance d'un element actif sur aplat de marque ──
      En theme jour, l'aplat de marque est clair : on le souligne d'un blanc
@@ -265,6 +269,8 @@ html[data-theme="nuit"] {
   --violet-texte: #c4b5fd;
   --violet-pale: #1f1a33;
   --coeur: #ff8fa8;
+  --alerte-rouge: #ff8b7e;
+  --alerte-rouge-voile: rgba(255, 139, 126, .28);
 
   /* Sur fond de marque deja sombre, la surbrillance est un eclaircissement
      discret : un blanc translucide y serait un eclat. */

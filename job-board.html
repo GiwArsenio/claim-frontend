@@ -231,6 +231,92 @@ html[data-theme="nuit"] select.chip {
 .tp { background: var(--vert-pale); color: var(--vert-texte); border: 1px solid rgba(34,197,94,.2); }
 .tn { background: var(--orange-clair); color: var(--orange-texte); }
 
+/* ── ALERTE — la modale ouverte par la cloche d'une carte ──
+   Elle reprend la charte : rayon .625rem, teal, Inter. Le voile laisse
+   deviner la page derriere : on n'a pas quitte le board. */
+.voile-alerte { position: fixed; inset: 0; z-index: 950; background: rgba(9, 26, 33, .45);
+                display: grid; place-items: center; padding: 1rem; }
+.voile-alerte[hidden] { display: none; }
+.modale-alerte { background: var(--surface); border: 1px solid var(--bord-carte);
+                 border-radius: .625rem; box-shadow: 0 24px 70px rgba(9, 26, 33, .32);
+                 width: min(29rem, 100%); max-height: 88vh; overflow: auto;
+                 padding: 1.35rem 1.35rem 1.2rem; position: relative; text-align: left; }
+.fermer-alerte { position: absolute; top: .7rem; right: .7rem; width: 30px; height: 30px;
+                 display: grid; place-items: center; background: transparent;
+                 border: 1px solid transparent; border-radius: .375rem; color: var(--gris);
+                 font: inherit; font-size: 1rem; cursor: pointer; }
+.fermer-alerte:hover { background: var(--surface-2); border-color: var(--bord-carte); color: var(--encre); }
+.modale-alerte h2 { font-size: 1.06rem; font-weight: 800; letter-spacing: -.015em;
+                    color: var(--encre-forte); margin: 0 2.2rem .3rem 0; line-height: 1.3; }
+.modale-alerte .sous-alerte { font-size: .82rem; color: var(--gris); margin: 0 0 1rem; }
+
+.rappel-alerte { display: flex; align-items: center; gap: .55rem; background: var(--surface-2);
+                 border: 1px solid var(--bord-carte); border-radius: .5rem;
+                 padding: .55rem .65rem; margin-bottom: 1.15rem; }
+.rappel-alerte .mono-alerte { width: 30px; height: 30px; border-radius: .375rem;
+                 background: var(--teal-clair); color: var(--teal-texte); display: grid;
+                 place-items: center; font-weight: 900; font-size: .66rem; flex: 0 0 auto;
+                 overflow: hidden; }
+.rappel-alerte .t-alerte { font-size: .82rem; font-weight: 700; color: var(--encre-forte); line-height: 1.3; }
+.rappel-alerte .s-alerte { font-size: .74rem; color: var(--gris); }
+
+.lab-alerte { display: block; font-size: .7rem; font-weight: 700; text-transform: uppercase;
+              letter-spacing: .07em; color: var(--gris-doux); margin: 0 0 .45rem; }
+.lab-alerte + .lab-alerte { margin-top: 1rem; }
+
+.chips-alerte { display: flex; flex-wrap: wrap; gap: .32rem; }
+.chip-alerte { display: inline-flex; align-items: center; gap: .3rem; font: inherit;
+               font-size: .77rem; font-weight: 600; background: var(--teal-clair);
+               color: var(--teal-texte); border: 1px solid var(--teal-bord);
+               padding: .28rem .28rem .28rem .52rem; border-radius: .375rem; cursor: pointer; }
+.chip-alerte:hover { background: var(--teal-survol); }
+.chip-alerte .x-alerte { display: grid; place-items: center; width: 15px; height: 15px;
+               border-radius: .25rem; background: rgba(0, 104, 118, .14); font-size: .62rem; line-height: 1; }
+.chip-ajout-alerte { background: transparent; color: var(--gris); border: 1px dashed var(--bord);
+               padding: .28rem .55rem; }
+.chip-ajout-alerte:hover { color: var(--teal-texte); border-color: var(--teal-bord); background: var(--surface-2); }
+
+.champ-alerte { width: 100%; font: inherit; font-size: .87rem; padding: .58rem .68rem;
+                border: 1px solid var(--bord); border-radius: .5rem;
+                background: var(--surface); color: var(--encre); }
+.champ-alerte:focus { outline: 2px solid var(--teal); outline-offset: 1px; border-color: var(--teal); }
+.champ-alerte.invalide { border-color: var(--alerte-rouge); outline: 2px solid var(--alerte-rouge-voile); outline-offset: 1px; }
+.err-alerte { font-size: .73rem; color: var(--alerte-rouge); margin: .32rem 0 0; font-weight: 600; }
+
+.freq-alerte { display: flex; gap: .4rem; }
+.freq-alerte label { flex: 1; display: flex; align-items: center; justify-content: center;
+                     gap: .32rem; font-size: .79rem; font-weight: 600; color: var(--gris);
+                     border: 1px solid var(--bord); border-radius: .5rem; padding: .42rem;
+                     cursor: pointer; text-align: center; }
+.freq-alerte input { accent-color: var(--teal); }
+.freq-alerte label:has(input:checked) { border-color: var(--teal); color: var(--teal-texte); background: var(--teal-clair); }
+
+.note-alerte { font-size: .72rem; color: var(--gris-doux); margin: .95rem 0 .9rem; line-height: 1.5; }
+.btn-alerte { width: 100%; font: inherit; font-size: .89rem; font-weight: 700;
+              background: var(--teal-fond); color: var(--blanc); border: 1px solid var(--teal-fond);
+              border-radius: .5rem; padding: .62rem; cursor: pointer; transition: background .15s; }
+.btn-alerte:hover { background: var(--teal-aplat-survol); }
+.btn-alerte:disabled { opacity: .5; cursor: not-allowed; }
+
+.succes-alerte { text-align: center; padding: .6rem 0 .3rem; }
+.succes-alerte .rond-alerte { width: 50px; height: 50px; margin: 0 auto .8rem; border-radius: 50%;
+              background: var(--teal-clair); color: var(--teal-texte); display: grid; place-items: center; }
+.succes-alerte h3 { font-size: .98rem; font-weight: 800; color: var(--encre-forte); margin: 0 0 .3rem; }
+.succes-alerte p { font-size: .82rem; color: var(--gris); margin: 0 0 .25rem; }
+.succes-alerte .mail-alerte { font-weight: 700; color: var(--encre-forte); }
+.echec-alerte { text-align: center; padding: .6rem 0 .3rem; }
+.echec-alerte h3 { font-size: .98rem; font-weight: 800; color: var(--encre-forte); margin: 0 0 .35rem; }
+.echec-alerte p { font-size: .82rem; color: var(--gris); margin: 0 0 .3rem; }
+
+/* La cloche : un bouton, pas un ornement. */
+.bel { display: grid; place-items: center; width: 32px; height: 32px; flex: 0 0 auto;
+       background: transparent; border: 1px solid transparent; border-radius: .375rem;
+       color: var(--gris-doux); cursor: pointer;
+       transition: background .15s, color .15s, border-color .15s; }
+.bel:hover, .bel:focus-visible { background: var(--teal-clair); color: var(--teal-texte);
+       border-color: var(--teal-bord); }
+.bel svg { width: 17px; height: 17px; }
+
 /* ── FICHE — alignée sur la page d'offre (/offre/{slug}) ──
    Échelle de titres, marges, couleurs et pastilles reprennent les valeurs
    de api/offre.js. Le lecteur doit retrouver la même page, qu'il arrive par
@@ -1729,6 +1815,191 @@ function specialtyLabel(j) {
 // Pastilles de la fiche, dans l'ordre de la page d'offre : lieu, contrat,
 // expérience, salaire, spécialité. Ce sont les fonctions de publication du
 // board qui décident — rien n'apparaît sans fondement, comme sur la carte.
+/* ══ ALERTE — la modale de la cloche ══
+ *
+ * Le parcours : la cloche d'une carte reprend ses criteres, l'utilisateur
+ * en retire ce qu'il ne veut pas, saisit son email, choisit la frequence.
+ * L'envoi appelle POST /api/alertes.
+ *
+ * Regle tenue ici : la confirmation n'apparait QUE sur une reponse 2xx.
+ * Annoncer une inscription qu'on n'a pas enregistree serait le pire des
+ * services — l'utilisateur attendrait des emails qui n'arriveront jamais.
+ */
+var ALERTE_CRITERES = [];
+
+function alerteEl(id) { return document.getElementById(id); }
+
+function ouvrirAlerte(bouton) {
+  var titre = bouton.getAttribute('data-titre') || '';
+  var societe = bouton.getAttribute('data-societe') || '';
+  var logo = bouton.getAttribute('data-logo') || '—';
+
+  alerteEl('alerte-logo').textContent = logo;
+  alerteEl('alerte-titre').textContent = titre;
+  alerteEl('alerte-societe').textContent = societe;
+
+  try {
+    ALERTE_CRITERES = JSON.parse(bouton.getAttribute('data-criteres') || '[]');
+  } catch (e) {
+    ALERTE_CRITERES = [];
+  }
+
+  dessinerCriteres();
+  retourFormulaire();
+
+  var mail = alerteEl('alerte-mail');
+  mail.value = '';
+  mail.classList.remove('invalide');
+  alerteEl('alerte-err').hidden = true;
+  alerteEl('alerte-envoyer').disabled = true;
+
+  alerteEl('voile-alerte').hidden = false;
+  mail.focus();
+}
+
+function fermerAlerte() {
+  alerteEl('voile-alerte').hidden = true;
+}
+
+function retourFormulaire() {
+  alerteEl('alerte-form').hidden = false;
+  alerteEl('alerte-succes').hidden = true;
+  alerteEl('alerte-echec').hidden = true;
+}
+
+/* Les criteres : des jetons retirables, pas des cases a cocher. Une case
+   cochee ne dit pas « c'est ca que je veux recevoir » ; un jeton oui. */
+function dessinerCriteres() {
+  var zone = alerteEl('chips-alerte');
+  zone.innerHTML = '';
+
+  ALERTE_CRITERES.forEach(function (critere) {
+    var c = document.createElement('button');
+    c.type = 'button';
+    c.className = 'chip-alerte';
+    c.innerHTML = escapeHtml(critere) + ' <span class="x-alerte">✕</span>';
+    c.setAttribute('aria-label', 'Retirer le critère ' + critere);
+    c.onclick = function () {
+      ALERTE_CRITERES = ALERTE_CRITERES.filter(function (x) { return x !== critere; });
+      dessinerCriteres();
+    };
+    zone.appendChild(c);
+  });
+
+  var ajout = document.createElement('button');
+  ajout.type = 'button';
+  ajout.className = 'chip-alerte chip-ajout-alerte';
+  ajout.textContent = '+ Ajouter un critère';
+  ajout.onclick = function () {
+    var v = window.prompt('Quel critère ? (ville, contrat, spécialité…)');
+    if (!v) return;
+    v = v.trim();
+    if (!v || ALERTE_CRITERES.indexOf(v) !== -1) return;
+    ALERTE_CRITERES.push(v);
+    dessinerCriteres();
+  };
+  zone.appendChild(ajout);
+}
+
+/* L'adresse doit ressembler a une adresse avant d'activer le bouton.
+   On ne bloque pas a la frappe : on signale a la sortie du champ. */
+function adresseValide(v) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim());
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  var mail = alerteEl('alerte-mail');
+  if (!mail) return;
+
+  mail.addEventListener('input', function () {
+    var ok = adresseValide(mail.value);
+    alerteEl('alerte-envoyer').disabled = !ok;
+    if (ok) { mail.classList.remove('invalide'); alerteEl('alerte-err').hidden = true; }
+  });
+
+  mail.addEventListener('blur', function () {
+    var v = mail.value.trim();
+    if (!v) return;
+    if (adresseValide(v)) { mail.classList.remove('invalide'); alerteEl('alerte-err').hidden = true; }
+    else {
+      mail.classList.add('invalide');
+      var err = alerteEl('alerte-err');
+      err.textContent = 'Adresse incomplète — il manque le domaine, par exemple prenom@exemple.fr';
+      err.hidden = false;
+    }
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !alerteEl('voile-alerte').hidden) fermerAlerte();
+  });
+
+  alerteEl('voile-alerte').addEventListener('click', function (e) {
+    if (e.target === this) fermerAlerte();
+  });
+});
+
+function envoyerAlerte() {
+  var mail = alerteEl('alerte-mail');
+  var email = mail.value.trim();
+  if (!adresseValide(email)) {
+    mail.classList.add('invalide');
+    mail.focus();
+    return;
+  }
+
+  var frequence = 'quotidien';
+  var choix = document.querySelector('input[name="alerte-freq"]:checked');
+  if (choix) frequence = choix.value;
+
+  var bouton = alerteEl('alerte-envoyer');
+  bouton.disabled = true;
+  bouton.textContent = 'Envoi…';
+
+  fetch('/api/alertes', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: email, criteres: ALERTE_CRITERES, frequence: frequence })
+  })
+    .then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json().catch(function () { return {}; });
+    })
+    .then(function () {
+      alerteEl('alerte-dest').textContent = email;
+      alerteEl('alerte-form').hidden = true;
+      alerteEl('alerte-succes').hidden = false;
+    })
+    .catch(function () {
+      // On ne fait pas semblant : rien n'a ete enregistre.
+      alerteEl('alerte-form').hidden = true;
+      alerteEl('alerte-echec').hidden = false;
+    })
+    .finally(function () {
+      bouton.disabled = false;
+      bouton.textContent = "Créer l'alerte";
+    });
+}
+
+/* Les criteres proposes quand on clique la cloche : ceux de l'offre.
+   On ne demande pas a l'utilisateur de construire une requete — on lui
+   propose celle qu'il vient de lire, et il en retire ce qui le gene. */
+function criteresAlerte(j) {
+  var liste = [];
+  var sp = specialtyLabel(j);
+  if (sp) liste.push(sp);
+  if (j.ville) liste.push(j.ville);
+  var ct = j.contract_type ? (CONTRACT_LABELS[j.contract_type] || j.contract_type) : '';
+  if (ct) liste.push(ct);
+  var exp = experienceLabel(j);
+  if (exp) liste.push(exp);
+  return liste;
+}
+
+/* Les deux ou trois premieres lettres, pour le rappel dans la modale. */
+function initialesSociete(nom) {
+  return String(nom).replace(/[^\p{L}\s]/gu, '').trim().slice(0, 3).toUpperCase() || '—';
+}
+
 function pastillesOffreHtml(j) {
   const p = [`<span class="pastille pastille-ville">${escapeHtml(j.ville || 'Lieu non précisé')}</span>`];
   const ct = j.contract_type ? (CONTRACT_LABELS[j.contract_type] || j.contract_type) : '';
@@ -1868,7 +2139,19 @@ function renderFeed() {
           <div class="ctitle">${j.title}</div>
           <div class="csub">${co.name || j.source}</div>
         </div>
-        <span class="ms" style="color:var(--gris-doux);font-size:17px;flex-shrink:0;margin-left:.35rem;">notifications</span>
+        <button class="bel" type="button"
+                aria-label="Créer une alerte pour ce type d'offre"
+                data-titre="${escapeHtml(j.title)}"
+                data-societe="${escapeHtml(co.name || j.source || '')}"
+                data-logo="${escapeHtml(initialesSociete(co.name || j.source || '?'))}"
+                data-criteres="${escapeHtml(JSON.stringify(criteresAlerte(j)))}"
+                onclick="event.stopPropagation(); ouvrirAlerte(this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.7 21a2 2 0 0 1-3.4 0"></path>
+          </svg>
+        </button>
       </div>
       ${cardMetadataHtml(j)}
       <div class="ctags">
@@ -2270,6 +2553,65 @@ loadJobs();
     </nav>
     <div class="bm-footer">
       <button class="btn-cta" onclick="closeBurger()">Contactez-nous</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ALERTE — la modale ouverte par la cloche d'une carte ══ -->
+<div class="voile-alerte" id="voile-alerte" hidden>
+  <div class="modale-alerte" role="dialog" aria-modal="true" aria-labelledby="titre-alerte">
+    <button class="fermer-alerte" type="button" aria-label="Fermer" onclick="fermerAlerte()">✕</button>
+
+    <div id="alerte-form">
+      <h2 id="titre-alerte">Recevoir les offres de ce type</h2>
+      <p class="sous-alerte">Vous choisissez ce qui vous intéresse. On vous écrit quand une offre correspond.</p>
+
+      <div class="rappel-alerte">
+        <div class="mono-alerte" id="alerte-logo">—</div>
+        <div>
+          <div class="t-alerte" id="alerte-titre">—</div>
+          <div class="s-alerte" id="alerte-societe">—</div>
+        </div>
+      </div>
+
+      <span class="lab-alerte">Ce que vous voulez recevoir</span>
+      <div class="chips-alerte" id="chips-alerte"></div>
+
+      <label class="lab-alerte" for="alerte-mail">Votre email</label>
+      <input class="champ-alerte" id="alerte-mail" type="email" inputmode="email"
+             autocomplete="email" placeholder="prenom@exemple.fr">
+      <p class="err-alerte" id="alerte-err" hidden></p>
+
+      <span class="lab-alerte">Fréquence</span>
+      <div class="freq-alerte">
+        <label><input type="radio" name="alerte-freq" value="quotidien" checked> Chaque matin</label>
+        <label><input type="radio" name="alerte-freq" value="hebdomadaire"> Une fois par semaine</label>
+      </div>
+
+      <p class="note-alerte">
+        Un lien de confirmation part avant toute activation : rien ne vous sera envoyé
+        tant que vous n'aurez pas cliqué.
+      </p>
+      <button class="btn-alerte" id="alerte-envoyer" type="button" disabled
+              onclick="envoyerAlerte()">Créer l'alerte</button>
+    </div>
+
+    <div id="alerte-succes" class="succes-alerte" hidden>
+      <div class="rond-alerte">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+      </div>
+      <h3>Vérifiez votre boîte mail</h3>
+      <p>Un lien de confirmation part vers <span class="mail-alerte" id="alerte-dest">vous</span>.</p>
+      <p>Cliquez dessus pour activer l'alerte — sans ça, rien ne sera envoyé.</p>
+      <button class="btn-alerte" type="button" style="margin-top:1.1rem" onclick="fermerAlerte()">Compris</button>
+    </div>
+
+    <div id="alerte-echec" class="echec-alerte" hidden>
+      <h3>L'alerte n'a pas été enregistrée</h3>
+      <p id="alerte-echec-texte">L'envoi n'a pas abouti. Rien n'a été conservé.</p>
+      <button class="btn-alerte" type="button" style="margin-top:1.1rem"
+              onclick="retourFormulaire()">Réessayer</button>
     </div>
   </div>
 </div>
