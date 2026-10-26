@@ -259,8 +259,8 @@ const serveur = http.createServer(async (req, res) => {
  * Inter est sous licence SIL Open Font License 1.1 : la licence est
  * dans tests/polices/LICENSE.txt.
  */
-function servirPoliceInter(res) {
-  const fichier = path.join(RACINE, 'tests', 'polices', 'InterVariable.woff2');
+function servirPoliceInter(res, nom = 'InterVariable.woff2') {
+  const fichier = path.join(RACINE, 'tests', 'polices', nom);
   try {
     const contenu = fs.readFileSync(fichier);
     res.writeHead(200, {
@@ -316,6 +316,10 @@ function servirPoliceInter(res) {
    */
   if (url.pathname === '/tests/polices/InterVariable.woff2') {
     servirPoliceInter(res);
+    return;
+  }
+  if (url.pathname === '/tests/polices/MaterialSymbolsOutlined.woff2') {
+    servirPoliceInter(res, 'MaterialSymbolsOutlined.woff2');
     return;
   }
 

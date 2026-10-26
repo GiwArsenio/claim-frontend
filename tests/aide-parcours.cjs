@@ -103,13 +103,30 @@ async function arreterNavigateur() {
  */
 function servirPoliceInter(page, base) {
   return page.route('**/fonts.googleapis.com/**', async (route) => {
-    const css = `@font-face {
+    /* Le site charge DEUX polices depuis Google Fonts : Inter pour le
+     * texte, Material Symbols pour les icones. Il faut servir les deux :
+     * les icones rendues avec une police de substitution n ont pas la
+     * meme largeur, et la page change de hauteur. */
+    const url = route.request().url();
+    const symboles = url.includes('Material+Symbols') || url.includes('Material%20Symbols');
+
+    const css = symboles
+      ? `@font-face {
+  font-family: 'Material Symbols Outlined';
+  font-style: normal;
+  font-weight: 100 700;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  font-display: block;
+  src: url('${base}/tests/polices/MaterialSymbolsOutlined.woff2') format('woff2');
+}`
+      : `@font-face {
   font-family: 'Inter';
   font-style: normal;
   font-weight: 100 900;
   font-display: block;
   src: url('${base}/tests/polices/InterVariable.woff2') format('woff2');
 }`;
+
     await route.fulfill({
       status: 200,
       contentType: 'text/css; charset=utf-8',
