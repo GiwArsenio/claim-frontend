@@ -3,7 +3,10 @@
    ligne dans le <head> de chaque page — pour qu'aucune page ne s'affiche en
    clair avant de basculer. Ce fichier-ci n'ajoute que le bouton. */
 (function () {
-  var CLE = 'claim-theme';
+  /* La cle a change : le reglage signifiait « suivre le systeme »,
+     il signifie desormais « choix explicite ». Repartir de zero
+     evite qu'une ancienne valeur impose la nuit par defaut. */
+  var CLE = 'claim-theme-v2';
   var racine = document.documentElement;
 
   function courant() {

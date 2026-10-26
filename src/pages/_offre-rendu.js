@@ -342,6 +342,14 @@ ${societe.logo_url
  .slogo.fond-logo img { padding: 2px; }
  html[data-theme="nuit"] .slogo.fond-logo.logo-inversable img { filter: invert(1) hue-rotate(180deg); }
  .pastilles { display:flex; flex-wrap:wrap; gap:.4rem; margin-bottom:1.6rem; }
+ /* L'action de la page. Sur telephone, une carte ouvre cette page :
+    sans ce bouton, la candidature n'avait aucun point de depart. Meme
+    dessin que sur le board — c'est la meme action, au meme endroit. */
+ .dact { display:flex; gap:.5rem; margin:0 0 1.6rem; }
+ .bap { display:inline-flex; align-items:center; background:var(--teal-fond); color:var(--blanc);
+        border:1px solid var(--teal); padding:.55rem 1.15rem; border-radius:.5rem;
+        font-weight:700; font-size:.925rem; text-decoration:none; }
+ .bap:hover { background:var(--teal-aplat-survol); border-color:var(--teal-aplat-survol); color:var(--blanc); }
 /* Pastilles : chaque badge tient sur sa ligne, sans jamais déborder. */
  .pastille { display:inline-block !important; width:fit-content; max-width:100%; padding:3px 10px; border:1px solid var(--bord-carte); border-radius:9999px; background:var(--surface-2); font-size:.78rem; font-weight:600; color:var(--encre-forte); overflow-wrap:anywhere; white-space:normal; line-height:1.4; }
  .pastille-ville { background:var(--teal-clair); border-color:var(--teal-bord); color:var(--teal-texte); }
@@ -513,7 +521,7 @@ ${societe.logo_url
 </script>
 <script>window.__claimMesure = ${JSON.stringify(mesure).replace(/</g, '\\u003c')};</script>
 \n\n\n\n\n\n\n\n\n\n\n\n<style id="plan-critique">\n/* CSS CRITIQUE DU PLAN — injecte, ne pas modifier ici */\n/* ══ CSS CRITIQUE DU PLAN — doit precede la feuille de theme ══\n *\n * Le symptome : sur iPad, au chargement d'une page, le defilement\n * semble depasser le pied de page. Le fond sous le pied, d'une couleur\n * qui n'appartient pas au site, s'affiche pendant quelques instants,\n * puis tout se stabilise.\n *\n * La cause : les regles qui posent le fond du plan vivent dans\n * assets/theme.css — une feuille EXTERNE. Avant qu'elle n'arrive, le\n * navigateur ne sait rien : --plan, --fond et --champ sont indefinis,\n * \`background: var(--plan)\` ne s'applique pas, le fond est transparent,\n * et \`overscroll-behavior-y\` reste a \`auto\`.\n *\n * CE FICHIER EST UN GABARIT. Les marqueurs #f3f4f5 et\n * #12181b sont remplaces par scripts/injecter-plan-critique.cjs\n * avec la couleur de la page : toutes les pages n'ont pas le meme plan.\n *\n *   accueil, entreprises, observatoire, offer, 404\n *       --plan: var(--champ)   jour #f3f4f5   nuit #12181b\n *   a-propos, cgu, confidentialite, contact\n *       --plan: var(--fond)    jour #fff      nuit #0f1416\n *\n * Mettre le meme repli partout etait l'erreur de la version\n * precedente : les quatre pages du pied affichaient du gris la ou\n * elles doivent etre blanches — un fond qui n'appartient pas a la page.\n *\n * Les fallbacks de var() gardent la main des que la feuille de theme\n * arrive : --plan est alors defini, et c'est lui qui s'applique.\n */\n\nhtml {\n  background: var(--plan, #f3f4f5);\n  /* Le rebond du geste est desactive des le premier octet : sans\n     cela, le canvas deborde du body pendant que la feuille arrive. */\n  overscroll-behavior-y: none;\n  min-height: 100%;\n}\n\nbody {\n  background: var(--plan, #f3f4f5);\n  overscroll-behavior-y: none;\n  /* Le body doit couvrir la fenetre MEME quand le contenu est court.\n     Sans cela, quand la page est plus courte que l'ecran — ce qui\n     arrive au premier paint — le pied flotte au milieu et le fond\n     apparait dessous. C'est le « vide sous le pied ». */\n  min-height: 100dvh;\n  margin: 0;\n}\n\n/* Le mode nuit, des le premier paint. Le script qui pose data-theme\n   est inline dans le <head> : il s'execute avant le premier rendu.\n   Sans ces deux regles, un lecteur en mode nuit voyait un flash clair. */\nhtml[data-theme="nuit"] {\n  background: var(--plan, #12181b);\n}\nhtml[data-theme="nuit"] body {\n  background: var(--plan, #12181b);\n}\n\n/* ══ LE PIED EST TENU AU BAS ══\n *\n * Sans cela, quand le contenu est plus court que la fenetre, le pied\n * flotte au milieu de l'ecran et le fond du body occupe le bas : c'est\n * la bande grise sous le pied. Elle apparait des que la page ne\n * remplit pas l'ecran — au premier paint, et sur les pages courtes.\n *\n * #app porte min-height: 100% dans son propre CSS. Un pourcentage se\n * resout contre la hauteur du parent ; le body n'en a pas, donc il vaut\n * auto, et l'etirement ne se fait pas. On donne ici une valeur absolue\n * au viewport, qui ne depend de rien.\n *\n * Les selecteurs sont volontairement nus : ils doivent gagner sur le\n * CSS de chaque page, qui arrive apres. A specificite egale, le dernier\n * declare l'emporte — theme.css ne redefinit ni le display du body ni\n * la marge du pied.\n *\n * Le board est exclu (bloc retire a l'injection) : c'est une\n * application a hauteur fixe, son document ne defile pas.\n */\n/* __DEBUT_PIED_COLLE__ */\nbody {\n  display: flex;\n  flex-direction: column;\n  min-height: 100dvh;\n}\n#app {\n  min-height: 100dvh;\n}\n#ft {\n  margin-top: auto;\n}\n/* __FIN_PIED_COLLE__ */\n\n</style>\n<link rel="stylesheet" href="/assets/theme.css">
-<script>(function(){try{var t=localStorage.getItem('claim-theme');if(t==='nuit'){document.documentElement.setAttribute('data-theme','nuit');}}catch(e){}})();</script>
+<script>(function(){try{var t=localStorage.getItem('claim-theme-v2');if(t==='nuit'){document.documentElement.setAttribute('data-theme','nuit');}}catch(e){}})();</script>
 <script src="/assets/theme.js" defer></script>
 </head>
 <body>
@@ -524,6 +532,7 @@ ${BLOC_CONSENTEMENT}
   <h1>${echapper(job.title)}</h1>
   <div class="societe">${tuileSociete}<span>${echapper(nomSociete)}${ville ? ' · ' + echapper(ville) : ''}</span></div>
   <div class="pastilles">${pastilles.join('')}</div>
+  ${job.source_url ? `<div class="dact"><a class="bap" href="${echapper(job.source_url)}" target="_blank" rel="nofollow noopener" data-sortie="postuler">Postuler</a></div>` : ''}
   ${corps || '<p>Description non disponible.</p>'}
   <div class="pied">
     Offre publiée sur <a href="${SITE_URL}/">Claim!</a>.
