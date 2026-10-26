@@ -37,7 +37,11 @@ jobs:
   deploy:
     name: Preparer, verifier, deployer
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    # 45 minutes : les tests navigateur ouvrent un vrai navigateur pour
+    # chaque cas, et le runner de GitHub est nettement plus lent que la
+    # machine locale (l etape de tests y depasse 20 minutes contre 11 en
+    # local). Un timeout trop court coupe un test vert.
+    timeout-minutes: 45
     environment: production
 
     steps:

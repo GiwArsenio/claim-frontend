@@ -96,7 +96,11 @@ const FAMILLES = {
 // de contraste mesures au pixel prennent a eux seuls 140 s. Avec un
 // delai de 3 minutes, il etait tue alors que toutes ses assertions
 // passaient — un test vert declare rouge.
-const DELAI_DEFAUT = 420000;
+// 12 minutes par fichier. Le runner de GitHub est environ trois fois
+// plus lent que la machine locale : survol-a07 y prend plus de six
+// minutes, alors qu il en prend 140 s ici. Avec un delai de 7 minutes,
+// il etait tue alors que ses assertions passaient.
+const DELAI_DEFAUT = 720000;
 
 const args = process.argv.slice(2);
 const option = (nom) => args.includes(nom);
