@@ -62,8 +62,15 @@ jobs:
       # test qui ne s'execute pas passe en silence. C'est exactement le
       # piege du 25 octobre : tout etait vert parce que rien ne
       # regardait ce que voyait le visiteur.
-      - name: Installer le navigateur des tests
-        run: npx playwright install --with-deps chromium
+      # Deux navigateurs, pas un.
+      #
+      # Chromium pour la plupart des parcours. WebKit pour
+      # `plan_premier_paint`, qui simule iOS : c est le moteur de Safari,
+      # et c est la que le defaut du plan de page s etait vu. Sans
+      # Webkit, ce test echoue en une demi-seconde sur un module
+      # introuvable — un echec qui ne dit rien du site.
+      - name: Installer les navigateurs des tests
+        run: npx playwright install --with-deps chromium webkit
 
       # Les tests hors production bloquent le deploiement. Ceux qui
       # parlent a la production alertent sans bloquer : la production
