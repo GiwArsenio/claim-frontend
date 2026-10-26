@@ -2589,8 +2589,8 @@ loadJobs();
       </div>
 
       <p class="note-alerte">
-        Un lien de confirmation part avant toute activation : rien ne vous sera envoyé
-        tant que vous n'aurez pas cliqué.
+        En validant, vous acceptez de recevoir ces alertes. Chaque email contient un lien
+        pour vous y opposer, en un clic. Cette alerte est conservée un an.
       </p>
       <button class="btn-alerte" id="alerte-envoyer" type="button" disabled
               onclick="envoyerAlerte()">Créer l'alerte</button>
@@ -2601,9 +2601,11 @@ loadJobs();
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
              stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
       </div>
-      <h3>Vérifiez votre boîte mail</h3>
-      <p>Un lien de confirmation part vers <span class="mail-alerte" id="alerte-dest">vous</span>.</p>
-      <p>Cliquez dessus pour activer l'alerte — sans ça, rien ne sera envoyé.</p>
+      <h3>Votre alerte est active</h3>
+      <p>Nous écrirons à <span class="mail-alerte" id="alerte-dest">vous</span> dès qu'une offre
+         correspond à vos critères.</p>
+      <p>Chaque email contient un lien pour vous opposer, en un clic. Nous vous écrirons un mois
+         avant l'échéance pour vous demander si vous souhaitez prolonger.</p>
       <button class="btn-alerte" type="button" style="margin-top:1.1rem" onclick="fermerAlerte()">Compris</button>
     </div>
 
