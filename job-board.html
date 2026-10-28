@@ -47,7 +47,15 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
   --colonne-liste: 420px;
   --enveloppe-lecture: 57.5rem; /* 920 px : la largeur de lecture, +25 % */
   --enveloppe-large: 1032px;    /* + 112 px quand la place existe */
-  --marge-page: max(2rem, calc((100vw - 1720px) / 2));
+  /* La marge de page derive du meme plafond que l'accueil : le board
+     s'arretait a 1720 px quand l'accueil s'arretait a 1664. Deux
+     valeurs pour la meme fonction — desormais une seule, et elle suit
+     --enveloppe-produit du theme. */
+  /* + 2rem : l'accueil place son contenu apres un padding de 2rem dans
+     une enveloppe de 1728. Le board, lui, applique sa marge en padding
+     directement sur #split — sans ce decalage, son contenu commencait
+     32 px plus a gauche que celui de l'accueil. */
+  --marge-page: max(2rem, calc((100vw - var(--enveloppe-produit)) / 2 + 2rem));
 }
 
 /* Header */
@@ -436,6 +444,11 @@ html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1)
   flex-shrink: 0;
   background: var(--teal-fond);
   color: rgba(255,255,255,0.9);
+  /* Le pied garde son padding propre : le passer a var(--marge-page)
+     ecrasait son contenu (largeur 0 a 2560 px). #ft est un flex item
+     a flex-shrink: 0 ; un padding horizontal calcule sur 100vw le
+     comprime au lieu de le centrer. Alignement a traiter par un
+     conteneur interne, pas par le padding. */
   padding: 1.25rem 1.375rem 1rem;
   display: flex;
   flex-direction: column;

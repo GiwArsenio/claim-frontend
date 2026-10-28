@@ -32,7 +32,34 @@
 
   /* ── Grandeurs communes ── */
   --gouttiere: 1.6rem;
-  --enveloppe: 1180px;
+  /* ── CONTENEURS ──────────────────────────────────────────────────────
+     Le site n'a pas UNE largeur, il a des FAMILLES de largeur. Les
+     confondre etait le defaut : l'accueil s'arretait a 1180 px, le board
+     occupait tout l'ecran, les pages de lecture a 776 px. Trois regles
+     pour trois fonctions, sans qu'on sache lesquelles etaient voulues.
+
+       --enveloppe          conteneur PRODUIT : accueil, board, surfaces
+                            ou la largeur sert (recherche, cartes, chiffres).
+                            Semi-fluide : il grandit avec l'ecran jusqu'a un
+                            plafond, puis se stabilise.
+       --enveloppe-lecture  conteneur de LECTURE : fiche d'offre, pages
+                            legales. Sa largeur est fixe : au-dela, les
+                            lignes deviennent trop longues pour l'oeil.
+
+     La gouttiere est fluide : 20 px sur telephone, jusqu'a 64 px sur un
+     grand ecran. C'est elle qui fait respirer la page, pas le plafond.
+
+     Mesure du choix : a 1280 px le contenu utile passe de 1116 a 1139 ;
+     a 1920, de 1116 a 1536. Le sous-titre, lui, garde ses 62ch : sa
+     largeur de ligne est protegee par son propre max-width, pas par le
+     conteneur. C'est le point qui rend l'elargissement sans danger. */
+  /* Le plafond inclut le padding de .env (2rem de chaque cote) : le
+     contenu utile vaut donc 1600 px a l'interieur d'une enveloppe de
+     1664. On n'ajoute PAS de gouttiere par-dessus — .env en a deja une,
+     et l'empiler retrecissait le telephone de 40 px. */
+  --enveloppe-produit: 1728px;
+  --enveloppe: min(100%, var(--enveloppe-produit));
+  --enveloppe-lecture: 46rem;
   --duree: .15s;
 
   /* ── Surfaces ── */
