@@ -124,25 +124,20 @@ for (const selecteur of PARTAGE) {
   assert.ok(offre.match(new RegExp(motif)), `${selecteur} doit etre defini sur la page d'offre`);
 }
 
-// La fiche reste une carte blanche, angles arrondis, et son en-tete se fige.
-//
-// Le rayon suit celui du site : .625rem, comme la barre de recherche et
-// les cards de l'accueil. Le test verifie que les DEUX fiches — celle du
-// board et celle de la page d'offre — portent le meme rayon : c'est la
-// regle qui compte, la valeur seule n'en dit rien.
-const RAYON_CARTE = '.625rem';
-const rayonDc = /\.dc \{\s*background: var\(--surface\);[\s\S]{0,200}?border-radius: ([^;]+);/.exec(board);
-const rayonEnveloppe = /\.enveloppe \{[\s\S]{0,300}?border-radius: ([^;]+);/.exec(offre);
-assert.ok(rayonDc, 'la fiche du board declare un rayon');
-assert.ok(rayonEnveloppe, 'la page d offre declare un rayon');
-assert.equal(rayonDc[1], RAYON_CARTE,
-  `la fiche du board garde la courbure du site (${RAYON_CARTE})`);
-assert.equal(rayonEnveloppe[1], rayonDc[1],
-  'la page d offre et la fiche du board portent le meme rayon');
+// La fiche du board n'est plus une carte flottante : c'est une surface
+// blanche pleine, comme sur Indeed. Il n'y a donc plus de rayon à comparer
+// avec la page d'offre. Ce qui doit rester vrai :
+//   - le volet est blanc d'un bord à l'autre (plus de cadre gris) ;
+//   - la fiche n'a ni rayon ni ombre ;
+//   - l'en-tête se fige toujours pendant la lecture.
+assert.ok(board.includes('.pr { background: var(--surface); }'),
+  'le volet du board est une surface blanche pleine');
+assert.ok(/\.dc \{[\s\S]{0,200}border-radius: 0;/.test(board),
+  "la fiche n'a plus d'angles : ce n'est plus une carte");
+assert.ok(!/\.dc \{[\s\S]{0,200}box-shadow: 0 1px 2px/.test(board),
+  "la fiche n'a plus d'ombre portee");
 assert.ok(/\.d-entete \{[\s\S]{0,400}position: sticky;/.test(board),
   "et son en-tete se fige toujours au defilement");
-assert.ok(/\.d-entete \{[\s\S]{0,900}border-radius: \.625rem \.625rem 0 0;/.test(board),
-  "l'en-tete fige reprend les angles hauts de la carte");
 
 console.log('Rail de la fiche tests passed —', annuaire.PROFILS.length,
   'profils,', PARTAGE.length, 'selecteurs partages, rail retire');

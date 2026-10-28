@@ -47,7 +47,7 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
    un grand écran elle en occupe environ 90 %, au lieu de 59 %. */
 :root {
   --colonne-liste: 420px;
-  --enveloppe-fiche: 70rem;
+  --enveloppe-fiche: 52rem;
   /* La marge de page derive du meme plafond que l'accueil : le board
      s'arretait a 1720 px quand l'accueil s'arretait a 1664. Deux
      valeurs pour la meme fonction — desormais une seule, et elle suit
@@ -758,7 +758,9 @@ html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1)
   .d-entete .dact { flex-shrink: 0; margin-bottom: 0; }
   /* Une fois collé, le bloc se détache du texte qui passe dessous : sans
      cette démarcation, il se fond dans la page (relevé à l'inspection). */
-  body.entete-collee .d-entete { box-shadow: 0 8px 12px -10px rgba(0,0,0,.28); }
+  body.entete-collee .d-entete {
+    box-shadow: inset 0 -1px 0 var(--bord);
+  }
   /* Le vide laissé au-dessus du bloc collé est refermé à la teinte du
      champ : sans lui, le texte de l'annonce traversait la bande en
      défilant. Il n'existe que collé — au repos, le bloc est au haut de la
@@ -770,7 +772,7 @@ html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1)
     right: 0;
     bottom: 100%;
     height: .5rem;
-    background: var(--champ);
+    background: var(--surface);
   }
 
   #hd { max-height: 70px; transition: max-height .35s cubic-bezier(.4,0,.2,1), opacity .25s ease; }
@@ -778,22 +780,27 @@ html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1)
   body.fiche-defilee #hero { max-height: 0; opacity: 0; padding-top: 0; padding-bottom: 0;
     border-bottom-width: 0; }
 
-  /* ── LA FICHE EST UNE CARTE SUR LE CHAMP GRIS ──
-     Le champ reprend le gris du bandeau de recherche, si bien que le haut de
-     page et le fond du volet ne font qu'une seule teinte. C'est la délimitation
-     du modèle : la fiche se détache sans qu'on trace un trait autour.
+  /* ── LE VOLET EST UNE SURFACE PLEINE, PAS UNE CARTE ──
+     Modèle repris d'Indeed : le volet de droite est une seule surface
+     blanche, d'un bord à l'autre. Avant, une carte arrondie flottait sur
+     un champ gris : à 1920 elle laissait 62 px de cadre vide de chaque
+     côté, et l'œil y lit un défaut de composition, pas une respiration.
 
-     Le volet reste blanc sur téléphone : la fiche y occupe tout l'écran, il
-     n'y a rien à délimiter. */
-  .pr { background: var(--champ); }
-  .dc-wrap { display: block; padding: 1.25rem 1.25rem 3rem; }
+     Le fond étant uniforme, la largeur de lecture peut être bornée sans
+     que ses marges se voient : elles sont blanches comme le reste. C'est
+     toute la différence entre « du vide autour d'une carte » et « une
+     colonne de texte sur une page ».
+
+     Le volet reste blanc sur téléphone, où la fiche occupe tout l'écran. */
+  .pr { background: var(--surface); }
+  .dc-wrap { display: block; padding: 0; }
   .dc {
-    background: var(--surface);
-    border-radius: .625rem;
-    box-shadow: 0 1px 2px rgba(25, 44, 52, .06), 0 4px 14px rgba(25, 44, 52, .05);
+    background: transparent;
+    border-radius: 0;
+    box-shadow: none;
   }
-  /* L'en-tête figé devient le haut de la carte : il en reprend les angles. */
-  .d-entete { border-radius: .625rem .625rem 0 0; }
+  /* Plus de carte à coiffer : l'en-tête est une barre posée sur la surface. */
+  .d-entete { border-radius: 0; }
 
   /* ── LES MARGES DE PAGE ──
      Le board ne colle plus aux bords : la page prend 100 px de marge de

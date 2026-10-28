@@ -98,11 +98,13 @@ const pr = bloc(html, '.pr ');
 assert.ok(pr.includes('background: var(--surface)'), 'le volet reste clair sur telephone');
 assert.ok(pr.includes('system-ui'), 'la fiche prend la police de la page d offre');
 assert.ok(pr.includes('line-height: 1.65'), 'et son interligne');
-// Le volet de bureau prend désormais le vert très clair de la charte, et non
-// plus le gris neutre : la carte blanche s'y détache, comme les cartes
-// d'offres sur leur colonne.
-assert.ok(/@media \(min-width: 769px\)[\s\S]{0,6000}\.pr \{ background: var\(--champ\); \}/.test(html),
-  'en bureau, le volet prend la teinte de la charte : la fiche s y detache');
+// Le volet de bureau est une surface blanche d'un bord à l'autre, comme
+// sur Indeed. Une carte arrondie posée sur un champ gris laissait un cadre
+// vide de chaque côté : c'est ce cadre que l'œil lisait comme un défaut.
+assert.ok(/@media \(min-width: 769px\)[\s\S]{0,8000}\.pr \{ background: var\(--surface\); \}/.test(html),
+  'en bureau, le volet est une surface blanche pleine');
+assert.ok(/@media \(min-width: 769px\)[\s\S]{0,8000}\.dc \{[\s\S]{0,300}border-radius: 0;/.test(html),
+  'la fiche n a plus d angles : ce n est plus une carte');
 
 const dc = bloc(html, '.dc');
 // L'enveloppe suit la variable de lecture, et non une valeur recopiée :
@@ -111,18 +113,12 @@ assert.ok(dc.includes('max-width: var(--enveloppe-fiche)'),
   "l'enveloppe prend la largeur de lecture posée par la page");
 const variable = html.match(/--enveloppe-fiche: ([\d.]+)rem/);
 assert.ok(variable, 'la page déclare sa largeur de lecture');
-assert.ok(parseFloat(variable[1]) >= 46 * 1.25 - 0.01,
-  `la fiche garde au moins la largeur du modèle, majorée de 25 % (lu: ${variable[1]}rem)`);
+assert.ok(parseFloat(variable[1]) >= 46 && parseFloat(variable[1]) <= 60,
+  `la largeur de lecture reste dans une plage lisible (lu: ${variable[1]}rem)`);
 assert.ok(dc.includes('padding: 1.5rem 1.25rem 4rem'), 'et ses marges');
-// La fiche est une carte a angles arrondis, et le rayon suit celui du
-// site : .625rem, comme la barre de recherche et les cards de l'accueil.
-const RAYON_CARTE = '.625rem';
-assert.ok(new RegExp('\\.dc \\{[\\s\\S]{0,400}border-radius: \\' + RAYON_CARTE + ';').test(html),
-  `la fiche est une carte : angles arrondis a ${RAYON_CARTE}`);
-// L'en-tete fige coiffe la carte : il en reprend les angles hauts.
-assert.ok(new RegExp('\\.d-entete \\{[\\s\\S]{0,900}border-radius: '
-  + RAYON_CARTE + ' ' + RAYON_CARTE + ' 0 0;').test(html),
-  "l'en-tete fige reprend les angles hauts de la carte");
+// La fiche n'est plus une carte : ni rayon, ni ombre, ni fond propre.
+// L'en-tete fige n'a donc plus d'angles a coiffer.
+assert.ok(!/--enveloppe-fiche: 70rem/.test(html), 'le plafond de 70 rem est abandonne');
 
 // ── Défilement : l'en-tête de la fiche se fige, et lui seul ──
 // Le sujet et ses repères restent sous les yeux pendant la lecture. Le bloc
@@ -145,8 +141,8 @@ assert.ok(entete.includes('margin: 0 -1.25rem'),
 // traversait la bande en défilant.
 assert.ok(/\.d-entete::before \{[\s\S]{0,300}bottom: 100%;/.test(html),
   'un aplat au dessus du bloc referme le vide laisse decouvert');
-assert.ok(/\.d-entete::before \{[\s\S]{0,300}background: var\(--champ\);/.test(html),
-  "l'aplat prend la teinte du champ, invisible au repos");
+assert.ok(/\.d-entete::before \{[\s\S]{0,300}background: var\(--surface\);/.test(html),
+  "l'aplat prend la teinte du volet, invisible au repos");
 // L ancien en-tete collant du board reste retire, lui.
 assert.ok(!html.includes('d-sticky'), "l'ancien en-tête collant n'est pas revenu");
 
@@ -198,8 +194,9 @@ assert.ok(!/\.rail\s*\{/.test(html),
 // Le padding de l'enveloppe n'a jamais été réglé par une variable : il vaut
 // 1.25rem de part et d'autre, sur le board comme sur la page d'offre. C'est
 // la seule distance qui compte encore depuis que le rail a été retiré.
-assert.ok(/\.dc-wrap \{[^}]*padding: 1\.25rem 1\.25rem 3rem;/.test(html),
-  "le padding de l'enveloppe reste 1.25rem, et n'a pas changé");
+// Le volet est une surface pleine : plus de gouttiere autour de la fiche.
+assert.ok(/\.dc-wrap \{\s*display: block; padding: 0;/.test(html),
+  'le volet ne pose plus de gouttiere autour de la fiche');
 assert.ok(!/--gouttiere-fiche/.test(html),
   'plus aucune variable de gouttiere : le rail, seul a la consommer, est retire');
 
