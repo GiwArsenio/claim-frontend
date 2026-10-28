@@ -177,30 +177,17 @@ const racine = html.match(/:root \{\s*--colonne-liste: ([^;]+);/);
 assert.ok(racine, 'la variable de largeur doit etre declaree');
 assert.equal(racine[1].trim(), '420px', 'et valoir la largeur mesuree de la colonne');
 
-// La marge droite n'est pas la colonne : c'est la marge blanche du texte.
-// L'enveloppe se centrant dans la page, « bande = marge blanche » se resout
-// en bande = (fenetre - colonne - enveloppe + 2 x padding) / 3.
-//
-// C'est la mise en page de la fiche seule : la colonne des offres a gauche,
-// la fiche recentree dans la place qui reste. La bande ne descend jamais sous
-// zero — quand la fenetre se resserre, la fiche s'arrete plutot que de
-// deborder sur la colonne.
-// La largeur n'est pas recopiée ici : elle est déclarée une fois, en rem,
-// et la fiche la prend telle quelle. Le calcul des marges s'appuie sur la
-// même variable, donc les deux ne peuvent pas diverger.
+// La fiche reste bornee en lecture, mais le volet doit occuper toute la
+// largeur produit restante. Une marge droite appliquee a .pr laissait une
+// bande de 183px sans volet sur les grands ecrans : le test navigateur
+// board_volet_produit controle sa vraie geometrie, et non une formule de
+// marges deduite de la taille de la fiche.
 const enveloppe = html.match(/--enveloppe-lecture:\s*([\d.]+)rem/);
 assert.ok(enveloppe, "la largeur de l'enveloppe doit etre declaree");
 assert.ok(parseFloat(enveloppe[1]) > 46, 'elle couvre au moins la largeur de lecture du modele');
 assert.ok(dc.includes('max-width: var(--enveloppe-lecture)'), "et l'enveloppe du board s'y conforme");
-
-const bande = valeurBrute(html, '.pr', 'margin-right');
-assert.ok(bande.startsWith('max(0px,'), 'la bande ne descend jamais sous zero');
-assert.ok(bande.includes('var(--colonne-liste)') && bande.includes('var(--enveloppe-lecture)'),
-  'elle se deduit de la colonne et de l enveloppe');
-assert.ok(/\)\s*\/\s*3\)/.test(bande),
-  'et vaut le tiers de ce qui reste : c est la marge du texte, des deux cotes');
-assert.ok(bande.includes('2.5rem'), 'les deux paddings de l enveloppe sont comptes');
-assert.ok(!bande.includes('clamp('), 'la bande ne copie plus la colonne de gauche');
+assert.equal(valeurBrute(html, '.pr', 'min-width'), '0', 'le volet peut se resserrer sans deborder');
+assert.ok(!/margin-right\s*:/.test(bloc(html, '.pr ')), 'le volet ne doit pas etre tronque par une marge droite');
 
 // Le rail a ete retire : la fiche garde son recentrage, et plus rien ne se
 // detache en deux zones de ce cote. Ce qu'il ne doit pas laisser derriere lui
@@ -217,26 +204,16 @@ assert.ok(!/--gouttiere-fiche/.test(html),
   'plus aucune variable de gouttiere : le rail, seul a la consommer, est retire');
 
 // ── Les marges de page ──
-// A 1 920 px, la page prend 100 px de marge de chaque cote. Le reste est la
-// colonne des offres, la fiche, et la marge blanche du texte : la fiche se
-// recentre plutot que de s'etirer sans fin.
-const largeurHaute = (nom) => {
-  const m = html.match(new RegExp(nom + ': (\\d+)px;'));
-  assert.ok(m, `${nom} doit etre declare en px`);
-  return Number(m[1]);
-};
-const largeurBloc = Number(html.match(/100vw - (\d+)px/)[1]);
-const margePage = (1920 - largeurBloc) / 2;
-assert.equal(margePage, 100, 'a 1 920 px, la marge de page doit valoir 100 px');
-
-const colonne = largeurHaute('--colonne-liste');
-assert.equal(colonne, 420, 'la colonne des offres tient sa largeur mesuree');
-
+// La marge de page se deduit du plafond produit du theme et d'une
+// gouttiere de 2rem. Un test navigateur verifie sa vraie position a
+// 1280, 1920 et 2560 au lieu de figer une ancienne marge de 100px.
+assert.ok(html.includes('var(--enveloppe-produit)'), 'la marge suit le plafond produit partage');
+const colonne = html.match(/--colonne-liste:\s*(\d+)px/);
+assert.ok(colonne, 'la largeur de la liste doit etre declaree');
+assert.equal(Number(colonne[1]), 420, 'la colonne reste a sa largeur mesuree');
 const enveloppeLecture = html.match(/--enveloppe-lecture: ([^;]+);/);
-assert.ok(enveloppeLecture, "la largeur de lecture de la fiche doit etre declaree");
-assert.ok(enveloppeLecture[1].trim().endsWith('rem'),
-  "elle est exprimee en rem, comme la page d'offre");
-
+assert.ok(enveloppeLecture && enveloppeLecture[1].trim().endsWith('rem'),
+  'la largeur de lecture de la fiche est exprimee en rem');
 
 // ── Les deux gestes de la fiche ──
 for (const geste of ['class="dact"', 'class="bap"', 'class="bsh', 'Postuler', 'partagerOffre()']) {

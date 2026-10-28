@@ -386,6 +386,7 @@ function formatPourLargeur(largeur, hauteur = 900) {
 /* ── Exports ─────────────────────────────────────────────────────────────── */
 
 module.exports = {
+  baseTests: () => BASE,
   /* BASE et PORT changent quand le serveur demarre : ce sont des getters,
      pas des valeurs figees au moment de l'export. */
   get BASE() { return BASE; },

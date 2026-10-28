@@ -44,7 +44,7 @@ test('les conteneurs suivent trois familles de largeur', async (t) => {
     if (serveurPret) await aide.arreterServeur();
   });
 
-  const base = process.env.CLAIM_BASE || 'http://127.0.0.1:8899';
+  const base = process.env.CLAIM_BASE || aide.baseTests();
 
   async function mesurer(page, selecteur) {
     return page.evaluate((s) => {

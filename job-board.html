@@ -174,19 +174,11 @@ html[data-theme="nuit"] select.chip {
   /* Police, interligne et couleur du texte de la page d'offre. */
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   line-height: 1.65; color: var(--encre);
-  /* Marge droite : exactement la marge blanche qui sépare le texte de la
-     colonne des offres. L'enveloppe se centre dans la page, donc sa
-     gouttière vaut (page − enveloppe) / 2, et la marge blanche du texte
-     vaut gouttière + le padding interne de l'enveloppe. En posant
-     « bande = marge blanche », on résout :
-
-         bande = (fenêtre − colonne − enveloppe + 2 × padding) / 3
-
-     Les deux marges du texte deviennent alors égales, à toute largeur, et
-     la colonne de lecture garde la largeur du modèle. Sur un écran étroit
-     la bande s'annule d'elle-même : la page reprend toute la largeur
-     restante après la colonne, comme avant. */
-  margin-right: max(0px, calc((100% - var(--colonne-liste) - var(--enveloppe-lecture) + 2.5rem) / 3)); }
+  /* Le volet occupe tout l'espace du conteneur produit après la liste.
+     L'ancienne marge droite (jusqu'à 183 px à 1920 px) coupait le fond
+     avant le bord droit du board et créait une bande vide. La largeur
+     de lecture reste bornée par .dc, centrée dans ce volet. */
+  min-width: 0; }
 .pr::-webkit-scrollbar { width: 3px; }
 .pr::-webkit-scrollbar-thumb { background: var(--gris-pale); border-radius: 10px; }
 
