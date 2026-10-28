@@ -16,7 +16,7 @@ function pageAbsente(titre, message, siteUrl) {
 }
 
 export async function rendreOffre(slug, env) {
-  const apiBase = (env && env.API_URL) || 'https://api.claimyourjob.fr/api/v1';
+  const apiBase = (env && env.API_URL) || 'https://claim-api-production-06b3.up.railway.app/api/v1';
   const siteUrl = (env && env.SITE_URL) || SITE_URL_PAR_DEFAUT;
 
   // Le module de rendu lit ses URLs dans des variables : on les lui donne

@@ -2,7 +2,7 @@
    SERVEUR DE TEST CLAIM! — niveau B, hors-ligne
 
    Le front-end appelle le backend en dur :
-     const API_BASE = 'https://api.claimyourjob.fr/api/v1';
+     const API_BASE = 'https://claim-api-production-06b3.up.railway.app/api/v1';
    Pour tester les parcours sans dépendre de la production, ce serveur
    intercepte les appels a /api/v1 et repond avec des fixtures.
 

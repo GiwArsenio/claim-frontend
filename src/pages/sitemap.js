@@ -15,7 +15,7 @@
 const SITE_URL_PAR_DEFAUT = 'https://claimyourjob.fr';
 
 export async function rendreSitemap(env) {
-  const apiBase = (env && env.API_URL) || 'https://api.claimyourjob.fr/api/v1';
+  const apiBase = (env && env.API_URL) || 'https://claim-api-production-06b3.up.railway.app/api/v1';
   const siteUrl = (env && env.SITE_URL) || SITE_URL_PAR_DEFAUT;
 
   try {

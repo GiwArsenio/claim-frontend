@@ -13,7 +13,7 @@ const SLUG = process.argv[2] || 'data-scientist-internship-6-months-4ba884089329
 const source = fs.readFileSync(path.join(RACINE, 'api', 'offre.js'), 'utf8');
 const modif = source.replace(
   /const API_BASE\s*=\s*[^;]+;/,
-  "const API_BASE = 'https://api.claimyourjob.fr/api/v1';"
+  "const API_BASE = 'https://claim-api-production-06b3.up.railway.app/api/v1';"
 );
 fs.writeFileSync('/tmp/offre-local.js', modif);
 const handler = require('/tmp/offre-local.js');

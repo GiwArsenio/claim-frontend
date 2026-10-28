@@ -15,7 +15,7 @@
 // Toute evolution de api/offre.js doit etre reportee ici. Le script
 // scripts/aligner-rendu.py fait ce report et verifie l'alignement.
 
-let API_BASE = 'https://api.claimyourjob.fr/api/v1';
+let API_BASE = 'https://claim-api-production-06b3.up.railway.app/api/v1';
 let SITE_URL = 'https://claimyourjob.fr';
 
 export function configurerUrls(apiBase, siteUrl) {

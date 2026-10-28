@@ -98,7 +98,7 @@ test('les pages ne sortent pas vers la production pendant une suite locale', asy
         );
 
         /* Aucune demande ne doit avoir ete envoyee a la production. */
-        const production = sorties.filter((a) => a.url.includes('api.claimyourjob.fr'));
+        const production = sorties.filter((a) => a.url.includes('railway.app'));
         assert.equal(
           production.length, 0,
           `${url} : des appels sont alles vers la production : ${JSON.stringify(production)}`
@@ -131,7 +131,7 @@ test('la base d\'API injectée remplace bien la production', async () => {
 
       /* Aucun appel ne doit viser la production. */
       const production = page.appelsExternes.filter((a) =>
-        a.url.includes('api.claimyourjob.fr')
+        a.url.includes('railway.app')
       );
       assert.equal(
         production.length, 0,
