@@ -32,22 +32,21 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
 
 /* Largeurs de référence de la mise en page bureau.
 
-   --colonne-liste   la colonne des offres, à gauche.
-   --enveloppe-fiche le plafond de la carte de lecture, dans le volet droit.
-                     Ce jeton porte SON nom, et pas --enveloppe-lecture :
-                     ce dernier appartient au theme (46 rem), qui est
-                     charge APRES cette page et l'emportait. La fiche du
-                     board était donc ramenée à 736 px au lieu des 920
-                     prévus — et la carte flottait au milieu d'un volet de
-                     1 244 px, avec 254 px de vide de chaque côté.
-   --marge-page      les marges de page, déduites du plafond produit du
-                     thème et d'une gouttière de 2rem.
+   --colonne-liste     la colonne des offres, à gauche.
+   --enveloppe-lecture l'enveloppe de la page d'offre, marges internes
+                       comprises (46 rem). C'est la largeur de lecture.
+   --enveloppe-large   la même, une fois la place pour la prendre.
+   --marge-page        les marges de page. Elles valent 100 px à 1 920 px de
+                       large — la place exacte à répartir — et absorbent tout
+                       le surplus au-delà. Le bloc garde donc 1 720 px de
+                       large : ni la colonne ni la fiche ne s'étirent sans fin.
 
-   La carte suit maintenant la largeur du volet jusqu'à son plafond : sur
-   un grand écran elle en occupe environ 90 %, au lieu de 59 %. */
+   A 1 920 px : 100 + 420 + 32 + 920 + 100 = 1 572, et la fiche prend le reste
+   jusqu'a son plafond. */
 :root {
   --colonne-liste: 420px;
-  --enveloppe-fiche: 52rem;
+  --enveloppe-lecture: 57.5rem; /* 920 px : la largeur de lecture, +25 % */
+  --enveloppe-large: 1032px;    /* + 112 px quand la place existe */
   /* La marge de page derive du meme plafond que l'accueil : le board
      s'arretait a 1720 px quand l'accueil s'arretait a 1664. Deux
      valeurs pour la meme fonction — desormais une seule, et elle suit
@@ -175,11 +174,19 @@ html[data-theme="nuit"] select.chip {
   /* Police, interligne et couleur du texte de la page d'offre. */
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   line-height: 1.65; color: var(--encre);
-  /* Le volet occupe tout l'espace du conteneur produit après la liste.
-     L'ancienne marge droite (jusqu'à 183 px à 1920 px) coupait le fond
-     avant le bord droit du board et créait une bande vide. La largeur
-     de lecture reste bornée par .dc, centrée dans ce volet. */
-  min-width: 0; }
+  /* Marge droite : exactement la marge blanche qui sépare le texte de la
+     colonne des offres. L'enveloppe se centre dans la page, donc sa
+     gouttière vaut (page − enveloppe) / 2, et la marge blanche du texte
+     vaut gouttière + le padding interne de l'enveloppe. En posant
+     « bande = marge blanche », on résout :
+
+         bande = (fenêtre − colonne − enveloppe + 2 × padding) / 3
+
+     Les deux marges du texte deviennent alors égales, à toute largeur, et
+     la colonne de lecture garde la largeur du modèle. Sur un écran étroit
+     la bande s'annule d'elle-même : la page reprend toute la largeur
+     restante après la colonne, comme avant. */
+  margin-right: max(0px, calc((100% - var(--colonne-liste) - var(--enveloppe-lecture) + 2.5rem) / 3)); }
 .pr::-webkit-scrollbar { width: 3px; }
 .pr::-webkit-scrollbar-thumb { background: var(--gris-pale); border-radius: 10px; }
 
@@ -187,7 +194,7 @@ html[data-theme="nuit"] select.chip {
 /* Enveloppe de lecture reprise du modèle : largeur tenue, marges
    généreuses. Ni bordure ni ombre — sur fond blanc, la carte se voyait. */
 .dc {
-  max-width: var(--enveloppe-fiche);
+  max-width: var(--enveloppe-lecture);
   margin: 0 auto;
   padding: 1.5rem 1.25rem 4rem;
 }
@@ -758,9 +765,7 @@ html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1)
   .d-entete .dact { flex-shrink: 0; margin-bottom: 0; }
   /* Une fois collé, le bloc se détache du texte qui passe dessous : sans
      cette démarcation, il se fond dans la page (relevé à l'inspection). */
-  body.entete-collee .d-entete {
-    box-shadow: inset 0 -1px 0 var(--bord);
-  }
+  body.entete-collee .d-entete { box-shadow: 0 8px 12px -10px rgba(0,0,0,.28); }
   /* Le vide laissé au-dessus du bloc collé est refermé à la teinte du
      champ : sans lui, le texte de l'annonce traversait la bande en
      défilant. Il n'existe que collé — au repos, le bloc est au haut de la
@@ -772,7 +777,7 @@ html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1)
     right: 0;
     bottom: 100%;
     height: .5rem;
-    background: var(--surface);
+    background: var(--champ);
   }
 
   #hd { max-height: 70px; transition: max-height .35s cubic-bezier(.4,0,.2,1), opacity .25s ease; }
@@ -780,27 +785,22 @@ html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1)
   body.fiche-defilee #hero { max-height: 0; opacity: 0; padding-top: 0; padding-bottom: 0;
     border-bottom-width: 0; }
 
-  /* ── LE VOLET EST UNE SURFACE PLEINE, PAS UNE CARTE ──
-     Modèle repris d'Indeed : le volet de droite est une seule surface
-     blanche, d'un bord à l'autre. Avant, une carte arrondie flottait sur
-     un champ gris : à 1920 elle laissait 62 px de cadre vide de chaque
-     côté, et l'œil y lit un défaut de composition, pas une respiration.
+  /* ── LA FICHE EST UNE CARTE SUR LE CHAMP GRIS ──
+     Le champ reprend le gris du bandeau de recherche, si bien que le haut de
+     page et le fond du volet ne font qu'une seule teinte. C'est la délimitation
+     du modèle : la fiche se détache sans qu'on trace un trait autour.
 
-     Le fond étant uniforme, la largeur de lecture peut être bornée sans
-     que ses marges se voient : elles sont blanches comme le reste. C'est
-     toute la différence entre « du vide autour d'une carte » et « une
-     colonne de texte sur une page ».
-
-     Le volet reste blanc sur téléphone, où la fiche occupe tout l'écran. */
-  .pr { background: var(--surface); }
-  .dc-wrap { display: block; padding: 0; }
+     Le volet reste blanc sur téléphone : la fiche y occupe tout l'écran, il
+     n'y a rien à délimiter. */
+  .pr { background: var(--champ); }
+  .dc-wrap { display: block; padding: 1.25rem 1.25rem 3rem; }
   .dc {
-    background: transparent;
-    border-radius: 0;
-    box-shadow: none;
+    background: var(--surface);
+    border-radius: .625rem;
+    box-shadow: 0 1px 2px rgba(25, 44, 52, .06), 0 4px 14px rgba(25, 44, 52, .05);
   }
-  /* Plus de carte à coiffer : l'en-tête est une barre posée sur la surface. */
-  .d-entete { border-radius: 0; }
+  /* L'en-tête figé devient le haut de la carte : il en reprend les angles. */
+  .d-entete { border-radius: .625rem .625rem 0 0; }
 
   /* ── LES MARGES DE PAGE ──
      Le board ne colle plus aux bords : la page prend 100 px de marge de
@@ -1206,7 +1206,7 @@ html[data-theme="nuit"] body {
 // ── Configuration ──────────────────────────────────────────────────────────
 const API_BASE    = (typeof CLAIM_API_BASE === 'string' && CLAIM_API_BASE)
   ? CLAIM_API_BASE
-  : 'https://claim-api-production-06b3.up.railway.app/api/v1';
+  : 'https://api.claimyourjob.fr/api/v1';
 const PAGE_SIZE   = 20;   // offres affichées par page (Load More)
 
 // ── Helpers ────────────────────────────────────────────────────────────────

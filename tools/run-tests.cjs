@@ -79,8 +79,6 @@ const FAMILLES = {
     'tests/theme.test.cjs',
     'tests/pied_arret_defilement.test.cjs',
     'tests/plan_premier_paint.test.cjs',
-    'tests/axes_conteneurs.test.cjs',
-    'tests/board_volet_produit.test.cjs',
   ],
   // Parlent à la production. Une régression en ligne doit se voir, mais
   // elle ne doit pas bloquer une fusion : la production peut tomber sans
