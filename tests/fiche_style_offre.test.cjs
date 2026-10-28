@@ -107,9 +107,9 @@ assert.ok(/@media \(min-width: 769px\)[\s\S]{0,6000}\.pr \{ background: var\(--c
 const dc = bloc(html, '.dc');
 // L'enveloppe suit la variable de lecture, et non une valeur recopiée :
 // c'est elle qui décide de la largeur, et le calcul des marges s'y appuie.
-assert.ok(dc.includes('max-width: var(--enveloppe-lecture)'),
+assert.ok(dc.includes('max-width: var(--enveloppe-fiche)'),
   "l'enveloppe prend la largeur de lecture posée par la page");
-const variable = html.match(/--enveloppe-lecture: ([\d.]+)rem/);
+const variable = html.match(/--enveloppe-fiche: ([\d.]+)rem/);
 assert.ok(variable, 'la page déclare sa largeur de lecture');
 assert.ok(parseFloat(variable[1]) >= 46 * 1.25 - 0.01,
   `la fiche garde au moins la largeur du modèle, majorée de 25 % (lu: ${variable[1]}rem)`);
@@ -182,10 +182,10 @@ assert.equal(racine[1].trim(), '420px', 'et valoir la largeur mesuree de la colo
 // bande de 183px sans volet sur les grands ecrans : le test navigateur
 // board_volet_produit controle sa vraie geometrie, et non une formule de
 // marges deduite de la taille de la fiche.
-const enveloppe = html.match(/--enveloppe-lecture:\s*([\d.]+)rem/);
+const enveloppe = html.match(/--enveloppe-fiche:\s*([\d.]+)rem/);
 assert.ok(enveloppe, "la largeur de l'enveloppe doit etre declaree");
 assert.ok(parseFloat(enveloppe[1]) > 46, 'elle couvre au moins la largeur de lecture du modele');
-assert.ok(dc.includes('max-width: var(--enveloppe-lecture)'), "et l'enveloppe du board s'y conforme");
+assert.ok(dc.includes('max-width: var(--enveloppe-fiche)'), "et l'enveloppe du board s'y conforme");
 assert.equal(valeurBrute(html, '.pr', 'min-width'), '0', 'le volet peut se resserrer sans deborder');
 assert.ok(!/margin-right\s*:/.test(bloc(html, '.pr ')), 'le volet ne doit pas etre tronque par une marge droite');
 
@@ -211,7 +211,7 @@ assert.ok(html.includes('var(--enveloppe-produit)'), 'la marge suit le plafond p
 const colonne = html.match(/--colonne-liste:\s*(\d+)px/);
 assert.ok(colonne, 'la largeur de la liste doit etre declaree');
 assert.equal(Number(colonne[1]), 420, 'la colonne reste a sa largeur mesuree');
-const enveloppeLecture = html.match(/--enveloppe-lecture: ([^;]+);/);
+const enveloppeLecture = html.match(/--enveloppe-fiche: ([^;]+);/);
 assert.ok(enveloppeLecture && enveloppeLecture[1].trim().endsWith('rem'),
   'la largeur de lecture de la fiche est exprimee en rem');
 

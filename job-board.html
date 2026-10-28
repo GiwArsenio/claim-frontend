@@ -32,21 +32,22 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
 
 /* Largeurs de référence de la mise en page bureau.
 
-   --colonne-liste     la colonne des offres, à gauche.
-   --enveloppe-lecture l'enveloppe de la page d'offre, marges internes
-                       comprises (46 rem). C'est la largeur de lecture.
-   --enveloppe-large   la même, une fois la place pour la prendre.
-   --marge-page        les marges de page. Elles valent 100 px à 1 920 px de
-                       large — la place exacte à répartir — et absorbent tout
-                       le surplus au-delà. Le bloc garde donc 1 720 px de
-                       large : ni la colonne ni la fiche ne s'étirent sans fin.
+   --colonne-liste   la colonne des offres, à gauche.
+   --enveloppe-fiche le plafond de la carte de lecture, dans le volet droit.
+                     Ce jeton porte SON nom, et pas --enveloppe-lecture :
+                     ce dernier appartient au theme (46 rem), qui est
+                     charge APRES cette page et l'emportait. La fiche du
+                     board était donc ramenée à 736 px au lieu des 920
+                     prévus — et la carte flottait au milieu d'un volet de
+                     1 244 px, avec 254 px de vide de chaque côté.
+   --marge-page      les marges de page, déduites du plafond produit du
+                     thème et d'une gouttière de 2rem.
 
-   A 1 920 px : 100 + 420 + 32 + 920 + 100 = 1 572, et la fiche prend le reste
-   jusqu'a son plafond. */
+   La carte suit maintenant la largeur du volet jusqu'à son plafond : sur
+   un grand écran elle en occupe environ 90 %, au lieu de 59 %. */
 :root {
   --colonne-liste: 420px;
-  --enveloppe-lecture: 57.5rem; /* 920 px : la largeur de lecture, +25 % */
-  --enveloppe-large: 1032px;    /* + 112 px quand la place existe */
+  --enveloppe-fiche: 70rem;
   /* La marge de page derive du meme plafond que l'accueil : le board
      s'arretait a 1720 px quand l'accueil s'arretait a 1664. Deux
      valeurs pour la meme fonction — desormais une seule, et elle suit
@@ -186,7 +187,7 @@ html[data-theme="nuit"] select.chip {
 /* Enveloppe de lecture reprise du modèle : largeur tenue, marges
    généreuses. Ni bordure ni ombre — sur fond blanc, la carte se voyait. */
 .dc {
-  max-width: var(--enveloppe-lecture);
+  max-width: var(--enveloppe-fiche);
   margin: 0 auto;
   padding: 1.5rem 1.25rem 4rem;
 }

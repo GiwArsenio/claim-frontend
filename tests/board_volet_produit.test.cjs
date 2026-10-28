@@ -29,7 +29,12 @@ test('board : la surface de fiche occupe la largeur produit sans étirer le text
         const end=split.right-parseFloat(await p.locator('#split').evaluate(el => getComputedStyle(el).paddingRight));
         assert.ok(Math.abs(panel.right-end)<=2, `volet arrêté à ${panel.right}, axe droit produit ${end}`);
         assert.ok(Math.abs(panel.left-list.right)<=2,'la fiche commence après la liste');
-        assert.ok(card.width<=842,'la lecture conserve un plafond étroit');
+        // La carte remplit le volet jusqu'a son plafond (70rem). Elle ne
+        // doit ni flotter au milieu (59 % avant correction) ni s'etirer
+        // sans fin sur un ecran tres large.
+        assert.ok(card.width<=1121,'la carte garde un plafond');
+        const ratio=card.width/panel.width;
+        assert.ok(ratio>=0.85,`la carte occupe au moins 85 % du volet (lu : ${(ratio*100).toFixed(1)} %)`);
         const leftGap=card.left-panel.left, rightGap=panel.right-card.right;
         assert.ok(Math.abs(leftGap-rightGap)<=2, `fiche décentrée dans son volet : ${leftGap}/${rightGap}`);
         assert.ok(await p.evaluate(()=>document.documentElement.scrollWidth <= document.documentElement.clientWidth+1));
