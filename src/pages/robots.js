@@ -15,6 +15,13 @@ Allow: /
 # balise canonique la consolide vers l'accueil. Elle reste explorable — un
 # Disallow empecherait Google de lire cette canonique.
 
+# Le dashboard de monitoring exige une session : un robot qui l'explore
+# ne recoit qu'un 401. On l'ecarte explicitement, plutot que de laisser
+# les exploreurs gaspiller des requetes sur une adresse fermee. La page
+# porte deja noindex et un en-tete x-robots-tag -- ceci evite en plus la
+# visite.
+Disallow: /monitoring
+
 # Sitemap
 Sitemap: ${site}/sitemap.xml
 `;
