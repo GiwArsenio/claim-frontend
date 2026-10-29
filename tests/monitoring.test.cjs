@@ -89,6 +89,13 @@ verifier('la page expose une navigation par onglets accessible', () => {
   assert.match(page, /aria-live="polite"/, 'les mises à jour doivent être annoncées');
 });
 
+verifier('le dashboard est écarté de l’exploration et du sitemap', () => {
+  const robots = lire('src/pages/robots.js');
+  assert.match(robots, /Disallow: \/monitoring/, 'robots.txt doit écarter une adresse fermée');
+  const sitemap = lire('src/pages/sitemap.js');
+  assert.ok(!/monitoring/.test(sitemap), 'une page privée ne doit pas figurer au sitemap');
+});
+
 // ── Worker : ordre des routes et relais ──────────────────────────────────
 verifier('le relais API est routé avant la page', () => {
   const worker = lire('src/index.js');
