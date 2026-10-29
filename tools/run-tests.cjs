@@ -48,6 +48,8 @@ const DOSSIER = path.join(RACINE, 'tests');
 const FAMILLES = {
   // Ne touchent jamais le réseau. Doivent rester verts à chaque PR.
   statique: [
+    // Dashboard de monitoring : contrôles statiques (aucun réseau).
+    'tests/monitoring.test.cjs',
     'tests/cards.test.cjs',
     'tests/consentement.test.cjs',
     'tests/mesure_items.test.cjs',

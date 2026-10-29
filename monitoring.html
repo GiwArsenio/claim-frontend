@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CLAIM! — Monitoring interne</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/monitoring.css">
+</head>
+<body>
+
+<header class="entete">
+  <div class="entete__barre">
+    <div>
+      <p class="marque">Claim!<span>.</span> <span style="font-weight:600;font-size:.8rem;letter-spacing:0">Monitoring</span></p>
+      <p class="entete__sous">Pilotage interne — données de production</p>
+    </div>
+    <div class="entete__outils">
+      <label for="periode" class="entete__sous" style="margin:0">Période</label>
+      <select id="periode">
+        <option value="1">24 heures</option>
+        <option value="7" selected>7 jours</option>
+        <option value="30">30 jours</option>
+      </select>
+      <button type="button" id="rafraichir">Rafraîchir</button>
+      <button type="button" id="deconnexion" class="discret">Fermer la session</button>
+    </div>
+  </div>
+  <nav class="onglets" role="tablist" aria-label="Sections du monitoring">
+    <button role="tab" id="onglet-apercu" aria-controls="panneau-apercu" aria-selected="true">Vue d’ensemble</button>
+    <button role="tab" id="onglet-collecte" aria-controls="panneau-collecte" aria-selected="false">Collecte</button>
+    <button role="tab" id="onglet-qualite" aria-controls="panneau-qualite" aria-selected="false">Qualité des offres</button>
+    <button role="tab" id="onglet-usage" aria-controls="panneau-usage" aria-selected="false">Usage candidat</button>
+    <button role="tab" id="onglet-exploitation" aria-controls="panneau-exploitation" aria-selected="false">Exploitation</button>
+  </nav>
+</header>
+
+<main>
+  <div id="bandeau" class="bandeau" role="status" aria-live="polite" hidden></div>
+
+  <div id="etat-initial" hidden>
+    <div class="connexion">
+      <h1 style="font-size:1.15rem">Session requise</h1>
+      <p style="color:var(--gris);font-size:.875rem">
+        La session a expiré ou n’a pas été ouverte. Saisissez de nouveau la clé d’administration.
+      </p>
+      <form id="connexion">
+        <label for="cle">Clé d’administration</label>
+        <input id="cle" type="password" autocomplete="current-password" required>
+        <button type="submit" class="primaire" style="margin-top:.6rem">Ouvrir la session</button>
+        <p id="erreur-connexion" role="alert" style="color:var(--critique);font-size:.85rem;min-height:1.2rem;margin:.4rem 0 0"></p>
+      </form>
+      <p style="font-size:.8rem"><a href="/">← Retour au site</a></p>
+    </div>
+  </div>
+
+  <div id="contenu">
+
+    <section id="panneau-apercu" role="tabpanel" aria-labelledby="onglet-apercu">
+      <div class="cartes" id="cartes" aria-live="polite"></div>
+
+      <div class="bloc">
+        <div class="bloc__entete">
+          <h2 class="bloc__titre">À traiter</h2>
+          <p class="bloc__note" id="note-alertes">Les alertes se recalculent à chaque chargement.</p>
+        </div>
+        <div class="bloc__corps">
+          <ul class="alertes" id="alertes-apercu"></ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="panneau-collecte" role="tabpanel" aria-labelledby="onglet-collecte" hidden>
+      <div id="verdict-collecte" class="bandeau" hidden></div>
+      <div class="bloc">
+        <div class="bloc__entete">
+          <h2 class="bloc__titre">Sources</h2>
+          <p class="bloc__note">Une source « en retard » n’a pas de collecte réussie récente ; une source « en erreur » a échoué à sa dernière tentative.</p>
+        </div>
+        <div class="bloc__corps">
+          <table>
+            <caption class="sr-only" hidden>État de chaque source</caption>
+            <thead>
+              <tr>
+                <th scope="col">Source</th>
+                <th scope="col">État</th>
+                <th scope="col">Dernier succès</th>
+                <th scope="col">Dernière tentative</th>
+                <th scope="col" style="text-align:right">Offres lues</th>
+                <th scope="col">Erreur</th>
+              </tr>
+            </thead>
+            <tbody id="corps-sources"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="panneau-qualite" role="tabpanel" aria-labelledby="onglet-qualite" hidden>
+      <div class="bloc">
+        <div class="bloc__entete">
+          <h2 class="bloc__titre">Champs essentiels manquants</h2>
+          <p class="bloc__note" id="note-qualite">Sur les offres publiées, c’est-à-dire celles que voit un candidat.</p>
+        </div>
+        <div class="bloc__corps">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Champ</th>
+                <th scope="col" style="text-align:right">Manquants</th>
+                <th scope="col" style="text-align:right">Part</th>
+              </tr>
+            </thead>
+            <tbody id="corps-champs"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="bloc">
+        <div class="bloc__entete"><h2 class="bloc__titre">Classification et liens</h2></div>
+        <div class="bloc__corps" style="padding:1rem">
+          <dl id="detail-qualite" style="display:grid;grid-template-columns:auto 1fr;gap:.4rem 1.2rem;font-size:.86rem;margin:0"></dl>
+        </div>
+      </div>
+    </section>
+
+    <section id="panneau-usage" role="tabpanel" aria-labelledby="onglet-usage" hidden>
+      <div class="bloc">
+        <div class="bloc__entete"><h2 class="bloc__titre">Usage candidat</h2></div>
+        <div class="bloc__corps">
+          <div class="vide" id="usage-vide">
+            Cette mesure n’est pas encore branchée. Elle ne vaut pas zéro : elle est inconnue.
+            <br>Prévue au lot 4 de la feuille de route (recherches sans résultat, fiches consultées, clics sortants).
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="panneau-exploitation" role="tabpanel" aria-labelledby="onglet-exploitation" hidden>
+      <div class="bloc">
+        <div class="bloc__entete"><h2 class="bloc__titre">Sondes</h2></div>
+        <div class="bloc__corps">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Cible</th>
+                <th scope="col">État</th>
+                <th scope="col" style="text-align:right">Code</th>
+                <th scope="col" style="text-align:right">Latence</th>
+                <th scope="col">Vérifiée</th>
+              </tr>
+            </thead>
+            <tbody id="corps-sondes"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="bloc">
+        <div class="bloc__entete">
+          <h2 class="bloc__titre">Sauvegarde et coûts</h2>
+          <p class="bloc__note">Aucune donnée inventée : ce qui n’est pas exposé est annoncé comme tel.</p>
+        </div>
+        <div class="bloc__corps"><div class="vide" id="operations-vide">Chargement…</div></div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<footer class="pied">
+  <p id="horodatage">—</p>
+</footer>
+
+<script src="/assets/monitoring.js" defer></script>
+</body>
+</html>

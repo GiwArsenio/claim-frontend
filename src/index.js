@@ -25,6 +25,7 @@
 import { rendreOffre } from './pages/offre.js';
 import { rendreSitemap } from './pages/sitemap.js';
 import { rendreRobots } from './pages/robots.js';
+import { relayerMonitoringApi, rendreMonitoring } from './pages/monitoring.js';
 
 const SITE_URL = 'https://claimyourjob.fr';
 
@@ -77,6 +78,20 @@ export default {
     if (chemin === '/') {
       const accueil = new URL('/index.html', url.origin);
       return env.ASSETS.fetch(new Request(accueil, request));
+    }
+
+    // ── Monitoring interne ────────────────────────────────────────────────
+    // Deux adresses, dans cet ordre : le relais API d'abord, car
+    // `/monitoring/api/...` commence aussi par `/monitoring`.
+    //
+    // Le relais évite un CORS avec credentials sur l'API Railway : le
+    // navigateur ne connaît qu'une origine, et le cookie de session reste
+    // confiné au chemin `/monitoring`.
+    if (chemin.startsWith('/monitoring/api/')) {
+      return relayerMonitoringApi(request, env);
+    }
+    if (chemin === '/monitoring' || chemin === '/monitoring/') {
+      return rendreMonitoring(request, env);
     }
 
     // ── Tout le reste : les fichiers statiques ───────────────────────────

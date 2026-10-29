@@ -1,0 +1,250 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// CLAIM! — feuille de style du dashboard de monitoring
+//
+// Volontairement autonome : aucune règle partagée avec `theme.css`.
+//
+// La raison est un incident réel. Un jour, une règle `.consent-panneau p`
+// ajoutée au gabarit de la fiche d'offre est devenue la première règle
+// `p {` du fichier ; un test qui compare le board au gabarit a déraillé,
+// parce qu'il cherche une correspondance de texte et non de sélecteur. Une
+// feuille séparée supprime cette classe de panne : le dashboard ne peut pas
+// modifier le rendu du site public, et réciproquement.
+//
+// La palette est celle du site (teal #006876), pour que l'outil interne ne
+// ressemble pas à un autre produit.
+// ─────────────────────────────────────────────────────────────────────────────
+
+:root {
+  color-scheme: light dark;
+  --fond: #f5f8f9;
+  --surface: #fff;
+  --surface-2: #f5f8f9;
+  --surface-3: #fafafa;
+  --encre: #191c1d;
+  --encre-forte: #24363d;
+  --gris: #515f78;
+  --gris-doux: #5c6870;
+  --bord: #e2e9ec;
+  --bord-fort: #c7d3d8;
+  --teal: #006876;
+  --teal-fonce: #00545f;
+  --teal-pale: #f0fafb;
+  --ok: #1c6b4a;
+  --ok-fond: #e8f5ee;
+  --attention: #8a5a00;
+  --attention-fond: #fdf4e3;
+  --critique: #a3231b;
+  --critique-fond: #fdeceb;
+  --inconnu: #515f78;
+  --inconnu-fond: #eef1f4;
+  --rayon: 10px;
+  --ombre: 0 1px 2px rgba(25, 44, 52, .06), 0 4px 14px rgba(25, 44, 52, .05);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fond: #0f1416;
+    --surface: #171d20;
+    --surface-2: #1d2427;
+    --surface-3: #1a2023;
+    --encre: #e8eef0;
+    --encre-forte: #f2f7f8;
+    --gris: #a8b7bd;
+    --gris-doux: #93a3a9;
+    --bord: #2a3438;
+    --bord-fort: #3a464b;
+    --teal: #6fd3e0;
+    --teal-fonce: #8ee2ed;
+    --teal-pale: #14282c;
+    --ok: #7fd6a8;
+    --ok-fond: #14301f;
+    --attention: #f0c26a;
+    --attention-fond: #33280f;
+    --critique: #f59a93;
+    --critique-fond: #3a1a17;
+    --inconnu: #a8b7bd;
+    --inconnu-fond: #1f272b;
+    --ombre: none;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--fond);
+  color: var(--encre);
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-text-size-adjust: 100%;
+}
+
+a { color: var(--teal); }
+
+/* ── En-tête ───────────────────────────────────────────────────────────── */
+
+.entete {
+  position: sticky; top: 0; z-index: 10;
+  background: var(--surface);
+  border-bottom: 1px solid var(--bord);
+}
+.entete__barre {
+  max-width: 1280px; margin: 0 auto; padding: .85rem 1.25rem;
+  display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+}
+.marque { font-weight: 900; letter-spacing: -.04em; font-size: 1.15rem; margin: 0; }
+.marque span { color: var(--teal); }
+.entete__sous { font-size: .8125rem; color: var(--gris-doux); margin: 0; }
+.entete__outils { margin-left: auto; display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
+
+/* ── Onglets ───────────────────────────────────────────────────────────── */
+
+.onglets {
+  max-width: 1280px; margin: 0 auto; padding: 0 1.25rem;
+  display: flex; gap: .25rem; overflow-x: auto;
+}
+.onglets button {
+  font: inherit; font-size: .875rem; font-weight: 500;
+  background: none; border: 0; border-bottom: 2px solid transparent;
+  padding: .6rem .75rem; color: var(--gris); cursor: pointer; white-space: nowrap;
+}
+.onglets button:hover { color: var(--encre); }
+.onglets button[aria-selected="true"] { color: var(--teal); border-bottom-color: var(--teal); font-weight: 600; }
+.onglets button:focus-visible { outline: 2px solid var(--teal); outline-offset: -2px; }
+
+/* ── Structure ─────────────────────────────────────────────────────────── */
+
+main { max-width: 1280px; margin: 0 auto; padding: 1.25rem; }
+section[hidden] { display: none; }
+
+.bandeau {
+  display: flex; gap: .6rem; align-items: flex-start;
+  padding: .75rem 1rem; border-radius: var(--rayon); margin-bottom: 1rem;
+  border: 1px solid var(--bord-fort); background: var(--surface);
+  font-size: .875rem;
+}
+.bandeau[data-ton="attention"] { background: var(--attention-fond); border-color: var(--attention); color: var(--attention); }
+.bandeau[data-ton="critique"] { background: var(--critique-fond); border-color: var(--critique); color: var(--critique); }
+.bandeau[data-ton="inconnu"] { background: var(--inconnu-fond); border-color: var(--bord-fort); color: var(--inconnu); }
+
+/* ── Cartes ────────────────────────────────────────────────────────────── */
+
+.cartes {
+  display: grid; gap: .85rem; margin-bottom: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+}
+.carte {
+  background: var(--surface); border: 1px solid var(--bord);
+  border-radius: var(--rayon); padding: 1rem 1.05rem; box-shadow: var(--ombre);
+  display: flex; flex-direction: column; gap: .3rem; min-height: 8.5rem;
+}
+.carte__libelle { font-size: .8125rem; color: var(--gris); font-weight: 500; }
+.carte__valeur { font-size: 1.9rem; font-weight: 800; letter-spacing: -.03em; line-height: 1.1; }
+.carte__valeur small { font-size: .875rem; font-weight: 500; color: var(--gris-doux); margin-left: .25rem; }
+.carte__detail { font-size: .78rem; color: var(--gris-doux); margin-top: auto; }
+.carte__lien { font-size: .78rem; font-weight: 600; text-decoration: none; }
+.carte__lien:hover { text-decoration: underline; }
+
+.carte[data-ton="critique"] { border-left: 3px solid var(--critique); }
+.carte[data-ton="attention"] { border-left: 3px solid var(--attention); }
+.carte[data-ton="ok"] { border-left: 3px solid var(--ok); }
+.carte[data-ton="inconnu"] { border-left: 3px solid var(--bord-fort); }
+
+/* Une valeur absente n'est pas un zéro : elle est grise et typée autrement. */
+.carte[data-etat="unavailable"] .carte__valeur { color: var(--gris-doux); font-size: 1rem; font-weight: 600; }
+.carte[data-etat="unavailable"] { background: var(--surface-3); }
+
+/* ── Tables ────────────────────────────────────────────────────────────── */
+
+.bloc {
+  background: var(--surface); border: 1px solid var(--bord);
+  border-radius: var(--rayon); margin-bottom: 1.25rem; overflow: hidden;
+}
+.bloc__entete {
+  display: flex; align-items: center; gap: .75rem; flex-wrap: wrap;
+  padding: .8rem 1rem; border-bottom: 1px solid var(--bord); background: var(--surface-2);
+}
+.bloc__titre { font-size: .9375rem; font-weight: 700; margin: 0; }
+.bloc__note { font-size: .78rem; color: var(--gris-doux); margin: 0; }
+.bloc__corps { padding: 0; overflow-x: auto; }
+
+table { width: 100%; border-collapse: collapse; font-size: .84rem; }
+th, td { text-align: left; padding: .6rem .85rem; border-bottom: 1px solid var(--bord); vertical-align: top; }
+th { font-size: .75rem; text-transform: uppercase; letter-spacing: .04em; color: var(--gris-doux); font-weight: 600; background: var(--surface-3); position: sticky; top: 0; }
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:hover { background: var(--teal-pale); }
+td.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* ── Pastilles d'état ──────────────────────────────────────────────────── */
+
+.pastille {
+  display: inline-flex; align-items: center; gap: .3rem;
+  font-size: .75rem; font-weight: 600; padding: .1rem .5rem; border-radius: 999px;
+  border: 1px solid transparent;
+}
+.pastille::before { content: ""; width: .45rem; height: .45rem; border-radius: 50%; background: currentColor; }
+.pastille[data-etat="ok"] { color: var(--ok); background: var(--ok-fond); }
+.pastille[data-etat="attention"] { color: var(--attention); background: var(--attention-fond); }
+.pastille[data-etat="critique"] { color: var(--critique); background: var(--critique-fond); }
+.pastille[data-etat="inconnu"] { color: var(--inconnu); background: var(--inconnu-fond); }
+
+/* ── Alertes ───────────────────────────────────────────────────────────── */
+
+.alertes { list-style: none; margin: 0; padding: 0; }
+.alerte {
+  display: flex; gap: .85rem; align-items: flex-start;
+  padding: .8rem 1rem; border-bottom: 1px solid var(--bord);
+}
+.alerte:last-child { border-bottom: 0; }
+.alerte__corps { flex: 1; min-width: 0; }
+.alerte__titre { font-weight: 600; font-size: .875rem; margin: 0; }
+.alerte__detail { font-size: .78rem; color: var(--gris-doux); margin: .15rem 0 0; }
+.alerte__actions { display: flex; gap: .4rem; align-items: center; flex-shrink: 0; }
+.alerte[data-acquittee="true"] { opacity: .62; }
+
+.vide { padding: 1.5rem 1rem; text-align: center; color: var(--gris-doux); font-size: .875rem; }
+
+/* ── Boutons ───────────────────────────────────────────────────────────── */
+
+button, select {
+  font: inherit; font-size: .8125rem;
+  border-radius: 8px; border: 1px solid var(--bord-fort);
+  background: var(--surface); color: var(--encre); padding: .4rem .7rem; cursor: pointer;
+}
+button:hover { border-color: var(--teal); color: var(--teal); }
+button:focus-visible, select:focus-visible { outline: 2px solid var(--teal); outline-offset: 1px; }
+button:disabled { opacity: .55; cursor: default; }
+button.primaire { background: var(--teal); border-color: var(--teal); color: #fff; font-weight: 600; }
+button.primaire:hover { background: var(--teal-fonce); border-color: var(--teal-fonce); color: #fff; }
+button.discret { border-color: transparent; background: none; color: var(--gris); }
+button.discret:hover { color: var(--critique); border-color: transparent; }
+
+/* ── Connexion (page servie par le Worker, même palette) ───────────────── */
+
+.connexion { max-width: 24rem; margin: 12vh auto; padding: 0 1.25rem; }
+.connexion form { display: flex; flex-direction: column; gap: .5rem; }
+.connexion input { font: inherit; padding: .6rem .7rem; border-radius: 8px; border: 1px solid var(--bord-fort); background: var(--surface); color: var(--encre); }
+
+/* ── États de chargement ───────────────────────────────────────────────── */
+
+.squelette {
+  background: linear-gradient(90deg, var(--surface-2) 25%, var(--surface-3) 37%, var(--surface-2) 63%);
+  background-size: 400% 100%; animation: glisse 1.4s ease infinite;
+  border-radius: 6px; height: .8rem;
+}
+@keyframes glisse { 0% { background-position: 100% 0; } 100% { background-position: 0 0; } }
+@media (prefers-reduced-motion: reduce) { .squelette { animation: none; } }
+
+/* ── Pied ──────────────────────────────────────────────────────────────── */
+
+footer.pied {
+  max-width: 1280px; margin: 0 auto; padding: 1rem 1.25rem 2.5rem;
+  font-size: .75rem; color: var(--gris-doux);
+}
+
+@media (max-width: 640px) {
+  .carte__valeur { font-size: 1.5rem; }
+  main { padding: .85rem; }
+  th, td { padding: .5rem .6rem; }
+}
