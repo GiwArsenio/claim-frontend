@@ -147,8 +147,11 @@ verifier('le client ne convertit jamais une absence en zéro', () => {
   const client = lire('assets/monitoring.js');
   // La fonction `valeur` est le seul point de formatage des nombres :
   // elle doit rendre un tiret pour null/undefined, pas « 0 ».
-  assert.match(client, /if \(entier === null \|\| entier === undefined\) return '—'/);
-  assert.match(client, /if \(part === null \|\| part === undefined\) return '—'/);
+  // Les deux seuls points de formatage d'un nombre. Chacun doit rendre un
+  // tiret cadratin pour `null` — jamais « 0 », qui se lirait comme une
+  // mesure réelle.
+  assert.match(client, /if \(v === null \|\| v === undefined\) return '—'/, 'formatage des valeurs');
+  assert.match(client, /if \(p === null \|\| p === undefined\) return '—'/, 'formatage des parts');
 });
 
 verifier('le client protège contre une réponse tardive', () => {

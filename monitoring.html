@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>CLAIM! — Monitoring interne</title>
+<title>CLAIM! — Monitoring</title>
 <meta name="robots" content="noindex,nofollow">
 <link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,171 +13,223 @@
 </head>
 <body>
 
-<header class="entete">
-  <div class="entete__barre">
-    <div>
-      <p class="marque">Claim!<span>.</span> <span style="font-weight:600;font-size:.8rem;letter-spacing:0">Monitoring</span></p>
-      <p class="entete__sous">Pilotage interne — données de production</p>
+<div class="appli">
+
+  <!-- ── Barre supérieure ─────────────────────────────────────────────── -->
+  <header class="barre">
+    <a class="marque" href="/" title="Retour au site">
+      <span class="marque__mot">Claim<span class="marque__point">!</span></span>
+      <span class="marque__suffixe">monitoring</span>
+    </a>
+
+    <span class="etat-service" id="etat-service" hidden>
+      <i class="temoin-etat"></i><span id="etat-service-texte">—</span>
+    </span>
+
+    <div class="outils">
+      <div class="segments" role="group" aria-label="Période d’observation">
+        <button type="button" data-periode="1">24 h</button>
+        <button type="button" data-periode="7" aria-pressed="true">7 jours</button>
+        <button type="button" data-periode="30">30 jours</button>
+      </div>
+      <button type="button" class="bouton-icone" id="rafraichir" aria-label="Rafraîchir les données">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9M13.5 2.5v3.2h-3.2"/></svg>
+      </button>
+      <button type="button" class="bouton-texte" id="deconnexion">Quitter</button>
     </div>
-    <div class="entete__outils">
-      <label for="periode" class="entete__sous" style="margin:0">Période</label>
-      <select id="periode">
-        <option value="1">24 heures</option>
-        <option value="7" selected>7 jours</option>
-        <option value="30">30 jours</option>
-      </select>
-      <button type="button" id="rafraichir">Rafraîchir</button>
-      <button type="button" id="deconnexion" class="discret">Fermer la session</button>
-    </div>
-  </div>
-  <nav class="onglets" role="tablist" aria-label="Sections du monitoring">
-    <button role="tab" id="onglet-apercu" aria-controls="panneau-apercu" aria-selected="true">Vue d’ensemble</button>
-    <button role="tab" id="onglet-collecte" aria-controls="panneau-collecte" aria-selected="false">Collecte</button>
-    <button role="tab" id="onglet-qualite" aria-controls="panneau-qualite" aria-selected="false">Qualité des offres</button>
-    <button role="tab" id="onglet-usage" aria-controls="panneau-usage" aria-selected="false">Usage candidat</button>
-    <button role="tab" id="onglet-exploitation" aria-controls="panneau-exploitation" aria-selected="false">Exploitation</button>
+  </header>
+
+  <!-- ── Rail de navigation ───────────────────────────────────────────── -->
+  <nav class="rail" role="tablist" aria-orientation="vertical" aria-label="Sections">
+    <button role="tab" id="onglet-apercu" aria-controls="panneau-apercu" aria-selected="true">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 2h5v5H2zM9 2h5v3H9zM9 7h5v7H9zM2 9h5v5H2z"/></svg>
+      <span>Vue d’ensemble</span>
+    </button>
+    <button role="tab" id="onglet-collecte" aria-controls="panneau-collecte" aria-selected="false">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 12V6M6 12V3M10 12v-4M14 12V5"/></svg>
+      <span>Collecte</span>
+    </button>
+    <button role="tab" id="onglet-qualite" aria-controls="panneau-qualite" aria-selected="false">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 4h9M2 8h9M2 12h6M13 3l1.5 1.5L17 2"/></svg>
+      <span>Qualité</span>
+    </button>
+    <button role="tab" id="onglet-usage" aria-controls="panneau-usage" aria-selected="false">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 13l3.5-4 3 2.5L14 3"/><path d="M10.5 3H14v3.5"/></svg>
+      <span>Usage</span>
+    </button>
+    <button role="tab" id="onglet-exploitation" aria-controls="panneau-exploitation" aria-selected="false">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h3l2-4 2.5 8 2-4h2.5"/></svg>
+      <span>Exploitation</span>
+    </button>
   </nav>
-</header>
 
-<main>
-  <div id="bandeau" class="bandeau" role="status" aria-live="polite" hidden></div>
+  <!-- ── Zone de contenu ──────────────────────────────────────────────── -->
+  <main class="contenu">
 
-  <div id="etat-initial" hidden>
-    <div class="connexion">
-      <h1 style="font-size:1.15rem">Session requise</h1>
-      <p style="color:var(--gris);font-size:.875rem">
-        La session a expiré ou n’a pas été ouverte. Saisissez de nouveau la clé d’administration.
-      </p>
-      <form id="connexion">
-        <label for="cle">Clé d’administration</label>
-        <input id="cle" type="password" autocomplete="current-password" required>
-        <button type="submit" class="primaire" style="margin-top:.6rem">Ouvrir la session</button>
-        <p id="erreur-connexion" role="alert" style="color:var(--critique);font-size:.85rem;min-height:1.2rem;margin:.4rem 0 0"></p>
-      </form>
-      <p style="font-size:.8rem"><a href="/">← Retour au site</a></p>
+    <div id="bandeau" class="bandeau" role="status" aria-live="polite" hidden></div>
+
+    <!-- Écran de connexion, utilisé si la session est absente ou expirée -->
+    <div id="etat-initial" class="connexion" hidden>
+      <div class="connexion__carte">
+        <p class="surtitre">Accès réservé</p>
+        <h1 class="connexion__titre">Ouvrir une session</h1>
+        <p class="connexion__aide">Saisissez la clé d’administration. La session dure une heure.</p>
+        <form id="connexion">
+          <label for="cle" class="surtitre">Clé d’administration</label>
+          <input id="cle" type="password" autocomplete="current-password" required>
+          <button type="submit" class="bouton-principal">Ouvrir la session</button>
+          <p id="erreur-connexion" class="connexion__erreur" role="alert"></p>
+        </form>
+        <p class="connexion__retour"><a href="/">← Retour au site</a></p>
+      </div>
     </div>
-  </div>
 
-  <div id="contenu">
+    <div id="contenu">
 
-    <section id="panneau-apercu" role="tabpanel" aria-labelledby="onglet-apercu">
-      <!-- Squelettes de chargement : sans eux, l'écran reste vide le
-           temps de la réponse /session, ce qui ressemble à une panne. -->
-      <div class="cartes" id="cartes" aria-live="polite">
-        <article class="carte"><p class="carte__libelle">Chargement…</p><div class="squelette" style="width:60%;height:1.9rem"></div><div class="squelette" style="width:80%"></div></article>
-        <article class="carte"><p class="carte__libelle">Chargement…</p><div class="squelette" style="width:45%;height:1.9rem"></div><div class="squelette" style="width:70%"></div></article>
-        <article class="carte"><p class="carte__libelle">Chargement…</p><div class="squelette" style="width:55%;height:1.9rem"></div><div class="squelette" style="width:75%"></div></article>
-      </div>
+      <!-- ══ Vue d'ensemble ═════════════════════════════════════════════ -->
+      <section id="panneau-apercu" role="tabpanel" aria-labelledby="onglet-apercu" tabindex="0">
 
-      <div class="bloc">
-        <div class="bloc__entete">
-          <h2 class="bloc__titre">À traiter</h2>
-          <p class="bloc__note" id="note-alertes">Les alertes se recalculent à chaque chargement.</p>
-        </div>
-        <div class="bloc__corps">
-          <ul class="alertes" id="alertes-apercu"></ul>
-        </div>
-      </div>
-    </section>
+        <!-- Bandeau de verdict : la seule information qui décide de la suite -->
+        <article class="verdict" id="verdict" data-etat="inconnu">
+          <div class="verdict__gauche">
+            <p class="verdict__surtitre">État de la collecte</p>
+            <p class="verdict__mot" id="verdict-mot">—</p>
+            <p class="verdict__phrase" id="verdict-phrase">Chargement…</p>
+          </div>
+          <figure class="verdict__figure">
+            <div class="verdict__serie" id="verdict-serie" aria-hidden="true"></div>
+            <div class="verdict__jours" id="verdict-jours" aria-hidden="true"></div>
+            <figcaption class="verdict__legende">
+              <span id="verdict-legende">—</span>
+              <span class="verdict__cle"><i class="temoin temoin--ok"></i>réussies<i class="temoin temoin--ko"></i>en échec</span>
+            </figcaption>
+          </figure>
+        </article>
 
-    <section id="panneau-collecte" role="tabpanel" aria-labelledby="onglet-collecte" hidden>
-      <div id="verdict-collecte" class="bandeau" hidden></div>
-      <div class="bloc">
-        <div class="bloc__entete">
-          <h2 class="bloc__titre">Sources</h2>
-          <p class="bloc__note">Une source « en retard » n’a pas de collecte réussie récente ; une source « en erreur » a échoué à sa dernière tentative.</p>
-        </div>
-        <div class="bloc__corps">
-          <table>
-            <caption class="sr-only" hidden>État de chaque source</caption>
-            <thead>
-              <tr>
-                <th scope="col">Source</th>
-                <th scope="col">État</th>
-                <th scope="col">Dernier succès</th>
-                <th scope="col">Dernière tentative</th>
-                <th scope="col" style="text-align:right">Offres lues</th>
-                <th scope="col">Erreur</th>
-              </tr>
-            </thead>
-            <tbody id="corps-sources"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
+        <!-- Chiffres clés : trois nombres, pas six cartes identiques -->
+        <div class="chiffres" id="chiffres" aria-live="polite"></div>
+        <p class="note-mesures" id="note-mesures" hidden></p>
 
-    <section id="panneau-qualite" role="tabpanel" aria-labelledby="onglet-qualite" hidden>
-      <div class="bloc">
-        <div class="bloc__entete">
-          <h2 class="bloc__titre">Champs essentiels manquants</h2>
-          <p class="bloc__note" id="note-qualite">Sur les offres publiées, c’est-à-dire celles que voit un candidat.</p>
-        </div>
-        <div class="bloc__corps">
-          <table>
-            <thead>
-              <tr>
-                <th scope="col">Champ</th>
-                <th scope="col" style="text-align:right">Manquants</th>
-                <th scope="col" style="text-align:right">Part</th>
-              </tr>
-            </thead>
-            <tbody id="corps-champs"></tbody>
-          </table>
-        </div>
-      </div>
-      <div class="bloc">
-        <div class="bloc__entete"><h2 class="bloc__titre">Classification et liens</h2></div>
-        <div class="bloc__corps" style="padding:1rem">
-          <dl id="detail-qualite" style="display:grid;grid-template-columns:auto 1fr;gap:.4rem 1.2rem;font-size:.86rem;margin:0"></dl>
-        </div>
-      </div>
-    </section>
+        <div class="duo">
+          <article class="panneau">
+            <header class="panneau__tete">
+              <h2 class="panneau__titre">Sources à surveiller</h2>
+              <button type="button" class="lien" data-onglet="collecte">Tout voir →</button>
+            </header>
+            <div id="sources-apercu" class="liste-sources"></div>
+          </article>
 
-    <section id="panneau-usage" role="tabpanel" aria-labelledby="onglet-usage" hidden>
-      <div class="bloc">
-        <div class="bloc__entete"><h2 class="bloc__titre">Usage candidat</h2></div>
-        <div class="bloc__corps">
-          <div class="vide" id="usage-vide">
-            Cette mesure n’est pas encore branchée. Elle ne vaut pas zéro : elle est inconnue.
-            <br>Prévue au lot 4 de la feuille de route (recherches sans résultat, fiches consultées, clics sortants).
+          <aside class="panneau panneau--alertes">
+            <header class="panneau__tete">
+              <h2 class="panneau__titre">À traiter</h2>
+              <span class="compte" id="compte-alertes">—</span>
+            </header>
+            <ul class="alertes" id="alertes-apercu"></ul>
+          </aside>
+        </div>
+      </section>
+
+      <!-- ══ Collecte ═══════════════════════════════════════════════════ -->
+      <section id="panneau-collecte" role="tabpanel" aria-labelledby="onglet-collecte" tabindex="0" hidden>
+        <header class="entete-section">
+          <h2 class="entete-section__titre">Collecte</h2>
+          <p class="entete-section__aide" id="aide-collecte">Chaque source, son rythme et sa dernière preuve de succès.</p>
+        </header>
+        <div class="panneau">
+          <div class="tableau-enveloppe">
+            <table class="tableau">
+              <thead>
+                <tr>
+                  <th scope="col">Source</th>
+                  <th scope="col">État</th>
+                  <th scope="col" class="col-serie">7 derniers jours</th>
+                  <th scope="col">Dernier succès</th>
+                  <th scope="col" class="col-num">Offres</th>
+                </tr>
+              </thead>
+              <tbody id="corps-sources"></tbody>
+            </table>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <section id="panneau-exploitation" role="tabpanel" aria-labelledby="onglet-exploitation" hidden>
-      <div class="bloc">
-        <div class="bloc__entete"><h2 class="bloc__titre">Sondes</h2></div>
-        <div class="bloc__corps">
-          <table>
-            <thead>
-              <tr>
-                <th scope="col">Cible</th>
-                <th scope="col">État</th>
-                <th scope="col" style="text-align:right">Code</th>
-                <th scope="col" style="text-align:right">Latence</th>
-                <th scope="col">Vérifiée</th>
-              </tr>
-            </thead>
-            <tbody id="corps-sondes"></tbody>
-          </table>
+      <!-- ══ Qualité ════════════════════════════════════════════════════ -->
+      <section id="panneau-qualite" role="tabpanel" aria-labelledby="onglet-qualite" tabindex="0" hidden>
+        <header class="entete-section">
+          <h2 class="entete-section__titre">Qualité des offres</h2>
+          <p class="entete-section__aide" id="aide-qualite">Mesuré sur les offres publiées — celles que voit un candidat.</p>
+        </header>
+
+        <div class="duo duo--inverse">
+          <article class="panneau">
+            <header class="panneau__tete"><h3 class="panneau__titre">Champs essentiels manquants</h3></header>
+            <div class="tableau-enveloppe">
+              <table class="tableau tableau--serre">
+                <thead>
+                  <tr><th scope="col">Champ</th><th scope="col" class="col-num">Manquants</th><th scope="col" class="col-part">Part</th></tr>
+                </thead>
+                <tbody id="corps-champs"></tbody>
+              </table>
+            </div>
+          </article>
+
+          <aside class="panneau">
+            <header class="panneau__tete"><h3 class="panneau__titre">Classification et liens</h3></header>
+            <dl class="faits" id="detail-qualite"></dl>
+          </aside>
         </div>
-      </div>
-      <div class="bloc">
-        <div class="bloc__entete">
-          <h2 class="bloc__titre">Sauvegarde et coûts</h2>
-          <p class="bloc__note">Aucune donnée inventée : ce qui n’est pas exposé est annoncé comme tel.</p>
+      </section>
+
+      <!-- ══ Usage ══════════════════════════════════════════════════════ -->
+      <section id="panneau-usage" role="tabpanel" aria-labelledby="onglet-usage" tabindex="0" hidden>
+        <header class="entete-section">
+          <h2 class="entete-section__titre">Usage candidat</h2>
+          <p class="entete-section__aide">Recherches sans résultat, fiches consultées, clics sortants.</p>
+        </header>
+        <div class="panneau">
+          <div class="absent">
+            <p class="absent__titre">Mesure non branchée</p>
+            <p class="absent__texte">
+              Cette donnée n’existe pas encore. Elle n’est pas à zéro : elle est <strong>inconnue</strong>.
+              L’instrumentation d’usage est le lot 4 de la feuille de route.
+            </p>
+          </div>
         </div>
-        <div class="bloc__corps"><div class="vide" id="operations-vide">Chargement…</div></div>
-      </div>
-    </section>
+      </section>
 
-  </div>
-</main>
+      <!-- ══ Exploitation ═══════════════════════════════════════════════ -->
+      <section id="panneau-exploitation" role="tabpanel" aria-labelledby="onglet-exploitation" tabindex="0" hidden>
+        <header class="entete-section">
+          <h2 class="entete-section__titre">Exploitation</h2>
+          <p class="entete-section__aide">Ce que le service répond, ce qui est sauvegardé, ce qui coûte.</p>
+        </header>
 
-<footer class="pied">
-  <p id="horodatage">—</p>
-</footer>
+        <div class="panneau">
+          <header class="panneau__tete"><h3 class="panneau__titre">Sondes</h3></header>
+          <div class="tableau-enveloppe">
+            <table class="tableau tableau--serre">
+              <thead>
+                <tr><th scope="col">Cible</th><th scope="col">État</th><th scope="col" class="col-num">Code</th><th scope="col" class="col-num">Latence</th><th scope="col">Vérifiée</th></tr>
+              </thead>
+              <tbody id="corps-sondes"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="panneau">
+          <header class="panneau__tete">
+            <h3 class="panneau__titre">Sauvegarde et coûts</h3>
+            <span class="mentions">Aucune valeur inventée</span>
+          </header>
+          <div id="operations-vide" class="absent absent--plat">Chargement…</div>
+        </div>
+      </section>
+
+    </div>
+
+    <p class="pied" id="horodatage">—</p>
+  </main>
+</div>
 
 <script src="/assets/monitoring.js" defer></script>
 </body>
