@@ -61,7 +61,13 @@
   <div id="contenu">
 
     <section id="panneau-apercu" role="tabpanel" aria-labelledby="onglet-apercu">
-      <div class="cartes" id="cartes" aria-live="polite"></div>
+      <!-- Squelettes de chargement : sans eux, l'écran reste vide le
+           temps de la réponse /session, ce qui ressemble à une panne. -->
+      <div class="cartes" id="cartes" aria-live="polite">
+        <article class="carte"><p class="carte__libelle">Chargement…</p><div class="squelette" style="width:60%;height:1.9rem"></div><div class="squelette" style="width:80%"></div></article>
+        <article class="carte"><p class="carte__libelle">Chargement…</p><div class="squelette" style="width:45%;height:1.9rem"></div><div class="squelette" style="width:70%"></div></article>
+        <article class="carte"><p class="carte__libelle">Chargement…</p><div class="squelette" style="width:55%;height:1.9rem"></div><div class="squelette" style="width:75%"></div></article>
+      </div>
 
       <div class="bloc">
         <div class="bloc__entete">
