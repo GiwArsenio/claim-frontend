@@ -388,8 +388,11 @@ a { color: inherit; }
    pas le corps d'un chiffre, sinon elle crie aussi fort qu'une mesure. */
 .chiffre[data-type="texte"] .chiffre__valeur { font-size: 1.125rem; font-weight: 700; letter-spacing: -.02em; }
 .chiffre[data-etat="unavailable"] { background: var(--carte-2); }
+/* `display: flex` sur cette note laissait chaque <strong> devenir un
+   element de ligne : la phrase se cassait et le point final tombait seul
+   a la ligne. En bloc, le texte reste une phrase. */
 .note-mesures {
-  display: flex; align-items: baseline; gap: .4rem; flex-wrap: wrap;
+  display: block;
   margin: -.55rem 0 1.25rem;
   padding: .5rem .8rem;
   font-size: .75rem; color: var(--encre-2);
