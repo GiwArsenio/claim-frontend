@@ -23,7 +23,9 @@ const SOURCES = [
 const cartes = [
   { key:'service', label:'État du service', value:'Disponible', unit:null, status:'available', tone:'ok', detail:'Site, API publique et lecture de la base.' },
   { key:'sources_recentes', label:'Sources récentes', value:63, unit:'/ 63', status:'available', tone:'ok', detail:'Toutes les sources ont été rafraîchies récemment.' },
+  { key:'offres_actives', label:'Offres actives', value:4695, unit:'offres', status:'available', tone:'neutre', detail:'Toute la base active, avant classement métier.' },
   { key:'offres_publiees', label:'Offres publiées', value:334, unit:'offres', status:'available', tone:'neutre', detail:'Même périmètre que le board public.' },
+  { key:'offres_coeur', label:'Offres cœur', value:334, unit:'offres', status:'available', tone:'neutre', detail:'7,1 % des offres actives.' },
   { key:'nouveautes', label:'Nouvelles sur 7 j', value:29, unit:'offres', status:'available', tone:'neutre', detail:'Première apparition en base.' },
   { key:'a_classer', label:'Offres à classer', value:1370, unit:'offres', status:'available', tone:'attention', detail:'Classification métier en attente.' },
   { key:'recherches_vides', label:'Recherches sans résultat', value:null, unit:null, status:'unavailable', reason:'Instrumentation d’usage non branchée', tone:'inconnu', detail:'Disponible au lot 4.' },
@@ -44,6 +46,13 @@ const apercu = {
     {jour:'2026-10-29',runs:63,succes:63,echecs:0,offres:5452},
   ],
   probes: { sondes: [], base: { disponible:true } },
+  cron: { statut: 'bloque', diagnostic: '1 passage(s) ouvert(s) depuis plus de 4 h.',
+    ouverts: 1, bloques: ['2026-10-27'], retard: false,
+    prochain: '2026-10-30T03:00:00+00:00', horaires_utc: [3, 4, 10], seuil_blocage_heures: 4,
+    dernier: { business_date_utc: '2026-10-29', status: 'completed',
+      started_at: '2026-10-29T03:04:20+00:00', finished_at: '2026-10-29T05:46:27+00:00' } },
+  classification: { actifs: 4695, coeur: 334, exclu: 4361, a_classer: 1370, classes: 3325,
+    cas_limites: 35, curation_attente: 4683, curation_echec: 0, part_coeur: 7.1, part_a_classer: 29.2 },
 };
 
 const sources = {
@@ -90,6 +99,49 @@ const operations = {
   couts: { status:'unavailable', reason:'Coûts non importés' },
 };
 
+const cron = {
+  generated_at: apercu.generated_at, period_days: 7,
+  resume: { statut: 'bloque', diagnostic: '1 passage(s) ouvert(s) depuis plus de 4 h.',
+    ouverts: 1, bloques: ['2026-10-27'], retard: false,
+    prochain: '2026-10-30T03:00:00+00:00', horaires_utc: [3, 4, 10], seuil_blocage_heures: 4 },
+  dernier: { id: 'b1', business_date_utc: '2026-10-29', status: 'completed',
+    started_at: '2026-10-29T03:04:20+00:00', finished_at: '2026-10-29T05:46:27+00:00',
+    duree_minutes: 162, sources_attendues: 63, sources_traitees: 63 },
+  work_items: { par_statut: { success: 63 }, total: 63 },
+  batchs: [
+    { business_date_utc: '2026-10-29', status: 'completed', started_at: '2026-10-29T03:04:20+00:00', finished_at: '2026-10-29T05:46:27+00:00', sources_attendues: 63 },
+    { business_date_utc: '2026-10-28', status: 'completed', started_at: '2026-10-28T03:04:22+00:00', finished_at: '2026-10-28T05:39:58+00:00', sources_attendues: 63 },
+    { business_date_utc: '2026-10-27', status: 'open', started_at: '2026-10-27T09:56:30+00:00', finished_at: null, sources_attendues: 0 },
+  ],
+};
+
+const classification = {
+  generated_at: apercu.generated_at,
+  classification: { actifs: 4695, coeur: 334, exclu: 4361, a_classer: 1370, classes: 3325,
+    cas_limites: 35, curation_attente: 4683, curation_echec: 0, part_coeur: 7.1, part_a_classer: 29.2 },
+  alertes: [
+    { gravite: 'attention', titre: '1370 offres actives non classées', detail: '29,2 % des offres actives n’ont pas encore de métier.' },
+    { gravite: 'attention', titre: '4683 offres en attente de curation', detail: 'Résumé, compétences et salaire ne sont pas encore produits.' },
+    { gravite: 'attention', titre: '35 cas limites', detail: 'Classés avec une confiance faible : un arbitrage humain est attendu.' },
+  ],
+};
+
+const indexation = {
+  generated_at: apercu.generated_at, status: 'unavailable',
+  reason: 'Search Console non autorisée pour le compte de service : l’URL Inspection API répond 403 PERMISSION_DENIED.',
+  a_faire: ['Ajouter le compte de service comme propriétaire dans Search Console',
+    'Autoriser la propriété dans l’Indexing API', 'Exposer un jeton de lecture à l’API'],
+  ce_qui_est_mesure: { fiches_publiees: 334, sondes: [
+    { nom: 'Sitemap', disponible: true, code: 200 }, { nom: 'Robots', disponible: true, code: 200 }] },
+};
+
+const analytics = {
+  generated_at: apercu.generated_at, status: 'unavailable',
+  reason: 'Aucun accès de lecture à la propriété GA4 n’est configuré côté API.',
+  a_faire: ['Créer une clé de compte de service avec le rôle Lecteur sur la propriété GA4',
+    'La stocker comme secret Railway', 'Interroger la Data API et agréger par jour'],
+};
+
 const serveur = http.createServer((req, res) => {
   const chemin = decodeURIComponent(req.url.split('?')[0]);
   const fichier = path.join(RACINE, chemin === '/' ? 'monitoring.html' : chemin);
@@ -117,6 +169,10 @@ const serveur = http.createServer((req, res) => {
       : url.includes('/sources') ? sources
       : url.includes('/alerts') ? alertes
       : url.includes('/quality') ? qualite
+      : url.includes('/cron') ? cron
+      : url.includes('/classification') ? classification
+      : url.includes('/indexation') ? indexation
+      : url.includes('/analytics') ? analytics
       : url.includes('/operations') ? operations
       : {};
     await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(corps) });
@@ -126,13 +182,11 @@ const serveur = http.createServer((req, res) => {
   await page.waitForTimeout(700);
   await page.screenshot({ path: '/tmp/shot-apercu.png', fullPage: true });
 
-  await page.click('#onglet-collecte');
-  await page.waitForTimeout(500);
-  await page.screenshot({ path: '/tmp/shot-collecte.png', fullPage: true });
-
-  await page.click('#onglet-qualite');
-  await page.waitForTimeout(400);
-  await page.screenshot({ path: '/tmp/shot-qualite.png', fullPage: true });
+  for (const [onglet, fichier] of [['cron','cron'], ['collecte','collecte'], ['offres','offres'], ['indexation','indexation']]) {
+    await page.click(`#onglet-${onglet}`);
+    await page.waitForTimeout(700);
+    await page.screenshot({ path: `/tmp/shot-${fichier}.png`, fullPage: true });
+  }
 
   // Contrôles de mise en page
   const mesures = await page.evaluate(() => ({

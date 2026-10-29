@@ -1,7 +1,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // CLAIM! — client du dashboard de monitoring
 //
-// Quatre règles tiennent ce fichier, et elles expliquent presque tout :
+// Quatre règles tiennent ce fichier :
 //
 // 1. Une donnée absente ne s'affiche jamais comme zéro. L'API le dit
 //    (`status: "unavailable"`) ; l'interface écrit « Non disponible » et
@@ -9,24 +9,16 @@
 // 2. Une réponse tardive ne remplace jamais une réponse récente. Chaque
 //    chargement porte un numéro ; seul le dernier a le droit d'écrire.
 // 3. Un échec de chargement conserve l'affichage précédent et le signale.
-//    Vider l'écran donnerait l'impression d'un service sans données.
-// 4. Un jour sans passage n'est pas un jour à zéro. Les séries
-//    distinguent `null` (aucun passage) de `0` (passage, rien trouvé) :
-//    c'est la différence entre « je n'ai pas regardé » et « j'ai regardé,
-//    il n'y avait rien ».
+// 4. Un jour sans passage n'est pas un jour à zéro : `null` et `0` sont
+//    dessinés différemment. C'est la différence entre « je n'ai pas
+//    regardé » et « j'ai regardé, il n'y avait rien ».
 // ─────────────────────────────────────────────────────────────────────────────
 
 (function () {
   'use strict';
 
   const API = '/monitoring/api';
-  const etat = {
-    periode: 7,
-    onglet: 'apercu',
-    chargement: 0,
-    sessionValide: true,
-    donnees: {}
-  };
+  const etat = { periode: 7, onglet: 'apercu', chargement: 0, sessionValide: true };
 
   const $ = (id) => document.getElementById(id);
 
@@ -36,6 +28,7 @@
   const dateHeure = new Intl.DateTimeFormat('fr-FR', {
     timeZone: 'Europe/Paris', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
   });
+  const heureSeule = new Intl.DateTimeFormat('fr-FR', { timeZone: 'Europe/Paris', hour: '2-digit', minute: '2-digit' });
   const jourCourt = new Intl.DateTimeFormat('fr-FR', { timeZone: 'Europe/Paris', day: 'numeric', month: 'short' });
 
   function heure(iso) {
@@ -43,7 +36,6 @@
     const d = new Date(iso);
     return Number.isNaN(d.getTime()) ? '—' : dateHeure.format(d);
   }
-
   function depuis(iso) {
     if (!iso) return '—';
     const d = new Date(iso);
@@ -55,40 +47,32 @@
     if (h < 48) return `il y a ${h} h`;
     return `il y a ${Math.round(h / 24)} j`;
   }
-
   function valeur(v) {
-    // `null` n'est pas `0`. Le tiret cadratin est le signe conventionnel
-    // d'une donnée absente dans un tableau.
     if (v === null || v === undefined) return '—';
-    // Certaines cartes ne portent pas un nombre mais un état (« Disponible »).
-    // Les passer au formateur numérique affichait « NaN » — un défaut vu au
-    // premier rendu réel, pas en test.
     if (typeof v !== 'number') return String(v);
     return nombre.format(v);
   }
-
   function part(p) {
     if (p === null || p === undefined) return '—';
     return `${String(p).replace('.', ',')} %`;
   }
-
   function echapper(t) {
     if (t === null || t === undefined) return '';
     return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
-
   function jourLisible(iso) {
     const d = new Date(`${iso}T12:00:00Z`);
     return Number.isNaN(d.getTime()) ? iso : jourCourt.format(d);
   }
+  function duree(min) {
+    if (min === null || min === undefined) return '—';
+    if (min < 60) return `${min} min`;
+    const h = Math.floor(min / 60);
+    return `${h} h ${String(min % 60).padStart(2, '0')}`;
+  }
 
   // ── Micro-visualisations ─────────────────────────────────────────────────
 
-  /* Éticelle : sept jours de volume pour une source.
-     Trois états visuels, et trois seulement :
-       - une barre    : volume mesuré (hauteur proportionnelle)
-       - un trait gris: aucun passage ce jour-là (donnée absente)
-       - un trait ambre : passage effectué, zéro offre (anomalie possible) */
   function eticelle(serie, jours) {
     if (!Array.isArray(serie) || !serie.length
         || serie.every((v) => v === null || v === undefined)) {
@@ -98,55 +82,34 @@
     const max = valeurs.length ? Math.max(...valeurs, 1) : 1;
     const barres = serie.map((v, i) => {
       const titre = `${jourLisible(jours[i])} : ${v === null ? 'aucun passage' : `${v} offre(s)`}`;
-      if (v === null || v === undefined) {
-        return `<i data-vide="1" style="height:2px" title="${echapper(titre)}"></i>`;
-      }
-      if (v === 0) {
-        return `<i data-zero="1" style="height:3px" title="${echapper(titre)}"></i>`;
-      }
-      const h = Math.max(4, Math.round((v / max) * 18));
-      return `<i style="height:${h}px" title="${echapper(titre)}"></i>`;
+      if (v === null || v === undefined) return `<i data-vide="1" style="height:3px" title="${echapper(titre)}"></i>`;
+      if (v === 0) return `<i data-zero="1" style="height:4px" title="${echapper(titre)}"></i>`;
+      return `<i style="height:${Math.max(4, Math.round((v / max) * 18))}px" title="${echapper(titre)}"></i>`;
     });
     return `<span class="eticelle" aria-hidden="true">${barres.join('')}</span>`;
   }
 
-  /* Bandeau de verdict : une colonne par jour, empilant réussites et
-     échecs. La hauteur est proportionnelle au nombre d'exécutions, ce qui
-     rend une journée creuse lisible comme creuse. */
   function serieVerdict(serie, jours) {
     const zone = $('verdict-serie');
     if (!Array.isArray(serie) || !serie.length) {
       zone.innerHTML = '';
       $('verdict-legende').textContent = 'Aucune exécution enregistrée sur la période';
+      $('verdict-jours').innerHTML = '';
       return;
     }
     const max = Math.max(...serie.map((j) => j.runs || 0), 1);
-    zone.innerHTML = serie
-      .map((j, i) => {
-        const libelle = `${jourLisible(jours[i])} : ${j.runs} passage(s), ${j.succes} réussi(s), ${j.echecs} en échec`;
-        if (!j.runs) {
-          return `<div class="verdict__jour verdict__jour--vide" title="${echapper(libelle)}"></div>`;
-        }
-        // Un segment non nul garde toujours 3 px : deux échecs sur cent
-        // vingt-neuf passages doivent rester visibles. Sans plancher, ils
-        // se réduisaient à un filet d'un pixel, qu'on prenait pour un
-        // artefact de rendu.
-        const hOk = j.succes ? Math.max(3, Math.round((j.succes / max) * 76)) : 0;
-        const hKo = j.echecs ? Math.max(3, Math.round((j.echecs / max) * 76)) : 0;
-        // Les réussites reposent sur la ligne de base, les échecs
-        // s'empilent au-dessus : on lit « combien a échoué par-dessus ce
-        // qui a marché », pas l'inverse.
-        return `<div class="verdict__jour" title="${echapper(libelle)}">
-          ${hOk ? `<span class="verdict__seg verdict__seg--ok" style="height:${hOk}px"></span>` : ''}
-          ${hKo ? `<span class="verdict__seg verdict__seg--ko" style="height:${hKo}px"></span>` : ''}
-        </div>`;
-      })
-      .join('');
-    $('verdict-jours').innerHTML = jours
-      .slice(-serie.length)
-      .map((j) => `<span>${echapper(String(new Date(`${j}T12:00:00Z`).getUTCDate()))}</span>`)
-      .join('');
-
+    zone.innerHTML = serie.map((j, i) => {
+      const libelle = `${jourLisible(jours[i])} : ${j.runs} passage(s), ${j.succes} réussi(s), ${j.echecs} en échec`;
+      if (!j.runs) return `<div class="verdict__jour verdict__jour--vide" title="${echapper(libelle)}"></div>`;
+      const hOk = j.succes ? Math.max(3, Math.round((j.succes / max) * 76)) : 0;
+      const hKo = j.echecs ? Math.max(3, Math.round((j.echecs / max) * 76)) : 0;
+      return `<div class="verdict__jour" title="${echapper(libelle)}">
+        ${hOk ? `<span class="verdict__seg verdict__seg--ok" style="height:${hOk}px"></span>` : ''}
+        ${hKo ? `<span class="verdict__seg verdict__seg--ko" style="height:${hKo}px"></span>` : ''}
+      </div>`;
+    }).join('');
+    $('verdict-jours').innerHTML = jours.slice(-serie.length)
+      .map((j) => `<span>${echapper(String(new Date(`${j}T12:00:00Z`).getUTCDate()))}</span>`).join('');
     const total = serie.reduce((s, j) => s + (j.runs || 0), 0);
     const echecs = serie.reduce((s, j) => s + (j.echecs || 0), 0);
     $('verdict-legende').textContent = `${nombre.format(total)} passages · ${nombre.format(echecs)} en échec`;
@@ -156,14 +119,9 @@
 
   async function appeler(chemin, options) {
     const reponse = await fetch(API + chemin, {
-      credentials: 'same-origin',
-      headers: { Accept: 'application/json' },
-      ...(options || {})
+      credentials: 'same-origin', headers: { Accept: 'application/json' }, ...(options || {})
     });
-    if (reponse.status === 401) {
-      basculerConnexion(false);
-      throw new Error('Session requise');
-    }
+    if (reponse.status === 401) { basculerConnexion(false); throw new Error('Session requise'); }
     let corps = null;
     try { corps = await reponse.json(); } catch (e) { corps = null; }
     if (!reponse.ok) {
@@ -200,27 +158,18 @@
     bouton.disabled = true;
     try {
       const reponse = await fetch(`${API}/session`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ key: champ.value })
       });
-      if (reponse.ok) {
-        champ.value = '';
-        basculerConnexion(true);
-        chargerTout();
-        return;
-      }
+      if (reponse.ok) { champ.value = ''; basculerConnexion(true); chargerTout(); return; }
       zoneErreur.textContent =
         reponse.status === 429 ? 'Trop de tentatives. Réessayez dans quelques minutes.'
           : reponse.status === 503 ? 'Le monitoring n’est pas configuré côté serveur.'
             : 'Clé refusée.';
-      champ.value = '';
-      champ.focus();
+      champ.value = ''; champ.focus();
     } catch (e) {
       zoneErreur.textContent = 'Service injoignable.';
-    } finally {
-      bouton.disabled = false;
-    }
+    } finally { bouton.disabled = false; }
   }
 
   async function fermerSession() {
@@ -230,43 +179,35 @@
 
   // ── Vue d'ensemble ───────────────────────────────────────────────────────
 
-  const ORDRE_CHIFFRES = ['offres_publiees', 'nouveautes', 'a_classer', 'sources_recentes', 'service', 'recherches_vides'];
-  // `service` et `recherches_vides` ne sont pas des nombres : le premier
-  // part dans la barre supérieure, le second dans la note sous la grille.
+  // Seules ces mesures occupent la grille : les autres ne sont pas des
+  // nombres, et les poser au même poids visuel aplatissait la hiérarchie.
+  // `offres_publiees` n'est pas affiché : il vaut exactement `offres_coeur`
+// (le prédicat de publication porte sur la classification). Deux fois le
+// même nombre fait douter de la mesure. On montre l'entonnoir.
+  const CHIFFRES_AFFICHES = ['offres_coeur', 'offres_actives', 'a_classer', 'nouveautes'];
 
-  /* Séparation des mesures et des états.
-     « Disponible » n'est pas un chiffre : le poser au même corps qu'un
-     « 334 » mettait un statut système et un volume au même poids visuel.
-     Les états vont dans la barre supérieure, les mesures non branchées
-     sous la ligne, et seuls les nombres restent dans la grille. */
   function rendreChiffres(cartes) {
-    const estNombre = (c) => typeof c.value === 'number' && c.status !== 'unavailable';
-    const nombres = [...cartes]
-      .filter(estNombre)
-      .sort((a, b) => (ORDRE_CHIFFRES.indexOf(a.key) + 1 || 99) - (ORDRE_CHIFFRES.indexOf(b.key) + 1 || 99));
-    const autres = cartes.filter((c) => !estNombre(c));
+    const retenues = CHIFFRES_AFFICHES
+      .map((cle) => cartes.find((c) => c.key === cle))
+      .filter(Boolean);
 
-    $('chiffres').innerHTML = nombres
-      .map((c) => {
-        const indisponible = c.status === 'unavailable';
-        const texte = typeof c.value === 'string';
-        const corps = indisponible
-          ? 'Non disponible'
-          : `${echapper(valeur(c.value))}${c.unit ? ` <small>${echapper(c.unit)}</small>` : ''}`;
-        return `<div class="chiffre" data-etat="${indisponible ? 'unavailable' : 'available'}" data-ton="${echapper(c.tone || 'neutre')}" data-type="${texte ? 'texte' : 'nombre'}">
-          <p class="chiffre__etiquette">${echapper(c.label)}</p>
-          <p class="chiffre__valeur">${corps}</p>
-          <p class="chiffre__note">${echapper(indisponible ? (c.reason || 'Donnée absente') : (c.detail || ''))}</p>
-        </div>`;
-      })
-      .join('');
+    $('chiffres').innerHTML = retenues.map((c) => {
+      const indisponible = c.status === 'unavailable';
+      const texte = typeof c.value === 'string';
+      const corps = indisponible
+        ? 'Non disponible'
+        : `${echapper(valeur(c.value))}${c.unit ? ` <small>${echapper(c.unit)}</small>` : ''}`;
+      return `<div class="chiffre" data-etat="${indisponible ? 'unavailable' : 'available'}" data-ton="${echapper(c.tone || 'neutre')}" data-type="${texte ? 'texte' : 'nombre'}">
+        <p class="chiffre__etiquette">${echapper(c.label)}</p>
+        <p class="chiffre__valeur">${corps}</p>
+        <p class="chiffre__note">${echapper(indisponible ? (c.reason || 'Donnée absente') : (c.detail || ''))}</p>
+      </div>`;
+    }).join('');
 
-    const indisponibles = autres.filter((c) => c.status === 'unavailable');
+    const indisponibles = cartes.filter((c) => c.status === 'unavailable');
     const note = $('note-mesures');
-    if (!indisponibles.length) {
-      note.hidden = true;
-      note.textContent = '';
-    } else {
+    if (!indisponibles.length) { note.hidden = true; note.textContent = ''; }
+    else {
       note.hidden = false;
       note.innerHTML = 'Mesures non branchées : ' +
         indisponibles.map((c) => `<strong>${echapper(c.label)}</strong>`).join(', ') +
@@ -274,27 +215,50 @@
     }
   }
 
-  function rendreEtatService(probes) {
-    const zone = $('etat-service');
-    const texte = $('etat-service-texte');
-    if (!probes) { zone.hidden = true; return; }
-    const sondes = probes.sondes || [];
-    const base = probes.base || {};
-    const toutOk = base.disponible !== false && sondes.every((s) => s.disponible);
-    zone.hidden = false;
-    zone.dataset.etat = toutOk ? 'ok' : 'critique';
-    texte.textContent = toutOk ? 'Service disponible' : 'Service dégradé';
-    zone.title = sondes.map((s) => `${s.nom} : ${s.disponible ? 'ok' : 'injoignable'} (${s.latence_ms} ms)`).join(' · ') || '';
-  }
-
   function rendreVerdict(donnees) {
     const c = donnees.collection;
-    const bloc = $('verdict');
-    const libelle = { ok: 'Saine', degrade: 'Dégradée', rompu: 'Rompue' }[c.statut] || 'Indéterminée';
-    bloc.dataset.etat = c.statut;
-    $('verdict-mot').textContent = libelle;
+    $('verdict').dataset.etat = c.statut;
+    $('verdict-mot').textContent = { ok: 'Saine', degrade: 'Dégradée', rompu: 'Rompue' }[c.statut] || 'Indéterminée';
     $('verdict-phrase').textContent = c.diagnostic || '—';
     serieVerdict(donnees.serie || [], donnees.jours || []);
+  }
+
+  function rendreEtatService(probes) {
+    const zone = $('etat-service');
+    if (!probes) { zone.hidden = true; return; }
+    const sondes = probes.sondes || [];
+    const toutOk = (probes.base || {}).disponible !== false && sondes.every((s) => s.disponible);
+    zone.hidden = false;
+    zone.dataset.etat = toutOk ? 'ok' : 'critique';
+    $('etat-service-texte').textContent = toutOk ? 'Service disponible' : 'Service dégradé';
+    zone.title = sondes.map((s) => `${s.nom} : ${s.disponible ? 'ok' : 'injoignable'} (${s.latence_ms} ms)`).join(' · ');
+  }
+
+  /* Ligne du cron dans la vue d'ensemble. Elle répond à une question que
+     la carte « sources récentes » ne pose pas : le passage prévu a-t-il eu
+     lieu, et jusqu'à quand a-t-il tourné ? */
+  function rendreLigneCron(cron) {
+    const zone = $('ligne-cron');
+    if (!cron) { zone.hidden = true; return; }
+    zone.hidden = false;
+    zone.dataset.etat = cron.statut;
+
+    const libelle = { ok: 'terminé', en_cours: 'en cours', bloque: 'bloqué', retard: 'en retard', inconnu: 'inconnu' }[cron.statut] || cron.statut;
+    const d = cron.dernier;
+    const details = d
+      ? `Dernier passage ${jourLisible(d.business_date_utc)} · ${heureSeule.format(new Date(d.started_at))}${d.finished_at ? ` → ${heureSeule.format(new Date(d.finished_at))}` : ' → non terminé'}`
+      : 'Aucun passage enregistré';
+    const prochain = cron.prochain
+      ? `Prochain prévu ${jourLisible(cron.prochain.slice(0, 10))} à ${heureSeule.format(new Date(cron.prochain))} (UTC)`
+      : '';
+
+    zone.innerHTML = `
+      <span class="ligne-cron__etat">
+        <i class="temoin-etat"></i>Cron ${echapper(libelle)}
+      </span>
+      <span class="ligne-cron__detail">${echapper(details)}</span>
+      ${prochain ? `<span class="ligne-cron__suite">${echapper(prochain)}</span>` : ''}
+      <button type="button" class="lien" data-onglet="cron">Détail →</button>`;
   }
 
   function rendreSourcesApercu(donnees) {
@@ -304,13 +268,10 @@
       zone.innerHTML = '<p class="vide">Aucune source activée lue.</p>';
       return;
     }
-    // Priorité aux anomalies ; à défaut, les six plus gros volumes.
     const rang = { erreur: 0, bloquee: 1, jamais: 2, retard: 3, ok: 4 };
     const triees = [...donnees.sources].sort((a, b) => {
       const d = (rang[a.etat] ?? 9) - (rang[b.etat] ?? 9);
-      if (d !== 0) return d;
-      const va = (a.total_found || 0), vb = (b.total_found || 0);
-      return vb - va;
+      return d !== 0 ? d : (b.total_found || 0) - (a.total_found || 0);
     });
     const libelles = { ok: 'à jour', retard: 'en retard', erreur: 'en erreur', bloquee: 'bloquée', jamais: 'jamais' };
     zone.innerHTML = triees.slice(0, 6).map((s) => {
@@ -321,27 +282,6 @@
         <span class="pastille" data-etat="${ton}">${libelles[s.etat] || s.etat}</span>
       </div>`;
     }).join('');
-  }
-
-  async function chargerApercu() {
-    const [apercu, sources, alertes] = await Promise.all([
-      appeler(`/overview?period=${etat.periode}`),
-      appeler(`/sources?period=${etat.periode}`),
-      appeler(`/alerts?period=${etat.periode}`)
-    ]);
-
-    rendreVerdict(apercu);
-    rendreEtatService(apercu.probes);
-    rendreChiffres(apercu.cards);
-    rendreSourcesApercu(sources);
-    rendreAlertes(alertes.alertes, $('alertes-apercu'), 5);
-    $('compte-alertes').textContent = `${alertes.ouverts} ouverte(s) / ${alertes.total}`;
-
-    const c = apercu.collection;
-    $('horodatage').textContent =
-      `Données au ${heure(apercu.generated_at)} · ${c.sources_a_jour} sources à jour sur ${c.sources_attendues} · période ${apercu.period_days} jours`;
-
-    etat.donnees.apercu = { apercu, sources, alertes };
   }
 
   function rendreAlertes(alertes, zone, limite) {
@@ -360,7 +300,92 @@
       </li>`).join('');
   }
 
-  // ── Collecte ─────────────────────────────────────────────────────────────
+  async function chargerApercu() {
+    const [apercu, sources, alertes] = await Promise.all([
+      appeler(`/overview?period=${etat.periode}`),
+      appeler(`/sources?period=${etat.periode}`),
+      appeler(`/alerts?period=${etat.periode}`)
+    ]);
+    rendreVerdict(apercu);
+    rendreEtatService(apercu.probes);
+    rendreLigneCron(apercu.cron);
+    rendreChiffres(apercu.cards);
+    rendreSourcesApercu(sources);
+    rendreAlertes(alertes.alertes, $('alertes-apercu'), 5);
+    $('compte-alertes').textContent = `${alertes.ouverts} à traiter`;
+    $('compte-alertes').title = `${alertes.ouverts} non prise(s) en charge sur ${alertes.total} anomalie(s) détectée(s)`;
+    const c = apercu.collection;
+    $('horodatage').textContent =
+      `Données au ${heure(apercu.generated_at)} · ${c.sources_a_jour} sources à jour sur ${c.sources_attendues} · période ${apercu.period_days} jours`;
+  }
+
+  // ── Cron ─────────────────────────────────────────────────────────────────
+
+  function rendreCron(d) {
+    const r = d.resume;
+    const dernier = d.dernier || {};
+    const cartes = [
+      {
+        etiquette: 'Verdict', valeur: { ok: 'Terminé', en_cours: 'En cours', bloque: 'Bloqué', retard: 'En retard', inconnu: 'Inconnu' }[r.statut] || r.statut,
+        note: r.diagnostic, ton: r.statut === 'ok' ? 'ok' : (r.statut === 'inconnu' ? 'neutre' : 'attention')
+      },
+      {
+        etiquette: 'Dernier passage', valeur: duree(dernier.duree_minutes),
+        note: dernier.started_at ? `${heure(dernier.started_at)} → ${dernier.finished_at ? heure(dernier.finished_at) : 'en cours'} ` : '—',
+        ton: 'neutre'
+      },
+      {
+        etiquette: 'Sources traitées', valeur: `${dernier.sources_traitees ?? 0} / ${dernier.sources_attendues ?? 0}`,
+        note: r.prochain ? `Prochain prévu ${heure(r.prochain)}` : 'Aucun horaire configuré',
+        ton: (dernier.sources_traitees === dernier.sources_attendues && dernier.sources_attendues) ? 'ok' : 'attention'
+      }
+    ];
+    $('cron-chiffres').innerHTML = cartes.map((c) => `<div class="chiffre" data-ton="${c.ton}">
+        <p class="chiffre__etiquette">${echapper(c.etiquette)}</p>
+        <p class="chiffre__valeur" data-type="texte">${echapper(c.valeur)}</p>
+        <p class="chiffre__note">${echapper(c.note || '')}</p>
+      </div>`).join('');
+
+    $('cron-mention').textContent = `horaires UTC : ${(r.horaires_utc || []).join(' h, ')} h`;
+
+    const libellesEtat = { completed: ['terminé', 'ok'], open: ['ouvert', 'attention'], failed: ['échoué', 'critique'] };
+    $('corps-batchs').innerHTML = d.batchs.length
+      ? d.batchs.map((b) => {
+        const [texte, ton] = libellesEtat[b.status] || [b.status, 'inconnu'];
+        return `<tr>
+          <td>${echapper(jourLisible(b.business_date_utc))}</td>
+          <td><span class="pastille" data-etat="${ton}">${texte}</span></td>
+          <td>${heure(b.started_at)}</td>
+          <td>${b.finished_at ? heure(b.finished_at) : '—'}</td>
+          <td class="num">${b.started_at && b.finished_at ? duree(Math.round((new Date(b.finished_at) - new Date(b.started_at)) / 60000)) : '—'}</td>
+          <td class="num" title="${b.sources_attendues ? '' : 'Le passage n’a déclaré aucune source attendue'}">${b.sources_attendues ? b.sources_attendues : '—'}</td>
+        </tr>`;
+      }).join('')
+      : '<tr><td colspan="6" class="vide">Aucun passage enregistré sur la période.</td></tr>';
+
+    const par = d.work_items.par_statut || {};
+    const total = d.work_items.total || 0;
+    $('cron-items').textContent = total ? `${total} source(s)` : '';
+    if (!total) {
+      $('cron-repartition').innerHTML = '<p class="vide">Aucune source détaillée pour ce passage.</p>';
+      return;
+    }
+    const entrees = Object.entries(par).sort((a, b) => b[1] - a[1]);
+    const tonDe = (s) => (s === 'success' ? 'ok' : (s === 'error' || s === 'failed' ? 'critique' : 'attention'));
+    $('cron-repartition').innerHTML = `
+      <div class="barre-repartition" role="img" aria-label="${echapper(entrees.map(([s, n]) => `${n} ${s}`).join(', '))}">
+        ${entrees.map(([s, n]) => `<span data-etat="${tonDe(s)}" style="width:${(100 * n) / total}%"></span>`).join('')}
+      </div>
+      <div class="repartition__legende">
+        ${entrees.map(([s, n]) => `<span class="pastille" data-etat="${tonDe(s)}">${echapper(s)} · ${n}</span>`).join('')}
+      </div>`;
+  }
+
+  async function chargerCron() {
+    rendreCron(await appeler(`/cron?period=${etat.periode}`));
+  }
+
+  // ── Sources ──────────────────────────────────────────────────────────────
 
   function rendreTableauSources(donnees) {
     const corps = $('corps-sources');
@@ -372,7 +397,6 @@
     const libelles = { ok: ['à jour', 'ok'], retard: ['en retard', 'attention'], erreur: ['en erreur', 'critique'], bloquee: ['bloquée', 'critique'], jamais: ['jamais collectée', 'critique'] };
     const rang = { erreur: 0, bloquee: 1, jamais: 2, retard: 3, ok: 4 };
     const triees = [...donnees.sources].sort((a, b) => (rang[a.etat] ?? 9) - (rang[b.etat] ?? 9) || a.source_slug.localeCompare(b.source_slug));
-
     corps.innerHTML = triees.map((s) => {
       const [texte, ton] = libelles[s.etat] || ['inconnu', 'inconnu'];
       const erreur = s.erreur ? `<span class="message-erreur" title="${echapper(s.erreur)}">${echapper(s.erreur)}</span>` : '';
@@ -393,34 +417,93 @@
       `${donnees.verdict.diagnostic} Retard au-delà de ${donnees.verdict.seuils.retard_heures} h, blocage au-delà de ${donnees.verdict.seuils.blocage_heures} h.`;
   }
 
-  // ── Qualité ──────────────────────────────────────────────────────────────
+  // ── Offres ───────────────────────────────────────────────────────────────
 
-  function rendreQualite(d) {
-    $('corps-champs').innerHTML = d.champs.map((c) => `<tr>
+  function rendreClassification(d) {
+    const c = d.classification;
+    const lignes = [
+      ['Offres actives', valeur(c.actifs), 'neutre'],
+      ['Cœur de cible', `${valeur(c.coeur)} <small>${part(c.part_coeur)}</small>`, 'ok'],
+      ['Exclues', valeur(c.exclu), 'neutre'],
+      ['À classer', `${valeur(c.a_classer)} <small>${part(c.part_a_classer)}</small>`, c.a_classer ? 'attention' : 'ok'],
+      ['Classées', valeur(c.classes), 'neutre'],
+      ['Curation en attente', valeur(c.curation_attente), c.curation_attente ? 'attention' : 'ok'],
+      ['Cas limites', valeur(c.cas_limites), c.cas_limites ? 'attention' : 'ok'],
+      ['Échecs de curation', valeur(c.curation_echec), c.curation_echec ? 'critique' : 'ok']
+    ];
+    $('bloc-classification').innerHTML =
+      `<div class="grille-chiffres">${lignes.map(([k, v, ton]) => `
+        <div class="mini-chiffre" data-ton="${ton}">
+          <p class="mini-chiffre__etiquette">${echapper(k)}</p>
+          <p class="mini-chiffre__valeur">${v}</p>
+        </div>`).join('')}</div>` +
+      (d.alertes.length
+        ? `<ul class="constats">${d.alertes.map((a) => `<li data-gravite="${echapper(a.gravite)}">
+            <strong>${echapper(a.titre)}</strong><span>${echapper(a.detail)}</span></li>`).join('')}</ul>`
+        : '<p class="vide">Aucune anomalie de classification.</p>');
+  }
+
+  function rendreQualite(q) {
+    $('corps-champs').innerHTML = q.champs.map((c) => `<tr>
       <td><code>${echapper(c.champ)}</code></td>
       <td class="num">${valeur(c.manquants)}</td>
       <td class="num">${part(c.part)}</td>
     </tr>`).join('');
 
-    const ecart = d.ecart_coeur_publie;
+    const ecart = q.ecart_coeur_publie;
     const lignes = [
-      ['Offres publiées', valeur(d.published)],
-      ['Cœur de cible actif', valeur(d.classification.coeur)],
-      ['Exclues actives', valeur(d.classification.exclu)],
-      ['Part du cœur', part(d.classification.part_coeur)],
-      ['En attente de classement', valeur(d.classification.a_classer)],
-      ['Liens vérifiés valides', valeur(d.liens.verifies_valides)],
-      ['Liens non vérifiés', `${valeur(d.liens.non_verifies)} (${part(d.liens.part_non_verifies)})`],
+      ['Offres publiées', valeur(q.published)],
+      ['Liens vérifiés valides', valeur(q.liens.verifies_valides)],
+      ['Liens non vérifiés', `${valeur(q.liens.non_verifies)} (${part(q.liens.part_non_verifies)})`],
       ['Écart cœur / publié', ecart.status === 'available' ? valeur(ecart.value) : 'non discriminant']
     ];
-    $('detail-qualite').innerHTML = lignes
-      .map(([k, v]) => `<dt>${echapper(k)}</dt><dd>${echapper(v)}</dd>`).join('');
-
-    $('aide-qualite').textContent = `${valeur(d.published)} offres publiées — les parts sont calculées sur ce total.`;
+    $('detail-qualite').innerHTML = lignes.map(([k, v]) => `<dt>${echapper(k)}</dt><dd>${echapper(v)}</dd>`).join('');
+    $('aide-offres').textContent = `${valeur(q.published)} offres publiées — les parts sont calculées sur ce total.`;
   }
 
-  async function chargerQualite() {
-    rendreQualite(await appeler('/quality'));
+  async function chargerOffres() {
+    const [qualite, classification] = await Promise.all([
+      appeler('/quality'),
+      appeler('/classification')
+    ]);
+    rendreClassification(classification);
+    rendreQualite(qualite);
+  }
+
+  // ── Blocs indisponibles (indexation, audience) ───────────────────────────
+
+  function rendreIndisponible(zone, d, complement) {
+    zone.innerHTML = `
+      <div class="panneau">
+        <div class="absent">
+          <p class="surtitre">Non disponible</p>
+          <p class="absent__titre">Cette mesure n’est pas branchée</p>
+          <p class="absent__texte">${echapper(d.reason)}</p>
+          ${d.a_faire && d.a_faire.length ? `<ol class="a-faire">${d.a_faire.map((x) => `<li>${echapper(x)}</li>`).join('')}</ol>` : ''}
+        </div>
+      </div>
+      ${complement || ''}`;
+  }
+
+  async function chargerIndexation() {
+    const d = await appeler('/indexation');
+    const mesure = d.ce_qui_est_mesure || {};
+    const complement = `
+      <div class="panneau">
+        <header class="panneau__tete">
+          <h3 class="panneau__titre">Ce qui est vérifiable sans Google</h3>
+        </header>
+        <dl class="faits">
+          <dt>Fiches publiées</dt><dd>${valeur(mesure.fiches_publiees)}</dd>
+          ${(mesure.sondes || []).map((s) => `<dt>${echapper(s.nom)}</dt>
+            <dd>${s.disponible ? `<span class="pastille" data-etat="ok">${s.code}</span>` : '<span class="pastille" data-etat="critique">injoignable</span>'}</dd>`).join('')}
+        </dl>
+      </div>`;
+    rendreIndisponible($('bloc-indexation'), d, complement);
+  }
+
+  async function chargerAudience() {
+    rendreIndisponible($('bloc-audience'), await appeler('/analytics'));
   }
 
   // ── Exploitation ─────────────────────────────────────────────────────────
@@ -453,9 +536,7 @@
     bouton.textContent = '…';
     try {
       await appeler(`/alerts/${encodeURIComponent(cle)}/ack`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({})
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({})
       });
       const item = bouton.closest('.alerte');
       if (item) item.dataset.acquittee = 'true';
@@ -471,9 +552,11 @@
 
   const CHARGEURS = {
     apercu: chargerApercu,
+    cron: chargerCron,
     collecte: chargerCollecte,
-    qualite: chargerQualite,
-    usage: async () => {},
+    offres: chargerOffres,
+    indexation: chargerIndexation,
+    audience: chargerAudience,
     exploitation: chargerExploitation
   };
 
@@ -490,9 +573,7 @@
       if (numero === etat.chargement) {
         bandeau(`Chargement incomplet — ${err.message}. Les valeurs affichées peuvent être anciennes.`, 'attention');
       }
-    } finally {
-      bouton.disabled = false;
-    }
+    } finally { bouton.disabled = false; }
   }
 
   function choisirOnglet(nom) {
@@ -502,9 +583,7 @@
       b.setAttribute('aria-selected', String(actif));
       b.tabIndex = actif ? 0 : -1;
     });
-    document.querySelectorAll('[role="tabpanel"]').forEach((p) => {
-      p.hidden = p.id !== `panneau-${nom}`;
-    });
+    document.querySelectorAll('[role="tabpanel"]').forEach((p) => { p.hidden = p.id !== `panneau-${nom}`; });
     chargerTout();
   }
 
@@ -521,10 +600,6 @@
       });
     });
 
-    document.querySelectorAll('[data-onglet]').forEach((b) => {
-      b.addEventListener('click', () => choisirOnglet(b.dataset.onglet));
-    });
-
     document.querySelectorAll('[data-periode]').forEach((b) => {
       b.addEventListener('click', () => {
         etat.periode = Number(b.dataset.periode) || 7;
@@ -536,17 +611,17 @@
     $('rafraichir').addEventListener('click', chargerTout);
     $('deconnexion').addEventListener('click', fermerSession);
 
-    // Délégation : les boutons d'acquittement sont recréés à chaque rendu.
+    // Délégation : les boutons et les liens sont recréés à chaque rendu.
     document.addEventListener('click', (e) => {
-      const bouton = e.target.closest('[data-ack]');
-      if (bouton) acquitter(bouton.dataset.ack, bouton);
+      const ack = e.target.closest('[data-ack]');
+      if (ack) { acquitter(ack.dataset.ack, ack); return; }
+      const onglet = e.target.closest('[data-onglet]');
+      if (onglet) choisirOnglet(onglet.dataset.onglet);
     });
 
     const formulaire = $('connexion');
     if (formulaire) formulaire.addEventListener('submit', soumettreConnexion);
 
-    // Rafraîchissement au retour sur l'onglet, sans boucle de polling :
-    // un dashboard interne n'a pas à interroger le serveur chaque minute.
     document.addEventListener('visibilitychange', () => {
       if (!document.hidden && etat.sessionValide) chargerTout();
     });
