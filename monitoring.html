@@ -15,7 +15,6 @@
 
 <div class="appli">
 
-  <!-- ── Barre supérieure ─────────────────────────────────────────────── -->
   <header class="barre">
     <a class="marque" href="/" title="Retour au site">
       <span class="marque__mot">Claim<span class="marque__point">!</span></span>
@@ -39,23 +38,30 @@
     </div>
   </header>
 
-  <!-- ── Rail de navigation ───────────────────────────────────────────── -->
   <nav class="rail" role="tablist" aria-orientation="vertical" aria-label="Sections">
     <button role="tab" id="onglet-apercu" aria-controls="panneau-apercu" aria-selected="true">
       <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 2h5v5H2zM9 2h5v3H9zM9 7h5v7H9zM2 9h5v5H2z"/></svg>
       <span>Vue d’ensemble</span>
     </button>
+    <button role="tab" id="onglet-cron" aria-controls="panneau-cron" aria-selected="false">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M8 4.5V8l2.5 1.5"/></svg>
+      <span>Cron</span>
+    </button>
     <button role="tab" id="onglet-collecte" aria-controls="panneau-collecte" aria-selected="false">
       <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 12V6M6 12V3M10 12v-4M14 12V5"/></svg>
-      <span>Collecte</span>
+      <span>Sources</span>
     </button>
-    <button role="tab" id="onglet-qualite" aria-controls="panneau-qualite" aria-selected="false">
+    <button role="tab" id="onglet-offres" aria-controls="panneau-offres" aria-selected="false">
       <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 4h9M2 8h9M2 12h6M13 3l1.5 1.5L17 2"/></svg>
-      <span>Qualité</span>
+      <span>Offres</span>
     </button>
-    <button role="tab" id="onglet-usage" aria-controls="panneau-usage" aria-selected="false">
+    <button role="tab" id="onglet-indexation" aria-controls="panneau-indexation" aria-selected="false">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg>
+      <span>Indexation</span>
+    </button>
+    <button role="tab" id="onglet-audience" aria-controls="panneau-audience" aria-selected="false">
       <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 13l3.5-4 3 2.5L14 3"/><path d="M10.5 3H14v3.5"/></svg>
-      <span>Usage</span>
+      <span>Audience</span>
     </button>
     <button role="tab" id="onglet-exploitation" aria-controls="panneau-exploitation" aria-selected="false">
       <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h3l2-4 2.5 8 2-4h2.5"/></svg>
@@ -63,12 +69,10 @@
     </button>
   </nav>
 
-  <!-- ── Zone de contenu ──────────────────────────────────────────────── -->
   <main class="contenu">
 
     <div id="bandeau" class="bandeau" role="status" aria-live="polite" hidden></div>
 
-    <!-- Écran de connexion, utilisé si la session est absente ou expirée -->
     <div id="etat-initial" class="connexion" hidden>
       <div class="connexion__carte">
         <p class="surtitre">Accès réservé</p>
@@ -89,7 +93,6 @@
       <!-- ══ Vue d'ensemble ═════════════════════════════════════════════ -->
       <section id="panneau-apercu" role="tabpanel" aria-labelledby="onglet-apercu" tabindex="0">
 
-        <!-- Bandeau de verdict : la seule information qui décide de la suite -->
         <article class="verdict" id="verdict" data-etat="inconnu">
           <div class="verdict__gauche">
             <p class="verdict__surtitre">État de la collecte</p>
@@ -106,7 +109,10 @@
           </figure>
         </article>
 
-        <!-- Chiffres clés : trois nombres, pas six cartes identiques -->
+        <!-- Ligne du cron : la question « le passage a-t-il eu lieu » ne se
+             lit pas dans un compteur d'exécutions. -->
+        <div class="ligne-cron" id="ligne-cron" hidden></div>
+
         <div class="chiffres" id="chiffres" aria-live="polite"></div>
         <p class="note-mesures" id="note-mesures" hidden></p>
 
@@ -129,10 +135,50 @@
         </div>
       </section>
 
-      <!-- ══ Collecte ═══════════════════════════════════════════════════ -->
+      <!-- ══ Cron ═══════════════════════════════════════════════════════ -->
+      <section id="panneau-cron" role="tabpanel" aria-labelledby="onglet-cron" tabindex="0" hidden>
+        <header class="entete-section">
+          <h2 class="entete-section__titre">Cron de collecte</h2>
+          <p class="entete-section__aide">Trois questions distinctes : le passage a-t-il démarré, s’est-il terminé, et a-t-il vu toutes les sources ?</p>
+        </header>
+
+        <div class="chiffres chiffres--trois" id="cron-chiffres"></div>
+
+        <div class="panneau">
+          <header class="panneau__tete">
+            <h3 class="panneau__titre">Dernier passage</h3>
+            <span class="mentions" id="cron-mention"></span>
+          </header>
+          <div class="tableau-enveloppe">
+            <table class="tableau tableau--serre">
+              <thead>
+                <tr>
+                  <th scope="col">Date métier</th>
+                  <th scope="col">État</th>
+                  <th scope="col">Début</th>
+                  <th scope="col">Fin</th>
+                  <th scope="col" class="col-num">Durée</th>
+                  <th scope="col" class="col-num">Sources</th>
+                </tr>
+              </thead>
+              <tbody id="corps-batchs"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="panneau">
+          <header class="panneau__tete">
+            <h3 class="panneau__titre">Sources du dernier passage</h3>
+            <span class="mentions" id="cron-items"></span>
+          </header>
+          <div class="repartition" id="cron-repartition"></div>
+        </div>
+      </section>
+
+      <!-- ══ Sources ════════════════════════════════════════════════════ -->
       <section id="panneau-collecte" role="tabpanel" aria-labelledby="onglet-collecte" tabindex="0" hidden>
         <header class="entete-section">
-          <h2 class="entete-section__titre">Collecte</h2>
+          <h2 class="entete-section__titre">Sources</h2>
           <p class="entete-section__aide" id="aide-collecte">Chaque source, son rythme et sa dernière preuve de succès.</p>
         </header>
         <div class="panneau">
@@ -153,12 +199,20 @@
         </div>
       </section>
 
-      <!-- ══ Qualité ════════════════════════════════════════════════════ -->
-      <section id="panneau-qualite" role="tabpanel" aria-labelledby="onglet-qualite" tabindex="0" hidden>
+      <!-- ══ Offres ═════════════════════════════════════════════════════ -->
+      <section id="panneau-offres" role="tabpanel" aria-labelledby="onglet-offres" tabindex="0" hidden>
         <header class="entete-section">
-          <h2 class="entete-section__titre">Qualité des offres</h2>
-          <p class="entete-section__aide" id="aide-qualite">Mesuré sur les offres publiées — celles que voit un candidat.</p>
+          <h2 class="entete-section__titre">Offres</h2>
+          <p class="entete-section__aide" id="aide-offres">Classification, complétude et contrôle des liens, sur les offres publiées.</p>
         </header>
+
+        <div class="panneau">
+          <header class="panneau__tete">
+            <h3 class="panneau__titre">Classification</h3>
+            <span class="mentions">Sur les offres actives</span>
+          </header>
+          <div class="classification" id="bloc-classification"></div>
+        </div>
 
         <div class="duo duo--inverse">
           <article class="panneau">
@@ -174,27 +228,28 @@
           </article>
 
           <aside class="panneau">
-            <header class="panneau__tete"><h3 class="panneau__titre">Classification et liens</h3></header>
+            <header class="panneau__tete"><h3 class="panneau__titre">Liens et périmètre</h3></header>
             <dl class="faits" id="detail-qualite"></dl>
           </aside>
         </div>
       </section>
 
-      <!-- ══ Usage ══════════════════════════════════════════════════════ -->
-      <section id="panneau-usage" role="tabpanel" aria-labelledby="onglet-usage" tabindex="0" hidden>
+      <!-- ══ Indexation ═════════════════════════════════════════════════ -->
+      <section id="panneau-indexation" role="tabpanel" aria-labelledby="onglet-indexation" tabindex="0" hidden>
         <header class="entete-section">
-          <h2 class="entete-section__titre">Usage candidat</h2>
+          <h2 class="entete-section__titre">Indexation Google</h2>
+          <p class="entete-section__aide">Ce que Google connaît du site, et ce qui empêche encore de le mesurer.</p>
+        </header>
+        <div id="bloc-indexation"></div>
+      </section>
+
+      <!-- ══ Audience ═══════════════════════════════════════════════════ -->
+      <section id="panneau-audience" role="tabpanel" aria-labelledby="onglet-audience" tabindex="0" hidden>
+        <header class="entete-section">
+          <h2 class="entete-section__titre">Audience</h2>
           <p class="entete-section__aide">Recherches sans résultat, fiches consultées, clics sortants.</p>
         </header>
-        <div class="panneau">
-          <div class="absent">
-            <p class="absent__titre">Mesure non branchée</p>
-            <p class="absent__texte">
-              Cette donnée n’existe pas encore. Elle n’est pas à zéro : elle est <strong>inconnue</strong>.
-              L’instrumentation d’usage est le lot 4 de la feuille de route.
-            </p>
-          </div>
-        </div>
+        <div id="bloc-audience"></div>
       </section>
 
       <!-- ══ Exploitation ═══════════════════════════════════════════════ -->

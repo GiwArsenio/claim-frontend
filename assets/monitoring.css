@@ -34,7 +34,7 @@
 
   --encre: #14232a;
   --encre-2: #4c6069;
-  --encre-3: #67787f;
+  --encre-3: #5b6c73;
 
   --trait: #dfe7ea;
   --trait-fort: #c8d5da;
@@ -79,7 +79,7 @@
 
     --encre: #e9f1f3;
     --encre-2: #9fb2b9;
-    --encre-3: #8ea1a8;
+    --encre-3: #93a6ad;
 
     --trait: #1e3037;
     --trait-fort: #2b4048;
@@ -705,3 +705,104 @@ td code, .faits code { font: 500 .75rem/1 ui-monospace, SFMono-Regular, Menlo, m
   .appli { display: block; }
   .panneau, .verdict { break-inside: avoid; }
 }
+
+/* ═══ Ajouts : ligne de cron, classification, états indisponibles ═════════ */
+
+/* Ligne de cron, sous le bandeau de verdict. Elle répond à une question
+   que la carte « sources récentes » ne pose pas : le passage prévu a-t-il
+   eu lieu, et jusqu'à quand a-t-il tourné ? */
+.ligne-cron {
+  display: flex; align-items: center; gap: .8rem; flex-wrap: wrap;
+  margin: 0 0 1.25rem;
+  padding: .65rem .9rem;
+  background: var(--carte);
+  border: 1px solid var(--trait);
+  border-left: 3px solid var(--inconnu);
+  border-radius: 0 var(--r-m) var(--r-m) 0;
+  font-size: .8125rem;
+}
+.ligne-cron[data-etat="ok"] { border-left-color: var(--ok); }
+.ligne-cron[data-etat="en_cours"] { border-left-color: var(--teal); }
+.ligne-cron[data-etat="bloque"],
+.ligne-cron[data-etat="retard"] { border-left-color: var(--attention); background: var(--attention-fond); }
+
+.ligne-cron__etat {
+  display: inline-flex; align-items: center; gap: .45rem;
+  font-weight: 700; font-size: .75rem; text-transform: uppercase; letter-spacing: .07em;
+}
+.ligne-cron__etat .temoin-etat { width: 7px; height: 7px; border-radius: 50%; background: var(--inconnu); }
+.ligne-cron[data-etat="ok"] .temoin-etat { background: var(--ok); }
+.ligne-cron[data-etat="en_cours"] .temoin-etat { background: var(--teal); }
+.ligne-cron[data-etat="bloque"] .temoin-etat,
+.ligne-cron[data-etat="retard"] .temoin-etat { background: var(--attention); }
+
+.ligne-cron__detail { color: var(--encre); }
+.ligne-cron__suite { color: var(--encre-3); }
+.ligne-cron .lien { margin-left: auto; }
+
+/* Grille de trois chiffres (vue Cron) : les filets restent alignés même
+   quand la grille générale accepte plus de colonnes. */
+.chiffres--trois { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
+
+/* Petits chiffres de la classification : huit valeurs qui se comparent,
+   pas huit cartes à lire. */
+.grille-chiffres {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1px; background: var(--trait);
+}
+.mini-chiffre { background: var(--carte); padding: .85rem 1.1rem; }
+.mini-chiffre__etiquette {
+  margin: 0 0 .3rem;
+  font: 600 .6875rem/1 var(--police);
+  text-transform: uppercase; letter-spacing: .09em; color: var(--encre-3);
+}
+.mini-chiffre__valeur {
+  margin: 0;
+  font-size: 1.35rem; font-weight: 800; letter-spacing: -.03em; line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.mini-chiffre__valeur small { font-size: .75rem; font-weight: 600; color: var(--encre-3); margin-left: .25rem; letter-spacing: 0; }
+.mini-chiffre[data-ton="ok"] .mini-chiffre__valeur { color: var(--encre); }
+.mini-chiffre[data-ton="attention"] .mini-chiffre__valeur { color: var(--attention); }
+.mini-chiffre[data-ton="critique"] .mini-chiffre__valeur { color: var(--critique); }
+
+/* Constats de classification : le titre porte le chiffre, le détail dit
+   pourquoi il compte. */
+.constats { list-style: none; margin: 0; padding: 0; }
+.constats li {
+  display: flex; flex-direction: column; gap: .1rem;
+  padding: .65rem 1.1rem .65rem 1.3rem;
+  border-top: 1px solid var(--trait);
+  position: relative;
+  font-size: .8125rem;
+}
+.constats li::before {
+  content: ""; position: absolute; left: .55rem; top: .7rem; bottom: .7rem;
+  width: 3px; border-radius: 2px; background: var(--attention);
+}
+.constats li[data-gravite="critique"]::before { background: var(--critique); }
+.constats li strong { font-weight: 600; }
+.constats li span { color: var(--encre-3); font-size: .75rem; }
+
+/* Répartition des sources d'un passage : une barre pleine largeur puis
+   les étiquettes. Un badge isolé dans une carte vide ne dit pas si 63
+   sources sur 63 sont passées — la barre le dit sans lire le chiffre. */
+.repartition { padding: 1rem 1.1rem; display: flex; flex-direction: column; gap: .75rem; }
+.repartition .vide { padding: 0; }
+.barre-repartition {
+  display: flex; height: 10px; border-radius: 5px; overflow: hidden;
+  background: var(--carte-2); border: 1px solid var(--trait);
+}
+.barre-repartition span { display: block; }
+.barre-repartition span[data-etat="ok"] { background: var(--ok); }
+.barre-repartition span[data-etat="attention"] { background: var(--attention); }
+.barre-repartition span[data-etat="critique"] { background: var(--critique); }
+.barre-repartition span[data-etat="inconnu"] { background: var(--inconnu); }
+.repartition__legende { display: flex; gap: .5rem; flex-wrap: wrap; }
+
+/* Liste des prérequis d'une mesure non branchée */
+.a-faire {
+  margin: 1rem auto 0; padding-left: 1.1rem; max-width: 52ch;
+  text-align: left; font-size: .8125rem; color: var(--encre-2);
+}
+.a-faire li { margin-bottom: .35rem; }
