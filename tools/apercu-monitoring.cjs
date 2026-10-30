@@ -53,6 +53,12 @@ const apercu = {
       started_at: '2026-10-29T03:04:20+00:00', finished_at: '2026-10-29T05:46:27+00:00' } },
   classification: { actifs: 4695, coeur: 334, exclu: 4361, a_classer: 1370, classes: 3325,
     cas_limites: 35, curation_attente: 4683, curation_echec: 0, part_coeur: 7.1, part_a_classer: 29.2 },
+  // L'etat de la classification dans la vue d'ensemble. C'est l'etat
+  // REEL du 30 octobre : les passages ont eu lieu, aucun ne portait de
+  // compteur, la mesure n'est pas encore instrumentee.
+  etat_classification: { statut: 'non_instrumentee',
+    diagnostic: '850 passage(s) ont eu lieu, aucun ne portait de compteur : la mesure n\'est pas encore instrumentee.',
+    depuis: null, jours_mesures: 0, jours_non_mesures: 7, passages: 850 },
 };
 
 const sources = {
@@ -246,6 +252,28 @@ const serveur = http.createServer((req, res) => {
   // bureau, sinon le cliché « mobile » est pris en 1440 px — et une
   // image qui ne montre pas ce qu'elle annonce est pire qu'aucune.
   await page.setViewportSize({ width: 1440, height: 980 });
+
+  // La ligne de classification doit etre VISIBLE dans la vue
+  // d'ensemble. C'est la correction qui manquait : la question « la
+  // cascade a-t-elle tourné ? » ne se posait que dans un onglet, et rien
+  // n'y menait — on pouvait regarder le tableau de bord sans la voir.
+  await page.click('#onglet-apercu');
+  await page.waitForTimeout(700);
+  const ligneClassif = await page.evaluate(() => {
+    const z = document.getElementById('ligne-classification');
+    return {
+      presente: !!z,
+      visible: !!z && z.offsetParent !== null,
+      etat: z ? z.dataset.etat : null,
+      texte: z ? z.textContent.replace(/\s+/g, ' ').trim() : null,
+      lien: z ? !!z.querySelector('[data-onglet="offres"]') : false,
+    };
+  });
+  if (!ligneClassif.visible || !ligneClassif.texte) {
+    erreurs.push('ligne de classification absente de la vue d ensemble : ' + JSON.stringify(ligneClassif));
+  }
+  console.log('Ligne de classification (vue d ensemble) :', JSON.stringify(ligneClassif));
+
   await page.click('#onglet-offres');
   await page.waitForTimeout(700);
   const bloc = await page.$('.deux-mesures');

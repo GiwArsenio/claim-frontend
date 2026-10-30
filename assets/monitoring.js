@@ -309,6 +309,7 @@
     rendreVerdict(apercu);
     rendreEtatService(apercu.probes);
     rendreLigneCron(apercu.cron);
+    rendreLigneClassification(apercu.etat_classification);
     rendreChiffres(apercu.cards);
     rendreSourcesApercu(sources);
     rendreAlertes(alertes.alertes, $('alertes-apercu'), 5);
@@ -586,6 +587,41 @@
     return nonMesures;
   }
 
+
+  /* Ligne de la classification, dans la vue d'ensemble.
+     Le meme gabarit que la ligne du cron : un etat, une phrase, un lien
+     vers le detail. La question « la cascade a-t-elle tourne ? » se pose
+     des la premiere page — c'est une question de sante du service, et
+     elle ne se lisait qu'en ouvrant un onglet ou rien n'y menait. */
+  function rendreLigneClassification(etat) {
+    const zone = $('ligne-classification');
+    if (!etat) { zone.hidden = true; return; }
+    zone.hidden = false;
+    zone.dataset.etat = etat.statut;
+
+    const libelle = {
+      mesuree: 'mesurée',
+      non_instrumentee: 'non instrumentée',
+      inconnue: 'inconnue',
+    }[etat.statut] || etat.statut;
+
+    // L'etat « mesuree » est neutre : il dit que la cascade est
+    // mesurable, pas qu'elle va bien. Le detail porte le reste.
+    let detail = etat.diagnostic;
+    if (etat.statut === 'mesuree' && etat.depuis) {
+      detail += ` Mesurée depuis le ${jourLisible(etat.depuis)}.`;
+    }
+    if (etat.statut === 'non_instrumentee' && etat.jours_non_mesures) {
+      detail += ` ${etat.jours_non_mesures} jour(s) sans mesure sur la période.`;
+    }
+
+    zone.innerHTML = `
+      <span class="ligne-cron__etat">
+        <i class="temoin-etat"></i>Classification ${echapper(libelle)}
+      </span>
+      <span class="ligne-cron__detail">${echapper(detail)}</span>
+      <button type="button" class="lien" data-onglet="offres">Détail →</button>`;
+  }
 
   async function chargerOffres() {
     const [qualite, classification] = await Promise.all([
