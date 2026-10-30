@@ -575,9 +575,13 @@
 
     const nonMesures = serie.filter((j) => j.passages > 0 && j.mesures === 0).length;
     const mesures = serie.filter((j) => j.mesures > 0).length;
+    // La légende doit dire ce que CHAQUE signe veut dire. Sans la clé du
+    // point « non mesuré », un lecteur prend le point pour une barre à
+    // zéro — et la conclusion inverse, « la cascade a tourné et n'a rien
+    // décidé », alors que personne ne l'a mesuré.
     legende.innerHTML = `<span>${mesures} jour(s) mesuré(s)</span>
       <span class="mesure__cle"><i data-etat="classe"></i>décisions de classification</span>
-      ${nonMesures ? `<span>${nonMesures} jour(s) non mesuré(s)</span>` : ''}`;
+      ${nonMesures ? `<span class="mesure__cle"><i data-etat="non-mesure"></i>non mesuré</span>` : ''}`;
     rendreDates(serie.map((j) => j.jour), zoneDates);
     return nonMesures;
   }

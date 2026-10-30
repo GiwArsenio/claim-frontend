@@ -933,6 +933,13 @@ td code, .faits code { font: 500 .75rem/1 ui-monospace, SFMono-Regular, Menlo, m
 .mesure__cle i { width: 8px; height: 8px; border-radius: 2px; display: inline-block; }
 .mesure__cle i[data-etat="classe"] { background: var(--teal); }
 .mesure__cle i[data-etat="non-classe"] { background: var(--mesure-gris); }
+/* La clé du point « non mesuré » : c'est un point, pas un carré plein —
+   la forme dit la même chose que la marque dans le graphique. */
+.mesure__cle i[data-etat="non-mesure"] {
+  background: var(--encre-2);
+  border-radius: 50%;
+  width: 6px; height: 6px;
+}
 
 /* Un avertissement quand des jours entiers n'ont pas été mesurés : la
    mesure par passage ne commence qu'à l'instrumentation, et le silence
