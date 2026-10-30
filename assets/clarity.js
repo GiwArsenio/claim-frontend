@@ -25,10 +25,14 @@
   var CLE = 'claim-consentement';
   var ACCORD = 'tout';
 
-  /* La variable globale n'existe que pour les tests : elle permet de
-     vérifier qu'un accord déclenche bien une requête et qu'un refus n'en
-     déclenche aucune, sans écrire un identifiant réel dans le dépôt. */
-  var PROJET = String(window.CLAIM_CLARITY_PROJET || '').trim();
+  /* Identifiant du projet Clarity de CLAIM!, relevé le 30 octobre 2026.
+     Il est public : Microsoft le fait figurer en clair dans le code de
+     chaque page mesurée, et c'est ce même extrait qui est repris ici.
+
+     Aucune variable globale ne permet de le remplacer : un identifiant
+     modifiable depuis la console serait un moyen de détourner la mesure
+     sans toucher au dépôt. Les tests lisent cette constante. */
+  var PROJET = 'z5zmx1kbnb';
 
   function choix() {
     try { return localStorage.getItem(CLE); } catch (e) { return null; }

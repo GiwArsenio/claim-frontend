@@ -23,15 +23,24 @@ const assert = require('node:assert/strict');
 
 const aide = require('./aide-parcours.cjs');
 
-const PROJET = 'projet-de-test-clarity';
+const fs = require('node:fs');
+const path = require('node:path');
 
-/* Pose l'identifiant de projet avant les scripts de la page. Le dépôt n'en
-   contient aucun : c'est ce qui empêche un envoi réel depuis une suite
-   locale. */
-async function avecProjet(ctx) {
-  await ctx.addInitScript((projet) => {
-    window.CLAIM_CLARITY_PROJET = projet;
-  }, PROJET);
+/* L'identifiant n'est plus injecté : il est lu dans le chargeur, comme en
+   production. Le garde réseau du harnais coupe la requête avant qu'elle ne
+   parte — une suite locale ne joint donc jamais clarity.ms, même avec
+   l'identifiant réel.
+
+   Ce que cela change pour le test : il vérifie la valeur réellement
+   déclarée, pas une valeur de laboratoire. Un identifiant vidé ou fautif
+   dans le dépôt fait échouer la lecture, et le test avec. */
+const PROJET = (fs.readFileSync(
+  path.join(__dirname, '..', 'assets', 'clarity.js'), 'utf8'
+).match(/var PROJET = '([a-z0-9]+)'/) || [])[1];
+
+if (!PROJET) {
+  console.error('✘ identifiant de projet absent de assets/clarity.js');
+  process.exit(1);
 }
 
 function sortiesClarity(page) {
@@ -44,7 +53,6 @@ test('refuser ne charge pas Clarity', async () => {
 
   const { ctx, page } = await aide.ouvrirPage(aide.FORMATS.bureau);
   try {
-    await avecProjet(ctx);
     await page.goto(aide.BASE + '/index.html', { waitUntil: 'domcontentloaded' });
     await aide.attendre(page, 800);
 
@@ -80,7 +88,6 @@ test('accepter charge Clarity, sans partage publicitaire', async () => {
 
   const { ctx, page } = await aide.ouvrirPage(aide.FORMATS.bureau);
   try {
-    await avecProjet(ctx);
     await page.goto(aide.BASE + '/index.html', { waitUntil: 'domcontentloaded' });
     await aide.attendre(page, 800);
 
@@ -126,7 +133,6 @@ test('le bouton de retrait efface le choix et prévient Clarity', async () => {
 
   const { ctx, page } = await aide.ouvrirPage(aide.FORMATS.bureau);
   try {
-    await avecProjet(ctx);
     await page.addInitScript(() => {
       try { localStorage.setItem('claim-consentement', 'tout'); } catch (e) { /* ignore */ }
     });

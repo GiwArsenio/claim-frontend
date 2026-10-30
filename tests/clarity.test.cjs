@@ -63,6 +63,15 @@ if (!/choix\(\) === ACCORD\) charger\(\)/.test(chargeur)) {
 if (!chargeur.includes('if (!PROJET ||')) {
   echec(`${CHARGEUR} : sans identifiant de projet, le chargeur ferait un appel.`);
 }
+const identifiant = (chargeur.match(/var PROJET = '([a-z0-9]+)'/) || [])[1];
+if (!identifiant || identifiant.length < 8) {
+  echec(`${CHARGEUR} : identifiant de projet absent ou invalide ("${identifiant}").
+  Sans lui, le chargeur ne fait rien et Clarity ne mesure jamais.`);
+}
+if (chargeur.includes('CLAIM_CLARITY_PROJET')) {
+  echec(`${CHARGEUR} : l'identifiant reste contournable depuis la console.`);
+}
+
 if (!chargeur.includes('consentv2')) {
   echec(`${CHARGEUR} : le signal de consentement (consentv2) n'est pas transmis.`);
 }
