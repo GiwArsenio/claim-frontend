@@ -461,6 +461,128 @@
     $('aide-offres').textContent = `${valeur(q.published)} offres publiées — les parts sont calculées sur ce total.`;
   }
 
+  /* Les deux mesures de classification.
+     Même échelle temporelle, même gabarit : deux graphiques qui se
+     ressemblent mais ne disent pas la même chose. L'un rejoue l'état des
+     offres à la fin de chaque journée — reconstitué. L'autre compte les
+     décisions de chaque passage — mesuré, exact, et il ne commence qu'à
+     l'instrumentation. Le dire est la moitié du travail. */
+
+  // Complète une série sur la grille commune des jours. Un jour absent
+  // n'est pas un zéro : c'est un jour sans donnée, et il se distingue.
+  function _completerSurJours(serie, jours) {
+    const parJour = new Map((serie || []).map((j) => [j.jour, j]));
+    if (!jours || !jours.length) return serie || [];
+    return jours.map((jour) => parJour.get(jour) || {
+      jour,
+      passages: 0,
+      mesures: 0,
+      creees: 0,
+      classees: 0,
+      non_classees: 0,
+      sans_description: 0,
+      sans_activite: true,
+    });
+  }
+
+  // Un repère de dates sous les deux graphiques. Sans lui, deux échelles
+  // temporelles différentes rendent la comparaison impossible.
+  //
+  // Sur un écran étroit, trente dates côte à côte sont illisibles : on
+  // n'en montre qu'une sur cinq. La grille ne change pas — les colonnes
+  // restent alignées — seule l'étiquette s'espace.
+  function rendreDates(jours, zone) {
+    if (!zone) return;
+    const etroits = window.matchMedia('(max-width: 720px)').matches;
+    const pas = etroits ? 7 : 1;
+    zone.innerHTML = (jours || []).map((j, i) => {
+      const d = new Date(`${j}T12:00:00Z`);
+      const numero = Number.isNaN(d.getTime()) ? '' : String(d.getUTCDate());
+      if (i % pas !== 0 && i !== (jours || []).length - 1) {
+        return '<span aria-hidden="true"></span>';
+      }
+      return `<span title="${echapper(j)}">${echapper(numero)}</span>`;
+    }).join('');
+  }
+
+  function rendreHistorique(historique, zone, legende, zoneDates) {
+    if (!historique || !historique.length) {
+      zone.innerHTML = '<p class="vide">Aucun historique disponible.</p>';
+      legende.textContent = '';
+      if (zoneDates) zoneDates.innerHTML = '';
+      return;
+    }
+    const max = Math.max(...historique.map((j) => j.creees || 0), 1);
+    // L'échelle porte l'unité : sans elle, la hauteur des barres n'a pas
+    // de sens. C'est le maximum de la série, pas un maximum théorique.
+    zone.innerHTML = `<span class="mesure__echelle" aria-hidden="true">max ${nombre.format(max)}</span>`
+      + historique.map((j) => {
+        // Un jour sans création n'est pas une barre à zéro : c'est un
+        // jour sans activité. La différence se voit — un point, pas une
+        // colonne — et surtout pas une barre « 0 % classées ».
+        if (j.sans_activite || !j.creees) {
+          const titre = `${j.jour} : aucune offre créée`;
+          return `<div class="mesure__colonne" data-sans-activite="true" title="${echapper(titre)}"></div>`;
+        }
+        const crees = j.creees || 0;
+        const classees = j.classees || 0;
+        const hTotal = Math.max(6, Math.round((crees / max) * 88));
+        const hClasse = Math.round((classees / Math.max(crees, 1)) * hTotal);
+        const hReste = Math.max(0, hTotal - hClasse);
+        const part = j.part_classee === null || j.part_classee === undefined
+          ? '—'
+          : `${j.part_classee} %`;
+        const titre = `${j.jour} : ${classees} classée(s) sur ${crees} créée(s) — ${part}`;
+        return `<div class="mesure__colonne" title="${echapper(titre)}">
+          ${hReste ? `<span class="mesure__part" data-etat="non-classe" style="height:${hReste}px"></span>` : ''}
+          ${hClasse ? `<span class="mesure__part" data-etat="classe" style="height:${hClasse}px"></span>` : ''}
+        </div>`;
+      }).join('');
+
+    const totalCrees = historique.reduce((s, j) => s + (j.creees || 0), 0);
+    const totalClasses = historique.reduce((s, j) => s + (j.classees || 0), 0);
+    const part = totalCrees ? Math.round((100 * totalClasses) / totalCrees) : null;
+    const sansActivite = historique.filter((j) => j.sans_activite || !j.creees).length;
+    legende.innerHTML = `<span>${nombre.format(totalCrees)} créées · ${nombre.format(totalClasses)} classées</span>
+      <span class="mesure__cle"><i data-etat="classe"></i>classées<i data-etat="non-classe"></i>non classées</span>
+      <span>${part === null ? '—' : `${part} % classées`}</span>
+      ${sansActivite ? `<span>${sansActivite} jour(s) sans création</span>` : ''}`;
+    rendreDates(historique.map((j) => j.jour), zoneDates);
+  }
+
+  /* Mesure par passage : ce que chaque passage a produit. Un jour dont
+     les passages ne portent pas de compteur n'est pas mesuré : le point
+     le dit, et la légende l'annonce. */
+  function rendrePassages(serie, zone, legende, zoneDates) {
+    if (!serie || !serie.length) {
+      zone.innerHTML = '<p class="vide">Aucune mesure disponible.</p>';
+      legende.textContent = '';
+      if (zoneDates) zoneDates.innerHTML = '';
+      return 0;
+    }
+    const max = Math.max(...serie.map((j) => j.classees || 0), 1);
+    zone.innerHTML = `<span class="mesure__echelle" aria-hidden="true">max ${nombre.format(max)}</span>`
+      + serie.map((j) => {
+        const nonMesure = j.passages > 0 && j.mesures === 0;
+        const titre = nonMesure
+          ? `${j.jour} : ${j.passages} passage(s), non mesuré(s)`
+          : `${j.jour} : ${j.classees} décision(s) sur ${j.mesures} passage(s) mesuré(s)`;
+        const h = Math.max(3, Math.round(((j.classees || 0) / max) * 88));
+        return `<div class="mesure__colonne" data-non-mesure="${nonMesure}" title="${echapper(titre)}">
+          ${j.classees ? `<span class="mesure__part" data-etat="classe" style="height:${h}px"></span>` : ''}
+        </div>`;
+      }).join('');
+
+    const nonMesures = serie.filter((j) => j.passages > 0 && j.mesures === 0).length;
+    const mesures = serie.filter((j) => j.mesures > 0).length;
+    legende.innerHTML = `<span>${mesures} jour(s) mesuré(s)</span>
+      <span class="mesure__cle"><i data-etat="classe"></i>décisions de classification</span>
+      ${nonMesures ? `<span>${nonMesures} jour(s) non mesuré(s)</span>` : ''}`;
+    rendreDates(serie.map((j) => j.jour), zoneDates);
+    return nonMesures;
+  }
+
+
   async function chargerOffres() {
     const [qualite, classification] = await Promise.all([
       appeler('/quality'),
@@ -468,6 +590,52 @@
     ]);
     rendreClassification(classification);
     rendreQualite(qualite);
+
+    const historique = classification.historique || [];
+    const serie = classification.mesure_par_passage || [];
+
+    // Deux graphiques côte à côte ne se comparent que s'ils partagent
+    // leurs abscisses. L'API renvoie les deux séries sur la même grille
+    // de jours ; si l'une des deux manque, on complète avec des jours
+    // vides pour que les colonnes restent alignées.
+    const jours = classification.jours || [];
+    const historiqueAligne = _completerSurJours(historique, jours);
+    const serieAligne = _completerSurJours(serie, jours);
+
+    rendreHistorique(
+      historiqueAligne, $('graphique-historique'), $('legende-historique'), $('dates-historique')
+    );
+
+    const nonMesures = rendrePassages(
+      serieAligne, $('graphique-passages'), $('legende-passages'), $('dates-passages')
+    );
+
+    // Le passage mesure exactement, mais seulement depuis
+    // l'instrumentation. Les jours qui précèdent ne sont pas « à zéro » :
+    // ils sont inconnus, et le dire vaut mieux que le laisser vide.
+    const mention = $('mesure-mention');
+    const depuis = classification.instrumentation_depuis;
+    if (nonMesures) {
+      mention.textContent = depuis
+        ? `${nonMesures} jour(s) sans mesure — mesurée depuis le ${jourLisible(depuis)}`
+        : `${nonMesures} jour(s) sans mesure — la mesure exacte n’a pas encore commencé`;
+    } else if (depuis) {
+      mention.textContent = `Mesurée depuis le ${jourLisible(depuis)}`;
+    } else {
+      mention.textContent = 'Aucun passage n’a encore mesuré la classification';
+    }
+
+    // L'avertissement n'est pas un détail : les deux graphiques n'ont pas
+    // la même portée, et les lire comme s'ils en avaient une revient à
+    // confondre une reconstitution avec une mesure.
+    const avertissement = $('mesure-avertissement');
+    if (avertissement) {
+      const portee = depuis
+        ? `L’historique est reconstitué et couvre ${historique.length} jour(s). La mesure par passage est exacte, mais ne commence que le ${jourLisible(depuis)} : avant cette date, elle n’est pas « à zéro », elle est inconnue.`
+        : `L’historique est reconstitué et couvre ${historique.length} jour(s). La mesure par passage n’a pas encore produit de donnée : elle est non instrumentée, pas nulle.`;
+      avertissement.innerHTML = `<span aria-hidden="true">⚠</span><span>${echapper(portee)}</span>`;
+      avertissement.hidden = false;
+    }
   }
 
   // ── Blocs indisponibles (indexation, audience) ───────────────────────────

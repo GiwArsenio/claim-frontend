@@ -115,10 +115,59 @@ const cron = {
   ],
 };
 
+// La grille est celle des 30 derniers jours, et elle est PARTAGÉE par les
+// deux mesures : c'est la condition pour que deux graphiques côte à côte
+// se comparent. Les jours sans création restent dans la grille, avec
+// `sans_activite` — un jour vide n'est pas un jour à zéro.
+const joursHisto = [];
+for (let i = 29; i >= 0; i--) {
+  joursHisto.push(new Date(Date.UTC(2026, 9, 30 - i)).toISOString().slice(0, 10));
+}
+const activite = {
+  '2026-10-07': [1009, 48], '2026-10-09': [1610, 47], '2026-10-10': [293, 0],
+  '2026-10-11': [47, 2], '2026-10-12': [16, 0], '2026-10-13': [105, 9],
+  '2026-10-14': [86, 4], '2026-10-15': [87, 5], '2026-10-16': [105, 6],
+  '2026-10-17': [95, 0], '2026-10-18': [34, 2], '2026-10-19': [392, 11],
+  '2026-10-20': [131, 3], '2026-10-21': [118, 21], '2026-10-24': [444, 0],
+  '2026-10-25': [1422, 1394], '2026-10-26': [10, 0], '2026-10-27': [104, 76],
+  '2026-10-28': [97, 0], '2026-10-29': [78, 0], '2026-10-30': [84, 0],
+};
+const historique = joursHisto.map((j) => {
+  const a = activite[j];
+  if (!a) {
+    return { jour: j, creees: 0, classees: 0, sans_description: 0, non_classees: 0, part_classee: null, sans_activite: true };
+  }
+  return {
+    jour: j, creees: a[0], classees: a[1], sans_description: 0,
+    non_classees: a[0] - a[1],
+    part_classee: a[0] ? Math.round((1000 * a[1]) / a[0]) / 10 : null,
+    sans_activite: false,
+  };
+});
+
+// La mesure exacte ne commence qu'à l'instrumentation : les jours
+// précédents ont eu des passages, mais aucun ne portait de compteur.
+const mesureParPassage = joursHisto.map((j, i) => {
+  const mesure = j >= '2026-10-29';
+  return {
+    jour: j,
+    passages: 60 + (i % 9),
+    mesures: mesure ? 1 : 0,
+    classees: mesure ? 48 + (i % 14) : 0,
+    non_classees: mesure ? 12 : 0,
+    sans_description: 0,
+  };
+});
+
 const classification = {
   generated_at: apercu.generated_at,
   classification: { actifs: 4695, coeur: 334, exclu: 4361, a_classer: 1370, classes: 3325,
     cas_limites: 35, curation_attente: 4683, curation_echec: 0, part_coeur: 7.1, part_a_classer: 29.2 },
+  historique: historique,
+  mesure_par_passage: mesureParPassage,
+  jours: joursHisto,
+  instrumentation_depuis: '2026-10-29',
+  jours_non_measures: 28,
   alertes: [
     { gravite: 'attention', titre: '1370 offres actives non classées', detail: '29,2 % des offres actives n’ont pas encore de métier.' },
     { gravite: 'attention', titre: '4683 offres en attente de curation', detail: 'Résumé, compétences et salaire ne sont pas encore produits.' },
@@ -161,6 +210,7 @@ const serveur = http.createServer((req, res) => {
   const erreurs = [];
   page.on('pageerror', (e) => erreurs.push(`pageerror: ${e.message}`));
   page.on('console', (m) => { if (m.type() === 'error') erreurs.push(`console: ${m.text()}`); });
+  page.on('pageerror', (e) => erreurs.push(`pageerror: ${e.message}`));
 
   await page.route('**/monitoring/api/**', async (route) => {
     const url = route.request().url();
@@ -187,6 +237,56 @@ const serveur = http.createServer((req, res) => {
     await page.waitForTimeout(700);
     await page.screenshot({ path: `/tmp/shot-${fichier}.png`, fullPage: true });
   }
+
+  // Le bloc des deux mesures de classification : il est dans l'onglet
+  // « offres », mais il ne se voit pas sur une capture pleine page de
+  // l'ensemble. Sans ce cliché, un défaut de rendu passe inaperçu.
+  //
+  // L'ordre compte : le redimensionnement doit précéder la capture
+  // bureau, sinon le cliché « mobile » est pris en 1440 px — et une
+  // image qui ne montre pas ce qu'elle annonce est pire qu'aucune.
+  await page.setViewportSize({ width: 1440, height: 980 });
+  await page.click('#onglet-offres');
+  await page.waitForTimeout(700);
+  const bloc = await page.$('.deux-mesures');
+  if (bloc) {
+    await bloc.screenshot({ path: '/tmp/shot-mesures.png' });
+  } else {
+    erreurs.push('bloc .deux-mesures introuvable dans l\'onglet offres');
+  }
+
+  // Mobile : les deux colonnes s'y empilent, et les dates sous les
+  // graphiques s'espacent. Le redimensionnement précède le rechargement
+  // du rendu, sinon `matchMedia` renvoie encore la valeur du bureau.
+  await page.setViewportSize({ width: 390, height: 900 });
+  await page.waitForTimeout(400);
+  await page.click('#onglet-apercu');
+  await page.waitForTimeout(300);
+  await page.click('#onglet-offres');
+  await page.waitForTimeout(900);
+  const blocMobile = await page.$('.deux-mesures');
+  if (blocMobile) {
+    await blocMobile.screenshot({ path: '/tmp/shot-mesures-mobile.png' });
+  }
+  await page.setViewportSize({ width: 1440, height: 980 });
+  await page.waitForTimeout(400);
+
+  // Le bloc des deux mesures doit se remplir. Un graphique vide passe
+  // le contrôle de mise en page — aucune barre, aucun débordement — et
+  // c'est exactement le défaut qu'on cherche à voir.
+  await page.click('#onglet-offres');
+  await page.waitForTimeout(800);
+  const etatBloc = await page.evaluate(() => ({
+    colonnes: document.querySelectorAll('.mesure__colonne').length,
+    echelles: document.querySelectorAll('.mesure__echelle').length,
+    dates: document.querySelectorAll('.mesure__dates span').length,
+    mention: (document.getElementById('mesure-mention') || {}).textContent,
+    avertissement_visible: !(document.getElementById('mesure-avertissement') || {}).hidden,
+  }));
+  if (!etatBloc.colonnes || !etatBloc.echelles || !etatBloc.dates) {
+    erreurs.push(`bloc des deux mesures vide : ${JSON.stringify(etatBloc)}`);
+  }
+  console.log('Bloc des deux mesures :', JSON.stringify(etatBloc));
 
   // Contrôles de mise en page
   const mesures = await page.evaluate(() => ({
