@@ -341,6 +341,7 @@ body {
 <link rel="stylesheet" href="/assets/theme.css">
 <script>(function(){try{var t=localStorage.getItem('claim-theme-v2');if(t==='nuit'){document.documentElement.setAttribute('data-theme','nuit');}}catch(e){}})();</script>
 <script src="/assets/theme.js" defer></script>
+<script src="/assets/clarity.js" defer></script>
 </head>
 <body>
   <header id="hd">
@@ -395,15 +396,39 @@ body {
     <li>référent, c'est-à-dire la page d'arrivée.</li>
   </ul>
   <p>Ces données ne sont pas utilisées pour établir un profil, ni pour prospecter, ni pour
-     contacted les personnes qui consultent le site.</p>
+     contacter les personnes qui consultent le site.</p>
+
+  <h3>Observation des parcours — Microsoft Clarity</h3>
+  <p>Avec votre accord seulement, le service charge Microsoft Clarity : des cartes de
+     chaleur et des enregistrements de session anonymisés servent à voir ce qui bloque
+     dans l'interface — un filtre incompris, un bouton que personne ne repère. Les
+     enregistrements ne conservent pas ce qui est saisi : les champs de recherche et les
+     adresses électroniques sont masqués avant l'envoi, et le service ne dépose aucun
+     témoin publicitaire.</p>
+  <p>Clarity est édité par Microsoft. Les données sont hébergées aux États-Unis, et
+     Microsoft les utilise aussi pour améliorer ses propres produits. Ce traitement est
+     décrit ici pour que le choix soit informé, et il n'a lieu que si vous l'acceptez :
+     sans accord, le script n'est jamais chargé, pas même en mode sans témoin.</p>
 
   <h2>4 — Bandeau de consentement</h2>
   <p>Avant tout chargement du script de mesure, un bandeau demande l'accord. L'acceptation
      et le refus ont la même hauteur, le même poids typographique et la même facilité :
      c'est la recommandation de la CNIL. Tant qu'aucun choix n'est exprimé, aucune mesure
      n'est effectuée.</p>
-  <p>Le choix est mémorisé dans le stockage local du navigateur. Il peut être modifié à
-     tout moment en effaçant les données de site de votre navigateur.</p>
+  <p>Le choix est mémorisé dans le stockage local du navigateur. Il peut être retiré à
+     tout moment avec le bouton ci-dessous : l'accord est effacé, la session Clarity en
+     cours est close et le bandeau revient à la visite suivante.</p>
+  <style>
+    .bouton-retrait {
+      background: var(--surface); color: var(--encre); border: 1px solid var(--bord-fort);
+      border-radius: .5rem; padding: .55rem 1rem; font: inherit; cursor: pointer;
+    }
+    .bouton-retrait:hover { background: var(--champ); }
+    .bouton-retrait:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+    .retrait-etat { margin-left: .6rem; font-size: .9rem; color: var(--encre-doux); }
+  </style>
+  <p><button type="button" class="bouton-retrait" id="retirer-accord">Retirer mon accord</button><span
+     class="retrait-etat" id="retrait-etat" role="status"></span></p>
 
   <h2>5 — Adresse électronique</h2>
   <p>L'adresse <a href="mailto:contact@claimyourjob.fr">contact@claimyourjob.fr</a> n'est
@@ -412,13 +437,20 @@ body {
      conservés le temps nécessaire au traitement de la demande.</p>
 
   <h2>6 — Témoins de connexion (cookies)</h2>
-  <p>Le service utilise un témoin de connexion pour la mesure d'audience, déposé seulement
-     après accord. Aucun témoin publicitaire, de reciblage ou de réseau social n'est déposé.
-     Aucun service tiers de suivi n'est appelé.</p>
+  <p>Le service dépose un témoin de connexion pour la mesure d'audience (Google
+     Analytics) et, si vous l'acceptez, un témoin d'observation des parcours (Microsoft
+     Clarity). Aucun témoin publicitaire, de reciblage ou de réseau social n'est déposé,
+     et aucun partage publicitaire n'est activé chez Clarity : le signal
+     <code>ad_Storage</code> reste refusé par construction.</p>
+  <p>Deux services tiers sont donc appelés : Google Analytics et, après accord seulement,
+     Microsoft Clarity. Aucun autre service de suivi n'est chargé.</p>
 
   <h2>7 — Durée de conservation</h2>
   <ul>
     <li><strong>Mesure d'audience :</strong> quatorze mois par défaut, puis anonymisation.</li>
+    <li><strong>Observation des parcours (Clarity) :</strong> les enregistrements sont
+        conservés par Microsoft pour une durée courte et paramétrée chez l'éditeur ;
+        ils ne sont pas recopiés ailleurs par le service.</li>
     <li><strong>Préférence de thème :</strong> conservée dans le stockage local du navigateur,
         jusqu'à l'effacement des données de site.</li>
     <li><strong>Choix de consentement :</strong> conservé de la même manière, pour ne pas
@@ -512,6 +544,33 @@ function closeBurger() {
 document.addEventListener('keydown', function (e) {
   if (e.key === 'Escape') closeBurger();
 });
+</script>
+<script>
+/* Retrait du consentement.
+ *
+ * Effacer le choix ne suffit pas : tant que la page reste ouverte, Clarity
+ * continue la session en cours avec un accord qui n'existe plus. On lui
+ * transmet donc un refus, qui clôt l'enregistrement et supprime son témoin.
+ *
+ * Le texte du retour nomme Clarity et pas « la mesure » : Google Analytics
+ * reste actif sans accord sur ce site (mode dégradé assumé, documenté). Le
+ * bouton ne doit pas laisser croire qu'il l'arrête aussi.
+ */
+(function () {
+  var bouton = document.getElementById('retirer-accord');
+  if (!bouton) return;
+  var etat = document.getElementById('retrait-etat');
+
+  bouton.addEventListener('click', function () {
+    try { localStorage.removeItem('claim-consentement'); } catch (e) { /* stockage refusé */ }
+    if (window.claimClarityRetirer) window.claimClarityRetirer();
+    if (etat) {
+      etat.textContent = 'Accord retiré : l\u2019observation des parcours est arrêtée. '
+        + 'Le bandeau reviendra à la prochaine visite.';
+    }
+    bouton.disabled = true;
+  });
+})();
 </script>
 </body>
 </html>

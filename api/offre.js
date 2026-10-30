@@ -196,10 +196,11 @@ en documentation).
     <div class="consent-corps">
       <span class="consent-sceau" aria-hidden="true"><span class="ms">cookie</span></span>
       <div>
-        <p class="consent-titre" id="consent-titre">Mesure d'audience</p>
+        <p class="consent-titre" id="consent-titre">Mesure d'audience et parcours</p>
         <p class="consent-texte" id="consent-texte">Claim! mesure la fréquentation
-           du site avec Google Analytics. Aucun cookie publicitaire n'est déposé,
-           et aucune donnée n'est partagée avec un tiers.</p>
+           du site avec Google Analytics. Avec votre accord seulement, Microsoft
+           Clarity enregistre des parcours anonymisés pour repérer ce qui bloque.
+           Aucun cookie publicitaire, aucune revente de données.</p>
       </div>
     </div>
     <div class="consent-boutons">
@@ -232,6 +233,9 @@ en documentation).
   });
 })();
 </script>
+<!-- Microsoft Clarity : chargé seulement après « Tout accepter ». Le
+     fichier porte l'identifiant du projet et le signal de consentement. -->
+<script src="/assets/clarity.js" defer></script>
 `;
 
 // Paramètres de mesure, sérialisés dans la page. Même vocabulaire que le

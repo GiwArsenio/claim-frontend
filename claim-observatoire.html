@@ -747,10 +747,11 @@ en documentation).
     <div class="consent-corps">
       <span class="consent-sceau" aria-hidden="true"><span class="ms">cookie</span></span>
       <div>
-        <p class="consent-titre" id="consent-titre">Mesure d'audience</p>
+        <p class="consent-titre" id="consent-titre">Mesure d'audience et parcours</p>
         <p class="consent-texte" id="consent-texte">Claim! mesure la fréquentation
-           du site avec Google Analytics. Aucun cookie publicitaire n'est déposé,
-           et aucune donnée n'est partagée avec un tiers.</p>
+           du site avec Google Analytics. Avec votre accord seulement, Microsoft
+           Clarity enregistre des parcours anonymisés pour repérer ce qui bloque.
+           Aucun cookie publicitaire, aucune revente de données.</p>
       </div>
     </div>
     <div class="consent-boutons">
@@ -972,7 +973,10 @@ en documentation).
     racine.setAttribute('aria-hidden', 'true');
   });
 })();
-</script><!-- Thème jour / nuit : la préférence est posée avant le rendu, pour qu'aucune
+</script>
+<!-- Microsoft Clarity : chargé seulement après « Tout accepter ». Le
+     fichier porte l'identifiant du projet et le signal de consentement. -->
+<script src="/assets/clarity.js" defer></script><!-- Thème jour / nuit : la préférence est posée avant le rendu, pour qu'aucune
      page ne s'affiche en clair avant de basculer. -->
 <style id="plan-critique">
 /* CSS CRITIQUE DU PLAN — injecte, ne pas modifier ici */
@@ -1106,7 +1110,7 @@ body {
     <h1 class="h1">L'Observatoire de l'assurance est <em>en construction</em>.</h1>
     <p class="lede">Analyses, données et ressources pour les professionnels du risque arrivent bientôt. Laissez votre email : vous serez prévenu dès l'ouverture.</p>
     <form class="form" action="mailto:contact@claimyourjob.fr" method="post" enctype="text/plain">
-      <input id="chantier-email" name="email" type="email" required
+      <input id="chantier-email" name="email" type="email" data-clarity-mask="true" required
              placeholder="vous@exemple.fr" autocomplete="email">
       <button type="submit">Me prévenir</button>
     </form>
@@ -1469,7 +1473,7 @@ body {
           <h3>La lettre des experts du risque</h3>
           <p>Analyses exclusives, offres d'emploi sélectionnées et ressources pratiques — deux fois par mois dans votre boîte mail.</p>
           <div class="nl-form">
-            <input class="nl-input" type="email" placeholder="votre@email.com"/>
+            <input class="nl-input" type="email" data-clarity-mask="true" placeholder="votre@email.com"/>
             <button class="nl-btn">
               <span class="ms" style="font-size:15px;">send</span>
               Je m'abonne gratuitement
@@ -1692,7 +1696,7 @@ body {
         <h2>Ne manquez aucune<br/><em>analyse du secteur</em></h2>
         <p>Rejoignez 4 200+ professionnels de l'actuariat et de l'IA qui reçoivent chaque quinzaine nos analyses exclusives, les offres d'emploi sélectionnées et les ressources pratiques.</p>
         <div class="nl-section-form">
-          <input class="nl-section-input" type="email" placeholder="votre@email.com"/>
+          <input class="nl-section-input" type="email" data-clarity-mask="true" placeholder="votre@email.com"/>
           <button class="nl-section-btn">
             <span class="ms" style="font-size:15px;vertical-align:middle;margin-right:.25rem;">send</span>
             S'abonner
