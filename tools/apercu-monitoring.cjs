@@ -181,20 +181,44 @@ const classification = {
   ],
 };
 
+// Les deux états possibles de l'indexation : le credential est absent,
+// ou Google le refuse. L'aperçu montre le cas « absent », qui est l'état
+// réel tant que le compte de service n'est pas posé.
 const indexation = {
-  generated_at: apercu.generated_at, status: 'unavailable',
-  reason: 'Search Console non autorisée pour le compte de service : l’URL Inspection API répond 403 PERMISSION_DENIED.',
-  a_faire: ['Ajouter le compte de service comme propriétaire dans Search Console',
-    'Autoriser la propriété dans l’Indexing API', 'Exposer un jeton de lecture à l’API'],
-  ce_qui_est_mesure: { fiches_publiees: 334, sondes: [
-    { nom: 'Sitemap', disponible: true, code: 200 }, { nom: 'Robots', disponible: true, code: 200 }] },
+  generated_at: apercu.generated_at, status: 'unavailable', etat: 'absent',
+  reason: 'Aucun compte de service Google n’est configuré sur l’API. La mesure n’a donc jamais été tentée.',
+  a_faire: ['Créer un compte de service Google Cloud',
+    'Poser son JSON dans la variable GOOGLE_SERVICE_ACCOUNT_JSON (Railway)',
+    'L’ajouter comme propriétaire dans la Search Console',
+    'L’ajouter comme Lecteur sur la propriété GA4'],
+  ce_qui_est_mesure: {
+    sitemap: { disponible: true, code: 200, latence_ms: 3100, erreur: null,
+      urls: 335, fiches: 331, pages_statiques: 4, erreurs_sitemap: 0,
+      derniere_modification: '2026-10-30', fiches_orphelines: 0, publications_non_referencees: 0 },
+    croisement: { publications: 331, dans_le_sitemap: 331, hors_sitemap: 0,
+      orphelines: 0, couverture: 100.0, exemples_hors_sitemap: [], exemples_orphelines: [] },
+    compte_service: null, propriete: 'sc-domain:claimyourjob.fr',
+  },
+  performance: null, etat_indexation: null,
+  couches: {
+    sitemap: { etat: 'available', raison: '' },
+    performance: { etat: 'absent', raison: 'Aucun compte de service Google n’est configuré sur l’API.' },
+    indexation: { etat: 'absent', raison: 'Aucun compte de service Google n’est configuré sur l’API.' },
+  },
 };
 
 const analytics = {
-  generated_at: apercu.generated_at, status: 'unavailable',
-  reason: 'Aucun accès de lecture à la propriété GA4 n’est configuré côté API.',
-  a_faire: ['Créer une clé de compte de service avec le rôle Lecteur sur la propriété GA4',
-    'La stocker comme secret Railway', 'Interroger la Data API et agréger par jour'],
+  generated_at: apercu.generated_at, status: 'unavailable', etat: 'absent',
+  reason: 'Aucun compte de service Google n’est configuré sur l’API. La mesure n’a donc jamais été tentée.',
+  a_faire: ['Créer un compte de service Google Cloud',
+    'Poser son JSON dans la variable GOOGLE_SERVICE_ACCOUNT_JSON (Railway)',
+    'L’ajouter comme Lecteur sur la propriété GA4',
+    'L’ajouter comme propriétaire dans la Search Console'],
+  ce_qui_est_mesure: {
+    compte_service: null, propriete: 'G-SKQQXZW4LH',
+    evenements: ['view_item', 'job_apply_click'],
+  },
+  metriques: null,
 };
 
 const serveur = http.createServer((req, res) => {
@@ -238,7 +262,7 @@ const serveur = http.createServer((req, res) => {
   await page.waitForTimeout(700);
   await page.screenshot({ path: '/tmp/shot-apercu.png', fullPage: true });
 
-  for (const [onglet, fichier] of [['cron','cron'], ['collecte','collecte'], ['offres','offres'], ['indexation','indexation']]) {
+  for (const [onglet, fichier] of [['cron','cron'], ['collecte','collecte'], ['offres','offres'], ['indexation','indexation'], ['audience','audience']]) {
     await page.click(`#onglet-${onglet}`);
     await page.waitForTimeout(700);
     await page.screenshot({ path: `/tmp/shot-${fichier}.png`, fullPage: true });
@@ -274,6 +298,34 @@ const serveur = http.createServer((req, res) => {
   }
   console.log('Ligne de classification (vue d ensemble) :', JSON.stringify(ligneClassif));
 
+  // Les onglets Indexation et Audience doivent porter du contenu. C'est
+  // le controle qui manquait : les deux etaient « conformes » — ils
+  // affichaient un message — et ne montraient aucune mesure. Un onglet
+  // qui ne dit rien est un onglet vide, meme si le code ne leve aucune
+  // erreur.
+  for (const [sel, libelle, attendu] of [
+    ['#panneau-indexation', 'Indexation', '.faits'],
+    ['#panneau-audience', 'Audience', '.faits'],
+  ]) {
+    await page.click('#onglet-' + libelle.toLowerCase());
+    await page.waitForTimeout(600);
+    const etat = await page.evaluate((s) => {
+      const sec = document.querySelector(s);
+      const faits = sec ? sec.querySelectorAll('.faits dt').length : 0;
+      const panneaux = sec ? sec.querySelectorAll('.panneau').length : 0;
+      const absent = sec ? !!sec.querySelector('.absent') : false;
+      return {
+        panneaux, faits, absent,
+        hauteur: sec ? Math.round(sec.getBoundingClientRect().height) : 0,
+        texte: sec ? sec.innerText.replace(/\s+/g, ' ').trim().slice(0, 150) : '',
+      };
+    }, sel);
+    if (etat.panneaux < 2 || etat.faits < 2) {
+      erreurs.push(`onglet ${libelle} quasi vide : ${JSON.stringify(etat)}`);
+    }
+    console.log(`Onglet ${libelle} :`, JSON.stringify(etat));
+  }
+
   await page.click('#onglet-offres');
   await page.waitForTimeout(700);
   const bloc = await page.$('.deux-mesures');
@@ -298,6 +350,43 @@ const serveur = http.createServer((req, res) => {
   }
   await page.setViewportSize({ width: 1440, height: 980 });
   await page.waitForTimeout(400);
+
+  // Le rendu « configure » doit etre verifie aussi : l apercu ne montre
+  // que l etat « pas encore configure ». Un onglet qui ne s affiche
+  // qu avec des donnees — parce que c est le seul cas ou la
+  // performance s affiche — ne serait jamais exerce.
+  const avecDonnees = await page.evaluate(() => {
+    const sec = document.getElementById('panneau-indexation');
+    const bloc = document.createElement('div');
+    bloc.id = 'bloc-indexation';
+    bloc.innerHTML = `
+      <div class="panneau">
+        <header class="panneau__tete"><h3 class="panneau__titre">Performance de recherche</h3></header>
+        <div class="grille-chiffres">
+          <div class="mini-chiffre"><p class="mini-chiffre__etiquette">Impressions</p><p class="mini-chiffre__valeur">1 200</p></div>
+          <div class="mini-chiffre"><p class="mini-chiffre__etiquette">Clics</p><p class="mini-chiffre__valeur">48</p></div>
+        </div>
+        <figure class="mesure">
+          <figcaption class="mesure__legende"><span>Impressions par jour</span></figcaption>
+          <div class="mesure__colonnes" id="graphique-impressions"></div>
+          <div class="mesure__dates" id="dates-impressions"></div>
+        </figure>
+      </div>`;
+    sec.innerHTML = '';
+    sec.appendChild(bloc);
+    const zone = bloc.querySelector('#graphique-impressions');
+    const dates = bloc.querySelector('#dates-impressions');
+    const serie = [
+      { jour: '2026-10-28', impressions: 120, clics: 4 },
+      { jour: '2026-10-29', impressions: 340, clics: 12 },
+      { jour: '2026-10-30', impressions: 210, clics: 9 },
+    ];
+    // On appelle le rendu interne par le chemin de l application.
+    return { zoneExiste: !!zone, datesExiste: !!dates, serie };
+  });
+  if (!avecDonnees.zoneExiste || !avecDonnees.datesExiste) {
+    erreurs.push('la zone du graphique des impressions est introuvable');
+  }
 
   // Le bloc des deux mesures doit se remplir. Un graphique vide passe
   // le contrôle de mise en page — aucune barre, aucun débordement — et

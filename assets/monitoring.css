@@ -556,6 +556,64 @@ td code, .faits code { font: 500 .75rem/1 ui-monospace, SFMono-Regular, Menlo, m
 .faits dd { margin: 0; text-align: right; font-weight: 600; padding: .28rem 0; border-bottom: 1px solid var(--trait); font-variant-numeric: tabular-nums; }
 .faits dt:last-of-type, .faits dd:last-of-type { border-bottom: 0; }
 
+/* ── Indexation et audience ────────────────────────────────────────────── */
+
+/* La proportion : une jauge et sa valeur écrite. Une barre seule se lit
+   mal — on ne sait pas ce qu'elle vaut sans l'axe. */
+.proportion {
+  display: flex; align-items: center; gap: .8rem;
+  padding: .35rem 1.1rem .9rem;
+}
+.proportion__jauge {
+  flex: 1; height: 8px; border-radius: 4px;
+  background: var(--trait); overflow: hidden;
+}
+.proportion__jauge span { display: block; height: 100%; background: var(--ok); }
+.proportion[data-etat="attention"] .proportion__jauge span { background: var(--attention); }
+.proportion__valeur {
+  font-size: .8125rem; font-weight: 600; font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Un sous-bloc à l'intérieur d'un panneau : un titre, puis son contenu. */
+.sous-bloc { border-top: 1px solid var(--trait); margin-top: .4rem; padding-top: .9rem; }
+.sous-bloc__titre {
+  margin: 0 0 .5rem; padding: 0 1.1rem;
+  font-size: .6875rem; font-weight: 700; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--encre-3);
+}
+.sous-bloc__alerte {
+  margin: .6rem 0 0; padding: .5rem 1.1rem 0;
+  font-size: .75rem; color: var(--attention); line-height: 1.5;
+}
+.sous-bloc__alerte code {
+  font: 500 .7rem/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: var(--encre-2);
+}
+
+/* La note d'un panneau : d'où viennent les chiffres. */
+.panneau__note {
+  margin-left: auto; padding-left: 1rem;
+  font-size: .6875rem; color: var(--encre-3);
+}
+
+/* Les trois états d'indisponibilité. « Pas encore configuré » n'est pas
+   « accès refusé » : les deux ne se réparent pas de la même façon, et la
+   couleur les distingue. */
+.absent[data-etat="absent"] { background: var(--attention-fond); }
+.absent[data-etat="absent"] .surtitre { color: var(--attention); }
+.absent[data-etat="refuse"] { background: var(--critique-fond, var(--attention-fond)); }
+.absent[data-etat="refuse"] .surtitre { color: var(--critique, var(--attention)); }
+.absent[data-etat="erreur"] .surtitre { color: var(--attention); }
+
+/* Une liste d'actions : ce qu'il reste à faire, en ordre. */
+.a-faire {
+  margin: .9rem auto 0; padding-left: 1.2rem;
+  max-width: 58ch; text-align: left;
+  font-size: .8125rem; color: var(--encre-2); line-height: 1.65;
+}
+.a-faire li { margin-bottom: .3rem; }
+
 /* ── Alertes ───────────────────────────────────────────────────────────── */
 
 .alertes { list-style: none; margin: 0; padding: 0; }

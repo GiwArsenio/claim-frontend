@@ -680,38 +680,227 @@
 
   // ── Blocs indisponibles (indexation, audience) ───────────────────────────
 
+  /* Un état d'indisponibilité qui dit ce qui manque et comment le régler.
+     Les trois cas — credential absent, accès refusé, erreur — sont
+     distingués par le libellé : « pas encore configuré » et « configuré
+     mais refusé » ne se réparent pas de la même façon. */
   function rendreIndisponible(zone, d, complement) {
+    const etat = d.etat || 'absent';
+    const surtitre = {
+      absent: 'Pas encore configuré',
+      refuse: 'Accès refusé',
+      erreur: 'Erreur',
+    }[etat] || 'Non disponible';
+    const titre = {
+      absent: 'Cette mesure n’a jamais été tentée',
+      refuse: 'Google refuse l’accès',
+      erreur: 'Google n’a pas répondu',
+    }[etat] || 'Cette mesure n’est pas branchée';
+
     zone.innerHTML = `
       <div class="panneau">
-        <div class="absent">
-          <p class="surtitre">Non disponible</p>
-          <p class="absent__titre">Cette mesure n’est pas branchée</p>
-          <p class="absent__texte">${echapper(d.reason)}</p>
+        <div class="absent" data-etat="${echapper(etat)}">
+          <p class="surtitre">${echapper(surtitre)}</p>
+          <p class="absent__titre">${echapper(titre)}</p>
+          <p class="absent__texte">${echapper(d.reason || '')}</p>
           ${d.a_faire && d.a_faire.length ? `<ol class="a-faire">${d.a_faire.map((x) => `<li>${echapper(x)}</li>`).join('')}</ol>` : ''}
         </div>
       </div>
       ${complement || ''}`;
   }
 
+  /* Un petit tableau de faits. Les paires clé/valeur, pas des cartes :
+     on lit une liste, on ne les compare pas. */
+  function rendreFaits(faits) {
+    if (!faits || !faits.length) return '';
+    return `<dl class="faits">
+      ${faits.map((f) => `<dt>${echapper(f[0])}</dt><dd>${f[2] ? f[1] : echapper(f[1])}</dd>`).join('')}
+    </dl>`;
+  }
+
+  /* Une barre horizontale de proportion : couverture du sitemap, taux de
+     clic. La valeur est écrite à côté — une barre seule se lit mal. */
+  function barreProportion(part, libelle, etat) {
+    if (part === null || part === undefined) return '';
+    const p = Math.max(0, Math.min(100, part));
+    return `<div class="proportion" data-etat="${echapper(etat || 'ok')}">
+      <div class="proportion__jauge"><span style="width:${p}%"></span></div>
+      <span class="proportion__valeur">${echapper(libelle)}</span>
+    </div>`;
+  }
+
+  /* Un graphique en colonnes, comme ceux de la classification. Deux
+     séries superposées : ici les clics dans les impressions, et les
+     sessions dans les vues. L'échelle porte l'unité. */
+  function rendreColonnes(zone, zoneDates, serie, config) {
+    if (!serie || !serie.length) {
+      zone.innerHTML = '<p class="vide">Aucune mesure sur la période.</p>';
+      if (zoneDates) zoneDates.innerHTML = '';
+      return;
+    }
+    const max = Math.max(...serie.map((j) => config.hauteur(j)), 1);
+    zone.innerHTML = `<span class="mesure__echelle" aria-hidden="true">max ${nombre.format(max)}</span>`
+      + serie.map((j) => {
+        const base = config.hauteur(j);
+        const hTotal = Math.max(4, Math.round((base / max) * 88));
+        const detail = config.detail(j);
+        return `<div class="mesure__colonne" title="${echapper(detail)}">
+          <span class="mesure__part" data-etat="${config.etat}" style="height:${hTotal}px"></span>
+        </div>`;
+      }).join('');
+    if (zoneDates) {
+      const jours = serie.map((j) => j.jour);
+      zoneDates.innerHTML = '';
+      rendreDates(jours, zoneDates);
+    }
+  }
+
   async function chargerIndexation() {
     const d = await appeler('/indexation');
     const mesure = d.ce_qui_est_mesure || {};
-    const complement = `
+    const sitemap = mesure.sitemap || {};
+    const croisement = mesure.croisement || {};
+
+    // La couche sitemap ne dépend d'aucune autorisation Google : elle
+    // reste affichable même quand Google refuse l'accès. C'est elle qui
+    // donne quelque chose de vrai à lire.
+    const faitsSitemap = [];
+    if (sitemap.disponible) {
+      faitsSitemap.push(['URLs au sitemap', nombre.format(sitemap.urls || 0)]);
+      faitsSitemap.push(['Fiches dans le sitemap', nombre.format(sitemap.fiches || 0)]);
+      faitsSitemap.push(['Pages statiques', nombre.format(sitemap.pages_statiques || 0)]);
+      faitsSitemap.push(['Dernière modification', sitemap.derniere_modification || '—']);
+      faitsSitemap.push(['Réponse', `<span class="pastille" data-etat="ok">${sitemap.code}</span>`, true]);
+    } else {
+      faitsSitemap.push(['Sitemap', `<span class="pastille" data-etat="critique">injoignable</span>`, true]);
+    }
+
+    const couverture = croisement.couverture;
+    const blocSitemap = `
       <div class="panneau">
         <header class="panneau__tete">
-          <h3 class="panneau__titre">Ce qui est vérifiable sans Google</h3>
+          <h3 class="panneau__titre">Le sitemap, et ce qu’il couvre</h3>
+          <span class="panneau__note">Mesuré sur le site, sans Google</span>
         </header>
-        <dl class="faits">
-          <dt>Fiches publiées</dt><dd>${valeur(mesure.fiches_publiees)}</dd>
-          ${(mesure.sondes || []).map((s) => `<dt>${echapper(s.nom)}</dt>
-            <dd>${s.disponible ? `<span class="pastille" data-etat="ok">${s.code}</span>` : '<span class="pastille" data-etat="critique">injoignable</span>'}</dd>`).join('')}
-        </dl>
+        ${rendreFaits(faitsSitemap)}
+        ${couverture !== null && couverture !== undefined ? `
+          <div class="sous-bloc">
+            <p class="sous-bloc__titre">Fiches publiées présentes dans le sitemap</p>
+            ${barreProportion(couverture, `${nombre.format(croisement.dans_le_sitemap || 0)} sur ${nombre.format(croisement.publications || 0)} — ${couverture} %`, couverture === 100 ? 'ok' : 'attention')}
+            ${croisement.hors_sitemap ? `<p class="sous-bloc__alerte">${nombre.format(croisement.hors_sitemap)} fiche(s) publiée(s) absente(s) du sitemap : elles ne sont pas exposées à l'exploration.</p>` : ''}
+            ${croisement.orphelines ? `<p class="sous-bloc__alerte">${nombre.format(croisement.orphelines)} URL(s) orpheline(s) : dans le sitemap, sans publication correspondante.</p>` : ''}
+          </div>` : ''}
       </div>`;
+
+    // La performance de recherche : les vraies mesures de Google.
+    const perf = d.performance;
+    const blocPerformance = perf ? `
+      <div class="panneau">
+        <header class="panneau__tete">
+          <h3 class="panneau__titre">Performance de recherche</h3>
+          <span class="panneau__note">Search Console</span>
+        </header>
+        <div class="grille-chiffres">
+          <div class="mini-chiffre"><p class="mini-chiffre__etiquette">Impressions</p><p class="mini-chiffre__valeur">${nombre.format(perf.totaux.impressions || 0)}</p></div>
+          <div class="mini-chiffre"><p class="mini-chiffre__etiquette">Clics</p><p class="mini-chiffre__valeur">${nombre.format(perf.totaux.clics || 0)}</p></div>
+          <div class="mini-chiffre"><p class="mini-chiffre__etiquette">Taux de clic</p><p class="mini-chiffre__valeur">${(perf.totaux.ctr * 100).toFixed(1)} %</p></div>
+          <div class="mini-chiffre"><p class="mini-chiffre__etiquette">Position moyenne</p><p class="mini-chiffre__valeur">${(perf.totaux.position || 0).toFixed(1)}</p></div>
+        </div>
+        <figure class="mesure">
+          <figcaption class="mesure__legende"><span>Impressions par jour</span></figcaption>
+          <div class="mesure__colonnes" id="graphique-impressions"></div>
+          <div class="mesure__dates" id="dates-impressions"></div>
+        </figure>
+        ${(perf.requetes || []).length ? `
+          <div class="sous-bloc">
+            <p class="sous-bloc__titre">Requêtes les plus fréquentes</p>
+            <dl class="faits">
+              ${perf.requetes.slice(0, 8).map((r) => `<dt>${echapper(r.cle)}</dt><dd>${nombre.format(r.clics)} clic(s) · ${nombre.format(r.impressions)} impression(s)</dd>`).join('')}
+            </dl>
+          </div>` : ''}
+      </div>` : '';
+
+    const complement = blocSitemap + blocPerformance;
+
+    if (d.status === 'available') {
+      $('bloc-indexation').innerHTML = complement;
+      // Le graphique des impressions, après injection du HTML.
+      if (perf) {
+        rendreColonnes($('graphique-impressions'), $('dates-impressions'),
+          (perf.serie || []).map((j) => ({ jour: j.jour, impressions: j.impressions, clics: j.clics })),
+          {
+            hauteur: (j) => j.impressions,
+            etat: 'classe',
+            detail: (j) => `${j.jour} : ${nombre.format(j.impressions)} impression(s), ${nombre.format(j.clics)} clic(s)`,
+          });
+      }
+      return;
+    }
     rendreIndisponible($('bloc-indexation'), d, complement);
   }
 
   async function chargerAudience() {
-    rendreIndisponible($('bloc-audience'), await appeler('/analytics'));
+    const d = await appeler('/analytics');
+    const mesure = d.ce_qui_est_mesure || {};
+    const metriques = d.metriques;
+
+    const complement = `
+      <div class="panneau">
+        <header class="panneau__tete">
+          <h3 class="panneau__titre">Ce que le site envoie déjà</h3>
+          <span class="panneau__note">Sans mesure de trafic</span>
+        </header>
+        ${rendreFaits([
+          ['Propriété GA4', mesure.propriete || '—'],
+          ['Compte de service', mesure.compte_service || '— (aucun)'],
+          ['Événements envoyés', (mesure.evenements || []).join(', ') || '—'],
+        ])}
+        <p class="sous-bloc__alerte">Le site envoie déjà <code>view_item</code> (consultation d’une fiche) et <code>job_apply_click</code> (clic vers l’annonce). Seule la lecture de GA4 manque pour les afficher ici.</p>
+      </div>`;
+
+    if (d.status === 'available' && metriques) {
+      $('bloc-audience').innerHTML = `
+        <div class="panneau">
+          <header class="panneau__tete">
+            <h3 class="panneau__titre">Trafic</h3>
+            <span class="panneau__note">GA4 — ${echapper(mesure.propriete || '')}</span>
+          </header>
+          <div class="grille-chiffres">
+            <div class="mini-chiffre"><p class="mini-chiffre__etiquette">Vues</p><p class="mini-chiffre__valeur">${nombre.format(metriques.totaux.vues || 0)}</p></div>
+            <div class="mini-chiffre"><p class="mini-chiffre__etiquette">Sessions</p><p class="mini-chiffre__valeur">${nombre.format(metriques.totaux.sessions || 0)}</p></div>
+            <div class="mini-chiffre"><p class="mini-chiffre__etiquette">Utilisateurs</p><p class="mini-chiffre__valeur">${nombre.format(metriques.totaux.utilisateurs || 0)}</p></div>
+            <div class="mini-chiffre"><p class="mini-chiffre__etiquette">Durée moyenne</p><p class="mini-chiffre__valeur">${(metriques.totaux.duree_moyenne || 0).toFixed(0)} s</p></div>
+          </div>
+          <figure class="mesure">
+            <figcaption class="mesure__legende"><span>Vues par jour</span></figcaption>
+            <div class="mesure__colonnes" id="graphique-vues"></div>
+            <div class="mesure__dates" id="dates-vues"></div>
+          </figure>
+        </div>
+        ${(metriques.pages || []).length ? `
+        <div class="panneau">
+          <header class="panneau__tete"><h3 class="panneau__titre">Pages les plus consultées</h3></header>
+          <dl class="faits">
+            ${metriques.pages.slice(0, 10).map((p) => `<dt>${echapper(p.page)}</dt><dd>${nombre.format(p.vues)} vue(s)</dd>`).join('')}
+          </dl>
+        </div>` : ''}
+        ${(metriques.sources || []).length ? `
+        <div class="panneau">
+          <header class="panneau__tete"><h3 class="panneau__titre">D’où viennent les visiteurs</h3></header>
+          <dl class="faits">
+            ${metriques.sources.map((s) => `<dt>${echapper(s.source)}</dt><dd>${nombre.format(s.sessions)} session(s)</dd>`).join('')}
+          </dl>
+        </div>` : ''}`;
+      rendreColonnes($('graphique-vues'), $('dates-vues'),
+        (metriques.serie || []).map((j) => ({ jour: j.jour, vues: j.vues, sessions: j.sessions })),
+        {
+          hauteur: (j) => j.vues,
+          etat: 'classe',
+          detail: (j) => `${j.jour} : ${nombre.format(j.vues)} vue(s), ${nombre.format(j.sessions)} session(s)`,
+        });
+      return;
+    }
+    rendreIndisponible($('bloc-audience'), d, complement);
   }
 
   // ── Exploitation ─────────────────────────────────────────────────────────
