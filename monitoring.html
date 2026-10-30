@@ -214,6 +214,40 @@
           <div class="classification" id="bloc-classification"></div>
         </div>
 
+        <!-- Deux mesures, deux statuts. L'historique est reconstitué et
+             remonte loin dans le passé ; la mesure par passage est
+             exacte mais ne commence qu'avec l'instrumentation. -->
+        <div class="panneau">
+          <header class="panneau__tete">
+            <h3 class="panneau__titre">La classification a-t-elle tourné ?</h3>
+            <span class="mentions" id="mesure-mention">—</span>
+          </header>
+          <div class="deux-mesures">
+            <figure class="mesure">
+              <figcaption class="mesure__titre">
+                Historique reconstitué
+                <span class="mesure__statut" data-statut="reconstitue">reconstitué</span>
+              </figcaption>
+              <p class="mesure__aide">État des offres à la fin de chaque journée, rejoué depuis la base.</p>
+              <div class="mesure__graphique" id="graphique-historique"></div>
+              <div class="mesure__dates" id="dates-historique"></div>
+              <div class="mesure__legende" id="legende-historique"></div>
+            </figure>
+
+            <figure class="mesure">
+              <figcaption class="mesure__titre">
+                Mesure par passage
+                <span class="mesure__statut" data-statut="instrumente">instrumenté</span>
+              </figcaption>
+              <p class="mesure__aide">Décisions prises par chaque passage de collecte.</p>
+              <div class="mesure__graphique" id="graphique-passages"></div>
+              <div class="mesure__dates" id="dates-passages"></div>
+              <div class="mesure__legende" id="legende-passages"></div>
+            </figure>
+          </div>
+          <p class="mesure__avertissement" id="mesure-avertissement" hidden></p>
+        </div>
+
         <div class="duo duo--inverse">
           <article class="panneau">
             <header class="panneau__tete"><h3 class="panneau__titre">Champs essentiels manquants</h3></header>

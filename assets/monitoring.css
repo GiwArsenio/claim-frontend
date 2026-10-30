@@ -52,6 +52,9 @@
   --critique-fond: #fce9e7;
   --inconnu: #6b7c85;
   --inconnu-fond: #eaeff1;
+  /* Le gris des barres « non classées ». Dédié : `--trait-fort` est un
+     trait de séparation, trop pâle pour porter une masse de barres. */
+  --mesure-gris: #93a6ad;
 
   --r-s: 6px;
   --r-m: 10px;
@@ -97,6 +100,9 @@
     --critique-fond: #321a18;
     --inconnu: #9fb2b9;
     --inconnu-fond: #1a282e;
+    /* Sur fond sombre, le gris doit être plus SOMBRE qu'en thème clair
+       pour garder le même poids visuel sur un fond sombre. */
+    --mesure-gris: #56696f;
 
     --ombre-carte: none;
   }
@@ -806,3 +812,151 @@ td code, .faits code { font: 500 .75rem/1 ui-monospace, SFMono-Regular, Menlo, m
   text-align: left; font-size: .8125rem; color: var(--encre-2);
 }
 .a-faire li { margin-bottom: .35rem; }
+
+/* ═══ Les deux mesures de classification ═════════════════════════════════
+   Deux questions, deux sources, deux statuts — et c'est cette différence
+   qu'il faut rendre visible, sinon on lit deux graphiques qui se
+   ressemblent comme s'ils disaient la même chose.
+
+   L'historique est RECONSTITUÉ : il rejoue l'état des offres à la fin de
+   chaque journée. La mesure par passage est INSTRUMENTÉE : elle ne
+   commence qu'avec les compteurs ajoutés aux runs.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.deux-mesures {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0;
+}
+.mesure { margin: 0; padding: 1.1rem 1.25rem 1.25rem; border-right: 1px solid var(--trait); }
+.mesure:last-child { border-right: 0; }
+
+.mesure__titre {
+  display: flex; align-items: center; gap: .5rem; flex-wrap: wrap;
+  font-size: .8125rem; font-weight: 700; margin: 0 0 .25rem;
+}
+.mesure__statut {
+  font: 700 .625rem/1 var(--police);
+  text-transform: uppercase; letter-spacing: .09em;
+  padding: .22rem .45rem; border-radius: 4px;
+}
+.mesure__statut[data-statut="reconstitue"] { color: var(--teal); background: var(--teal-pale); }
+.mesure__statut[data-statut="instrumente"] { color: var(--inconnu); background: var(--inconnu-fond); }
+
+.mesure__aide { margin: 0 0 .9rem; font-size: .75rem; color: var(--encre-3); line-height: 1.5; }
+
+/* Barres verticales : une colonne par jour. La hauteur encode la part
+   classée ; le gris encode le reste. */
+.mesure__graphique {
+  display: flex; align-items: flex-end; gap: 3px;
+  height: 92px; padding-bottom: 1px;
+  border-bottom: 1px solid var(--trait-fort);
+  position: relative;
+  /* La place de l'echelle est reservee : sans elle, le repere chevauche
+     la barre la plus haute. */
+  margin-top: 1.25rem;
+}
+/* Repère d'échelle : la valeur la plus haute de la série, en haut à
+   droite. Sans lui, la hauteur des barres n'a aucune unité. */
+.mesure__echelle {
+  position: absolute; top: -1.25rem; right: 0;
+  font: 700 .625rem/1 var(--police); color: var(--encre-2);
+  font-variant-numeric: tabular-nums;
+  background: var(--carte);
+  padding: 0 .25rem;
+}
+.mesure__colonne {
+  flex: 1; min-width: 0; height: 100%;
+  display: flex; flex-direction: column-reverse; gap: 1px;
+  position: relative;
+}
+.mesure__part { border-radius: 2px 2px 0 0; min-height: 0; }
+.mesure__part[data-etat="classe"] { background: var(--teal); }
+/* Le « non classé » est une variable, pas une couleur en dur : le thème
+   sombre inversait un gris clair sur un fond sombre, et le contraste
+   tombait sous le seuil AA. Une couleur en dur dans une feuille qui a
+   deux thèmes est une couleur qui ne fonctionne que dans l'un des deux.
+
+   `--trait-fort` est un trait de séparation : sur fond clair il était
+   trop pâle pour porter une masse de barres. `--mesure-gris` est le
+   gris dédié : assez sombre pour lire une barre, assez clair pour ne
+   pas concurrencer le teal des décisions prises. */
+.mesure__part[data-etat="non-classe"] { background: var(--mesure-gris); }
+/* Un jour non mesuré : un point, pas une barre à zéro. C'est
+   l'information la plus importante du graphique de droite — elle sépare
+   « mesuré à zéro » de « pas mesuré » — donc le point est assez gros et
+   assez contrasté pour se voir sans être cherché. `--encre-2` se lit sur
+   fond clair ET sur fond sombre ; `--trait-fort` disparaissait dans
+   l'un des deux. */
+.mesure__colonne[data-non-mesure="true"]::after {
+  content: ""; position: absolute; left: 50%; bottom: -5px;
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--encre-2); transform: translateX(-50%);
+}
+/* Un jour sans activité : RIEN. Pas de barre, pas de point. Un marqueur
+   pâle à cet endroit serait du bruit visuel — et il se confondrait avec
+   le point du graphique de droite, qui veut dire autre chose. Le vide
+   se voit, et la légende annonce le nombre de jours sans création. */
+.mesure__colonne[data-sans-activite="true"]::after { content: none; }
+.mesure__colonne:hover .mesure__part { filter: brightness(1.15); }
+
+/* Les mêmes repères de dates sous les deux graphiques : sans cela, deux
+   échelles temporelles différentes rendaient la comparaison impossible. */
+.mesure__dates {
+  display: flex; gap: 3px; margin-top: .25rem;
+  /* Les étiquettes des extrémités sont coupées par le bord du cadre.
+     On leur réserve de la place : la première est alignée à gauche,
+     la dernière à droite, et les autres au centre. */
+  padding: 0 .5rem;
+}
+.mesure__dates span {
+  flex: 1; min-width: 0; text-align: center;
+  font-size: .5625rem; font-weight: 600; letter-spacing: .02em;
+  color: var(--encre-2); font-variant-numeric: tabular-nums;
+  white-space: nowrap; overflow: hidden;
+}
+/* Les étiquettes des extrémités sont calées sur le bord correspondant,
+   avec une marge : sinon la dernière tombe à cheval sur le cadre et se
+   fait couper. */
+.mesure__dates span:first-child { text-align: left; }
+.mesure__dates span:last-child { text-align: right; }
+.mesure__dates span:first-child,
+.mesure__dates span:last-child { flex: 0 0 auto; }
+.mesure__dates span:first-child { margin-left: -.25rem; }
+.mesure__dates span:last-child { margin-right: -.25rem; }
+
+.mesure__legende {
+  display: flex; justify-content: space-between; gap: .6rem; flex-wrap: wrap;
+  margin-top: .55rem; font-size: .6875rem; color: var(--encre-3);
+}
+.mesure__cle i { width: 9px; height: 9px; }
+.mesure__cle { display: inline-flex; align-items: center; gap: .3rem; }
+.mesure__cle i { width: 8px; height: 8px; border-radius: 2px; display: inline-block; }
+.mesure__cle i[data-etat="classe"] { background: var(--teal); }
+.mesure__cle i[data-etat="non-classe"] { background: var(--mesure-gris); }
+
+/* Un avertissement quand des jours entiers n'ont pas été mesurés : la
+   mesure par passage ne commence qu'à l'instrumentation, et le silence
+   doit être dit, pas seulement laissé vide.
+
+   Le commentaire ci-dessus a été écrit sans la parenthèse fermante : la
+   règle était donccommentée, et l'avertissement n'existait pas. */
+.mesure__avertissement {
+  margin: 0; padding: .75rem 1.25rem;
+  border-top: 1px solid var(--trait);
+  background: var(--attention-fond);
+  color: var(--attention);
+  font-size: .75rem; line-height: 1.55;
+  display: flex; align-items: flex-start; gap: .45rem;
+}
+.mesure__avertissement[hidden] { display: none; }
+.mesure__avertissement span:first-child { flex: none; font-weight: 700; }
+
+@media (max-width: 900px) {
+  .deux-mesures { grid-template-columns: minmax(0, 1fr); }
+  .mesure { border-right: 0; border-bottom: 1px solid var(--trait); }
+  .mesure:last-child { border-bottom: 0; }
+  /* Les deux mesures s'empilent : la largeur est celle d'une colonne,
+     et les repères de dates n'ont plus la place de lire trente jours. */
+  .mesure__dates { padding: 0 .25rem; }
+  .mesure__dates span { font-size: .5rem; }
+}
