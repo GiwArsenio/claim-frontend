@@ -742,6 +742,20 @@ td code, .faits code { font: 500 .75rem/1 ui-monospace, SFMono-Regular, Menlo, m
 .ligne-cron[data-etat="bloque"] .temoin-etat,
 .ligne-cron[data-etat="retard"] .temoin-etat { background: var(--attention); }
 
+/* États de la ligne de classification.
+   « Mesurée » est neutre : la cascade est mesurable, ce n'est pas un
+   verdict sur sa santé. « Non instrumentée » est un avertissement : la
+   mesure n'existe pas encore, et une mesure absente ne se confond pas
+   avec une mesure à zéro. */
+.ligne-cron[data-etat="mesuree"] { border-left-color: var(--ok); }
+.ligne-cron[data-etat="mesuree"] .temoin-etat { background: var(--ok); }
+.ligne-cron[data-etat="non_instrumentee"] {
+  border-left-color: var(--attention); background: var(--attention-fond);
+}
+.ligne-cron[data-etat="non_instrumentee"] .temoin-etat { background: var(--attention); }
+.ligne-cron[data-etat="inconnue"] { border-left-color: var(--inconnu); }
+.ligne-cron[data-etat="inconnue"] .temoin-etat { background: var(--inconnu); }
+
 .ligne-cron__detail { color: var(--encre); }
 .ligne-cron__suite { color: var(--encre-3); }
 .ligne-cron .lien { margin-left: auto; }
