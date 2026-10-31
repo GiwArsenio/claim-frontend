@@ -87,6 +87,12 @@ const FAMILLES = {
   // Parlent à la production. Une régression en ligne doit se voir, mais
   // elle ne doit pas bloquer une fusion : la production peut tomber sans
   // que le code soit en cause.
+  // Rendu visuel comparé au pixel. Une référence appartient à la machine
+  // qui l'a produite : l'exécuter ailleurs teste la différence des systèmes,
+  // pas le site. Ne bloque pas un déploiement, se lance explicitement.
+  visuel: [
+    'tests/captures-visuel.test.cjs',
+  ],
   production: [
     'tests/seo_offre.test.cjs',
     'tests/ga4_present.test.cjs',
@@ -164,7 +170,11 @@ if (FICHIER) {
     process.exit(1);
   }
 } else {
-  aExecuter = fichiers.filter((f) => f.famille !== 'production');
+  // Deux familles ne partent pas par défaut, et pour deux raisons
+  // differentes : `production` parle a la production, `visuel` depend de la
+  // machine qui a produit les references. Les executer par defaut rendrait
+  // la suite rouge sans qu'aucun code ne soit en cause.
+  aExecuter = fichiers.filter((f) => f.famille !== 'production' && f.famille !== 'visuel');
   if (LIVE) aExecuter = fichiers;
 }
 

@@ -173,39 +173,6 @@ test('A06 — chaque capture montre l\'état annoncé', async (t) => {
   }
 });
 
-/* ── 3. Le rendu courant correspond à la référence ───────────────────────── */
-
-test('A06 — le rendu correspond à la capture de référence', async (t) => {
-  await aide.demarrerServeur();
-  const nav = await aide.demarrerNavigateur();
-
-  try {
-    const resultats = await captures.capturerEtComparer(aide);
-
-    for (const r of resultats) {
-      await t.test(r.scenario, async () => {
-        assert.equal(
-          r.referenceAbsente, undefined,
-          `la capture de référence « ${r.scenario} » est absente`
-        );
-        assert.equal(
-          r.comparable, true,
-          `« ${r.scenario} » n'est pas comparable : ${r.raison || 'raison inconnue'}`
-        );
-        assert.ok(
-          r.pct <= captures.SEUIL_PCT,
-          `« ${r.scenario} » : ${r.pixelsDiff} pixel(s) different(s), soit ` +
-          `${r.pct.toFixed(3)} % — le seuil est de ${captures.SEUIL_PCT} %. ` +
-          `L'écart est dans ${r.cheminEcart || 'le dossier captures/ecarts'}`
-        );
-      });
-    }
-  } finally {
-    await aide.arreterNavigateur();
-    await aide.arreterServeur();
-  }
-});
-
 /* ── 4. Le test visuel détecte une disparition réelle ───────────────────── */
 
 test('A06 — le test visuel détecte la disparition d\'une action', async (t) => {

@@ -218,6 +218,12 @@ html[data-theme="nuit"] select.chip {
 .clogo { width: 38px; height: 38px; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: var(--blanc); font-weight: 900; font-size: 9.5px; flex-shrink: 0; position: relative; overflow: hidden; }
 .ci { flex: 1; min-width: 0; padding-left: .5rem; }
 .ctitle { font-size: .875rem; font-weight: 700; color: var(--encre); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* Le titre est un bouton pour le clavier et les lecteurs d'écran, mais il
+   se lit comme un titre : aucun fond, aucune bordure, aucune police
+   d'interface. Le laisser tel quel aurait changé le rendu de chaque carte. */
+button.ctitle { display: block; width: 100%; text-align: left; font-family: inherit;
+  background: none; border: 0; padding: 0; cursor: pointer; }
+button.ctitle:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; border-radius: 3px; }
 .csub { font-size: .75rem; color: var(--gris); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .cm { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin: 9px 0; }
 .card-fact { display: inline-flex; align-items: center; flex: 0 0 auto; max-width: 100%; padding: 2px 8px; border: 1px solid var(--bord-carte); border-radius: 4px; background: var(--surface-2); }
@@ -2093,13 +2099,17 @@ function renderFeed() {
        pas verifier qu'une offre n'est pas repetee a la pagination, ni
        previsualiser quelle offre on ouvre. */
     el.dataset.id = j.id;
-    /* La carte est un bouton : elle s'active au clavier et se declare
-       comme telle. Elle ne porte PAS d'aria-label : son contenu visible
-       — le titre de l'offre — est son nom accessible. Imposer un libelle
-       a cote du contenu visible viole la regle 2.5.3 (Label in Name),
-       qui exige que le nom accessible contienne le texte visible. */
-    el.setAttribute('role', 'button');
-    el.setAttribute('tabindex', '0');
+    /* La carte n'est pas un bouton. Elle l'a été : role="button" et
+       tabindex, avec la cloche d'alerte à l'intérieur — deux contrôles
+       imbriqués, que le scanner d'accessibilité signale à juste titre
+       (« nested-interactive »). Un lecteur d'écran annonçait alors un
+       bouton qui contient un bouton, sans dire lequel fait quoi.
+
+       Le contrôle clavier est désormais le titre, qui est un vrai bouton.
+       La cloche reste son voisin, pas son enfant. La carte conserve son
+       clic souris : elle ne se déclare simplement plus comme un widget
+       qu'elle n'est pas.
+*/
 
     // Préchargement : le survol donne à l'API le temps de répondre avant le
     // clic. Sur écran tactile, pointerdown joue ce rôle.
@@ -2112,16 +2122,6 @@ function renderFeed() {
       clearTimeout(minuteurPrechargement);
       prechargerDetail(j.id);
     });
-    /* Une carte est un bouton : elle s'active au clavier aussi. Sans cela,
-       la carte annonce « button » au lecteur d'ecran mais reste hors
-       d'atteinte de l'utilisateur clavier. */
-    el.onkeydown = (ev) => {
-      if (ev.key === 'Enter' || ev.key === ' ') {
-        ev.preventDefault();
-        el.click();
-      }
-    };
-
     el.onclick = async () => {
       activeId = j.id;
       // Sélection dans la liste. Distincte de l'ouverture automatique de la
@@ -2153,7 +2153,7 @@ function renderFeed() {
       <div class="ct">
         ${renderCompanyLogo(co, 'clogo')}
         <div class="ci">
-          <div class="ctitle">${j.title}</div>
+          <button class="ctitle" type="button">${j.title}</button>
           <div class="csub">${co.name || j.source}</div>
         </div>
         <button class="bel" type="button"
