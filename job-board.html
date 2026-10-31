@@ -336,7 +336,9 @@ button.ctitle:focus-visible { outline: 2px solid var(--teal); outline-offset: 2p
 /* L'offre est deja dans la liste : l'icone se remplit et prend la
    teinte de la marque. Sans elle, on ne sait pas si le clic a porte. */
 .bel.suivi { background: var(--teal-clair); border-color: var(--teal-bord); color: var(--teal-texte); }
-.bel.suivi svg { fill: currentColor; fill-opacity: .18; }
+/* Le marque-page plein : le geste laisse une trace visible, sans quoi on
+   ne sait pas si l'offre est deja sauvegardee. */
+.bel.suivi svg { fill: currentColor; }
 
 /* ── FICHE — alignée sur la page d'offre (/offre/{slug}) ──
    Échelle de titres, marges, couleurs et pastilles reprennent les valeurs
@@ -1862,7 +1864,7 @@ var ALERTE_CRITERES = [];
 
 function alerteEl(id) { return document.getElementById(id); }
 
-/* ── LA LISTE DE SUIVI ────────────────────────────────────────────────
+/* ── LES SAUVEGARDES ──────────────────────────────────────────────────
  *
  * Ce que la cloche faisait avant : la carte portait un geste unique, qui
  * ouvrait une modale d'alerte. Deux gestes distincts demande deux signes
@@ -1921,14 +1923,14 @@ function ajouterALaListe(bouton) {
   if (deja) {
     ecrireSuivi(liste.filter(s => s !== slug));
     bouton.classList.remove('suivi');
-    bouton.setAttribute('aria-label', 'Ajouter cette offre à ma liste de suivi');
-    direSuivi('Retirée de votre liste de suivi.');
+    bouton.setAttribute('aria-label', 'Ajouter cette offre à mes sauvegardes');
+    direSuivi('Retirée de vos sauvegardes.');
   } else {
     liste.push(slug);
     ecrireSuivi(liste);
     bouton.classList.add('suivi');
-    bouton.setAttribute('aria-label', 'Retirer cette offre de ma liste de suivi');
-    direSuivi('Ajoutée à votre liste de suivi.');
+    bouton.setAttribute('aria-label', 'Retirer cette offre de mes sauvegardes');
+    direSuivi('Ajoutée à vos sauvegardes.');
   }
 }
 
@@ -1938,7 +1940,7 @@ function majEtatSuivi(bouton, slug) {
   const suivi = lireSuivi().indexOf(slug) !== -1;
   bouton.classList.toggle('suivi', suivi);
   bouton.setAttribute('aria-label',
-    suivi ? 'Retirer cette offre de ma liste de suivi' : 'Ajouter cette offre à ma liste de suivi');
+    suivi ? 'Retirer cette offre de mes sauvegardes' : 'Ajouter cette offre à mes sauvegardes');
 }
 
 function ouvrirAlerte(bouton) {
@@ -2247,14 +2249,12 @@ function renderFeed() {
           <div class="csub">${co.name || j.source}</div>
         </div>
         <button class="bel" type="button"
-                aria-label="Ajouter cette offre à ma liste de suivi"
+                aria-label="Ajouter cette offre à mes sauvegardes"
                 data-slug="${escapeHtml(j.slug || '')}"
                 onclick="event.stopPropagation(); ajouterALaListe(this)">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"
                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M4 5h11M4 12h11M4 19h7"></path>
-            <path d="M17 12v9"></path>
-            <path d="M12.5 16.5h9"></path>
+            <path d="M6 4.5h12a1 1 0 0 1 1 1v14.2a.6.6 0 0 1-.95.49L12 16.3l-6.05 3.89A.6.6 0 0 1 5 19.7V5.5a1 1 0 0 1 1-1z"></path>
           </svg>
         </button>
       </div>
@@ -2488,7 +2488,6 @@ function dessinerDetail(j, sansCorps) {
         </div>
         <div class="dact">
           ${j.source_url ? `<a class="bap" href="${escapeHtml(j.source_url)}" target="_blank" rel="nofollow noopener" onclick="mesurerClicPostuler()">Postuler</a>` : ''}
-          <button class="bsh" type="button" onclick="partagerOffre()">Partager</button>
           <button class="bsh bal" type="button"
                   data-titre="${escapeHtml(j.title)}"
                   data-societe="${escapeHtml(co.name || j.source || '')}"
@@ -2497,6 +2496,7 @@ function dessinerDetail(j, sansCorps) {
                   onclick="ouvrirAlerte(this)">
             <span class="ms" aria-hidden="true" style="font-size:16px;">notifications</span> Alerte
           </button>
+          <button class="bsh" type="button" onclick="partagerOffre()">Partager</button>
         </div>
       </div>
       ${summary}
