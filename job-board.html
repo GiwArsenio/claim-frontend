@@ -859,10 +859,11 @@ en documentation).
     <div class="consent-corps">
       <span class="consent-sceau" aria-hidden="true"><span class="ms">cookie</span></span>
       <div>
-        <p class="consent-titre" id="consent-titre">Mesure d'audience</p>
+        <p class="consent-titre" id="consent-titre">Mesure d'audience et parcours</p>
         <p class="consent-texte" id="consent-texte">Claim! mesure la fréquentation
-           du site avec Google Analytics. Aucun cookie publicitaire n'est déposé,
-           et aucune donnée n'est partagée avec un tiers.</p>
+           du site avec Google Analytics. Avec votre accord seulement, Microsoft
+           Clarity enregistre des parcours anonymisés pour repérer ce qui bloque.
+           Aucun cookie publicitaire, aucune revente de données.</p>
       </div>
     </div>
     <div class="consent-boutons">
@@ -1024,7 +1025,10 @@ en documentation).
     racine.setAttribute('aria-hidden', 'true');
   });
 })();
-</script><!-- Thème jour / nuit : la préférence est posée avant le rendu, pour qu'aucune
+</script>
+<!-- Microsoft Clarity : chargé seulement après « Tout accepter ». Le
+     fichier porte l'identifiant du projet et le signal de consentement. -->
+<script src="/assets/clarity.js" defer></script><!-- Thème jour / nuit : la préférence est posée avant le rendu, pour qu'aucune
      page ne s'affiche en clair avant de basculer. -->
 <style id="plan-critique">
 /* CSS CRITIQUE DU PLAN — injecte, ne pas modifier ici */
@@ -1144,12 +1148,12 @@ html[data-theme="nuit"] body {
     <div class="sbar">
       <div class="sf">
         <span class="ms" style="color:var(--gris-doux);font-size:17px;">search</span>
-        <input id="q-input" type="text" placeholder="Mots-clés (e.g. Actuaire, Data Scientist)" aria-label="Mots-clés"/>
+        <input id="q-input" type="text" data-clarity-mask="true" placeholder="Mots-clés (e.g. Actuaire, Data Scientist)" aria-label="Mots-clés"/>
       </div>
       <div class="sdiv"></div>
       <div class="sf loc-field">
         <span class="ms" style="color:var(--gris-doux);font-size:17px;">location_on</span>
-        <input id="city-input" type="text" placeholder="Localisation" aria-label="Localisation"/>
+        <input id="city-input" type="text" data-clarity-mask="true" placeholder="Localisation" aria-label="Localisation"/>
       </div>
       <button class="btn-srch" onclick="applySearch()">Rechercher</button>
     </div>
@@ -2591,7 +2595,7 @@ loadJobs();
       <div class="chips-alerte" id="chips-alerte"></div>
 
       <label class="lab-alerte" for="alerte-mail">Votre email</label>
-      <input class="champ-alerte" id="alerte-mail" type="email" inputmode="email"
+      <input class="champ-alerte" id="alerte-mail" type="email" data-clarity-mask="true" inputmode="email"
              autocomplete="email" placeholder="prenom@exemple.fr">
       <p class="err-alerte" id="alerte-err" hidden></p>
 
