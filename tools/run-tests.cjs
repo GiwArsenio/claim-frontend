@@ -53,6 +53,7 @@ const FAMILLES = {
     'tests/cards.test.cjs',
     'tests/consentement.test.cjs',
     'tests/clarity.test.cjs',
+    'tests/adresses-internationales.test.cjs',
     'tests/mesure_items.test.cjs',
     'tests/params_mesure.test.cjs',
     'tests/aide-parcours.cjs',
