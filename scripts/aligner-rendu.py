@@ -82,7 +82,7 @@ ENTETE = """// src/pages/_offre-rendu.js — Construction du HTML d'une fiche d'
 // Toute evolution de api/offre.js doit etre reportee ici. Le script
 // scripts/aligner-rendu.py fait ce report et verifie l'alignement.
 
-let API_BASE = 'https://api.claimyourjob.fr/api/v1';
+let API_BASE = 'https://claim-api-production-06b3.up.railway.app/api/v1';
 let SITE_URL = 'https://claimyourjob.com/fr';
 
 export function configurerUrls(apiBase, siteUrl) {
@@ -136,6 +136,18 @@ print("  ANNULAIRE : source unique (assets/companies-data.js)")
 if VERIFIER:
     with open(DST, encoding="utf-8") as f:
         actuel = f.read()
+    # Le build ajoute uniquement ce bloc CSS critique au fichier généré.
+    # Comparer les sources après retrait du bloc identifié, sans ignorer
+    # une autre différence de rendu.
+    marqueur = '/* CSS CRITIQUE DU PLAN — injecte, ne pas modifier ici */'
+    if marqueur in actuel:
+        debut = actuel.rfind('<style id="plan-critique">', 0, actuel.index(marqueur))
+        fin = actuel.index('</style>', actuel.index(marqueur)) + len('</style>')
+        if debut < 0:
+            sys.exit('Bloc CSS critique invalide')
+        if actuel[fin:fin + 2] == r'\n':
+            fin += 2
+        actuel = actuel[:debut] + actuel[fin:]
     if actuel == sortie:
         print("  VERIFICATION : _offre-rendu.js est aligne sur api/offre.js")
         sys.exit(0)

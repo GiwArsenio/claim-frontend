@@ -19,11 +19,9 @@
   // Ce drapeau rend le court-circuit sans effet : les requetes de
   // navigation atteignent le Worker comme les autres.
   //
-  // L alternative aurait ete `run_worker_first: true`, qui fait traverser
-  // TOUTE requete au Worker — y compris le trafic SEO des fichiers
-  // statiques, gratuit et illimite sur le CDN. Ce serait du quota
-  // d invocations gaspille. Le drapeau est donc la solution meilleur : il
-  // corrige la navigation sans toucher au routage du reste.
+  // IMPORTANT : ce drapeau ne suffit pas pour les fichiers HTML existants.
+  // run_worker_first est obligatoire pour intercepter les anciennes URL .fr
+  // et les HTML racine .com. Sans lui, le CDN les sert directement en 200.
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "claim-frontend",
   "compatibility_date": "2026-10-24",
@@ -33,6 +31,7 @@
   "assets": {
     "directory": "./public",
     "binding": "ASSETS",
+    "run_worker_first": true,
     // Une page 404 explicite : le gabarit du site, pas la page par défaut
     // de la plateforme. `none` laisserait un trou nu sur les adresses
     // inexistantes.

@@ -99,7 +99,6 @@ jobs:
       # le script comparera ce qui est comparable, ce continue-on-error
       # se retire — c'est la seule chose a faire.
       - name: Verifier l'alignement du rendu
-        continue-on-error: true
         run: npm run aligner:rendu:verifier
 
       - name: Preparer les assets statiques

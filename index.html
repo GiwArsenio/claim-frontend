@@ -1092,7 +1092,7 @@ html[data-theme="nuit"] body {
 // ── Configuration ──────────────────────────────────────────────────────────
 // Le marché dont dépend la page — voir job-board.html pour le pourquoi.
 function prefMarche() {
-  const m = location.pathname.match(/^\/(fr|be|ch)(?=\/|$)/);
+  const m = location.pathname.match(/^\/(fr)(?=\/|$)/);
   return m ? `/${m[1]}` : '';
 }
 const API_BASE = (typeof CLAIM_API_BASE === 'string' && CLAIM_API_BASE)
@@ -1206,8 +1206,8 @@ function allerContact() {
 // critère choisi. Le board sait déjà lire ces paramètres dans l'adresse.
 function versBoard(param, valeur) {
   location.href = valeur
-    ? '/job-board.html?' + param + '=' + encodeURIComponent(valeur)
-    : '/job-board.html';
+    ? prefMarche() + '/job-board.html?' + param + '=' + encodeURIComponent(valeur)
+    : prefMarche() + '/job-board.html';
 }
 
 // Menu burger — même comportement que sur le board.

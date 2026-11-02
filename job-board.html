@@ -2393,7 +2393,7 @@ function urlOffre(slug) {
 // marché ; les tests servent le site à la racine, et la racine n'a pas de
 // préfixe. C'est la seule raison pour laquelle cette fonction existe.
 function prefMarche() {
-  const m = location.pathname.match(/^\/(fr|be|ch)(?=\/|$)/);
+  const m = location.pathname.match(/^\/(fr)(?=\/|$)/);
   return m ? `/${m[1]}` : '';
 }
 
@@ -2608,7 +2608,7 @@ function closeDetail() {
 // Le bouton retour du navigateur : revenir à la liste ferme le détail,
 // revenir en avant le rouvre. Sans cela, l'adresse et l'écran divergeraient.
 window.addEventListener('popstate', async () => {
-  const trouve = location.pathname.match(/^(?:\/(?:fr|be|ch))?\/offre\/(.+)$/);
+  const trouve = location.pathname.match(/^(?:\/(?:fr))?\/offre\/(.+)$/);
   if (trouve) {
     const slug = decodeURIComponent(trouve[1]);
     const cible = ALL_JOBS.find(x => x.slug === slug);

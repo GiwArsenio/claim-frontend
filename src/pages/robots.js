@@ -21,6 +21,7 @@ Allow: /
 # porte deja noindex et un en-tete x-robots-tag -- ceci evite en plus la
 # visite.
 Disallow: /monitoring
+Disallow: /fr/monitoring
 
 # Sitemap
 Sitemap: ${site}/sitemap.xml

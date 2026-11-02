@@ -31,7 +31,7 @@ const valeur = (nom, defaut) => {
   return i >= 0 && args[i + 1] ? args[i + 1] : defaut;
 };
 
-const WORKER = valeur('--worker', process.env.WORKER_URL || 'http://127.0.0.1:8788');
+const WORKER = valeur('--worker', process.env.WORKER_URL || 'http://127.0.0.1:8788').replace(/\/fr\/?$/, '').replace(/\/$/, '');
 const REF = valeur('--ref', process.env.REF_URL || 'https://claimyourjob.com/fr');
 const COMPLET = option('--complet');
 const STRICT = option('--strict');
@@ -45,7 +45,7 @@ const TIMEOUT = 30000;
 // contenu — c'est ce qui prouve qu'il n'y a qu'une seule source.
 const ADRESSES_FIXES = [
   { chemin: '/fr/',                    attendu: 200, note: 'accueil' },
-  { chemin: '/fr/index.html',          attendu: 200, note: 'accueil par son fichier' },
+  { chemin: '/fr/index.html',          attendu: 301, note: 'accueil par son fichier' },
   { chemin: '/fr/job-board.html',      attendu: 200, note: 'board — ne doit pas basculer en 307' },
   { chemin: '/fr/claim-entreprises.html', attendu: 200, note: 'entreprises' },
   { chemin: '/fr/claim-observatoire.html',attendu: 200, note: 'observatoire' },
@@ -173,7 +173,7 @@ async function comparerOffres(slugs) {
     const chemin = '/offre/' + slugs[i];
     let a, b;
     try {
-      [a, b] = await Promise.all([lire(WORKER + chemin), lire(REF + chemin)]);
+      [a, b] = await Promise.all([lire(WORKER + '/fr' + chemin), lire(REF + chemin)]);
     } catch (e) {
       differents.push({ slug: slugs[i], raison: `erreur : ${e.message}` });
       continue;

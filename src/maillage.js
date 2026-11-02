@@ -37,8 +37,6 @@ const EXEMPTS = [
   '/assets/',
   '/logos/',
   '/favicon.ico',
-  '/robots.txt',
-  '/sitemap.xml',
 ];
 
 export function estExempt(chemin) {
@@ -46,7 +44,7 @@ export function estExempt(chemin) {
   // racine du domaine, et le préfixe de marché ne le concerne pas. Sans
   // cette borne, /fr/assets/theme.css passerait par la réécriture de page
   // et serait servi comme un document.
-  const nu = chemin.startsWith(PREFIXE_MARCHE) ? chemin.slice(PREFIXE_MARCHE.length) || '/' : chemin;
+  const nu = (chemin === PREFIXE_MARCHE || chemin.startsWith(PREFIXE_MARCHE + '/')) ? chemin.slice(PREFIXE_MARCHE.length) || '/' : chemin;
   return EXEMPTS.some((p) => nu === p || nu.startsWith(p));
 }
 
@@ -81,15 +79,3 @@ export function reecrireLiens(html) {
   );
 }
 
-/**
- * Réécrit les adresses que le JavaScript embarqué construit à la main.
- * C'est le complément de reecrireLiens : un `location.href = '/job-board.html'`
- * dans un onclick, ou `/offre/${slug}` dans une chaîne de gabarit, échappe
- * à l'analyse HTML.
- */
-export function reecrireCheminsJs(js) {
-  return js.replace(/(['"])((?:\/)(?!fr(?:\/|['"]))[^'"]*)\1/g, (entier, guillemet, valeur) => {
-    const cible = cheminMarche(valeur);
-    return cible ? `${guillemet}${cible}${guillemet}` : entier;
-  });
-}

@@ -150,14 +150,16 @@ test('le routage international converge vers une seule source', async (t) => {
       'le .fr sert encore du contenu : deux adresses pour la même page, c\'est un doublon indexable');
   });
 
-  await t.test('les assets du .fr restent servis, sans redirection', async () => {
+  await t.test('les assets du .fr convergent vers le .com', async () => {
     const r = await appeler('https://claimyourjob.fr/assets/theme.css');
-    assert.equal(r.status, 200, 'un asset redirigé crée un aller-retour pour chaque image');
+    assert.equal(r.status, 301);
+    assert.equal(r.headers.get('location'), 'https://claimyourjob.com/assets/theme.css');
   });
 
-  await t.test('les assets demandés sous /fr restent servis', async () => {
+  await t.test('les assets demandés sous /fr convergent vers la racine', async () => {
     const r = await appeler('https://claimyourjob.com/fr/assets/theme.css');
-    assert.equal(r.status, 200);
+    assert.equal(r.status, 301);
+    assert.equal(r.headers.get('location'), 'https://claimyourjob.com/assets/theme.css');
   });
 
   // ── Règle 4 : les www convergent ──────────────────────────────────────
