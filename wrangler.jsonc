@@ -56,7 +56,9 @@
   // decide ce qui est rendu et ce qui est servi depuis le CDN.
   "routes": [
     { "pattern": "claimyourjob.fr", "custom_domain": true },
-    { "pattern": "www.claimyourjob.fr", "custom_domain": true }
+    { "pattern": "www.claimyourjob.fr", "custom_domain": true },
+    { "pattern": "claimyourjob.com", "custom_domain": true },
+    { "pattern": "www.claimyourjob.com", "custom_domain": true }
   ],
 
   "vars": {
