@@ -1135,6 +1135,13 @@ html[data-theme="nuit"] body {
 <link rel="stylesheet" href="/assets/theme.css">
 <script>(function(){try{var t=localStorage.getItem('claim-theme-v2');if(t==='nuit'){document.documentElement.setAttribute('data-theme','nuit');}}catch(e){}})();</script>
 <script src="/assets/theme.js" defer></script>
+<style>
+/* Le titre est un bouton autonome : son survol doit être perceptible,
+   même si la carte entière est déjà survolée. Le soulignement ne réduit
+   pas le contraste du texte, en jour comme en nuit. */
+button.ctitle:hover { text-decoration: underline; text-underline-offset: .18em; }
+button.ctitle:focus-visible { outline: 2px solid var(--teal); outline-offset: 3px; }
+</style>
 </head>
 <body>
 <div id="app">
