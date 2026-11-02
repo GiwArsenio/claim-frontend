@@ -36,7 +36,7 @@ export default {
 
     // Assets partagés, canoniques à la racine du .com. /fr/assets/... est un alias.
     if (estExempt(nu)) {
-      if (url.hostname !== 'claimyourjob.com' || chemin !== nu) return redirect(nu, url.search);
+      if (url.hostname !== 'claimyourjob.com' || chemin !== nu || url.protocol !== 'https:') return redirect(nu, url.search);
       return servirStatique(request, env, nu);
     }
     const destination = nu === '/claim-job-board.html' ? '/fr/job-board.html'
