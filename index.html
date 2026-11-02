@@ -5,16 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Claim! — Les offres en Actuariat, Data & IA en assurance</title>
 <meta name="description" content="Agrégateur des offres d'emploi en actuariat, data science et IA dans l'assurance. Les sites carrières des employeurs sont relevés un par un, chaque matin — y compris ceux que les job boards laissent de côté."/>
-<link rel="canonical" href="https://claimyourjob.fr/"/>
+<link rel="canonical" href="https://claimyourjob.com/fr/"/>
 <meta property="og:type" content="website"/>
 <meta property="og:site_name" content="Claim your job"/>
 <meta property="og:locale" content="fr_FR"/>
 <meta property="og:title" content="Claim! — Les offres en Actuariat, Data & IA en assurance"/>
 <meta property="og:description" content="Les offres d'emploi en actuariat, data science et IA dans l'assurance, relevées chaque matin sur les sites carrières des employeurs."/>
-<meta property="og:url" content="https://claimyourjob.fr/"/>
+<meta property="og:url" content="https://claimyourjob.com/fr/"/>
 <link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon.png"/>
 <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"/>
-<meta property="og:image" content="https://claimyourjob.fr/assets/og-image.png"/>
+<meta property="og:image" content="https://claimyourjob.com/fr/assets/og-image.png"/>
 <meta property="og:image:width" content="1200"/>
 <meta property="og:image:height" content="630"/>
 <meta property="og:image:alt" content="Claim! — offres d'emploi Actuariat, Data et IA en assurance"/>
@@ -939,7 +939,7 @@ html[data-theme="nuit"] body {
         <option value="groupama">Groupama</option>
         <option value="oracle_hcm">Oracle HCM</option>
       </select>
-      <button class="chip" onclick="location.href='/job-board.html'">
+      <button class="chip" onclick="location.href=prefMarche()+'/job-board.html'">
         <span class="ms" style="font-size:13px;">restart_alt</span>Réinitialiser
       </button>
     </div>
@@ -1079,17 +1079,22 @@ html[data-theme="nuit"] body {
   "@type": "WebSite",
   "name": "Claim!",
   "alternateName": "Claim your job",
-  "url": "https://claimyourjob.fr/",
+  "url": "https://claimyourjob.com/fr/",
   "inLanguage": "fr-FR",
   "potentialAction": {
     "@type": "SearchAction",
-    "target": { "@type": "EntryPoint", "urlTemplate": "https://claimyourjob.fr/job-board.html?q={search_term_string}" },
+    "target": { "@type": "EntryPoint", "urlTemplate": "https://claimyourjob.com/fr/job-board.html?q={search_term_string}" },
     "query-input": "required name=search_term_string"
   }
 }
 </script>
 <script>
 // ── Configuration ──────────────────────────────────────────────────────────
+// Le marché dont dépend la page — voir job-board.html pour le pourquoi.
+function prefMarche() {
+  const m = location.pathname.match(/^\/(fr|be|ch)(?=\/|$)/);
+  return m ? `/${m[1]}` : '';
+}
 const API_BASE = (typeof CLAIM_API_BASE === 'string' && CLAIM_API_BASE)
   ? CLAIM_API_BASE
   : 'https://claim-api-production-06b3.up.railway.app/api/v1';
@@ -1309,7 +1314,7 @@ async function chargerOffres() {
       const etiquettes = (specialite ? '<span class="tag tn">' + echapper(specialite) + '</span>' : '')
         + pucesCompetences(j, 3);
       return `
-        <a class="oc" href="/offre/${encodeURIComponent(j.slug || '')}">
+        <a class="oc" href="${prefMarche()}/offre/${encodeURIComponent(j.slug || '')}">
           <div class="ct">
             ${tuileLogo(co)}
             <div class="ci">

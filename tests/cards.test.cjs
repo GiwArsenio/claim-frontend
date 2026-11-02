@@ -2,14 +2,14 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const assert = require('node:assert/strict');
 const html = fs.readFileSync(require('node:path').join(__dirname, '../job-board.html'), 'utf8');
-const funcs = ['specialtyLabel', 'experienceLabel', 'cardExperienceHtml', 'cardFactHtml', 'cardSalaryHtml', 'cardMetadataHtml', 'salaryLabel', 'cardLocationHtml', 'descriptionBlocks', 'descriptionHtml', 'decodeBasicEntities', 'descriptionSectionsHtml', 'urlOffre', 'skillLabels', 'skillChips', 'skillsHtml'].map(name => {
+const funcs = ['specialtyLabel', 'experienceLabel', 'cardExperienceHtml', 'cardFactHtml', 'cardSalaryHtml', 'cardMetadataHtml', 'salaryLabel', 'cardLocationHtml', 'descriptionBlocks', 'descriptionHtml', 'decodeBasicEntities', 'descriptionSectionsHtml', 'prefMarche', 'urlOffre', 'skillLabels', 'skillChips', 'skillsHtml'].map(name => {
  const start = html.indexOf('function ' + name + '(');
  const end = html.indexOf('\n}', start) + 2;
  assert.ok(start >= 0 && end > start);
  return html.slice(start, end);
 }).join('\n');
 const context = vm.createContext({});
-vm.runInContext(`const JEV_SPECIALTY_LABELS = {"actuariat": "Actuariat", "ia_data": "IA / Data", "souscription_technique": "Souscription technique", "autre": "Autre"}; const JEV_EXPERIENCE_LABELS = {senior:"Senior"}; const CONTRACT_LABELS = {cdi:"CDI"}; const DESCRIPTION_PREVIEW_CHARS = 600; let descExpanded = {}; let descSections = []; const SECTION_ICONS = { "Le poste": "work", "Missions": "checklist", "Profil recherché": "person" }; function escapeHtml(x){return x;} const location={origin:"https://claimyourjob.fr",href:"https://claimyourjob.fr/job-board.html",pathname:"/job-board.html"}; ${funcs}`, context);
+vm.runInContext(`const JEV_SPECIALTY_LABELS = {"actuariat": "Actuariat", "ia_data": "IA / Data", "souscription_technique": "Souscription technique", "autre": "Autre"}; const JEV_EXPERIENCE_LABELS = {senior:"Senior"}; const CONTRACT_LABELS = {cdi:"CDI"}; const DESCRIPTION_PREVIEW_CHARS = 600; let descExpanded = {}; let descSections = []; const SECTION_ICONS = { "Le poste": "work", "Missions": "checklist", "Profil recherché": "person" }; function escapeHtml(x){return x;} const location={origin:"https://claimyourjob.com",href:"https://claimyourjob.com/fr/job-board.html",pathname:"/fr/job-board.html"}; ${funcs}`, context);
 
 function label(row){context.row = row;return vm.runInContext('specialtyLabel(row)', context);}
 assert.equal(label({specialty:'actuariat_iard',jev_specialty:'ia_data',jev_curation_status:'done',jev_publishable:{specialty:true}}), 'IA / Data');
@@ -183,7 +183,7 @@ console.log('Description sections tests passed');
 context.row = {slug:'actuaire-senior-h-f-42cf9f9e7942'};
 assert.equal(
   vm.runInContext('urlOffre(row.slug)', context),
-  'https://claimyourjob.fr/offre/actuaire-senior-h-f-42cf9f9e7942'
+  'https://claimyourjob.com/fr/offre/actuaire-senior-h-f-42cf9f9e7942'
 );
 // Les slugs accentués doivent être encodés, sinon l'adresse ne résout pas.
 context.row = {slug:'chargé-d-études-actuarielles-h-f-1234'};

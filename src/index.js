@@ -1,202 +1,168 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// CLAIM! — Point d'entrée international
+// CLAIM! — Point d'entrée
 //
-// Le site a deux adresses, et une seule collection de contenus.
+// Une seule source indexable : claimyourjob.com/fr. Tout le reste
+// redirige, en un seul saut, chemin et query conservés.
 //
-//   claimyourjob.fr/…        la France, à sa place
-//   claimyourjob.com/…       la façade internationale
-//   claimyourjob.com/fr/…    un alias de la France, servie depuis le .com
+//   claimyourjob.com/fr/…       200   la source, servie
+//   claimyourjob.com/fr         301   → /fr/
+//   claimyourjob.com/…          301   → /fr/…
+//   claimyourjob.fr/…           301   → https://claimyourjob.com/fr/…
+//   www.…                       301   → l'apex .com
 //
-// Pourquoi ce fichier existe.
+// Pourquoi une source unique, et pas deux sites identiques.
 //
-// Le .com n'est pas une copie du .fr : ce serait deux sites pour le même
-// contenu, et Google devrait choisir lequel indexer. Le .com est une
-// PORTE. Il dit où se trouve chaque marché, et il mène à l'adresse qui
-// sert ce marché.
-//
-// Trois règles, dans cet ordre :
-//
-//   1. `/fr/…` sur le .com est un ALIAS de la même page sur le .fr.
-//      Le contenu est identique, la canonique reste sur le .fr : le .com
-//      n'est pas une source, il est une porte. D'où un 301.
-//
-//   2. `/` sur le .com est un CHOIX. Un visiteur qui tape claimyourjob.com
-//      doit voir une porte qui demande son marché — pas un 404, et pas
-//      une copie du site français sous une autre adresse.
-//
-//   3. Toute autre adresse du .com est le CONTENU, servi comme sur le .fr.
-//      Les canoniques de ces pages pointent déjà vers le .fr : le signal
-//      de « où est la source » ne change pas.
+// Le .com a été acheté après le .fr. Le laisser en porte — une page qui
+// demandait son marché au visiteur — aurait créé, le jour où un second
+// marché s'ouvrirait, deux adresses pour le même contenu, et Google
+// obligé de choisir laquelle indexer. En concentrant la source sur
+// /fr dès aujourd'hui, la migration Search Console se fait une fois.
 //
 // Ce que ce fichier ne fait pas.
 //
-// Il ne traduit rien. Une page `/be/` qui n'existe pas doit le dire, pas
-// servir du français en prétendant être du néerlandais. Le .com est la
-// porte ; le contenu d'un marché reste produit par ce marché.
+// Il ne traduit rien. La seule langue produite est le français, et elle
+// vit sous /fr. Quand un marché réel s'ouvrira, il aura son propre
+// préfixe et son propre contenu — pas une page vide qui prétend être
+// du néerlandais.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { rendreOffre } from './pages/offre.js';
 import { rendreSitemap } from './pages/sitemap.js';
 import { rendreRobots } from './pages/robots.js';
 import { relayerMonitoringApi, rendreMonitoring } from './pages/monitoring.js';
+import { PREFIXE_MARCHE, estExempt, reecrireLiens } from './maillage.js';
 
-// Les marchés connus. `domain` est le domaine qui sert réellement ce
-// marché : c'est là que vivent ses pages, et c'est là que pointe sa
-// canonique.
-//
-// Un marché n'est déclaré ici que s'il a un contenu réel. Ajouter `/be/`
-// parce que « ça pourrait servir plus tard » créerait une adresse qui ne
-// mène nulle part, et une promesse que le site ne tiendrait pas.
-const MARCHES = {
-  fr: {
-    nom: 'France',
-    code: 'FR',
-    drapeau: '🇫🇷',
-    domain: 'https://claimyourjob.fr',
-  },
-};
+// L'adresse canonique du marché. Une seule constante : la même sert de
+// base aux redirections, aux canoniques et au sitemap.
+export const ORIGINE_MARCHE = 'https://claimyourjob.com';
 
-function html(x) {
-  return String(x)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+function reponse301(chemin) {
+  return Response.redirect(chemin, 301);
 }
 
-// ── La porte du .com ───────────────────────────────────────────────────────
-//
-// Une page, pas une redirection : le visiteur doit pouvoir choisir. Et
-// surtout, elle ne doit pas laisser croire qu'il existe déjà un contenu
-// belge ou luxembourgeois.
-function rendrePorte(url) {
-  const entrees = Object.entries(MARCHES).map(([cle, m]) => {
-    // Le chemin est conservé : /fr/job-board.html doit mener au board.
-    const suffixe = url.pathname === '/' ? '' : url.pathname;
-    return `
-      <a class="marche" href="${m.domain}${suffixe}">
-        <span class="marche-drapeau" aria-hidden="true">${m.drapeau}</span>
-        <span class="marche-nom">${html(m.nom)}</span>
-        <span class="marche-code">${html(m.code)}</span>
-      </a>`;
-  }).join('');
-
-  return `<!DOCTYPE html>
-<html lang="fr">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Claim! — Le job board de l'actuariat et de l'IA en assurance</title>
-<meta name="description" content="Claim! — les offres d'emploi en actuariat, data et IA dans l'assurance. Choisissez votre marché.">
-<!-- La porte n'est PAS indexée, tant qu'un seul marché existe.
-     Elle est un point d'entrée pour l'international, pas une page à
-     classer : laIndexer reviendrait à faire apparaître « Claim! » en
-     page d'accueil d'un domaine qui n'a qu'une porte. Le jour où un
-     second marché s'ouvre, l'indexation se décide — et cette ligne
-     disparaît avec la décision. -->
-<meta name="robots" content="noindex, follow">
-<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon.png">
-<link rel="stylesheet" href="/assets/theme.css">
-<style>
-/* La porte reprend la palette de la marque : --teal, --surface, --encre.
-   Aucune couleur en dur : la feuille de theme les fournit, et le mode nuit
-   les suit. */
-.corps { min-height: 100dvh; display: flex; align-items: center; justify-content: center;
-  padding: 2rem 1.25rem; background: var(--surface-2); }
-.carte { width: 100%; max-width: 34rem; background: var(--surface); border: 1px solid var(--bord);
-  border-radius: 1rem; padding: 2.25rem 1.75rem; text-align: center;
-  box-shadow: 0 10px 40px rgba(25,44,52,.08); }
-.marque { font-size: 2.25rem; font-weight: 900; letter-spacing: -.05em; color: var(--teal-fond);
-  text-decoration: none; display: inline-block; }
-.slogan { margin: .5rem 0 0; color: var(--gris); font-size: .95rem; }
-.question { margin: 2rem 0 1rem; font-weight: 700; color: var(--encre); font-size: 1.05rem; }
-.marches { display: flex; flex-direction: column; gap: .65rem; }
-.marche { display: flex; align-items: center; gap: .8rem; text-decoration: none;
-  border: 1px solid var(--bord-carte); border-radius: .7rem; padding: .95rem 1.1rem;
-  background: var(--surface); transition: border-color .15s, background .15s; }
-.marche:hover { border-color: var(--teal); background: var(--surface-2); }
-.marche:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
-.marche-drapeau { font-size: 1.6rem; line-height: 1; }
-.marche-nom { font-weight: 700; color: var(--encre); flex: 1; text-align: left; }
-.marche-code { font-size: .75rem; font-weight: 700; letter-spacing: .06em; color: var(--gris);
-  border: 1px solid var(--bord); border-radius: .3rem; padding: .15rem .45rem; }
-.renvoi { margin: 1.75rem 0 0; font-size: .85rem; color: var(--gris-doux); }
-.renvoi a { color: var(--teal); }
-</style>
-</head>
-<body>
-<div class="corps">
-  <main class="carte">
-    <a class="marque" href="/fr/">Claim!</a>
-    <p class="slogan">Les offres d'emploi en actuariat, data et IA en assurance.</p>
-    <p class="question">Choisissez votre marché</p>
-    <nav class="marches" aria-label="Choisir un marché">
-      ${entrees}
-    </nav>
-    <p class="renvoi">Vous cherchez le site français&nbsp;? <a href="https://claimyourjob.fr/">claimyourjob.fr</a></p>
-  </main>
-</div>
-</body>
-</html>`;
+// Le chemin servi, dépouillé de son préfixe de marché.
+function nu(chemin) {
+  return chemin.slice(PREFIXE_MARCHE.length) || '/';
 }
 
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const chemin = url.pathname;
+    const recherche = url.search || '';
+
+    const estFr = url.hostname === 'claimyourjob.fr' || url.hostname === 'www.claimyourjob.fr';
     const estCom = url.hostname === 'claimyourjob.com' || url.hostname === 'www.claimyourjob.com';
 
-    // ── Le .fr n'est pas concerné par tout ce qui suit ───────────────────
-    // Ce code ne s'exécute que sur le .com. Le .fr continue de servir
-    // exactement ce qu'il servait : une régression ici ne doit pas
-    // pouvoir le toucher.
-    if (!estCom) {
-      return routerPrincipal(request, env, url, chemin);
+    // ── Le .fr est un alias. Tout, sauf les assets. ─────────────────────
+    // Le .fr reste acquis durablement : ses anciennes adresses doivent
+    // mener au même contenu, jamais à un 404. Un seul saut — c'est pour
+    // cela qu'on cible directement /fr/… et non la racine du .com.
+    if (estFr) {
+      // Les assets et les fichiers techniques vivent à la racine du
+      // domaine, servis par le CDN. Les rediriger créerait une boucle ou
+      // un aller-retour pour chaque image.
+      if (estExempt(chemin)) {
+        return env.ASSETS.fetch(request);
+      }
+      // Le monitoring est une surface interne : fermé, partout. Le
+      // rediriger vers /fr/monitoring le ferait migrer de chemin, et
+      // ouvrirait la porte à son indexation.
+      if (chemin.startsWith('/monitoring/api/')) {
+        return relayerMonitoringApi(request, env);
+      }
+      if (chemin === '/monitoring' || chemin === '/monitoring/') {
+        return rendreMonitoring(request, env);
+      }
+      // L'adresse historique du board : elle a sa destination propre,
+      // avant la règle générale qui l'enverrait sur /fr/claim-job-board.html.
+      if (chemin === '/claim-job-board.html') {
+        return reponse301(`${ORIGINE_MARCHE}${PREFIXE_MARCHE}/job-board.html${recherche}`);
+      }
+      return reponse301(`${ORIGINE_MARCHE}${PREFIXE_MARCHE}${chemin === '/' ? '/' : chemin}${recherche}`);
     }
 
-    // ── L'ALIAS : /fr/… sur le .com ───────────────────────────────────────
-    // 301 vers le .fr, chemin conservé. Le contenu est le même, donc la
-    // canonique reste sur le .fr. Le redirect est définitif : l'alias ne
-    // sera pas temporaire, il ne le deviendra pas.
-    if (chemin === '/fr' || chemin.startsWith('/fr/')) {
-      const suffixe = chemin.slice('/fr'.length);
-      const destination = `https://claimyourjob.fr${suffixe || '/'}`;
-      return Response.redirect(destination, 301);
+    // ── Le .com. Tout converge vers /fr. ────────────────────────────────
+    if (estCom) {
+      // /fr nu : une page, une seule adresse. Sans ce 301, /fr et /fr/
+      // serviraient le même document.
+      if (chemin === PREFIXE_MARCHE) {
+        return reponse301(`${ORIGINE_MARCHE}${PREFIXE_MARCHE}/${recherche}`);
+      }
+
+      // Le monitoring est une surface interne : il ne migre pas de chemin,
+      // et ne doit jamais devenir indexable en changeant d'adresse. Il
+      // reste sur le domaine, fermé sans cookie.
+      if (chemin.startsWith('/monitoring/api/')) {
+        return relayerMonitoringApi(request, env);
+      }
+      if (chemin === '/monitoring' || chemin === '/monitoring/') {
+        return rendreMonitoring(request, env);
+      }
+
+      // L'adresse historique du board : elle a sa destination propre,
+      // avant la règle générale qui l'enverrait sur /fr/claim-job-board.html.
+      // Le cas /fr/claim-job-board.html est couvert ici aussi : sous le
+      // marché, la page est déjà dépouillée de son préfixe.
+      if (chemin === '/claim-job-board.html') {
+        return reponse301(`${ORIGINE_MARCHE}${PREFIXE_MARCHE}/job-board.html${recherche}`);
+      }
+
+      // Les www convergent vers l'apex. La règle est calculée sur le
+      // CHEMIN CIBLE, pas sur le chemin reçu : un www qui converge vers
+      // /job-board.html laisserait une seconde redirection à faire. Un
+      // seul saut, c'est la règle.
+      if (url.hostname.startsWith('www.')) {
+        const cible = (chemin === '/' || chemin === PREFIXE_MARCHE)
+          ? `${PREFIXE_MARCHE}/`
+          : chemin.startsWith(PREFIXE_MARCHE + '/')
+            ? chemin
+            : (estExempt(chemin) ? chemin : `${PREFIXE_MARCHE}${chemin}`);
+        return reponse301(`${ORIGINE_MARCHE}${cible}${recherche}`);
+      }
+
+      // La racine et les fichiers techniques : une seule source indexable.
+      // /robots.txt et /sitemap.xml du .com pointent vers ceux de /fr,
+      // pour qu'un robot qui demande l'un trouve l'autre.
+      if (chemin === '/') {
+        return reponse301(`${ORIGINE_MARCHE}${PREFIXE_MARCHE}/${recherche}`);
+      }
+      if (chemin === '/robots.txt' || chemin === '/sitemap.xml') {
+        return reponse301(`${ORIGINE_MARCHE}${PREFIXE_MARCHE}${chemin}${recherche}`);
+      }
+
+      // Les assets restent à la racine du domaine, des deux côtés.
+      if (estExempt(chemin)) {
+        return env.ASSETS.fetch(request);
+      }
+
+      // Toute autre adresse hors /fr : elle appartient au marché. Anciens
+      // liens publiés avant la migration (/job-board.html, /offre/…) inclus.
+      if (!chemin.startsWith(PREFIXE_MARCHE + '/')) {
+        return reponse301(`${ORIGINE_MARCHE}${PREFIXE_MARCHE}${chemin}${recherche}`);
+      }
+
+      // ── La source : /fr/… ─────────────────────────────────────────────
+      return routerMarche(request, env, url, nu(chemin), recherche);
     }
 
-    // ── La PORTE : la racine du .com ──────────────────────────────────────
-    if (chemin === '/' || chemin === '') {
-      return new Response(rendrePorte(url), {
-        status: 200,
-        headers: {
-          'content-type': 'text/html; charset=utf-8',
-          // La porte change avec les marchés : une heure suffit.
-          'cache-control': 'public, s-maxage=3600',
-        },
-      });
-    }
-
-    // ── Le reste : le contenu, tel quel ───────────────────────────────────
-    // Un visiteur du .com qui ouvre une adresse de contenu (/job-board.html,
-    // /offre/…) doit voir la page, pas un 404 : le contenu est le même. Les
-    // canoniques de ces pages pointent déjà vers le .fr, ce qui indique à
-    // Google où se trouve la source.
-    return routerPrincipal(request, env, url, chemin);
+    // ── Un autre domaine pointe sur ce Worker. ──────────────────────────
+    // C'est une erreur de configuration, pas une page. On ne sert rien :
+    // afficher le site ici créerait une troisième adresse indexable.
+    return new Response('Domaine non configuré', {
+      status: 404,
+      headers: { 'content-type': 'text/plain; charset=utf-8' },
+    });
   },
 };
 
-// ── Le routeur d'origine, inchangé ─────────────────────────────────────────
+// ── Le routeur du marché, sous /fr ───────────────────────────────────────────
 //
-// C'est exactement le code qui servait le site avant. Il est sorti dans
-// une fonction pour que la logique du .com n'ait pas à le dupliquer — et
-// pour qu'une évolution du .fr ne doive être écrite qu'une fois.
-async function routerPrincipal(request, env, url, chemin) {
-  const SITE_URL = (env && env.SITE_URL) || 'https://claimyourjob.fr';
-
-  // ── Redirection historique ────────────────────────────────────────────
-  if (chemin === '/claim-job-board.html') {
-    return Response.redirect(`${SITE_URL}/job-board.html`, 301);
-  }
+// Le chemin reçu est déjà dépouillé de son préfixe : ce routeur ne sait
+// pas qu'il vit sous /fr, et n'a pas à le savoir. C'est ce qui le rend
+// réutilisable le jour où un second marché s'ouvrira.
+async function routerMarche(request, env, url, chemin, recherche) {
+  const siteUrl = (env && env.SITE_URL) || `${ORIGINE_MARCHE}${PREFIXE_MARCHE}`;
 
   // ── Fiche d'offre ─────────────────────────────────────────────────────
   if (chemin.startsWith('/offre/')) {
@@ -210,23 +176,16 @@ async function routerPrincipal(request, env, url, chemin) {
     return rendreOffre(slug, env);
   }
 
-  // ── Sitemap ───────────────────────────────────────────────────────────
+  // ── Sitemap et robots : la source du marché ───────────────────────────
   if (chemin === '/sitemap.xml') {
     return rendreSitemap(env);
   }
-
-  // ── Robots ────────────────────────────────────────────────────────────
   if (chemin === '/robots.txt') {
     return rendreRobots(env);
   }
 
-  // ── La racine : l'accueil ────────────────────────────────────────────
-  if (chemin === '/') {
-    const accueil = new URL('/index.html', url.origin);
-    return env.ASSETS.fetch(new Request(accueil, request));
-  }
-
   // ── Monitoring interne ────────────────────────────────────────────────
+  // Hors du préfixe public : fermé sans cookie, jamais indexé.
   if (chemin.startsWith('/monitoring/api/')) {
     return relayerMonitoringApi(request, env);
   }
@@ -234,9 +193,57 @@ async function routerPrincipal(request, env, url, chemin) {
     return rendreMonitoring(request, env);
   }
 
+  // ── La racine : l'accueil ────────────────────────────────────────────
+  if (chemin === '/') {
+    return servirStatique(request, env, '/index.html');
+  }
+
   // ── Tout le reste : les fichiers statiques ───────────────────────────
-  if (env.ASSETS) {
+  return servirStatique(request, env, chemin);
+}
+
+// ── Le statique, avec son maillage ramené sous /fr ─────────────────────────
+//
+// Les pages ont été écrites quand le site vivait à la racine : leurs
+// liens partent de la racine. On les ramène sous /fr à la volée, plutôt
+// que de réécrire les 177 liens du dépôt — un lien oublié dans une
+// réécriture manuelle crée une redirection silencieuse, ici la règle est
+// unique et couvre tout le site.
+//
+// Les assets ne sont pas réécrits : ils vivent à la racine des deux
+// côtés, et `estExempt` le dit explicitement.
+async function servirStatique(request, env, chemin) {
+  if (!env.ASSETS) {
+    return new Response('Non trouvé', { status: 404, headers: { 'content-type': 'text/plain; charset=utf-8' } });
+  }
+
+  // Un asset sert tel quel : réécrire un CSS ou un JS de thème n'aurait
+  // aucun sens, et casserait sa signature de cache.
+  if (estExempt(chemin)) {
     return env.ASSETS.fetch(request);
   }
-  return new Response('Non trouvé', { status: 404, headers: { 'content-type': 'text/plain; charset=utf-8' } });
+
+  const origine = new URL(request.url).origin;
+  const cible = new Request(new URL(chemin, origine), request);
+  const reponse = await env.ASSETS.fetch(cible);
+
+  // Un 404 reste un 404 : ne pas réécrire la page d'erreur.
+  if (!reponse.ok || reponse.status !== 200) {
+    return reponse;
+  }
+
+  const type = (reponse.headers.get('content-type') || '').toLowerCase();
+  if (!type.includes('text/html')) {
+    return reponse;
+  }
+
+  const html = reecrireLiens(await reponse.text());
+  return new Response(html, {
+    status: 200,
+    headers: {
+      'content-type': 'text/html; charset=utf-8',
+      // Les pages changent à chaque déploiement, pas davantage.
+      'cache-control': 'public, s-maxage=300',
+    },
+  });
 }

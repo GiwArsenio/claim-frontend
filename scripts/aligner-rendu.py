@@ -83,7 +83,7 @@ ENTETE = """// src/pages/_offre-rendu.js — Construction du HTML d'une fiche d'
 // scripts/aligner-rendu.py fait ce report et verifie l'alignement.
 
 let API_BASE = 'https://api.claimyourjob.fr/api/v1';
-let SITE_URL = 'https://claimyourjob.fr';
+let SITE_URL = 'https://claimyourjob.com/fr';
 
 export function configurerUrls(apiBase, siteUrl) {
   if (apiBase) API_BASE = apiBase;

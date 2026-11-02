@@ -12,7 +12,7 @@
 // se distinguent que par leur etat cote client. La balise canonique de la page
 // les consolide vers le board — les declarer ici enverrait le signal inverse.
 
-const SITE_URL_PAR_DEFAUT = 'https://claimyourjob.fr';
+const SITE_URL_PAR_DEFAUT = 'https://claimyourjob.com/fr';
 
 export async function rendreSitemap(env) {
   const apiBase = (env && env.API_URL) || 'https://claim-api-production-06b3.up.railway.app/api/v1';

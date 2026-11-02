@@ -4,7 +4,7 @@
 // la forme de la réponse change : une Response Web standard au lieu de
 // `res.setHeader(...)` + `res.status(...).send(...)`.
 
-const SITE_URL = 'https://claimyourjob.fr';
+const SITE_URL = 'https://claimyourjob.com/fr';
 
 export async function rendreRobots(env) {
   const site = (env && env.SITE_URL) || SITE_URL;

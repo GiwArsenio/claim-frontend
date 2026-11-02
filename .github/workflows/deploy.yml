@@ -124,7 +124,7 @@ jobs:
       # controle voit 200 la ou le navigateur voit 404 — exactement ce
       # qui est arrive le 25 octobre.
       - name: Verifier le site en ligne
-        run: node tests-portage/verifier-rendu.js --worker https://claimyourjob.fr --ref https://claimyourjob.fr
+        run: node tests-portage/verifier-rendu.js --worker https://claimyourjob.com/fr --ref https://claimyourjob.com/fr
 
       - name: Publier le resultat
         if: always()

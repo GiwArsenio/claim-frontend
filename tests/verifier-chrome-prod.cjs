@@ -5,7 +5,7 @@ const { chromium } = require('playwright');
   const ctx = await nav.newContext({ viewport:{width:390,height:844}, isMobile:true, hasTouch:true, locale:'fr-FR' });
   const page = await ctx.newPage();
   for (const p of ['/', '/job-board.html', '/claim-entreprises.html', '/claim-observatoire.html', '/contact.html']) {
-    await page.goto('https://claimyourjob.fr' + p, { waitUntil:'domcontentloaded', timeout:45000 });
+    await page.goto('https://claimyourjob.com/fr' + p, { waitUntil:'domcontentloaded', timeout:45000 });
     await page.waitForTimeout(2500);
     const etat = await page.evaluate(() => {
       const ft = document.querySelector('footer#ft, footer.pied');

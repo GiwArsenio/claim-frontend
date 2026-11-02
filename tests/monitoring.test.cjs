@@ -99,6 +99,8 @@ verifier('le dashboard est écarté de l’exploration et du sitemap', () => {
 // ── Worker : ordre des routes et relais ──────────────────────────────────
 verifier('le relais API est routé avant la page', () => {
   const worker = lire('src/index.js');
+  // Le monitoring est traité sur les deux domaines : la première
+  // occurrence de chaque route suffit à établir l'ordre.
   const positionRelais = worker.indexOf("chemin.startsWith('/monitoring/api/')");
   const positionPage = worker.indexOf("chemin === '/monitoring'");
   assert.ok(positionRelais > 0, 'route du relais absente');
