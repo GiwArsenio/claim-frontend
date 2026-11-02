@@ -10,7 +10,7 @@
 // omis plutôt que comblés.
 
 const API_BASE = process.env.API_URL || 'https://claim-api-production-06b3.up.railway.app/api/v1';
-const SITE_URL = process.env.SITE_URL || 'https://claimyourjob.fr';
+const SITE_URL = process.env.SITE_URL || 'https://claimyourjob.com/fr';
 
 // Profils d'entreprise : présentation, avantages, liens sociaux. Même source
 // que le job board. La page ne doit pas tomber si ce fichier manque au

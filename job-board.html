@@ -841,16 +841,16 @@ html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1)
 
 <!-- Balises SEO : titre enrichi, description, URL canonique, partage social -->
 <meta name="description" content="Toutes les offres d'emploi en actuariat, data science et IA en assurance : CDI, stages, alternances et V.I.E, en France et à l'international."/>
-<link rel="canonical" href="https://claimyourjob.fr/job-board.html"/>
+<link rel="canonical" href="https://claimyourjob.com/fr/job-board.html"/>
 <meta property="og:type" content="website"/>
 <meta property="og:site_name" content="Claim your job"/>
 <meta property="og:locale" content="fr_FR"/>
 <meta property="og:title" content="Offres d'emploi Actuariat & IA en assurance — Claim your job"/>
 <meta property="og:description" content="Toutes les offres d'emploi en actuariat, data science et IA en assurance : CDI, stages, alternances et V.I.E, en France et à l'international."/>
-<meta property="og:url" content="https://claimyourjob.fr/job-board.html"/>
+<meta property="og:url" content="https://claimyourjob.com/fr/job-board.html"/>
 <link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon.png"/>
 <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"/>
-<meta property="og:image" content="https://claimyourjob.fr/assets/og-image.png"/>
+<meta property="og:image" content="https://claimyourjob.com/fr/assets/og-image.png"/>
 <meta property="og:image:width" content="1200"/>
 <meta property="og:image:height" content="630"/>
 <meta property="og:image:alt" content="Claim! — offres d'emploi Actuariat, Data et IA en assurance"/>
@@ -1135,6 +1135,13 @@ html[data-theme="nuit"] body {
 <link rel="stylesheet" href="/assets/theme.css">
 <script>(function(){try{var t=localStorage.getItem('claim-theme-v2');if(t==='nuit'){document.documentElement.setAttribute('data-theme','nuit');}}catch(e){}})();</script>
 <script src="/assets/theme.js" defer></script>
+<style>
+/* Le titre est un bouton autonome : son survol doit être perceptible,
+   même si la carte entière est déjà survolée. Le soulignement ne réduit
+   pas le contraste du texte, en jour comme en nuit. */
+button.ctitle:hover { text-decoration: underline; text-underline-offset: .18em; }
+button.ctitle:focus-visible { outline: 2px solid var(--teal); outline-offset: 3px; }
+</style>
 </head>
 <body>
 <div id="app">
@@ -2382,7 +2389,19 @@ function descriptionSectionsHtml() {
 // pas l'adresse, donc rien n'était copiable ni partageable.
 
 function urlOffre(slug) {
-  return slug ? `${location.origin}/offre/${encodeURIComponent(slug)}` : location.href;
+  // L'adresse d'une fiche porte le marché : /fr/offre/{slug} en ligne.
+  // Le préfixe se lit dans la page — le serveur de test sert le site à la
+  // racine, la production sous /fr. Écrire le préfixe en dur créerait
+  // deux comportements pour un seul code.
+  return slug ? `${location.origin}${prefMarche()}/offre/${encodeURIComponent(slug)}` : location.href;
+}
+
+// Le marché dont dépend la page. Une page servie sous /fr/… vit dans ce
+// marché ; les tests servent le site à la racine, et la racine n'a pas de
+// préfixe. C'est la seule raison pour laquelle cette fonction existe.
+function prefMarche() {
+  const m = location.pathname.match(/^\/(fr)(?=\/|$)/);
+  return m ? `/${m[1]}` : '';
 }
 
 // Retour visuel bref : sur mobile, sans lui, on ne sait pas si le lien est copié.
@@ -2426,7 +2445,7 @@ async function partagerOffre() {
 // L'adresse suit l'offre ouverte : le lien devient copiable depuis la barre.
 function poserAdresseOffre(slug) {
   if (!slug) return;
-  const cible = `/offre/${encodeURIComponent(slug)}`;
+  const cible = `${prefMarche()}/offre/${encodeURIComponent(slug)}`;
   if (location.pathname === cible) return;
   try { history.pushState({ offre: slug }, '', cible); } catch (e) { /* sans history */ }
 }
@@ -2596,7 +2615,7 @@ function closeDetail() {
 // Le bouton retour du navigateur : revenir à la liste ferme le détail,
 // revenir en avant le rouvre. Sans cela, l'adresse et l'écran divergeraient.
 window.addEventListener('popstate', async () => {
-  const trouve = location.pathname.match(/^\/offre\/(.+)$/);
+  const trouve = location.pathname.match(/^(?:\/(?:fr))?\/offre\/(.+)$/);
   if (trouve) {
     const slug = decodeURIComponent(trouve[1]);
     const cible = ALL_JOBS.find(x => x.slug === slug);

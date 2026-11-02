@@ -12,7 +12,7 @@
 // se distinguent que par leur etat cote client. La balise canonique de la page
 // les consolide vers le board — les declarer ici enverrait le signal inverse.
 
-const SITE_URL_PAR_DEFAUT = 'https://claimyourjob.fr';
+const SITE_URL_PAR_DEFAUT = 'https://claimyourjob.com/fr';
 
 export async function rendreSitemap(env) {
   const apiBase = (env && env.API_URL) || 'https://claim-api-production-06b3.up.railway.app/api/v1';
@@ -21,6 +21,7 @@ export async function rendreSitemap(env) {
   try {
     // 1. Connaître le nombre total d'offres
     const r = await fetch(`${apiBase}/jobs?per_page=1&limit=1&page=1`);
+    if (!r.ok) throw new Error(`API sitemap: HTTP ${r.status}`);
     const d = await r.json();
     const total = d.pagination?.total || 0;
 
@@ -28,6 +29,7 @@ export async function rendreSitemap(env) {
     const allSlugs = [];
     for (let p = 1; p <= Math.ceil(total / 300); p++) {
       const pr = await fetch(`${apiBase}/jobs?per_page=300&limit=300&page=${p}`);
+      if (!pr.ok) throw new Error(`API sitemap page ${p}: HTTP ${pr.status}`);
       const pd = await pr.json();
       (pd.data || []).forEach(j => {
         if (j.slug) allSlugs.push({ slug: j.slug, date: j.source_published_at });

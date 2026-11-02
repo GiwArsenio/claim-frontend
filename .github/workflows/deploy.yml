@@ -91,15 +91,9 @@ jobs:
       # reference (api/offre.js). Le script echoue aussi si l'annuaire a
       # ete duplique — la copie qui avait divergi en silence.
       #
-      # Indemnitaire pour l'instant, et pour une raison precise :
-      # _offre-rendu.js est un fichier PUBLIE, dans lequel
-      # prepare-assets.sh injecte le CSS critique du plan ; api/offre.js
-      # est une SOURCE, qui ne l'a pas encore. La comparaison oppose donc
-      # deux etapes de la chaine, et echoue par construction. Le jour ou
-      # le script comparera ce qui est comparable, ce continue-on-error
-      # se retire — c'est la seule chose a faire.
+      # Le vérificateur retire seulement le bloc CSS critique identifié.
+      # Toute autre dérive du rendu est maintenant bloquante.
       - name: Verifier l'alignement du rendu
-        continue-on-error: true
         run: npm run aligner:rendu:verifier
 
       - name: Preparer les assets statiques
@@ -124,7 +118,10 @@ jobs:
       # controle voit 200 la ou le navigateur voit 404 — exactement ce
       # qui est arrive le 25 octobre.
       - name: Verifier le site en ligne
-        run: node tests-portage/verifier-rendu.js --worker https://claimyourjob.fr --ref https://claimyourjob.fr
+        run: node tests-portage/verifier-rendu.js --worker https://claimyourjob.com/fr --ref https://claimyourjob.com/fr
+
+      - name: Verifier les redirections de migration
+        run: node tests-portage/verifier-migration.cjs
 
       - name: Publier le resultat
         if: always()

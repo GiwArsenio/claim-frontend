@@ -105,7 +105,7 @@ for (const nom of PAGES) {
     const avant = s.slice(0, debut);
     // On remonte au <style> qui ouvre le bloc.
     const ouverture = avant.lastIndexOf('<style');
-    const apres = s.slice(finStyle + '</style>'.length).replace(/^\s*\n/, '');
+    const apres = s.slice(finStyle + '</style>'.length).replace(/^(?:\\n)+/, '').replace(/^\s*\n/, '');
     s = avant.slice(0, ouverture) + apres;
   }
 
@@ -132,7 +132,7 @@ if (fs.existsSync(RENDU_OFFRE)) {
     const finStyle = s.indexOf('</style>', debut);
     const avant = s.slice(0, debut);
     const ouverture = avant.lastIndexOf('<style');
-    const apres = s.slice(finStyle + '</style>'.length).replace(/^\s*\n/, '');
+    const apres = s.slice(finStyle + '</style>'.length).replace(/^(?:\\n)+/, '').replace(/^\s*\n/, '');
     s = avant.slice(0, ouverture) + apres;
   }
   const i = s.indexOf(LIEN_THEME_OFFRE);

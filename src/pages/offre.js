@@ -5,11 +5,16 @@
 // quel depuis le fichier Vercel. Ce fichier ne fait que lbracketing
 // Workers : appeler l'API, puis renvoyer une Response.
 //
-// Adresse publique : /offre/{slug}
+// Adresse publique : /fr/offre/{slug}
+//
+// Le HTML est fabriqué par _offre-rendu.js, puis ramené sous /fr par
+// reecrireLiens : la fiche porte les mêmes liens root-relative que le
+// reste du site, et doit les voir partir vers le marché.
 
 import { construire, configurerUrls } from './_offre-rendu.js';
+import { reecrireLiens } from '../maillage.js';
 
-const SITE_URL_PAR_DEFAUT = 'https://claimyourjob.fr';
+const SITE_URL_PAR_DEFAUT = 'https://claimyourjob.com/fr';
 
 function pageAbsente(titre, message, siteUrl) {
   return `<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><title>${titre}</title><meta name="robots" content="noindex"><link rel="canonical" href="${siteUrl}/job-board.html"></head><body style="font-family:system-ui;padding:2rem"><h1>${titre}</h1><p>${message}</p></body></html>`;
@@ -32,6 +37,13 @@ export async function rendreOffre(slug, env) {
 
   try {
     const reponse = await fetch(`${apiBase}/jobs/${encodeURIComponent(slug)}`);
+    if (!reponse.ok && ![404,410].includes(reponse.status)) {
+      return new Response(pageAbsente('Service momentanément indisponible',
+        `<a href="${siteUrl}/job-board.html">Retour aux offres</a>`, siteUrl), {
+        status: 503,
+        headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', 'retry-after': '60' },
+      });
+    }
     if (!reponse.ok) {
       // Une offre retirée doit répondre 404 : c'est ce que le sitemap garantit.
       return new Response(pageAbsente('Offre introuvable',
@@ -43,7 +55,7 @@ export async function rendreOffre(slug, env) {
     const job = await reponse.json();
     const urlCanonique = `${siteUrl}/offre/${encodeURIComponent(job.slug || slug)}`;
     const { html } = await construire(job, urlCanonique);
-    return new Response(html, {
+    return new Response(reecrireLiens(html), {
       status: 200,
       headers: {
         'content-type': 'text/html; charset=utf-8',

@@ -5,7 +5,7 @@
 
 const { chromium } = require('playwright');
 
-const SITE = 'https://claimyourjob.fr';
+const SITE = 'https://claimyourjob.com/fr';
 const PAGES = [
   ['accueil', '/'],
   ['board', '/job-board.html'],

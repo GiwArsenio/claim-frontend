@@ -9,7 +9,7 @@
 
 const { chromium } = require('playwright');
 
-const SITE = process.argv[2] || 'https://claimyourjob.fr';
+const SITE = process.argv[2] || 'https://claimyourjob.com/fr';
 
 const PAGES = [
   { nom: 'accueil', url: '/index.html' },

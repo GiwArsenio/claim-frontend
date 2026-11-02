@@ -411,7 +411,7 @@ test('P06 — le partage natif est utilisé quand le système le propose', async
       await page.locator('#feed .jc, #feed .oc').first().click();
       await aide.attendre(page, 1800);
 
-      await page.locator('#detail button.bsh').first().click();
+      await page.locator('#detail button[onclick="partagerOffre()"]').click();
       await page.waitForTimeout(900);
 
       const partages = await page.evaluate(() => window.__partages || []);
@@ -453,7 +453,7 @@ test('P06 — un partage annulé retombe sur la copie du lien', async () => {
       await page.locator('#feed .jc, #feed .oc').first().click();
       await aide.attendre(page, 1800);
 
-      await page.locator('#detail button.bsh').first().click();
+      await page.locator('#detail button[onclick="partagerOffre()"]').click();
       await page.waitForTimeout(900);
 
       const copie = await page.evaluate(() => window.__copie);
@@ -480,7 +480,7 @@ test('P06 — un presse-papiers refusé ne laisse pas l\'utilisateur sans rien',
       /* Ni partage systeme, ni presse-papiers : il reste la fenetre de
          saisie. L'utilisateur doit toujours pouvoir recuperer le lien. */
       await page.addInitScript(() => {
-        delete navigator.share;
+        Object.defineProperty(navigator, 'share', {configurable:true, value:undefined});
         navigator.clipboard.writeText = async () => { throw new Error('refuse'); };
         window.__prompt = null;
         window.prompt = (m, v) => { window.__prompt = v; return v; };
@@ -492,7 +492,7 @@ test('P06 — un presse-papiers refusé ne laisse pas l\'utilisateur sans rien',
       await page.locator('#feed .jc, #feed .oc').first().click();
       await aide.attendre(page, 1800);
 
-      await page.locator('#detail button.bsh').first().click();
+      await page.locator('#detail button[onclick="partagerOffre()"]').click();
       await page.waitForTimeout(900);
 
       const lien = await page.evaluate(() => window.__prompt);

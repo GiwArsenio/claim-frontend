@@ -1,5 +1,5 @@
 // api/robots.js — robots.txt dynamique
-const SITE_URL = process.env.SITE_URL || 'https://claimyourjob.fr';
+const SITE_URL = process.env.SITE_URL || 'https://claimyourjob.com/fr';
 
 module.exports = (req, res) => {
   const content = `User-agent: *

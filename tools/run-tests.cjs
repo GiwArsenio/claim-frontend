@@ -54,6 +54,7 @@ const FAMILLES = {
     'tests/consentement.test.cjs',
     'tests/clarity.test.cjs',
     'tests/adresses-internationales.test.cjs',
+    'tests/migration-fr.test.cjs',
     'tests/mesure_items.test.cjs',
     'tests/params_mesure.test.cjs',
     'tests/aide-parcours.cjs',
@@ -71,6 +72,7 @@ const FAMILLES = {
   // de test et n'appellent que lui.
   navigateur: [
     'tests/accessibilite-a02.test.cjs',
+    'tests/migration-navigateur.test.cjs',
     'tests/affichage-a05.test.cjs',
     'tests/captures-a06.test.cjs',
     'tests/chrome-a08.test.cjs',

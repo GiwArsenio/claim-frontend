@@ -8,7 +8,7 @@
 const { chromium } = require('playwright');
 const { PNG } = require('pngjs');
 
-const SITE = process.argv[2] || 'https://claimyourjob.fr';
+const SITE = process.argv[2] || 'https://claimyourjob.com/fr';
 
 (async () => {
   const nav = await chromium.launch();

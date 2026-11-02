@@ -29,7 +29,7 @@ function appeler(query) {
   assert.match(h, new RegExp('<title>[^<]+</title>'), 'un titre est requis');
   assert.ok(!h.includes('<title>Claim your job</title>'), 'le titre doit être propre à l\'offre');
   assert.match(h, /<meta name="description" content="[^"]{20,}"/, 'une description est requise');
-  assert.match(h, /rel="canonical" href="https:\/\/claimyourjob.fr\/offre\//);
+  assert.match(h, /rel="canonical" href="https:\/\/claimyourjob.com\/fr\/offre\//);
   assert.match(h, /<h1>[^<]+<\/h1>/, 'un titre visible est requis');
 
   // Le balisage structuré doit être présent ET valide.

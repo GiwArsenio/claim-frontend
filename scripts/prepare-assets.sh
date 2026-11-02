@@ -28,6 +28,9 @@ for element in *.html assets logos; do
 done
 
 echo "== controle =="
+# Les assets sont servis à la racine des deux espaces de noms (/fr/ et /) :
+# le Worker les réécrit quand il sert une page. Aucune copie sous fr/ —
+# une copie divergerait, et doublerait le poids publié.
 count=$(find public -type f | wc -l)
 echo "  $count fichiers dans public/"
 for must in public/index.html public/job-board.html public/assets/theme.css public/404.html; do

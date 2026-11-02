@@ -8,7 +8,7 @@
 //
 // Il compare deux origines :
 //   - le Worker (par défaut http://127.0.0.1:8788, sur `wrangler dev`)
-//   - la référence (par défaut https://claimyourjob.fr, la production Vercel)
+//   - la référence (par défaut https://claimyourjob.com/fr, la source)
 //
 // Deux modes :
 //   node tests-portage/verifier-rendu.js                 # 1 offre témoin + les pages
@@ -31,8 +31,8 @@ const valeur = (nom, defaut) => {
   return i >= 0 && args[i + 1] ? args[i + 1] : defaut;
 };
 
-const WORKER = valeur('--worker', process.env.WORKER_URL || 'http://127.0.0.1:8788');
-const REF = valeur('--ref', process.env.REF_URL || 'https://claimyourjob.fr');
+const WORKER = valeur('--worker', process.env.WORKER_URL || 'http://127.0.0.1:8788').replace(/\/fr\/?$/, '').replace(/\/$/, '');
+const REF = valeur('--ref', process.env.REF_URL || 'https://claimyourjob.com/fr');
 const COMPLET = option('--complet');
 const STRICT = option('--strict');
 
@@ -40,17 +40,20 @@ const TIMEOUT = 30000;
 
 // Les pages que le Worker rend, ou qu'il sert : chacune a une adresse
 // publique, donc une réponse observable.
+// La source est /fr : le contrôle la cible directement. Les adresses hors
+// /fr sont des alias, et se vérifient par leur redirection, pas par leur
+// contenu — c'est ce qui prouve qu'il n'y a qu'une seule source.
 const ADRESSES_FIXES = [
-  { chemin: '/',                       attendu: 200, note: 'accueil' },
-  { chemin: '/index.html',             attendu: 200, note: 'accueil par son fichier' },
-  { chemin: '/job-board.html',         attendu: 200, note: 'board — ne doit pas basculer en 307' },
-  { chemin: '/claim-entreprises.html', attendu: 200, note: 'entreprises' },
-  { chemin: '/claim-observatoire.html',attendu: 200, note: 'observatoire' },
-  { chemin: '/a-propos.html',          attendu: 200, note: 'à propos' },
-  { chemin: '/robots.txt',             attendu: 200, note: 'robots' },
-  { chemin: '/sitemap.xml',            attendu: 200, note: 'sitemap' },
-  { chemin: '/claim-job-board.html',   attendu: 301, note: 'ancienne adresse du board' },
-  { chemin: '/adresse-inexistante',    attendu: 404, note: 'adresse inconnue' },
+  { chemin: '/fr/',                    attendu: 200, note: 'accueil' },
+  { chemin: '/fr/index.html',          attendu: 301, note: 'accueil par son fichier' },
+  { chemin: '/fr/job-board.html',      attendu: 200, note: 'board — ne doit pas basculer en 307' },
+  { chemin: '/fr/claim-entreprises.html', attendu: 200, note: 'entreprises' },
+  { chemin: '/fr/claim-observatoire.html',attendu: 200, note: 'observatoire' },
+  { chemin: '/fr/a-propos.html',       attendu: 200, note: 'à propos' },
+  { chemin: '/fr/robots.txt',          attendu: 200, note: 'robots' },
+  { chemin: '/fr/sitemap.xml',         attendu: 200, note: 'sitemap' },
+  { chemin: '/fr/claim-job-board.html',attendu: 301, note: 'ancienne adresse du board' },
+  { chemin: '/fr/adresse-inexistante', attendu: 404, note: 'adresse inconnue' },
 ];
 
 // Les en-tetes qu un navigateur envoie quand on suit un lien ou qu on tape
@@ -170,7 +173,7 @@ async function comparerOffres(slugs) {
     const chemin = '/offre/' + slugs[i];
     let a, b;
     try {
-      [a, b] = await Promise.all([lire(WORKER + chemin), lire(REF + chemin)]);
+      [a, b] = await Promise.all([lire(WORKER + '/fr' + chemin), lire(REF + chemin)]);
     } catch (e) {
       differents.push({ slug: slugs[i], raison: `erreur : ${e.message}` });
       continue;
