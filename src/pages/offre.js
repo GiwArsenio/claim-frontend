@@ -37,6 +37,13 @@ export async function rendreOffre(slug, env) {
 
   try {
     const reponse = await fetch(`${apiBase}/jobs/${encodeURIComponent(slug)}`);
+    if (!reponse.ok && ![404,410].includes(reponse.status)) {
+      return new Response(pageAbsente('Service momentanément indisponible',
+        `<a href="${siteUrl}/job-board.html">Retour aux offres</a>`, siteUrl), {
+        status: 503,
+        headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', 'retry-after': '60' },
+      });
+    }
     if (!reponse.ok) {
       // Une offre retirée doit répondre 404 : c'est ce que le sitemap garantit.
       return new Response(pageAbsente('Offre introuvable',

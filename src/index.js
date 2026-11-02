@@ -32,7 +32,18 @@ export default {
       if (chemin === '/monitoring' || chemin === '/monitoring/') return rendreMonitoring(request, env);
     }
     // Le fichier du dashboard ne doit jamais être servi directement par les assets.
-    if (nu === '/monitoring.html') return redirect('/monitoring', url.search);
+    let cheminDecode = nu;
+    // Les assets peuvent résoudre %2E comme un point. Le garde privé ne
+    // doit pas dépendre de l'encodage utilisé pour demander le fichier.
+    for (let i = 0; i < 3; i++) {
+      try {
+        const decoded = decodeURIComponent(cheminDecode);
+        if (decoded === cheminDecode) break;
+        cheminDecode = decoded;
+      } catch { break; }
+    }
+    if (cheminDecode.toLowerCase() === '/monitoring.html') return redirect('/monitoring', url.search);
+
 
     // Assets partagés, canoniques à la racine du .com. /fr/assets/... est un alias.
     if (estExempt(nu)) {

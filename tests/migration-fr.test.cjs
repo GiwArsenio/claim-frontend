@@ -32,6 +32,9 @@ test('migration — assets réalistes, redirections et contenu final', async () 
  assert.equal((await call('/fr/absent')).status,404);
  assert.match(await (await call('/fr/absent')).text(),/href="\/fr\//);
  assert.equal((await call('/monitoring.html')).status,301);
+ for (const path of ['/fr/monitoring%2Ehtml', '/fr/monitoring%252Ehtml']) {
+  const r=await call(path);assert.equal(r.status,301);assert.equal(r.headers.get('location'),'https://claimyourjob.com/monitoring');
+ }
  assert.equal((await call('/monitoring')).status,401);
  assert.equal((await call('/fr/monitoring/api/session','claimyourjob.com','POST')).status,307);
  assert.equal((await call('/fr/','claimyourjob.com','HEAD')).body,null);
@@ -61,4 +64,15 @@ test('migration — sitemap et fiche construits, pas seulement les constantes', 
   assert.match(html,/canonical[^>]+https:\/\/claimyourjob.com\/fr\/offre\/charg%C3%A9-actuaire/);
   assert.match(html,/href="\/fr\/job-board.html"/);
  } finally {global.fetch=original;}
+});
+
+
+test('migration — panne temporaire API : pas de faux 404', async()=>{
+ const {rendreOffre}=await import('../src/pages/offre.js');
+ const original=global.fetch;
+ try {
+  global.fetch=async()=>new Response('Indisponible',{status:503});
+  const r=await rendreOffre('actuaire',{API_URL:'https://api.test/api/v1'});
+  assert.equal(r.status,503);assert.equal(r.headers.get('cache-control'),'no-store');
+ }finally{global.fetch=original;}
 });
