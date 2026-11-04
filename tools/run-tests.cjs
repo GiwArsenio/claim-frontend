@@ -51,6 +51,7 @@ const FAMILLES = {
     // Dashboard de monitoring : contrôles statiques (aucun réseau).
     'tests/monitoring.test.cjs',
     'tests/cards.test.cjs',
+    'tests/date-publique.test.cjs',
     'tests/consentement.test.cjs',
     'tests/clarity.test.cjs',
     'tests/adresses-internationales.test.cjs',

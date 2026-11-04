@@ -221,9 +221,9 @@ html[data-theme="nuit"] select.chip {
 /* Le titre est un bouton pour le clavier et les lecteurs d'écran, mais il
    se lit comme un titre : aucun fond, aucune bordure, aucune police
    d'interface. Le laisser tel quel aurait changé le rendu de chaque carte. */
-button.ctitle { display: block; width: 100%; text-align: left; font-family: inherit;
+a.ctitle { display: block; width: 100%; text-align: left; font-family: inherit; color: inherit; text-decoration: none;
   background: none; border: 0; padding: 0; cursor: pointer; }
-button.ctitle:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; border-radius: 3px; }
+a.ctitle:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; border-radius: 3px; }
 .csub { font-size: .75rem; color: var(--gris); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .cm { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin: 9px 0; }
 .card-fact { display: inline-flex; align-items: center; flex: 0 0 auto; max-width: 100%; padding: 2px 8px; border: 1px solid var(--bord-carte); border-radius: 4px; background: var(--surface-2); }
@@ -1139,8 +1139,8 @@ html[data-theme="nuit"] body {
 /* Le titre est un bouton autonome : son survol doit être perceptible,
    même si la carte entière est déjà survolée. Le soulignement ne réduit
    pas le contraste du texte, en jour comme en nuit. */
-button.ctitle:hover { text-decoration: underline; text-underline-offset: .18em; }
-button.ctitle:focus-visible { outline: 2px solid var(--teal); outline-offset: 3px; }
+a.ctitle:hover { text-decoration: underline; text-underline-offset: .18em; }
+a.ctitle:focus-visible, button.ctitle:focus-visible { outline: 2px solid var(--teal); outline-offset: 3px; }
 </style>
 </head>
 <body>
@@ -1682,7 +1682,7 @@ function injectSeoLinks(totalPages) {
   const nav = document.createElement('nav');
   nav.setAttribute('aria-label', 'Pagination SEO');
   nav.className = 'seo-pagination';
-  nav.style.cssText = 'position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;';
+  nav.style.cssText = 'margin:.65rem .875rem 1rem; font-size:.78rem;';
 
   const currentPage = getUrlPage();
 
@@ -1704,7 +1704,7 @@ function injectSeoLinks(totalPages) {
   // Liens <a> invisibles vers toutes les pages (crawlables par Google)
   for (let p = 1; p <= totalPages; p++) {
     const a = document.createElement('a');
-    a.href  = `?page=${p}`;
+    a.href  = `${window.location.pathname}?page=${p}`;
     a.textContent = `Page ${p}`;
     if (p === currentPage) a.setAttribute('aria-current', 'page');
     nav.appendChild(a);
@@ -2256,7 +2256,7 @@ function renderFeed() {
       <div class="ct">
         ${renderCompanyLogo(co, 'clogo')}
         <div class="ci">
-          <button class="ctitle" type="button">${j.title}</button>
+          <a class="ctitle" href="${urlOffre(j.slug)}">${escapeHtml(j.title)}</a>
           <div class="csub">${co.name || j.source}</div>
         </div>
         <button class="bel" type="button"
@@ -2276,6 +2276,9 @@ function renderFeed() {
       </div>
       <div class="cdate">${formatDate(j.published_at || j.source_published_at || j.first_seen_at)}</div>
     `;
+    // Le titre est un vrai lien pour l'exploration. Le clic de la carte
+    // gère le panneau ; sur ce lien, il ne doit pas l'ouvrir deux fois.
+    el.querySelector('a.ctitle').addEventListener('click', (e) => e.preventDefault());
     majEtatSuivi(el.querySelector('.bel'), el.dataset.slug);
     feedEl.appendChild(el);
   });

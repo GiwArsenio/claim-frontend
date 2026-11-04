@@ -205,7 +205,8 @@ test('A06 — le test visuel détecte la disparition d\'une action', async (t) =
       const retire = await page.evaluate(() => {
         const boutons = Array.from(
           document.querySelectorAll('#detail .bap, #detail button, #detail a')
-        ).filter((b) => /postuler/i.test(b.textContent || ''));
+        ).filter((b) => /postuler/i.test(b.textContent || '') &&
+          !b.closest('footer') && !b.closest('header') && !b.closest('nav'));
         if (!boutons.length) return 0;
         for (const b of boutons) b.remove();
         return boutons.length;
@@ -230,7 +231,10 @@ test('A06 — le test visuel détecte la disparition d\'une action', async (t) =
         cheminActuel
       );
 
-      assert.equal(rapport.comparable, true, 'la comparaison n\'a pas pu se faire');
+      // Une comparaison impossible est une défaillance de preuve, pas une
+      // validation : le détail de la raison doit rester lisible dans le CI.
+      assert.equal(rapport.comparable, true,
+        'la comparaison n\'a pas pu se faire : ' + (rapport.raison || rapport.referenceAbsente ? 'référence absente' : 'format inconnu'));
       assert.ok(
         rapport.pct > captures.SEUIL_PCT,
         `la disparition du bouton de candidature n'a pas été détectée : ` +

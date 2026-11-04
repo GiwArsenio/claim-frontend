@@ -55,15 +55,12 @@ const LABELS_SPECIALITE = {
 
 const LABELS_EXPERIENCE = { junior: 'Junior', confirmed: 'Confirmé', senior: 'Senior', lead: 'Lead' };
 
-// Durée de validité annoncée à Google pour une offre.
+// La source ne publie pas de date d'expiration : ne pas en fabriquer.
 //
-// L'API ne publie aucune date d'expiration : le seul repère temporel est la
-// date de publication d'origine. Ce n'est donc pas une donnée de la source,
-// et c'est nommé comme tel. Sans validThrough, Google ne sait pas quand
-// retirer une offre et la laisse en ligne dans Google Jobs bien après sa
-// disparition du site.
-const DUREE_VALIDITE_JOURS = 90;
-
+// La source ne publie pas de date d'expiration. Ne pas fabriquer de
+// validThrough : ce champ doit représenter une expiration réelle, pas une
+// durée choisie arbitrairement. Sa simple absence n'empêche pas l'indexation
+// d'une page ; elle limite la richesse d'une annonce dans Google Jobs.
 function echapper(valeur) {
   return String(valeur == null ? '' : valeur).replace(/[&<>"']/g, (c) => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
@@ -186,9 +183,6 @@ export async function construire(job, urlCanonique) {
   const datePublique = job.published_at || job.source_published_at || job.first_seen_at;
   if ((datePublique || '').length >= 10) {
     offre.datePosted = datePublique.slice(0, 10);
-    const fin = new Date(`${offre.datePosted}T00:00:00Z`);
-    fin.setUTCDate(fin.getUTCDate() + DUREE_VALIDITE_JOURS);
-    offre.validThrough = fin.toISOString().slice(0, 10);
   }
   if (TYPES_EMPLOI[contrat]) offre.employmentType = TYPES_EMPLOI[contrat];
   const salaire = blocSalaire(job);
