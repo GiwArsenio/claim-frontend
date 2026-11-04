@@ -24,6 +24,6 @@ test('annuaire SSR utile sans JS et liens board avec split view/nouvel onglet',a
   const link=page.locator('#feed a.ctitle').first();await link.waitFor();assert.equal(await page.locator('#feed .jc').count(),20);assert.match(await link.getAttribute('href'),/^https:\/\/claimyourjob.com\/fr\/offre\//);
   await link.click();await page.waitForURL(/\/fr\/offre\//);assert.equal(await page.locator('#feed').count(),1); // même document, split view
   await page.goto('https://claimyourjob.com/fr/job-board.html');await page.locator('#feed a.ctitle').first().waitFor();
-  const popup=page.waitForEvent('popup');await page.locator('#feed a.ctitle').first().click({modifiers:['Control']});const tab=await popup;await tab.waitForLoadState();assert.match(tab.url(),/\/fr\/offre\//);assert.equal(await tab.locator('h1').count(),1);assert.match(page.url(),/\/job-board.html$/);await context.close();
+  const popup=context.waitForEvent('page');await page.locator('#feed a.ctitle').first().click({button:'middle'});const tab=await popup;await tab.waitForLoadState();assert.match(tab.url(),/\/fr\/offre\//);assert.equal(await tab.locator('h1').count(),1);assert.match(page.url(),/\/job-board.html$/);await context.close();
  }finally{if(browser)await browser.close();await new Promise(resolve=>fixture.serveur.close(resolve));}
 });

@@ -33,3 +33,9 @@ Documentation Google :
 - https://developers.google.com/search/docs/appearance/structured-data/job-posting
 - https://developers.google.com/search/apis/indexing-api/v3/using-api
 - https://developers.google.com/search/docs/specialty/ecommerce/pagination-and-incremental-page-loading
+
+## Vérifications et limites de cette exécution
+
+Nouveaux tests : routeur/rendu 3/3, navigateur annuaire sans JS + split view + onglet natif 1/1, outil Indexing 8/8. Migration routeur 23/23. Alignement rendu et build wrangler dry-run réussis. La suite complète initiale a détecté un test de défilement dont la regex attendait un gestionnaire sans argument ; elle est adaptée à `(event)` sans retirer les assertions et le test ciblé passe. A07 n'est ni désactivé ni masqué ; résultat complet à confirmer.
+
+Contrôle HTTP de production depuis le sandbox : HTTP 403 pour accueil/board/sitemap/robots/monitoring, donc aucune preuve live fiable obtenue par ces sondes. Tentative agent-browser bloquée par lancement navigateur puis gateway timeout, sans changer les protections. Search Console donne cependant l'accueil indexé et crawl réussi. Aucune publication Indexing : **0 notification**, aucun gain d'indexation attribué. Attendre validation live des fiches corrigées avant lot pilote 3–5. La lecture metadata v3 fonctionne (404 entité inconnue), mais écriture et quota non mesurés.
