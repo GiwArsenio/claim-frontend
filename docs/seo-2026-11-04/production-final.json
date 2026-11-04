@@ -1,0 +1,34 @@
+[
+  {
+    "path": "/fr/",
+    "http": 200,
+    "url": "https://claimyourjob.com/fr/",
+    "job_links": 1
+  },
+  {
+    "path": "/fr/job-board.html",
+    "http": 200,
+    "url": "https://claimyourjob.com/fr/job-board.html",
+    "job_links": 0
+  },
+  {
+    "path": "/fr/sitemap.xml",
+    "http": 200,
+    "url": "https://claimyourjob.com/fr/sitemap.xml",
+    "job_links": 0
+  },
+  {
+    "path": "/fr/robots.txt",
+    "http": 200,
+    "url": "https://claimyourjob.com/fr/robots.txt",
+    "job_links": 0
+  },
+  {
+    "path": "/monitoring",
+    "http": 401
+  },
+  {
+    "path": "/fr/offres.html",
+    "http": 404
+  }
+]

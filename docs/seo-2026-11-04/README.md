@@ -47,3 +47,9 @@ Trois fiches réelles contrôlées par l'outil dry-run : toutes bloquées car la
 Comptage courant : 28 descriptions_raw entièrement identiques en 14 paires (pas 49 doublons partiels) ; 51 dates antérieures au seuil artificiel 90 jours. Aucun jugement de qualité extrapolé.
 
 Suite initiale : 29/31 fichiers réussis, défilement regex et A07 rouges. Défilement corrigé et revalidé ; A07 a réellement trouvé le nouveau lien vers l'annuaire sans survol, en jour et nuit. Ajout d'un soulignement au survol et focus visible, **sans aucune modification du test A07**. Validation complète A07 lancée ensuite. Suite statique finale : 17/17 ; navigateur dédié final 1/1 ; build final dry-run réussi.
+
+### Contrôle live final (User-Agent du validateur, sans changer les protections)
+
+Accueil, board, sitemap et robots : HTTP 200. Monitoring : **401**, toujours fermé. Annuaire `/fr/offres.html` : **404**, normal car la PR n'est pas déployée. Board HTML livré : **0 lien href vers fiches**, défaut encore présent en production. Trois fiches 200 refusées par garde directApply. Preuve `production-final.json`. Les premiers 403 ne sont donc pas une indisponibilité générale du site.
+
+A07 après correction : groupes réaction au survol et lisibilité verts en jour/nuit sur accueil et board ; dernier groupe de cohérence jour/nuit encore en cours à cette sauvegarde.
