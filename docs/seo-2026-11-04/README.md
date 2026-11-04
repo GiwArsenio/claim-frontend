@@ -39,3 +39,11 @@ Documentation Google :
 Nouveaux tests : routeur/rendu 3/3, navigateur annuaire sans JS + split view + onglet natif 1/1, outil Indexing 8/8. Migration routeur 23/23. Alignement rendu et build wrangler dry-run réussis. La suite complète initiale a détecté un test de défilement dont la regex attendait un gestionnaire sans argument ; elle est adaptée à `(event)` sans retirer les assertions et le test ciblé passe. A07 n'est ni désactivé ni masqué ; résultat complet à confirmer.
 
 Contrôle HTTP de production depuis le sandbox : HTTP 403 pour accueil/board/sitemap/robots/monitoring, donc aucune preuve live fiable obtenue par ces sondes. Tentative agent-browser bloquée par lancement navigateur puis gateway timeout, sans changer les protections. Search Console donne cependant l'accueil indexé et crawl réussi. Aucune publication Indexing : **0 notification**, aucun gain d'indexation attribué. Attendre validation live des fiches corrigées avant lot pilote 3–5. La lecture metadata v3 fonctionne (404 entité inconnue), mais écriture et quota non mesurés.
+
+### Complément : contrôle pilote et correction A07
+
+Trois fiches réelles contrôlées par l'outil dry-run : toutes bloquées car la production déclare encore `directApply: true`. Les fiches répondent donc 200 à ce validateur, mais ne satisfont pas notre garde factuelle. Aucun appel publish. Le log non secret est joint.
+
+Comptage courant : 28 descriptions_raw entièrement identiques en 14 paires (pas 49 doublons partiels) ; 51 dates antérieures au seuil artificiel 90 jours. Aucun jugement de qualité extrapolé.
+
+Suite initiale : 29/31 fichiers réussis, défilement regex et A07 rouges. Défilement corrigé et revalidé ; A07 a réellement trouvé le nouveau lien vers l'annuaire sans survol, en jour et nuit. Ajout d'un soulignement au survol et focus visible, **sans aucune modification du test A07**. Validation complète A07 lancée ensuite. Suite statique finale : 17/17 ; navigateur dédié final 1/1 ; build final dry-run réussi.
