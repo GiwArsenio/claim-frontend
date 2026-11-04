@@ -1599,6 +1599,10 @@ async function loadJobs(forcedPage) {
     const d = await fetchPage(urlPage);
 
     ALL_JOBS      = d.data || [];
+    // La date affichée est la date de classement : source si elle existe,
+    // découverte sur CLAIM! sinon. PostgREST ne peut pas trier directement
+    // sur COALESCE, donc la page est réalignée ici.
+    ALL_JOBS.sort((a, b) => String(b.published_at || b.source_published_at || b.first_seen_at || '').localeCompare(String(a.published_at || a.source_published_at || a.first_seen_at || '')));
     ALL_JOBS.forEach(j => { if (j.source) KNOWN_SOURCES.add(j.source); });
     const qKey = currentFilters().q.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[- ]/g, '_');
     const companySource = COMPANY_QUERY_ALIASES[currentFilters().q.toLowerCase()] || (KNOWN_SOURCES.has(qKey) ? qKey : '');
