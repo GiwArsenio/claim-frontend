@@ -183,8 +183,9 @@ export async function construire(job, urlCanonique) {
     identifier: { '@type': 'PropertyValue', name: 'Claim!', value: job.id },
     directApply: true,
   };
-  if ((job.source_published_at || '').length >= 10) {
-    offre.datePosted = job.source_published_at.slice(0, 10);
+  const datePublique = job.published_at || job.source_published_at || job.first_seen_at;
+  if ((datePublique || '').length >= 10) {
+    offre.datePosted = datePublique.slice(0, 10);
     const fin = new Date(`${offre.datePosted}T00:00:00Z`);
     fin.setUTCDate(fin.getUTCDate() + DUREE_VALIDITE_JOURS);
     offre.validThrough = fin.toISOString().slice(0, 10);

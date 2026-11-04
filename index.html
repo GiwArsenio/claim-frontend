@@ -1309,7 +1309,7 @@ async function chargerOffres() {
     liste.innerHTML = offres.map((j) => {
       const co = j.companies || {};
       const quand = (annuaire && annuaire.publicationLabel)
-        ? annuaire.publicationLabel(j.source_published_at) : '';
+        ? annuaire.publicationLabel(j.published_at || j.source_published_at || j.first_seen_at) : '';
       const specialite = labelSpecialite(j);
       const etiquettes = (specialite ? '<span class="tag tn">' + echapper(specialite) + '</span>' : '')
         + pucesCompetences(j, 3);
