@@ -91,8 +91,17 @@ npm run dev          # http://127.0.0.1:8788
 ## Déployer
 
 ```sh
+bash scripts/prepare-assets.sh
 npx wrangler deploy
 ```
+
+> [!CAUTION]
+> `prepare-assets.sh` est **obligatoire** avant chaque `wrangler deploy`.
+> Il construit les pages dans `public/` (46 fichiers). Sans lui, le Worker
+> ne sert que `404.html` : le site entier est injoignable. C'est arrivé
+> le 4 novembre 2026 — toutes les adresses renvoyaient 301 vers un 404.
+> La CI (`deploy.yml`) lance déjà ce script ; c'est le déploiement manuel
+> qui l'oublie.
 
 Le domaine `claimyourjob.fr` est rattaché par le bloc `routes` de
 `wrangler.jsonc` (`custom_domain: true`). Cela suppose que les serveurs de
