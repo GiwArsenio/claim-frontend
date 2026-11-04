@@ -1349,7 +1349,8 @@ function formatDate(iso) {
   if (diff < 7)  return `Il y a ${diff} jours`;
   if (diff < 14) return 'Il y a 1 semaine';
   if (diff < 30) return `Il y a ${Math.floor(diff/7)} semaines`;
-  return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+  if (diff < 60) return 'Il y a 1 mois';
+  return `Il y a ${Math.floor(diff / 30)} mois`;
 }
 function contractTagClass(ct) {
   if (ct === 'cdi') return 'tm';
