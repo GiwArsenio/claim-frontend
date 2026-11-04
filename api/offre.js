@@ -40,15 +40,8 @@ const LABELS_SPECIALITE = {
 
 const LABELS_EXPERIENCE = { junior: 'Junior', confirmed: 'Confirmé', senior: 'Senior', lead: 'Lead' };
 
-// Durée de validité annoncée à Google pour une offre.
-//
-// L'API ne publie aucune date d'expiration : le seul repère temporel est la
-// date de publication d'origine. Ce n'est donc pas une donnée de la source,
-// et c'est nommé comme tel. Sans validThrough, Google ne sait pas quand
-// retirer une offre et la laisse en ligne dans Google Jobs bien après sa
-// disparition du site.
-const DUREE_VALIDITE_JOURS = 90;
-
+// Pas de date d'expiration publiée par l'API : ne pas en inventer.
+// Une offre retirée répond 404 via le routeur, indépendamment de sa date.
 function echapper(valeur) {
   return String(valeur == null ? '' : valeur).replace(/[&<>"']/g, (c) => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
@@ -166,13 +159,17 @@ async function construire(job, urlCanonique) {
       },
     },
     identifier: { '@type': 'PropertyValue', name: 'Claim!', value: job.id },
-    directApply: true,
+    // Le bouton redirige vers le site recruteur, pas une candidature directe.
+    directApply: false,
   };
-  if ((job.source_published_at || '').length >= 10) {
-    offre.datePosted = job.source_published_at.slice(0, 10);
-    const fin = new Date(`${offre.datePosted}T00:00:00Z`);
-    fin.setUTCDate(fin.getUTCDate() + DUREE_VALIDITE_JOURS);
-    offre.validThrough = fin.toISOString().slice(0, 10);
+  // La collecte n'est pas une publication. Sans date source, laisser le
+  // champ absent (inéligible aux rich results, pas un blocage d'indexation web).
+  const publication = typeof job.source_published_at === 'string'
+    ? job.source_published_at.slice(0, 10) : '';
+  if (/^\d{4}-\d{2}-\d{2}$/.test(publication)) {
+    const parsed = new Date(`${publication}T00:00:00Z`);
+    if (!Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === publication
+        && parsed.getTime() <= Date.now()) offre.datePosted = publication;
   }
   if (TYPES_EMPLOI[contrat]) offre.employmentType = TYPES_EMPLOI[contrat];
   const salaire = blocSalaire(job);
