@@ -44,6 +44,7 @@ export async function rendreSitemap(env) {
       // changent tous les matins, la date du jour y est exacte.
       { url: '/',                          lastmod: today, priority: '1.0', changefreq: 'daily' },
       { url: '/job-board.html',            lastmod: today, priority: '0.9', changefreq: 'daily' },
+      { url: '/offres.html', priority: '0.8', changefreq: 'daily' },
       // Ces deux pages changent rarement. Mieux vaut ne rien déclarer qu'une
       // date du jour systématiquement fausse : Google apprend à ignorer un
       // lastmod qui ne bouge jamais vraiment.

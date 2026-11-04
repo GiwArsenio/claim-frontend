@@ -49,6 +49,7 @@ const FAMILLES = {
   // Ne touchent jamais le réseau. Doivent rester verts à chaque PR.
   statique: [
     // Dashboard de monitoring : contrôles statiques (aucun réseau).
+    'tests/decouverte-seo.test.cjs',
     'tests/monitoring.test.cjs',
     'tests/cards.test.cjs',
     'tests/consentement.test.cjs',
