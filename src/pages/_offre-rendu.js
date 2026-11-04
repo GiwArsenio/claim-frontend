@@ -178,7 +178,10 @@ export async function construire(job, urlCanonique) {
       },
     },
     identifier: { '@type': 'PropertyValue', name: 'Claim!', value: job.id },
-    directApply: true,
+    // La candidature se termine sur l'annonce d'origine (source_url), chez
+    // l'employeur : Claim! ne reçoit aucune candidature. directApply décrit
+    // la candidature réelle, pas le souhait.
+    directApply: false,
   };
   const datePublique = job.published_at || job.source_published_at || job.first_seen_at;
   if ((datePublique || '').length >= 10) {

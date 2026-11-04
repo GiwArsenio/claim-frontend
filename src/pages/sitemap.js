@@ -14,6 +14,13 @@
 
 const SITE_URL_PAR_DEFAUT = 'https://claimyourjob.com/fr';
 
+// Dernier recours public : une fiche de test ne doit jamais être déclarée,
+// même si l'API la renvoie. Le backend exclut déjà ces sources ; ce filtre
+// protège le sitemap d'une régression du backend.
+function estOffreDeTest(job) {
+  return !!job && (job.source === 'test_source' || String(job.slug || '').startsWith('test-'));
+}
+
 export async function rendreSitemap(env) {
   const apiBase = (env && env.API_URL) || 'https://claim-api-production-06b3.up.railway.app/api/v1';
   const siteUrl = (env && env.SITE_URL) || SITE_URL_PAR_DEFAUT;
@@ -32,7 +39,7 @@ export async function rendreSitemap(env) {
       if (!pr.ok) throw new Error(`API sitemap page ${p}: HTTP ${pr.status}`);
       const pd = await pr.json();
       (pd.data || []).forEach(j => {
-        if (j.slug) allSlugs.push({ slug: j.slug, date: j.source_published_at });
+        if (j.slug && !estOffreDeTest(j)) allSlugs.push({ slug: j.slug, date: j.source_published_at });
       });
     }
 

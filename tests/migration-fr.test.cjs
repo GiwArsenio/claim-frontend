@@ -76,3 +76,47 @@ test('migration — panne temporaire API : pas de faux 404', async()=>{
   assert.equal(r.status,503);assert.equal(r.headers.get('cache-control'),'no-store');
  }finally{global.fetch=original;}
 });
+
+test('migration — les offres de test ne sont jamais exposées', async () => {
+ const {rendreSitemap}=await import('../src/pages/sitemap.js');
+ const {rendreOffre}=await import('../src/pages/offre.js');
+ const original=global.fetch;
+ try {
+  global.fetch=async url => {
+   const u=String(url);
+   if(u.includes('/jobs?')) return Response.json({pagination:{total:3},data:[
+    {slug:'actuaire-ffdfb676e02c',source:'test_source',source_published_at:'2026-10-16'},
+    {slug:'test-lead-expert-ia-h-f-93f4b0c60ac9',source:'axa',source_published_at:'2026-08-31'},
+    {slug:'actuaire-confirme-risques-non-vie',source:'scor',source_published_at:'2026-11-02'}
+   ]});
+   if(u.includes('/jobs/')) return Response.json({id:'d33b30bb-fbef-43d6-8274-edfe9f49c401',slug:'test-lead-expert-ia-h-f-93f4b0c60ac9',source:'axa',title:'Test Lead Expert IA (H/F)',description_raw:'Une description de test.'});
+   return Response.json({});
+  };
+  const xml=await (await rendreSitemap({API_URL:'https://api.test/api/v1',SITE_URL:'https://claimyourjob.com/fr'})).text();
+  assert.doesNotMatch(xml,/actuaire-ffdfb676e02c|test-lead-expert/);
+  assert.match(xml,/actuaire-confirme-risques-non-vie/);
+  const fiche=await rendreOffre('test-lead-expert-ia-h-f-93f4b0c60ac9',{API_URL:'https://api.test/api/v1',SITE_URL:'https://claimyourjob.com/fr'});
+  assert.equal(fiche.status,404);
+  assert.match(await fiche.text(),/noindex/);
+ } finally {global.fetch=original;}
+});
+
+test('migration — directApply suit la candidature réelle', async () => {
+ const {default:worker}=await import('../src/index.js');
+ const original=global.fetch;
+ try {
+  global.fetch=async url => {
+   const u=String(url);
+   if(u.includes('/jobs/')) return Response.json({...OFFRE_COMPLETE,slug:'offre-externe-0001',source_url:'https://example.org/job/123'});
+   return Response.json({});
+  };
+  const env={API_URL:'https://api.test/api/v1',SITE_URL:'https://claimyourjob.com/fr'};
+  const r=await worker.fetch(new Request('https://claimyourjob.com/fr/offre/offre-externe-0001'),env);
+  const html=await r.text();
+  const m=html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
+  assert.ok(m,'un bloc JSON-LD est requis');
+  const donnees=JSON.parse(m[1]);
+  assert.equal(donnees.directApply,false,'la candidature part chez l\'employeur');
+  assert.ok(!('validThrough' in donnees),'aucune date d\'expiration fabriquée');
+ } finally {global.fetch=original;}
+});

@@ -163,7 +163,10 @@ async function construire(job, urlCanonique) {
       },
     },
     identifier: { '@type': 'PropertyValue', name: 'Claim!', value: job.id },
-    directApply: true,
+    // La candidature se termine sur l'annonce d'origine (source_url), chez
+    // l'employeur : Claim! ne reçoit aucune candidature. directApply décrit
+    // la candidature réelle, pas le souhait.
+    directApply: false,
   };
   const datePublique = job.published_at || job.source_published_at || job.first_seen_at;
   if ((datePublique || '').length >= 10) {
@@ -574,6 +577,12 @@ module.exports = async (req, res) => {
       return;
     }
     const job = await reponse.json();
+    // Une fiche de test ne se visite pas : 404, comme une offre retirée.
+    if (job.source === 'test_source' || String(job.slug || '').startsWith('test-')) {
+      res.status(404).send(PAGE_ABSENTE('Offre introuvable',
+        `Cette offre n'est plus en ligne. <a href="${SITE_URL}/job-board.html">Voir les offres actuelles</a>.`));
+      return;
+    }
     const urlCanonique = `${SITE_URL}/offre/${encodeURIComponent(job.slug || slug)}`;
     const { html } = await construire(job, urlCanonique);
     res.setHeader('Content-Type', 'text/html; charset=utf-8');

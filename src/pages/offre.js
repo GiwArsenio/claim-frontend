@@ -53,6 +53,14 @@ export async function rendreOffre(slug, env) {
       });
     }
     const job = await reponse.json();
+    // Une fiche de test ne se visite pas : 404, comme une offre retirée.
+    if (job.source === 'test_source' || String(job.slug || '').startsWith('test-')) {
+      return new Response(pageAbsente('Offre introuvable',
+        `Cette offre n'est plus en ligne. <a href="${siteUrl}/job-board.html">Voir les offres actuelles</a>.`, siteUrl), {
+        status: 404,
+        headers: { 'content-type': 'text/html; charset=utf-8' },
+      });
+    }
     const urlCanonique = `${siteUrl}/offre/${encodeURIComponent(job.slug || slug)}`;
     const { html } = await construire(job, urlCanonique);
     return new Response(reecrireLiens(html), {

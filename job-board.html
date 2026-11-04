@@ -1477,6 +1477,11 @@ function mesurerClicPostuler() {
   mesurer('job_apply_click', paramOffre(offreCourante, 'board'));
 }
 let detailCache   = {};
+// Les fiches de test ne doivent jamais être publiées : dernier recours côté
+// client, le serveur les exclut déjà (source test_source, slug test-*).
+function estOffreDeTest(j) {
+  return !!j && (j.source === 'test_source' || String(j.slug || '').startsWith('test-'));
+}
 let KNOWN_SOURCES  = new Set(Object.values(COMPANY_QUERY_ALIASES));
 
 const feedEl  = document.getElementById('feed');
@@ -1574,6 +1579,12 @@ async function fetchPage(page) {
   const r = await fetch(buildJobsUrl(page));
   if (!r.ok) throw new Error(`HTTP ${r.status}`);
   const d = await r.json();
+  if (Array.isArray(d.data)) {
+    const avant = d.data.length;
+    d.data = d.data.filter(j => !estOffreDeTest(j));
+    const retirees = avant - d.data.length;
+    if (retirees && d.pagination) d.pagination.total = Math.max(0, (d.pagination.total || avant) - retirees);
+  }
   if (!d.pagination) d.pagination = { page, per_page: PAGE_SIZE, total: d.data?.length || 0, pages: 1 };
   return d;
 }
@@ -2311,6 +2322,7 @@ async function fetchDetail(id) {
   const r = await fetch(`${API_BASE}/jobs/${id}`);
   if (!r.ok) throw new Error(`HTTP ${r.status}`);
   const d = await r.json();
+  if (estOffreDeTest(d)) throw new Error('HTTP 404');
   detailCache[id] = d;
   return d;
 }
