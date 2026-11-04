@@ -1,0 +1,15 @@
+{
+  "http": 200,
+  "result": {
+    "siteEntry": [
+      {
+        "siteUrl": "sc-domain:claimyourjob.fr",
+        "permissionLevel": "siteFullUser"
+      },
+      {
+        "siteUrl": "sc-domain:claimyourjob.com",
+        "permissionLevel": "siteOwner"
+      }
+    ]
+  }
+}

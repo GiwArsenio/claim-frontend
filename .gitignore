@@ -22,3 +22,8 @@ verif.log
 # aussi les ferait diverger a la premiere edition.
 public/*
 !public/404.html
+
+# Journal local des notifications (aucun secret au dépôt)
+.local/
+
+__pycache__/

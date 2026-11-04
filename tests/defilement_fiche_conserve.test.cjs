@@ -13,7 +13,7 @@ const assert = require('node:assert/strict');
 
 const html = fs.readFileSync(path.join(__dirname, '../job-board.html'), 'utf8');
 
-const trouve = html.match(/el\.onclick = async \(\) => \{[\s\S]*?\n    \};/);
+const trouve = html.match(/el\.onclick = async \(event\) => \{[\s\S]*?\n    \};/);
 assert.ok(trouve, 'le gestionnaire de clic sur une carte doit exister');
 const bloc = trouve[0];
 
