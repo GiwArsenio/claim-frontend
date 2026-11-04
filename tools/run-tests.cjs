@@ -49,6 +49,8 @@ const FAMILLES = {
   // Ne touchent jamais le réseau. Doivent rester verts à chaque PR.
   statique: [
     // Dashboard de monitoring : contrôles statiques (aucun réseau).
+    'tests/indexing-notify.test.cjs',
+    'tests/decouverte-seo.test.cjs',
     'tests/monitoring.test.cjs',
     'tests/cards.test.cjs',
     'tests/consentement.test.cjs',
@@ -71,6 +73,7 @@ const FAMILLES = {
   // Demandent un navigateur. Lents, mais locaux : ils ouvrent le serveur
   // de test et n'appellent que lui.
   navigateur: [
+    'tests/decouverte-navigateur.test.cjs',
     'tests/accessibilite-a02.test.cjs',
     'tests/migration-navigateur.test.cjs',
     'tests/affichage-a05.test.cjs',

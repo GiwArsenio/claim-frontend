@@ -1,5 +1,6 @@
 // CLAIM! — France uniquement : une source publique, https://claimyourjob.com/fr/.
 // run_worker_first garantit que les fichiers existants passent aussi par ce routeur.
+import { rendreAnnuaire } from './pages/annuaire.js';
 import { rendreOffre } from './pages/offre.js';
 import { rendreSitemap } from './pages/sitemap.js';
 import { rendreRobots } from './pages/robots.js';
@@ -55,6 +56,7 @@ export default {
     if (url.hostname !== 'claimyourjob.com' || chemin !== destination || url.protocol !== 'https:') {
       return redirect(destination, url.search);
     }
+    if (nu === '/offres.html') return rendreAnnuaire(request, env);
     if (nu === '/robots.txt') return rendreRobots(env);
     if (nu === '/sitemap.xml') return rendreSitemap(env);
     if (nu.startsWith('/offre/')) {

@@ -218,12 +218,15 @@ html[data-theme="nuit"] select.chip {
 .clogo { width: 38px; height: 38px; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: var(--blanc); font-weight: 900; font-size: 9.5px; flex-shrink: 0; position: relative; overflow: hidden; }
 .ci { flex: 1; min-width: 0; padding-left: .5rem; }
 .ctitle { font-size: .875rem; font-weight: 700; color: var(--encre); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-/* Le titre est un bouton pour le clavier et les lecteurs d'écran, mais il
+/* Le titre est un lien pour le clavier et les lecteurs d'écran, mais il
    se lit comme un titre : aucun fond, aucune bordure, aucune police
    d'interface. Le laisser tel quel aurait changé le rendu de chaque carte. */
-button.ctitle { display: block; width: 100%; text-align: left; font-family: inherit;
-  background: none; border: 0; padding: 0; cursor: pointer; }
-button.ctitle:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; border-radius: 3px; }
+a.ctitle { display: block; width: 100%; text-align: left; font-family: inherit;
+  background: none; border: 0; padding: 0; cursor: pointer; text-decoration: none; }
+.annuaire-link { color: var(--teal); text-decoration: none; }
+.annuaire-link:hover { text-decoration: underline; text-underline-offset: .18em; }
+.annuaire-link:focus-visible { outline: 2px solid var(--teal); outline-offset: 3px; }
+a.ctitle:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; border-radius: 3px; }
 .csub { font-size: .75rem; color: var(--gris); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .cm { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin: 9px 0; }
 .card-fact { display: inline-flex; align-items: center; flex: 0 0 auto; max-width: 100%; padding: 2px 8px; border: 1px solid var(--bord-carte); border-radius: 4px; background: var(--surface-2); }
@@ -1139,8 +1142,8 @@ html[data-theme="nuit"] body {
 /* Le titre est un bouton autonome : son survol doit être perceptible,
    même si la carte entière est déjà survolée. Le soulignement ne réduit
    pas le contraste du texte, en jour comme en nuit. */
-button.ctitle:hover { text-decoration: underline; text-underline-offset: .18em; }
-button.ctitle:focus-visible { outline: 2px solid var(--teal); outline-offset: 3px; }
+a.ctitle:hover { text-decoration: underline; text-underline-offset: .18em; }
+a.ctitle:focus-visible { outline: 2px solid var(--teal); outline-offset: 3px; }
 </style>
 </head>
 <body>
@@ -1197,6 +1200,7 @@ button.ctitle:focus-visible { outline: 2px solid var(--teal); outline-offset: 3p
   <main id="split">
     <div class="pl">
       <div class="pl-hd" role="status" aria-live="polite">Chargement…</div>
+      <p style="padding:.5rem 1rem"><a class="annuaire-link" href="/fr/offres.html">Parcourir les offres par page, sans filtres</a></p>
       <div class="feed" id="feed"></div>
       <!-- Footer riche, visible après scroll des cards.
            C'est un <footer> : un lecteur d'écran doit pouvoir le sauter,
@@ -2204,7 +2208,7 @@ function renderFeed() {
        (« nested-interactive »). Un lecteur d'écran annonçait alors un
        bouton qui contient un bouton, sans dire lequel fait quoi.
 
-       Le contrôle clavier est désormais le titre, qui est un vrai bouton.
+       Le contrôle clavier est désormais le titre, qui est un vrai lien.
        La cloche reste son voisin, pas son enfant. La carte conserve son
        clic souris : elle ne se déclare simplement plus comme un widget
        qu'elle n'est pas.
@@ -2221,7 +2225,11 @@ function renderFeed() {
       clearTimeout(minuteurPrechargement);
       prechargerDetail(j.id);
     });
-    el.onclick = async () => {
+    el.onclick = async (event) => {
+      // Un clic normal conserve la split view ; modificateurs et clic milieu
+      // conservent le comportement natif du vrai lien (nouvel onglet).
+      if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey || event.button !== 0) return;
+      if (event.target.closest('a.ctitle')) event.preventDefault();
       activeId = j.id;
       // Sélection dans la liste. Distincte de l'ouverture automatique de la
       // première offre au chargement : celle-ci n'est pas un choix.
@@ -2252,7 +2260,7 @@ function renderFeed() {
       <div class="ct">
         ${renderCompanyLogo(co, 'clogo')}
         <div class="ci">
-          <button class="ctitle" type="button">${j.title}</button>
+          <a class="ctitle" href="${escapeHtml(urlOffre(j.slug))}">${escapeHtml(j.title)}</a>
           <div class="csub">${co.name || j.source}</div>
         </div>
         <button class="bel" type="button"

@@ -1,0 +1,47 @@
+[
+  {
+    "url": "https://claimyourjob.com/fr/",
+    "http": 200,
+    "result": {
+      "inspectionResult": {
+        "inspectionResultLink": "https://search.google.com/search-console/inspect?resource_id=sc-domain:claimyourjob.com&id=sEGD9Wyob2a609wzfWtXgw&utm_medium=link&utm_source=api",
+        "indexStatusResult": {
+          "verdict": "PASS",
+          "coverageState": "Envoyée et indexée",
+          "robotsTxtState": "ALLOWED",
+          "indexingState": "INDEXING_ALLOWED",
+          "lastCrawlTime": "2026-11-02T21:37:17Z",
+          "pageFetchState": "SUCCESSFUL",
+          "googleCanonical": "https://claimyourjob.com/fr/",
+          "userCanonical": "https://claimyourjob.com/fr/",
+          "referringUrls": [
+            "http://claimyourjob.com/"
+          ],
+          "crawledAs": "MOBILE"
+        },
+        "mobileUsabilityResult": {
+          "verdict": "VERDICT_UNSPECIFIED"
+        }
+      }
+    }
+  },
+  {
+    "url": "https://claimyourjob.com/fr/job-board.html",
+    "http": 200,
+    "result": {
+      "inspectionResult": {
+        "inspectionResultLink": "https://search.google.com/search-console/inspect?resource_id=sc-domain:claimyourjob.com&id=gRmB1I3V-_lnSVIxbwoUkg&utm_medium=link&utm_source=api",
+        "indexStatusResult": {
+          "verdict": "NEUTRAL",
+          "coverageState": "Google ne reconnaît pas cette URL",
+          "robotsTxtState": "ROBOTS_TXT_STATE_UNSPECIFIED",
+          "indexingState": "INDEXING_STATE_UNSPECIFIED",
+          "pageFetchState": "PAGE_FETCH_STATE_UNSPECIFIED"
+        },
+        "mobileUsabilityResult": {
+          "verdict": "VERDICT_UNSPECIFIED"
+        }
+      }
+    }
+  }
+]

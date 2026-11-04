@@ -19,7 +19,8 @@ function appeler(query) {
   // Un slug réel, pris dans l'API de production.
   const brut = execFileSync('curl', ['-s',
     'https://claim-api-production-06b3.up.railway.app/api/v1/jobs?limit=1'], { encoding: 'utf8' });
-  const slug = JSON.parse(brut).data[0].slug;
+  const listing = JSON.parse(brut).data[0];
+  const slug = listing.slug;
 
   const r = await appeler({ slug });
   assert.equal(r.statusCode, 200, 'la page doit répondre 200');
@@ -40,7 +41,10 @@ function appeler(query) {
   assert.ok(donnees.title && donnees.description, 'titre et description sont obligatoires');
   assert.ok(donnees.hiringOrganization && donnees.hiringOrganization.name);
   assert.equal(donnees.jobLocation.address.addressCountry, 'FR');
-  assert.ok(donnees.datePosted, 'la date de publication est attendue');
+  const source = await fetch(`https://claim-api-production-06b3.up.railway.app/api/v1/jobs/${encodeURIComponent(slug)}`).then(r => r.json());
+  assert.equal(donnees.datePosted, source.source_published_at ? source.source_published_at.slice(0,10) : undefined, 'la date ne peut provenir que de la source');
+  assert.equal(donnees.directApply, false);
+  assert.ok(!('validThrough' in donnees), 'aucune expiration fictive');
   // Directement lisible, sans JavaScript.
   assert.ok(h.includes(donnees.title), 'le titre doit apparaître dans le HTML servi');
 
