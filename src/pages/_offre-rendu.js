@@ -520,7 +520,7 @@ ${societe.logo_url
 ${BLOC_CONSENTEMENT}
 <div class="page">
 <main class="enveloppe">
-  <a class="retour" href="/job-board.html">← Toutes les offres</a>
+  <a class="retour" id="retour-offre" href="/job-board.html">← Toutes les offres</a>
   <h1>${echapper(job.title)}</h1>
   <div class="societe">${tuileSociete}<span>${echapper(nomSociete)}${ville ? ' · ' + echapper(ville) : ''}</span></div>
   <div class="pastilles">${pastilles.join('')}</div>
@@ -532,6 +532,25 @@ ${BLOC_CONSENTEMENT}
   </div>
 </main>
 </div>
+<!-- Le retour doit mener la ou on vient. Le lien est fige vers le board
+     pour le navigateur, qui est le cas le plus frequent — mais un visiteur
+     qui arrive de l'accueil veut y revenir. Le referer du meme site donne
+     la reponse ; a defaut, le lien garde sa valeur. -->
+<script>(function(){
+  try {
+    var r = document.referrer || '';
+    var h = location.host;
+    if (!r || r.indexOf(h) === -1) return;
+    var p = new URL(r).pathname;
+    if (p && p !== '/' && p.indexOf('/offre/') === -1) {
+      var a = document.getElementById('retour-offre');
+      if (a) a.href = p;
+    } else if (p === '/' || p === '/fr/') {
+      var a2 = document.getElementById('retour-offre');
+      if (a2) a2.href = p;
+    }
+  } catch (e) {}
+})();</script>
 <footer id="ft">
   <div class="ft-top">
     <div>
