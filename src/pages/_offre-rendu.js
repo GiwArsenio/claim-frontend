@@ -541,13 +541,13 @@ ${BLOC_CONSENTEMENT}
     var r = document.referrer || '';
     var h = location.host;
     if (!r || r.indexOf(h) === -1) return;
-    var p = new URL(r).pathname;
+    var u = new URL(r);
+    var p = u.pathname;
     if (p && p !== '/' && p.indexOf('/offre/') === -1) {
+      // L'accueil : le retour mene aux dernieres offres, pas au haut de page.
+      if (p === '/' || p === '/fr/') p += '#dernieres-offres';
       var a = document.getElementById('retour-offre');
       if (a) a.href = p;
-    } else if (p === '/' || p === '/fr/') {
-      var a2 = document.getElementById('retour-offre');
-      if (a2) a2.href = p;
     }
   } catch (e) {}
 })();</script>
