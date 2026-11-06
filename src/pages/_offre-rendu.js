@@ -543,11 +543,17 @@ ${BLOC_CONSENTEMENT}
     if (!r || r.indexOf(h) === -1) return;
     var u = new URL(r);
     var p = u.pathname;
-    if (p && p !== '/' && p.indexOf('/offre/') === -1) {
-      // L'accueil : le retour mene aux dernieres offres, pas au haut de page.
-      if (p === '/' || p === '/fr/') p += '#dernieres-offres';
-      var a = document.getElementById('retour-offre');
-      if (a) a.href = p;
+    if (!p || p.indexOf('/offre/') !== -1) return;
+    var a = document.getElementById('retour-offre');
+    if (!a) return;
+    // L'accueil : le retour vise la CARD cliquee, pas seulement la section.
+    // Le slug est memorise au clic ; sans lui, on retombe sur la section.
+    if (p === '/' || p === '/fr/') {
+      var slug = null;
+      try { slug = sessionStorage.getItem('claim-card-cliquee'); } catch (e) {}
+      a.href = p + (slug ? '#card-' + slug : '#dernieres-offres');
+    } else {
+      a.href = p;
     }
   } catch (e) {}
 })();</script>
