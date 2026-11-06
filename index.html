@@ -1324,7 +1324,7 @@ async function chargerOffres() {
       const etiquettes = (specialite ? '<span class="tag tn">' + echapper(specialite) + '</span>' : '')
         + pucesCompetences(j, 3);
       return `
-        <a class="oc" id="card-${escapeHtml(j.slug || '')}" href="${prefMarche()}/offre/${encodeURIComponent(j.slug || '')}" data-slug="${escapeHtml(j.slug || '')}">
+        <a class="oc" id="card-${echapper(j.slug || '')}" href="${prefMarche()}/offre/${encodeURIComponent(j.slug || '')}" data-slug="${echapper(j.slug || '')}">
           <div class="ct">
             ${tuileLogo(co)}
             <div class="ci">
