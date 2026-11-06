@@ -1316,6 +1316,16 @@ async function chargerOffres() {
       }
     }, { capture: true });
 
+    // Au retour de la page d'offre, l'ancre pointe sur la carte cliquee.
+    // L'ancre seule ne met pas la carte en haut : on fait defiler jusqu'a
+    // ce qu'elle y soit, exactement comme si on la cherchait du regard.
+    if (location.hash && location.hash.indexOf('#card-') === 0) {
+      requestAnimationFrame(function () {
+        const cible = document.querySelector(location.hash);
+        if (cible && cible.scrollIntoView) cible.scrollIntoView({ block: 'start' });
+      });
+    }
+
     liste.innerHTML = offres.map((j) => {
       const co = j.companies || {};
       const quand = (annuaire && annuaire.publicationLabel)
