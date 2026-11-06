@@ -1318,12 +1318,23 @@ async function chargerOffres() {
 
     // Au retour de la page d'offre, l'ancre pointe sur la carte cliquee.
     // L'ancre seule ne met pas la carte en haut : on fait defiler jusqu'a
-    // ce qu'elle y soit, exactement comme si on la cherchait du regard.
+    // ce qu'elle y soit. Le defilement est REPETE tant que la position
+    // bouge : les images et le contenu arrivent apres, et decale la carte
+    // si on ne defile qu'une fois.
     if (location.hash && location.hash.indexOf('#card-') === 0) {
-      requestAnimationFrame(function () {
+      let essais = 0;
+      const placer = function () {
         const cible = document.querySelector(location.hash);
-        if (cible && cible.scrollIntoView) cible.scrollIntoView({ block: 'start' });
-      });
+        if (!cible || !cible.scrollIntoView) return;
+        cible.scrollIntoView({ block: 'start' });
+        const haut = Math.round(cible.getBoundingClientRect().top);
+        // On s'arrete quand la carte est en haut, ou apres une dizaine
+        // d'essais : la page a fini de se stabiliser.
+        if (haut !== 0 && essais++ < 10) requestAnimationFrame(placer);
+      };
+      requestAnimationFrame(placer);
+      // Et une fois le charge termine, on remet la carte exactement en haut.
+      window.addEventListener('load', function () { requestAnimationFrame(placer); }, { once: true });
     }
 
     liste.innerHTML = offres.map((j) => {
