@@ -1349,8 +1349,10 @@ function formatDate(iso) {
   if (diff < 7)  return `Il y a ${diff} jours`;
   if (diff < 14) return 'Il y a 1 semaine';
   if (diff < 30) return `Il y a ${Math.floor(diff/7)} semaines`;
-  if (diff < 60) return 'Il y a 1 mois';
-  return `Il y a ${Math.floor(diff / 30)} mois`;
+  // Mois entiers sur paliers de 30 jours, jamais 0 : 30-59 j → 1 mois,
+  // 60-89 j → 2 mois, 90 j → 3 mois. La règle du board compte 30 j par mois.
+  const mois = Math.max(1, Math.floor(diff / 30));
+  return mois === 1 ? 'Il y a 1 mois' : `Il y a ${mois} mois`;
 }
 function contractTagClass(ct) {
   if (ct === 'cdi') return 'tm';

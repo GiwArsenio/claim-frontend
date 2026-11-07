@@ -17,10 +17,11 @@ function formatDate(iso) {
   if (diff < 14) return 'Il y a 1 semaine';
   if (diff < 30) return 'Il y a ' + Math.floor(diff / 7) + ' semaines';
   if (diff < 60) return 'Il y a 1 mois';
-  return 'Il y a ' + Math.floor(diff / 30) + ' mois';
+  const mois = Math.max(1, Math.floor(diff / 30));
+  return mois === 1 ? 'Il y a 1 mois' : 'Il y a ' + mois + ' mois';
 }`;
 vm.runInContext(formatDate, context);
-for (const [jours, attendu] of [[1, 'Il y a 1 jour'], [8, 'Il y a 1 semaine'], [35, 'Il y a 1 mois'], [60, 'Il y a 2 mois'], [90, 'Il y a 3 mois'], [365, 'Il y a 12 mois']]) {
+for (const [jours, attendu] of [[1, 'Il y a 1 jour'], [8, 'Il y a 1 semaine'], [30, 'Il y a 1 mois'], [35, 'Il y a 1 mois'], [59, 'Il y a 1 mois'], [60, 'Il y a 2 mois'], [89, 'Il y a 2 mois'], [90, 'Il y a 3 mois'], [365, 'Il y a 12 mois']]) {
   const date = new Date(Date.now() - jours * 86400000).toISOString();
   assert.equal(vm.runInContext(`formatDate(${JSON.stringify(date)})`, context), attendu);
 }
