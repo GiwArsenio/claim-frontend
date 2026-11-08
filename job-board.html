@@ -1343,7 +1343,10 @@ function renderCompanyLogo(company, cssClass) {
 function formatDate(iso) {
   if (!iso) return '';
   const d = new Date(iso), now = new Date();
+  // Date invalide ou future : ne jamais afficher NaN, « Il y a N » faux ni
+  // un nombre négatif de jours. Une date inexploitable ne produit pas de libellé.
   const diff = Math.floor((now - d) / 86400000);
+  if (!Number.isFinite(diff) || diff < 0) return '';
   if (diff === 0) return "Aujourd'hui";
   if (diff === 1) return 'Il y a 1 jour';
   if (diff < 7)  return `Il y a ${diff} jours`;
