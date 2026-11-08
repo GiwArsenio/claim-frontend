@@ -224,7 +224,32 @@ test('A06 — le test visuel détecte la disparition d\'une action', async (t) =
         }`,
       });
       await page.waitForTimeout(400);
-      await page.screenshot({ path: cheminActuel, fullPage: true });
+
+      /* La comparaison porte sur une fenêtre de TAILLE FIXE, celle de la
+         référence. Une capture en pleine page changerait de hauteur avec
+         n'importe quel ajout en bas de fiche : deux images de tailles
+         différentes ne sont pas comparables, et la preuve ne se fait jamais.
+         C'est ce qui bloquait le déploiement du site entier depuis octobre :
+         la fiche avait grandi de 46 px, et chaque test visuel échouait sur
+         « dimensions differentes » — pour un changement sans rapport.
+         La fenêtre figée garde le bouton dans le champ : c'est lui qu'on
+         vérifie, pas la longueur de la page. */
+      const { PNG } = require('pngjs');
+      const reference = PNG.sync.read(fs.readFileSync(captures.cheminReference(scenario)));
+
+      /* Playwright plafonne le `clip` à la hauteur de la fenêtre : demander
+         901 px dans une fenêtre de 900 en rend 900, et la comparaison refuse
+         pour un pixel. La fenêtre est donc ouverte AU MOINS aussi haute que
+         la référence — elle ne rétrécit jamais sous celle du format, pour ne
+         pas changer le rendu qu'on veut éprouver. */
+      const viewport = aide.FORMATS[scenario.format].viewport;
+      const hauteurFenetre = Math.max(viewport.height, reference.height);
+      await page.setViewportSize({ width: viewport.width, height: hauteurFenetre });
+      await page.waitForTimeout(300);
+      await page.screenshot({
+        path: cheminActuel,
+        clip: { x: 0, y: 0, width: reference.width, height: reference.height },
+      });
 
       const rapport = captures.comparerFichier(
         captures.cheminReference(scenario),
@@ -233,8 +258,14 @@ test('A06 — le test visuel détecte la disparition d\'une action', async (t) =
 
       // Une comparaison impossible est une défaillance de preuve, pas une
       // validation : le détail de la raison doit rester lisible dans le CI.
+      // La raison exacte doit être celle du rapport, pas un motif générique :
+      // afficher « référence absente » pour des dimensions différentes masque
+      // le vrai défaut et envoie chercher au mauvais endroit.
+      const raison = rapport.raison ||
+        (rapport.referenceAbsente ? 'référence absente'
+          : rapport.captureAbsente ? 'capture absente' : 'format inconnu');
       assert.equal(rapport.comparable, true,
-        'la comparaison n\'a pas pu se faire : ' + (rapport.raison || rapport.referenceAbsente ? 'référence absente' : 'format inconnu'));
+        'la comparaison n\'a pas pu se faire : ' + raison);
       assert.ok(
         rapport.pct > captures.SEUIL_PCT,
         `la disparition du bouton de candidature n'a pas été détectée : ` +
