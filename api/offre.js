@@ -505,7 +505,7 @@ ${societe.logo_url
 ${BLOC_CONSENTEMENT}
 <div class="page">
 <main class="enveloppe">
-  <a class="retour" href="/job-board.html">← Toutes les offres</a>
+  <a class="retour" id="retour-offre" href="/job-board.html">← Toutes les offres</a>
   <h1>${echapper(job.title)}</h1>
   <div class="societe">${tuileSociete}<span>${echapper(nomSociete)}${ville ? ' · ' + echapper(ville) : ''}</span></div>
   <div class="pastilles">${pastilles.join('')}</div>
@@ -517,6 +517,31 @@ ${BLOC_CONSENTEMENT}
   </div>
 </main>
 </div>
+<script>
+/* Le retour vise la CARD cliquee, pas seulement la section.
+   Le slug est memorise au clic ; sans lui, on retombe sur la section.
+   Ce comportement appartient a la SOURCE : sans lui ici, le script de la
+   copie s'arretait au « if (!a) return; » et le retour ne faisait rien —
+   silencieusement, pour toutes les fiches. */
+(function () {
+  try {
+    var r = document.referrer || '';
+    var h = location.host;
+    if (!r || r.indexOf(h) === -1) return;
+    var u = new URL(r);
+    var p = u.pathname;
+    if (!p || p.indexOf('/offre/') !== -1) return;
+    var a = document.getElementById('retour-offre');
+    if (!a) return;
+    if (p === '/' || p === '/fr/') {
+      var slug = null;
+      try { slug = sessionStorage.getItem('claim-card-cliquee'); } catch (e) {}
+      a.href = p + (slug ? '#card-' + slug : '#dernieres-offres');
+    } else {
+      a.href = p;
+    }
+  } catch (e) {}
+})();</script>
 <footer id="ft">
   <div class="ft-top">
     <div>
