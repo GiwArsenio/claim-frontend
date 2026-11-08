@@ -18,7 +18,12 @@
   'use strict';
 
   const API = '/monitoring/api';
-  const etat = { periode: 7, onglet: 'apercu', chargement: 0, sessionValide: true };
+  const etat = {
+    periode: 7, onglet: 'apercu', chargement: 0, sessionValide: true,
+    // L'aperçu reste en mémoire : le changer d'onglet ne doit pas le
+    // refaire calculer. Il n'est réécrit que par un vrai rafraîchissement.
+    apercuCharge: false, apercuPeriode: null,
+  };
 
   const $ = (id) => document.getElementById(id);
 
@@ -161,7 +166,7 @@
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ key: champ.value })
       });
-      if (reponse.ok) { champ.value = ''; basculerConnexion(true); chargerTout(); return; }
+      if (reponse.ok) { champ.value = ''; basculerConnexion(true); chargerTout({ apercu: true }); return; }
       zoneErreur.textContent =
         reponse.status === 429 ? 'Trop de tentatives. Réessayez dans quelques minutes.'
           : reponse.status === 503 ? 'Le monitoring n’est pas configuré côté serveur.'
@@ -301,6 +306,17 @@
   }
 
   async function chargerApercu() {
+    const numero = ++etat.chargement;
+    await rafraichirApercu();
+    // Le cache ne compte que si le chargement est le dernier en cours :
+    // une réponse tardive ne doit pas marquer un aperçu périmé comme frais.
+    if (numero === etat.chargement) {
+      etat.apercuCharge = true;
+      etat.apercuPeriode = etat.periode;
+    }
+  }
+
+  async function rafraichirApercu() {
     const [apercu, sources, alertes] = await Promise.all([
       appeler(`/overview?period=${etat.periode}`),
       appeler(`/sources?period=${etat.periode}`),
@@ -957,14 +973,33 @@
     exploitation: chargerExploitation
   };
 
-  async function chargerTout() {
+  /* Un changement d'onglet ne charge que l'onglet demandé.
+     L'aperçu garde ses valeurs en mémoire : les refaire calculer à chaque
+     clic doublait la latence perçue pour une information déjà affichée.
+     Il est rafraîchi par le bouton « Actualiser », par un retour de
+     visibilité, ou quand la période change — jamais en doublon. */
+  async function chargerTout(options) {
+    const forcerApercu = options && options.apercu;
     const numero = ++etat.chargement;
     bandeau('');
     const bouton = $('rafraichir');
     bouton.disabled = true;
     try {
-      await (CHARGEURS[etat.onglet] || chargerApercu)();
-      if (etat.onglet !== 'apercu') await chargerApercu().catch(() => {});
+      const onglet = CHARGEURS[etat.onglet] || chargerApercu;
+      if (etat.onglet === 'apercu') {
+        // L'aperçu EST l'onglet demandé : pas de second appel.
+        await onglet();
+      } else {
+        const promesses = [onglet()];
+        if (forcerApercu || !etat.apercuCharge || etat.apercuPeriode !== etat.periode) {
+          promesses.push(rafraichirApercu().catch(() => {}));
+        }
+        await Promise.all(promesses);
+        if (numero === etat.chargement) {
+          etat.apercuCharge = true;
+          etat.apercuPeriode = etat.periode;
+        }
+      }
     } catch (err) {
       if (err.message === 'Session requise') return;
       if (numero === etat.chargement) {
@@ -1001,11 +1036,15 @@
       b.addEventListener('click', () => {
         etat.periode = Number(b.dataset.periode) || 7;
         document.querySelectorAll('[data-periode]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
-        chargerTout();
+        // La période change : les valeurs en mémoire ne sont plus les bonnes.
+        etat.apercuCharge = false;
+        chargerTout({ apercu: true });
       });
     });
 
-    $('rafraichir').addEventListener('click', chargerTout);
+    // Le bouton « Actualiser » est le rafraîchissement explicite : il
+    // recharge l'onglet courant ET l'aperçu, comme un rechargement de page.
+    $('rafraichir').addEventListener('click', () => chargerTout({ apercu: true }));
     $('deconnexion').addEventListener('click', fermerSession);
 
     // Délégation : les boutons et les liens sont recréés à chaque rendu.
@@ -1019,8 +1058,11 @@
     const formulaire = $('connexion');
     if (formulaire) formulaire.addEventListener('submit', soumettreConnexion);
 
+    // Revenir à l'onglet après une absence : les valeurs ont pu changer.
+    // L'aperçu est repris avec, c'est un retour réel — pas un changement
+    // d'onglet.
     document.addEventListener('visibilitychange', () => {
-      if (!document.hidden && etat.sessionValide) chargerTout();
+      if (!document.hidden && etat.sessionValide) chargerTout({ apercu: true });
     });
   }
 
@@ -1029,7 +1071,7 @@
     try {
       const s = await appeler('/session');
       basculerConnexion(Boolean(s.authenticated));
-      if (s.authenticated) chargerTout();
+      if (s.authenticated) chargerTout({ apercu: true });
     } catch (err) {
       if (err.message !== 'Session requise') {
         bandeau('Le service de monitoring ne répond pas. Réessayez dans un instant.', 'critique');
