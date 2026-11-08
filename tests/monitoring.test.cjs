@@ -208,4 +208,175 @@ verifier("le premier affichage charge l'aperçu", () => {
     "le démarrage doit charger l'aperçu, pas seulement l'onglet courant");
 });
 
+// ═══════════════════════════════════════════════════════════════════════════
+// Lot 6 — Tests de non-régression
+//
+// Ces contrôles verrouillent les règles métier du dashboard. Une
+// optimisation qui les casse n'est pas une optimisation, c'est une
+// régression silencieuse.
+//
+// Cinq règles, cinq familles de contrôles :
+//
+//   1. une donnée absente reste absente (jamais un zéro) ;
+//   2. une réponse tardive n'écrase jamais une réponse récente ;
+//   3. les routes appelées par le client existent dans le relais ;
+//   4. aucun secret côté navigateur ;
+//   5. l'aperçu ne se recharge pas en doublon.
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ── 1. Absence de zéro : valeur() et part() ──────────────────────────────
+//
+// `valeur()` et `part()` sont les deux seuls points de formatage des
+// nombres. Chacun doit rendre un tiret cadratin pour `null`/`undefined` —
+// jamais « 0 », qui se lirait comme une mesure réelle.
+
+verifier("valeur() rend '—' pour null et undefined, jamais '0'", () => {
+  const client = lire('assets/monitoring.js');
+  const bloc = client.match(/function valeur\(v\) \{[\s\S]*?\n  \}/);
+  assert.ok(bloc, "la fonction valeur() est introuvable");
+  const corps = bloc[0];
+  assert.match(corps, /if \(v === null \|\| v === undefined\) return '—'/,
+    "valeur() doit rendre '—' pour null/undefined");
+  assert.ok(!/return ['\"]0['\"]/.test(corps),
+    "valeur() ne doit jamais rendre '0' pour une absence");
+  // Le zéro mesuré reste un zéro : c'est le seul cas où 0 est affiché.
+  assert.match(corps, /typeof v !== 'number'/,
+    "valeur() doit distinguer les nombres des autres types");
+});
+
+verifier("part() rend '—' pour null et undefined, jamais '0 %'", () => {
+  const client = lire('assets/monitoring.js');
+  const bloc = client.match(/function part\(p\) \{[\s\S]*?\n  \}/);
+  assert.ok(bloc, "la fonction part() est introuvable");
+  const corps = bloc[0];
+  assert.match(corps, /if \(p === null \|\| p === undefined\) return '—'/,
+    "part() doit rendre '—' pour null/undefined");
+  assert.ok(!/return ['\"]0/.test(corps),
+    "part() ne doit jamais rendre '0 %' pour une absence");
+});
+
+verifier("aucun formatage de nombre ne convertit null en zéro", () => {
+  const client = lire('assets/monitoring.js');
+  // Le pattern dangereux : `(x || 0)` ou `(x ?? 0)` dans un formatage.
+  // Un zéro affiché pour une absence est un mensonge.
+  // On tolère `?? 0` dans les contextes de comptage de runs (où 0 est
+  // correct : un jour sans passage est un jour à zéro passage), mais pas
+  // dans les fonctions de formatage.
+  const formatage = ['valeur', 'part', 'duree', 'heure', 'depuis'];
+  for (const nom of formatage) {
+    const bloc = client.match(new RegExp(`function ${nom}\\([^)]*\\) \\{[\\s\\S]*?\\n  \\}`));
+    if (!bloc) continue;
+    assert.ok(!/\|\| 0\b|\?\? 0\b/.test(bloc[0]),
+      `la fonction ${nom}() ne doit pas convertir une absence en zéro`);
+  }
+});
+
+// ── 2. Réponse tardive : le compteur de chargement ───────────────────────
+//
+// Chaque chargement porte un numéro ; seul le dernier a le droit d'écrire.
+// Sans cette garde, une réponse lente écraserait les données fraîches.
+
+verifier("le compteur de chargement est initialisé dans l'état", () => {
+  const client = lire('assets/monitoring.js');
+  assert.match(client, /chargement:\s*0/,
+    "etat.chargement doit être initialisé à 0");
+});
+
+verifier("la garde numero === etat.chargement est présente", () => {
+  const client = lire('assets/monitoring.js');
+  const gardes = client.match(/numero === etat\.chargement/g) || [];
+  assert.ok(gardes.length >= 1,
+    `la garde 'numero === etat.chargement' doit être présente (${gardes.length} trouvée(s))`);
+  // Le compteur doit être incrémenté avant l'appel réseau.
+  assert.match(client, /const numero = \+\+etat\.chargement/,
+    "le compteur doit être incrémenté avant l'appel réseau");
+});
+
+// ── 3. Les routes appelées par le client existent dans le relais ────────
+//
+// Le relais du Worker transmet `reste` tel quel à `/admin/monitoring/${reste}`.
+// Si le client appelle une route que le relais ne peut pas router, c'est
+// une route orpheline.
+
+verifier("les routes du client existent dans le relais du Worker", () => {
+  const client = lire('assets/monitoring.js');
+  const relais = lire('src/pages/monitoring.js');
+  // Le relais doit reconstruire l'URL vers l'API avec le reste du chemin.
+  assert.match(relais, /admin\/monitoring\/\$\{reste\}/,
+    "le relais doit transmettre le reste du chemin à l'API");
+  // Le client appelle `API + chemin` où API = '/monitoring/api'.
+  assert.match(client, /const API = ['"]\/monitoring\/api['"]/,
+    "le client doit pointer vers le relais /monitoring/api");
+});
+
+verifier("aucune route orpheline dans le client", () => {
+  const client = lire('assets/monitoring.js');
+  // Extraire toutes les routes appelées via appeler('...') ou appeler(`...`)
+  const routes = new Set();
+  for (const m of client.matchAll(/appeler\(\s*[`']([^`'\s?]+)/g)) {
+    routes.add(m[1]);
+  }
+  // Les routes connues de l'API (déclarées dans claim-api/api/routers/monitoring.py)
+  const routesAPI = new Set([
+    '/session', '/overview', '/sources', '/alerts', '/quality',
+    '/classification', '/cron', '/indexation', '/analytics', '/operations',
+  ]);
+  for (const route of routes) {
+    // Les routes avec paramètres (ex: /alerts/${cle}/ack) sont vérifiées
+    // par leur préfixe.
+    const prefixe = route.split('/')[1];
+    const connue = routesAPI.has(route) || routesAPI.has(`/${prefixe}`);
+    assert.ok(connue, `route orpheline : ${route} n'existe pas dans l'API`);
+  }
+  assert.ok(routes.size >= 6, `seulement ${routes.size} routes trouvées dans le client`);
+});
+
+// ── 4. Aucun secret côté navigateur ──────────────────────────────────────
+//
+// La clé admin ne doit jamais vivre dans le navigateur. Un fichier servi
+// qui contiendrait X-Admin-Key serait une fuite silencieuse.
+
+verifier("aucun fichier servi ne contient X-Admin-Key", () => {
+  for (const fichier of ['monitoring.html', 'assets/monitoring.js']) {
+    const contenu = lire(fichier);
+    assert.ok(!/x-admin-key/i.test(contenu),
+      `${fichier} contient X-Admin-Key : la clé ne doit jamais vivre dans le navigateur`);
+    assert.ok(!/ADMIN_API_KEY|claim-admin-key|CONSOLE_ADMIN/i.test(contenu),
+      `${fichier} mentionne une variable de clé d'administration`);
+  }
+});
+
+verifier("aucun secret dans localStorage ou sessionStorage", () => {
+  const client = lire('assets/monitoring.js');
+  assert.ok(!/localStorage/.test(client),
+    "localStorage ne doit pas porter de session");
+  assert.ok(!/sessionStorage/.test(client),
+    "sessionStorage ne doit pas porter de session");
+});
+
+// ── 5. L'aperçu ne se recharge pas en doublon (lot 4) ───────────────────
+//
+// Déjà testé plus haut, mais on vérifie que les nouveaux tests ne se
+// contredisent pas avec cette règle.
+
+verifier("les règles de l'aperçu et de l'absence de zéro sont cohérentes", () => {
+  const client = lire('assets/monitoring.js');
+  // L'aperçu est mis en cache (etat.apercuCharge) ET les absences restent
+  // absentes. Les deux règles ne doivent pas se contredire : le cache ne
+  // doit pas transformer une absence en zéro.
+  assert.match(client, /etat\.apercuCharge/,
+    "l'aperçu doit être mis en cache");
+  assert.match(client, /if \(v === null \|\| v === undefined\) return '—'/,
+    "les absences doivent rester absentes même après cache");
+});
+
+verifier("le changement d'onglet ne recharge pas l'aperçu en doublon", () => {
+  const client = lire('assets/monitoring.js');
+  // L'ancien code avait une ligne du type "si ce n'est pas l'aperçu,
+  // recharge l'aperçu". Elle ne doit pas revenir.
+  assert.ok(!/if \(etat\.onglet !== ['"`]apercu['"`]\) await chargerApercu\(\)/.test(client),
+    "le chargement d'un onglet ne doit pas recharger l'aperçu en doublon");
+});
+
+
 console.log(`\n${controles} contrôles passés.`);
