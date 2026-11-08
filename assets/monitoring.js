@@ -20,6 +20,9 @@
   const API = '/monitoring/api';
   const etat = {
     periode: 7, onglet: 'apercu', chargement: 0, sessionValide: true,
+    // Lot E : la pagination des cas limites. Une page est un choix de
+    // lecture, pas une mesure : elle ne change pas les comptes.
+    casLimitesPage: 1, casLimitesTotal: 0, casLimites: [], casLimitesParPage: 10,
     // L'aperçu reste en mémoire : le changer d'onglet ne doit pas le
     // refaire calculer. Il n'est réécrit que par un vrai rafraîchissement.
     apercuCharge: false, apercuPeriode: null,
@@ -646,6 +649,10 @@
     ]);
     rendreClassification(classification);
     rendreQualite(qualite);
+    // Lot D + E : la décomposition par source et l'arbitrage des cas
+    // limites. Indépendants des deux appels ci-dessus : leur échec ne
+    // doit pas masquer la classification.
+    await chargerDecomposition();
 
     const historique = classification.historique || [];
     const serie = classification.mesure_par_passage || [];
@@ -919,6 +926,212 @@
     rendreIndisponible($('bloc-audience'), d, complement);
   }
 
+  // ── Lot D — Décomposition par source ────────────────────────────────────
+
+  /* La table « Curation en attente — par source ».
+     Une ligne par source, avec la raison pour laquelle les offres
+     attendent. Une cellule absente est « — », jamais « 0 » : un zéro
+     dirait « mesuré, rien », alors que la donnée n'a pas été mesurée. */
+  function rendreDecompCuration(donnees) {
+    const corps = $('corps-decomp-curation');
+    if (!corps) return;
+    if (!donnees || donnees.status === 'unavailable') {
+      corps.innerHTML = `<tr><td colspan="5" class="vide">Non disponible — ${echapper((donnees && donnees.reason) || 'la décomposition n’est pas exposée par l’API.')}</td></tr>`;
+      return;
+    }
+    const lignes = donnees.sources || [];
+    if (!lignes.length) {
+      corps.innerHTML = '<tr><td colspan="5" class="vide">Aucune offre en attente de curation.</td></tr>';
+      return;
+    }
+    corps.innerHTML = lignes.map((l) => `<tr>
+      <td><strong>${echapper(l.source)}</strong></td>
+      <td class="num">${valeur(l.total)}</td>
+      <td class="num">${valeur(l.sans_description)}</td>
+      <td class="num">${valeur(l.avec_description)}</td>
+      <td class="explication">${echapper(l.explication || '—')}</td>
+    </tr>`).join('');
+  }
+
+  /* La table « Cas limites — par source ».
+     Probabilité moyenne en pourcentage : `part()` sait dire « — » quand
+     elle n'est pas calculable. Les raisons fréquentes sont des motifs de
+     revue (`jev_review_reasons`), pas des verdicts. */
+  function rendreDecompLimites(donnees) {
+    const corps = $('corps-decomp-limites');
+    if (!corps) return;
+    if (!donnees || donnees.status === 'unavailable') {
+      corps.innerHTML = `<tr><td colspan="5" class="vide">Non disponible — ${echapper((donnees && donnees.reason) || 'la décomposition n’est pas exposée par l’API.')}</td></tr>`;
+      return;
+    }
+    const lignes = donnees.sources || [];
+    if (!lignes.length) {
+      corps.innerHTML = '<tr><td colspan="5" class="vide">Aucun cas limite enregistré.</td></tr>';
+      return;
+    }
+    corps.innerHTML = lignes.map((l) => `<tr>
+      <td><strong>${echapper(l.source)}</strong></td>
+      <td class="num">${valeur(l.total)}</td>
+      <td class="num">${part(l.probabilite_moyenne)}</td>
+      <td>${(l.raisons_frequentes || []).map((r) => `<code>${echapper(r)}</code>`).join(' ') || '—'}</td>
+      <td class="explication">${echapper(l.explication || '—')}</td>
+    </tr>`).join('');
+  }
+
+  /* Le sous-bloc « Cas limites à arbitrer » (Lot E).
+     Chaque offre porte sa description, ses motifs de revue, et deux
+     décisions possibles. Un arbitrage déjà pris est marqué, daté, et ses
+     boutons sont désactivés : on ne redécide pas sans le vouloir. */
+  const DESCRIPTION_MAX = 500;
+
+  function descriptionTronquee(texte) {
+    if (!texte) return '<span class="absent--plat">Description absente</span>';
+    const t = String(texte);
+    if (t.length <= DESCRIPTION_MAX) return echapper(t);
+    const debut = echapper(t.slice(0, DESCRIPTION_MAX));
+    return `<span class="description-courte">${debut}…</span><span class="description-complete" hidden>${echapper(t)}</span>
+      <button type="button" class="lien description-basculer" data-basculer-description="1" aria-expanded="false">Voir plus</button>`;
+  }
+
+  function rendreCasLimites() {
+    const corps = $('corps-cas-limites');
+    if (!corps) return;
+    const total = etat.casLimitesTotal;
+    const compte = $('compte-cas-limites');
+    if (compte) {
+      // Le compte dit « — » tant que la liste n'est pas chargée : un 0 ici
+      // se lirait comme « aucun cas limite », alors que l'on ne sait pas.
+      compte.textContent = typeof total === 'number' ? `${nombre.format(total)} au total` : '—';
+    }
+    if (!etat.casLimites.length) {
+      corps.innerHTML = '<tr><td colspan="6" class="vide">Aucun cas limite à arbitrer.</td></tr>';
+      const pag = $('pagination-cas-limites');
+      if (pag) pag.innerHTML = '';
+      return;
+    }
+    const debut = (etat.casLimitesPage - 1) * etat.casLimitesParPage;
+    const page = etat.casLimites.slice(debut, debut + etat.casLimitesParPage);
+    corps.innerHTML = page.map((c) => {
+      const decide = c.decision
+        ? `<p class="arbitrage__decision" role="status">Décidé le ${echapper(heure(c.decision.date))} par ${echapper(c.decision.par || '—')} — ${c.decision.choix === 'keep' ? 'gardé en cœur' : 'exclu'}${c.decision.commentaire ? ` · « ${echapper(c.decision.commentaire)} »` : ''}</p>`
+        : '';
+      const motifs = (c.jev_review_reasons || []).map((r) => `<code>${echapper(r)}</code>`).join(' ') || '—';
+      return `<tr data-cas-limite="${echapper(c.job_id)}">
+        <td><strong>${echapper(c.titre || '—')}</strong></td>
+        <td>${echapper(c.source || '—')}</td>
+        <td class="num">${part(c.probabilite)}</td>
+        <td>${motifs}</td>
+        <td class="description">${descriptionTronquee(c.description)}</td>
+        <td class="arbitrage">
+          ${decide || `
+            <div class="arbitrage__boutons" role="group" aria-label="Arbitrage de l’offre ${echapper(c.titre || c.job_id)}">
+              <button type="button" class="bouton-arbitrage bouton-arbitrage--garder" data-decision="keep" data-job="${echapper(c.job_id)}">Garder en cœur</button>
+              <button type="button" class="bouton-arbitrage bouton-arbitrage--exclure" data-decision="exclude" data-job="${echapper(c.job_id)}">Exclure</button>
+            </div>
+            <label class="arbitrage__commentaire">
+              <span class="visuellement-cache">Commentaire pour ${echapper(c.titre || c.job_id)}</span>
+              <textarea rows="2" data-commentaire="${echapper(c.job_id)}" placeholder="Commentaire (facultatif)"></textarea>
+            </label>
+            <p class="arbitrage__erreur" role="alert" hidden></p>`}
+        </td>
+      </tr>`;
+    }).join('');
+    rendrePaginationCasLimites();
+  }
+
+  function rendrePaginationCasLimites() {
+    const zone = $('pagination-cas-limites');
+    if (!zone) return;
+    const pages = Math.max(1, Math.ceil(etat.casLimites.length / etat.casLimitesParPage));
+    if (pages <= 1) { zone.innerHTML = ''; return; }
+    zone.innerHTML = `
+      <button type="button" class="lien" data-cas-page="${etat.casLimitesPage - 1}" ${etat.casLimitesPage <= 1 ? 'disabled' : ''}>← Précédent</button>
+      <span class="mentions">Page ${etat.casLimitesPage} sur ${pages}</span>
+      <button type="button" class="lien" data-cas-page="${etat.casLimitesPage + 1}" ${etat.casLimitesPage >= pages ? 'disabled' : ''}>Suivant →</button>`;
+  }
+
+  /* L'arbitrage : un POST vers l'API, et l'état local suit.
+     Pendant l'appel, les deux boutons sont désactivés. En cas d'échec,
+     l'erreur est dite dans la ligne — pas un bandeau lointain — et les
+     boutons reviennent : la décision n'a pas été prise. */
+  async function arbitrerCasLimite(jobId, choix, bouton) {
+    const ligne = bouton.closest('tr');
+    const erreur = ligne && ligne.querySelector('.arbitrage__erreur');
+    const boutons = ligne ? [...ligne.querySelectorAll('.bouton-arbitrage')] : [bouton];
+    const champ = ligne && ligne.querySelector(`[data-commentaire="${CSS.escape(jobId)}"]`);
+    boutons.forEach((b) => { b.disabled = true; });
+    if (bouton.dataset.attente !== '1') {
+      bouton.dataset.attente = '1';
+      bouton.dataset.libelle = bouton.textContent;
+      bouton.textContent = '…';
+    }
+    try {
+      await appeler(`/limit-cases/${encodeURIComponent(jobId)}/decide`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ decision: choix, comment: (champ && champ.value) || '' })
+      });
+      // La réponse de l'API fait foi pour la date et l'auteur.
+      const c = etat.casLimites.find((x) => x.job_id === jobId);
+      if (c) {
+        c.decision = {
+          choix,
+          date: new Date().toISOString(),
+          par: 'session courante',
+          commentaire: (champ && champ.value) || ''
+        };
+      }
+      rendreCasLimites();
+    } catch (e) {
+      boutons.forEach((b) => { b.disabled = false; });
+      if (bouton.dataset.libelle) bouton.textContent = bouton.dataset.libelle;
+      delete bouton.dataset.attente;
+      if (erreur) {
+        erreur.hidden = false;
+        erreur.textContent = `Arbitrage non enregistré — ${e.message}. La décision n’a pas été prise.`;
+      } else {
+        bandeau(`Arbitrage non enregistré — ${e.message}`, 'attention');
+      }
+    }
+  }
+
+  async function chargerDecomposition() {
+    // Deux appels indépendants : si l'un échoue, l'autre reste affiché.
+    // Une réponse absente est dite absente, jamais remplacée par un zéro.
+    const resultat = await Promise.allSettled([
+      appeler('/classification/decomposition'),
+      appeler('/limit-cases')
+    ]);
+    const [decomp, limites] = resultat;
+
+    if (decomp.status === 'fulfilled') {
+      rendreDecompCuration(decomp.value.curation_attente);
+      rendreDecompLimites(decomp.value.cas_limites);
+    } else {
+      const raison = `Non disponible — ${decomp.reason.message}`;
+      rendreDecompCuration({ status: 'unavailable', reason: raison });
+      rendreDecompLimites({ status: 'unavailable', reason: raison });
+    }
+
+    if (limites.status === 'fulfilled') {
+      const d = limites.value;
+      etat.casLimites = Array.isArray(d.cas_limites) ? d.cas_limites : [];
+      etat.casLimitesTotal = typeof d.total === 'number' ? d.total : etat.casLimites.length;
+      // Une nouvelle liste repart de la première page : la page 3 d'une
+      // liste de deux pages n'a pas de sens.
+      etat.casLimitesPage = 1;
+      rendreCasLimites();
+    } else {
+      etat.casLimites = [];
+      etat.casLimitesTotal = null;
+      rendreCasLimites();
+      const corps = $('corps-cas-limites');
+      if (corps) {
+        corps.innerHTML = `<tr><td colspan="6" class="vide">Non disponible — ${echapper(limites.reason.message)}</td></tr>`;
+      }
+    }
+  }
+
   // ── Exploitation ─────────────────────────────────────────────────────────
 
   function rendreExploitation(d) {
@@ -1051,6 +1264,35 @@
     document.addEventListener('click', (e) => {
       const ack = e.target.closest('[data-ack]');
       if (ack) { acquitter(ack.dataset.ack, ack); return; }
+      // Lot E : arbitrage d'un cas limite.
+      const arbitrage = e.target.closest('[data-decision]');
+      if (arbitrage) {
+        arbitrerCasLimite(arbitrage.dataset.job, arbitrage.dataset.decision, arbitrage);
+        return;
+      }
+      // Lot E : « Voir plus » sur une description tronquée.
+      const bascule = e.target.closest('[data-basculer-description]');
+      if (bascule) {
+        const cellule = bascule.closest('td');
+        const courte = cellule && cellule.querySelector('.description-courte');
+        const complete = cellule && cellule.querySelector('.description-complete');
+        if (courte && complete) {
+          const ouvert = bascule.getAttribute('aria-expanded') === 'true';
+          courte.hidden = !ouvert ? true : false;
+          complete.hidden = ouvert;
+          bascule.setAttribute('aria-expanded', String(!ouvert));
+          bascule.textContent = ouvert ? 'Voir plus' : 'Voir moins';
+        }
+        return;
+      }
+      // Lot E : pagination des cas limites. Un choix de lecture, pas une
+      // mesure : il ne recharge rien, il découpe la liste en mémoire.
+      const page = e.target.closest('[data-cas-page]');
+      if (page && !page.disabled) {
+        etat.casLimitesPage = Number(page.dataset.casPage) || 1;
+        rendreCasLimites();
+        return;
+      }
       const onglet = e.target.closest('[data-onglet]');
       if (onglet) choisirOnglet(onglet.dataset.onglet);
     });

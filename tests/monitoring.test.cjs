@@ -320,6 +320,8 @@ verifier("aucune route orpheline dans le client", () => {
   const routesAPI = new Set([
     '/session', '/overview', '/sources', '/alerts', '/quality',
     '/classification', '/cron', '/indexation', '/analytics', '/operations',
+    // Lots D et E : décomposition par source et arbitrage des cas limites.
+    '/classification/decomposition', '/limit-cases',
   ]);
   for (const route of routes) {
     // Les routes avec paramètres (ex: /alerts/${cle}/ack) sont vérifiées
@@ -378,5 +380,117 @@ verifier("le changement d'onglet ne recharge pas l'aperçu en doublon", () => {
     "le chargement d'un onglet ne doit pas recharger l'aperçu en doublon");
 });
 
+
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Lots D et E — Décomposition par source et arbitrage des cas limites
+//
+// Le frontend est codé en avance de phase sur les routes de l'API :
+//
+//   GET  /admin/monitoring/classification/decomposition
+//   GET  /admin/monitoring/limit-cases
+//   POST /admin/monitoring/limit-cases/{job_id}/decide
+//
+// Ces contrôles vérifient que le client les appelle, que l'arbitrage est
+// accessible, et qu'aucune règle métier n'a glissé : pas de secret, pas
+// de zéro pour une absence, garde anti-réponse tardive intacte.
+// ═══════════════════════════════════════════════════════════════════════════
+
+verifier("le client appelle les routes de décomposition et d'arbitrage", () => {
+  const client = lire('assets/monitoring.js');
+  assert.match(client, /appeler\(\s*['`]\/classification\/decomposition['`]/,
+    "la décomposition par source doit être appelée");
+  assert.match(client, /appeler\(\s*['`]\/limit-cases['`]/,
+    "la liste des cas limites doit être appelée");
+  assert.match(client, /\/limit-cases\/\$\{encodeURIComponent\(jobId\)\}\/decide/,
+    "l'arbitrage doit viser /limit-cases/{job_id}/decide");
+});
+
+verifier("l'arbitrage envoie bien decision et comment", () => {
+  const client = lire('assets/monitoring.js');
+  const bloc = client.match(/async function arbitrerCasLimite[\s\S]*?\n  \}/);
+  assert.ok(bloc, "la fonction d'arbitrage est introuvable");
+  assert.match(bloc[0], /JSON\.stringify\(\{ decision: choix, comment:/,
+    "le POST doit porter {decision, comment}");
+  // Les deux seules décisions possibles, et elles viennent des boutons.
+  assert.match(client, /data-decision="keep"/, 'bouton « Garder en cœur »');
+  assert.match(client, /data-decision="exclude"/, 'bouton « Exclure »');
+});
+
+verifier("aucun secret ajouté par les lots D et E", () => {
+  for (const fichier of ['monitoring.html', 'assets/monitoring.js']) {
+    const contenu = lire(fichier);
+    assert.ok(!/x-admin-key/i.test(contenu), `${fichier} contient X-Admin-Key`);
+    assert.ok(!/ADMIN_API_KEY|claim-admin-key|CONSOLE_ADMIN/i.test(contenu),
+      `${fichier} mentionne une variable de clé d'administration`);
+  }
+  const client = lire('assets/monitoring.js');
+  assert.ok(!/localStorage|sessionStorage/.test(client),
+    "aucun secret dans le stockage du navigateur");
+});
+
+verifier("le HTML généré contient les boutons d'arbitrage et le champ commentaire", () => {
+  const client = lire('assets/monitoring.js');
+  // Le gabarit est dans le client : il doit porter les deux boutons,
+  // un groupement nommé pour les lecteurs d'écran, et une étiquette sur
+  // la zone de commentaire.
+  assert.match(client, /Garder en cœur/, "libellé du bouton garder");
+  assert.match(client, />Exclure<|>Exclure`/, "libellé du bouton exclure");
+  assert.match(client, /<textarea[^>]*data-commentaire=/, "champ commentaire");
+  assert.match(client, /<span class="visuellement-cache">Commentaire pour/,
+    "le commentaire doit porter une étiquette accessible");
+  assert.match(client, /role="group" aria-label="Arbitrage de l’offre/,
+    "le groupe de boutons doit être nommé");
+  assert.match(client, /role="alert"/, "l'erreur d'arbitrage doit être annoncée");
+});
+
+verifier("la règle absence ≠ zéro est respectée dans les nouveaux blocs", () => {
+  const client = lire('assets/monitoring.js');
+  // Les cellules des nouvelles tables passent par valeur()/part(), les
+  // deux seuls points de formatage qui rendent « — » pour null.
+  const decomp = client.match(/function rendreDecompCuration[\s\S]*?\n  \}/);
+  assert.ok(decomp, "rendreDecompCuration introuvable");
+  assert.match(decomp[0], /valeur\(l\.total\)/, "les totaux passent par valeur()");
+  assert.match(decomp[0], /valeur\(l\.sans_description\)/);
+  assert.match(decomp[0], /valeur\(l\.avec_description\)/);
+  // Pas de repli « || 0 » dans les nouveaux rendus : une absence reste
+  // une absence.
+  for (const nom of ['rendreDecompCuration', 'rendreDecompLimites', 'rendreCasLimites']) {
+    const bloc = client.match(new RegExp(`function ${nom}[\\s\\S]*?\\n  \\}`));
+    if (!bloc) continue;
+    assert.ok(!/\|\| 0\b|\?\? 0\b/.test(bloc[0]),
+      `${nom}() ne doit pas convertir une absence en zéro`);
+  }
+  const limites = client.match(/function rendreDecompLimites[\s\S]*?\n  \}/);
+  assert.match(limites[0], /part\(l\.probabilite_moyenne\)/,
+    "la probabilité moyenne passe par part()");
+  // Une API muette n'est pas une table vide : la raison est écrite.
+  assert.match(client, /Non disponible — /,
+    "une donnée absente doit être annoncée « Non disponible » avec sa raison");
+});
+
+verifier("une réponse tardive ne déplace pas la pagination des cas limites", () => {
+  const client = lire('assets/monitoring.js');
+  // La pagination découpe une liste déjà en mémoire : elle ne déclenche
+  // aucun appel réseau, donc aucune réponse tardive à craindre. En
+  // revanche, le chargement de la liste doit repartir de la page 1 —
+  // c'est écrit dans chargerDecomposition.
+  const bloc = client.match(/async function chargerDecomposition[\s\S]*?\n  \}/);
+  assert.ok(bloc, "chargerDecomposition introuvable");
+  assert.match(bloc[0], /etat\.casLimitesPage = 1/,
+    "une nouvelle liste doit repartir de la première page");
+  // La garde générale reste intacte dans le fichier.
+  assert.match(client, /numero === etat\.chargement/,
+    "la garde anti-réponse tardive doit survivre aux lots D et E");
+});
+
+verifier("les boutons d'arbitrage sont désactivés pendant l'appel", () => {
+  const client = lire('assets/monitoring.js');
+  const bloc = client.match(/async function arbitrerCasLimite[\s\S]*?\n  \}/);
+  assert.match(bloc[0], /b\.disabled = true/, "les boutons se désactivent pendant l'appel");
+  assert.match(bloc[0], /b\.disabled = false/, "ils reviennent si l'appel échoue");
+  // Une décision prise marque la ligne et désactive pour de bon.
+  assert.match(bloc[0], /rendreCasLimites\(\)/, "la ligne est re-rendue après décision");
+});
 
 console.log(`\n${controles} contrôles passés.`);

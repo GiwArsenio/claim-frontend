@@ -1039,3 +1039,141 @@ td code, .faits code { font: 500 .75rem/1 ui-monospace, SFMono-Regular, Menlo, m
   .mesure__dates { padding: 0 .25rem; }
   .mesure__dates span { font-size: .5rem; }
 }
+
+/* ═══ Lots D et E — Décomposition par source et arbitrage ══════════════════
+   Deux usages, une même règle : rien n'est inventé. Une explication
+   manquante est « — », une description absente est « Description absente »,
+   une mesure inconnue est « Non disponible ». Le style suit les
+   conventions de la feuille : pas de nouveau framework, pas de couleur en
+   dur, les états passent par data-*. */
+
+/* Le masquage accessible : un texte que les lecteurs d'écran lisent mais
+   que l'écran ne montre pas. Une étiquette de champ doit exister même
+   quand le placeholder fait illusion — un placeholder n'est pas une
+   étiquette. */
+.visuellement-cache {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* L'explication d'une ligne de décomposition : un texte court, en français,
+   sous la ligne de chiffres. Assez gris pour ne pas concurrencer les
+   nombres, assez lisible pour être lu. */
+td.explication {
+  color: var(--encre-2);
+  font-size: .75rem;
+  line-height: 1.5;
+  max-width: 34ch;
+}
+td.explication:empty::before { content: '—'; color: var(--encre-3); }
+
+/* Les motifs de revue et raisons fréquentes : des codes métier, en
+   chasse fixe, comme les noms de champs de la qualité. */
+.tableau code {
+  font: 500 .6875rem/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: var(--encre-2);
+  background: var(--carte-2);
+  border: 1px solid var(--trait);
+  border-radius: 4px;
+  padding: .12rem .35rem;
+  margin-right: .25rem;
+  display: inline-block;
+}
+
+/* La description d'un cas limite : elle doit se lire, pas se deviner.
+   Le texte est cassé pour ne pas éclater la colonne sur mobile. */
+td.description {
+  font-size: .75rem;
+  line-height: 1.55;
+  color: var(--encre-2);
+  max-width: 42ch;
+  overflow-wrap: anywhere;
+}
+td.description .description-complete { display: inline; }
+.description-basculer { margin-top: .25rem; display: inline-block; }
+
+/* ── Arbitrage (Lot E) ──────────────────────────────────────────────────── */
+
+.arbitrage { min-width: 15rem; }
+.arbitrage__boutons {
+  display: flex; gap: .45rem; flex-wrap: wrap;
+}
+.bouton-arbitrage {
+  font: 600 .75rem/1 var(--police);
+  padding: .38rem .65rem;
+  border-radius: var(--r-s);
+  border: 1px solid var(--trait-fort);
+  background: var(--carte);
+  color: var(--encre);
+  cursor: pointer;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.bouton-arbitrage--garder:hover:not(:disabled) {
+  border-color: var(--ok); color: var(--ok); background: var(--ok-fond);
+}
+.bouton-arbitrage--exclure:hover:not(:disabled) {
+  border-color: var(--critique); color: var(--critique); background: var(--critique-fond);
+}
+.bouton-arbitrage:disabled { opacity: .5; cursor: default; }
+.bouton-arbitrage:focus-visible {
+  outline: 2px solid var(--teal); outline-offset: 2px;
+}
+
+.arbitrage__commentaire { display: block; margin-top: .45rem; }
+.arbitrage__commentaire textarea {
+  width: 100%;
+  font: inherit;
+  font-size: .75rem;
+  padding: .35rem .5rem;
+  background: var(--carte-2);
+  color: var(--encre);
+  border: 1px solid var(--trait-fort);
+  border-radius: var(--r-s);
+  resize: vertical;
+}
+.arbitrage__commentaire textarea:focus-visible {
+  outline: 2px solid var(--teal); outline-offset: 1px; border-color: var(--teal);
+}
+
+/* La trace d'une décision déjà prise : datée, signée, commentée. */
+.arbitrage__decision {
+  margin: 0;
+  font-size: .75rem;
+  line-height: 1.5;
+  color: var(--encre-2);
+  padding: .45rem .6rem;
+  border-left: 3px solid var(--ok);
+  background: var(--ok-fond);
+  border-radius: 0 var(--r-s) var(--r-s) 0;
+}
+.arbitrage__erreur {
+  margin: .35rem 0 0;
+  font-size: .6875rem;
+  color: var(--critique);
+  line-height: 1.45;
+}
+.arbitrage__erreur[hidden] { display: none; }
+
+/* La pagination des cas limites : un choix de lecture, discrète. */
+.pagination {
+  display: flex; align-items: center; gap: .9rem;
+  padding: .7rem 1.1rem;
+  border-top: 1px solid var(--trait);
+}
+.pagination .lien:disabled { opacity: .4; cursor: default; text-decoration: none; }
+
+/* ── Adaptations mobiles (lots D et E) ──────────────────────────────────── */
+
+@media (max-width: 720px) {
+  /* Le tableau reste lisible : les colonnes d'explication et de
+     description se cassent en lignes pleine largeur. */
+  td.explication, td.description { max-width: none; }
+  .arbitrage { min-width: 12rem; }
+  .arbitrage__boutons { flex-direction: column; }
+  .bouton-arbitrage { width: 100%; text-align: center; }
+}
