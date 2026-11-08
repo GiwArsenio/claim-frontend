@@ -162,4 +162,50 @@ verifier('le client protège contre une réponse tardive', () => {
   assert.match(client, /numero === etat\.chargement/, 'seul le dernier chargement doit écrire');
 });
 
+
+
+// ── Un changement d'onglet ne recharge pas l'aperçu ─────────────────────
+//
+// Le premier jet rechargeait l'aperçu complet à chaque clic d'onglet :
+// trois appels réseau de plus pour une information déjà affichée. La
+// latence perçue doublait pour rien. Ces contrôles verrouillent la
+// règle : l'aperçu ne se recharge que sur une demande explicite.
+
+verifier("un changement d'onglet ne charge que l'onglet demande", () => {
+  const client = lire('assets/monitoring.js');
+  // L'ancien code avait une ligne du type "si ce n'est pas l'aperçu,
+  // recharge l'aperçu". Elle ne doit pas revenir.
+  assert.ok(
+    !/if \(etat\.onglet !== .apercu.\) await chargerApercu\(\)/.test(client),
+    "le chargement d'un onglet ne doit pas recharger l'aperçu en doublon"
+  );
+  // La nouvelle règle : l'aperçu n'est rechargé que s'il n'est pas frais.
+  assert.match(client, /etat\.apercuCharge/, "l'état doit porter la fraîcheur de l'aperçu");
+});
+
+verifier("l'aperçu se rafraîchit sur demande explicite, pas en silence", () => {
+  const client = lire('assets/monitoring.js');
+  // Le bouton "Actualiser", le retour de visibilité et le changement de
+  // période sont les trois moments qui doivent reprendre l'aperçu.
+  const appels = (client.match(/chargerTout\(\{ apercu: true \}\)/g) || []).length;
+  assert.ok(appels >= 3, `seulement ${appels} rafraichissements explicites : il en faut au moins trois`);
+});
+
+verifier("le changement de periode invalide l'aperçu en mémoire", () => {
+  const client = lire('assets/monitoring.js');
+  // Une valeur calculée pour 7 jours ne vaut pas pour 30 : la période
+  // change, l'aperçu doit être repris.
+  assert.match(client, /etat\.apercuCharge = false/, "le changement de période doit marquer l'aperçu comme périmé");
+});
+
+verifier("le premier affichage charge l'aperçu", () => {
+  const client = lire('assets/monitoring.js');
+  // Le cache ne doit pas empêcher le tout premier rendu : sans lui, la
+  // vue d'ensemble resterait vide jusqu'au premier clic.
+  const debut = client.indexOf('async function demarrer');
+  assert.ok(debut > 0, 'la fonction de démarrage manque');
+  assert.match(client.slice(debut), /chargerTout\(\{ apercu: true \}\)/,
+    "le démarrage doit charger l'aperçu, pas seulement l'onglet courant");
+});
+
 console.log(`\n${controles} contrôles passés.`);
