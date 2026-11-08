@@ -103,10 +103,10 @@ function comparerPng(reference, actuelle) {
  */
 function comparerFichier(cheminReference, cheminActuelle) {
   if (!fs.existsSync(cheminReference)) {
-    return { referenceAbsente: true, comparable: false };
+    return { referenceAbsente: true, comparable: false, raison: 'reference absente' };
   }
   if (!fs.existsSync(cheminActuelle)) {
-    return { captureAbsente: true, comparable: false };
+    return { captureAbsente: true, comparable: false, raison: 'capture absente' };
   }
 
   const reference = PNG.sync.read(fs.readFileSync(cheminReference));
