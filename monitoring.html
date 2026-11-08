@@ -221,6 +221,54 @@
           <div class="classification" id="bloc-classification"></div>
         </div>
 
+        <!-- Lot D — La décomposition par source. Deux compteurs bruts
+             (« curation en attente », « cas limites ») ne disent pas d'où
+             viennent les offres ni pourquoi elles attendent. Ces deux
+             tableaux répondent : par source, et avec la raison. Une
+             donnée absente reste absente : pas de zéro pour une
+             information non mesurée. -->
+        <div class="panneau">
+          <header class="panneau__tete">
+            <h3 class="panneau__titre">Curation en attente — par source</h3>
+            <span class="mentions">Offres en attente de curation</span>
+          </header>
+          <div class="tableau-enveloppe">
+            <table class="tableau tableau--serre">
+              <thead>
+                <tr>
+                  <th scope="col">Source</th>
+                  <th scope="col" class="col-num">Total</th>
+                  <th scope="col" class="col-num">Sans description</th>
+                  <th scope="col" class="col-num">Avec description</th>
+                  <th scope="col">Explication</th>
+                </tr>
+              </thead>
+              <tbody id="corps-decomp-curation"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="panneau">
+          <header class="panneau__tete">
+            <h3 class="panneau__titre">Cas limites — par source</h3>
+            <span class="mentions">Offres cœur à probabilité basse</span>
+          </header>
+          <div class="tableau-enveloppe">
+            <table class="tableau tableau--serre">
+              <thead>
+                <tr>
+                  <th scope="col">Source</th>
+                  <th scope="col" class="col-num">Total</th>
+                  <th scope="col" class="col-num">Probabilité moyenne</th>
+                  <th scope="col">Raisons fréquentes</th>
+                  <th scope="col">Explication</th>
+                </tr>
+              </thead>
+              <tbody id="corps-decomp-limites"></tbody>
+            </table>
+          </div>
+        </div>
+
         <!-- Deux mesures, deux statuts. L'historique est reconstitué et
              remonte loin dans le passé ; la mesure par passage est
              exacte mais ne commence qu'avec l'instrumentation. -->
@@ -274,6 +322,35 @@
           </aside>
         </div>
       </section>
+
+        <!-- Lot E — L'arbitrage humain des cas limites. Une offre
+             classée cœur avec une probabilité sous le seuil n'est ni
+             gardée ni écartée par la machine : elle attend un arbitrage.
+             Ici, chaque description est lisible, et deux décisions
+             possibles — garder en cœur, ou exclure — avec un commentaire
+             libre. L'arbitrage est journalisé côté API. -->
+        <div class="panneau">
+          <header class="panneau__tete">
+            <h3 class="panneau__titre">Cas limites à arbitrer</h3>
+            <span class="compte" id="compte-cas-limites">—</span>
+          </header>
+          <div class="tableau-enveloppe">
+            <table class="tableau tableau--serre">
+              <thead>
+                <tr>
+                  <th scope="col">Offre</th>
+                  <th scope="col">Source</th>
+                  <th scope="col" class="col-num">Probabilité</th>
+                  <th scope="col">Motifs de revue</th>
+                  <th scope="col">Description</th>
+                  <th scope="col">Arbitrage</th>
+                </tr>
+              </thead>
+              <tbody id="corps-cas-limites"></tbody>
+            </table>
+          </div>
+          <div class="pagination" id="pagination-cas-limites"></div>
+        </div>
 
       <!-- ══ Indexation ═════════════════════════════════════════════════ -->
       <section id="panneau-indexation" role="tabpanel" aria-labelledby="onglet-indexation" tabindex="0" hidden>
