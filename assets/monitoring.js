@@ -939,7 +939,7 @@
       corps.innerHTML = `<tr><td colspan="5" class="vide">Non disponible — ${echapper((donnees && donnees.reason) || 'la décomposition n’est pas exposée par l’API.')}</td></tr>`;
       return;
     }
-    const lignes = donnees.sources || [];
+    const lignes = donnees.par_source || [];
     if (!lignes.length) {
       corps.innerHTML = '<tr><td colspan="5" class="vide">Aucune offre en attente de curation.</td></tr>';
       return;
@@ -964,7 +964,7 @@
       corps.innerHTML = `<tr><td colspan="5" class="vide">Non disponible — ${echapper((donnees && donnees.reason) || 'la décomposition n’est pas exposée par l’API.')}</td></tr>`;
       return;
     }
-    const lignes = donnees.sources || [];
+    const lignes = donnees.par_source || [];
     if (!lignes.length) {
       corps.innerHTML = '<tr><td colspan="5" class="vide">Aucun cas limite enregistré.</td></tr>';
       return;
@@ -973,7 +973,7 @@
       <td><strong>${echapper(l.source)}</strong></td>
       <td class="num">${valeur(l.total)}</td>
       <td class="num">${part(l.probabilite_moyenne)}</td>
-      <td>${(l.raisons_frequentes || []).map((r) => `<code>${echapper(r)}</code>`).join(' ') || '—'}</td>
+      <td>${Object.keys(l.raisons || {}).map((r) => `<code>${echapper(r)}</code>`).join(' ') || '—'}</td>
       <td class="explication">${echapper(l.explication || '—')}</td>
     </tr>`).join('');
   }
