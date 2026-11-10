@@ -1178,104 +1178,154 @@ td.description .description-complete { display: inline; }
   .bouton-arbitrage { width: 100%; text-align: center; }
 }
 
-/* ══ Rapprochements — revue humaine ══════════════════════════════════════ */
+/* ══ Rapprochements — revue humaine ══════════════════════════════════════
+   Écrite avec les jetons du panneau (--carte, --trait, --encre, --teal…).
+   Aucune couleur en dur : le mode nuit suit `prefers-color-scheme` comme le
+   reste du tableau de bord. Le filtre réutilise `.segments`.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.revue-filtres { display: inline-flex; margin-top: .75rem; }
 
 .resume-compte {
-  margin: 0 0 1.5rem;
-  font-size: .95rem;
-  color: var(--texte, #1a1a1a);
+  margin: 0 0 1.1rem;
+  font-size: .75rem; color: var(--encre-3);
+  text-transform: uppercase; letter-spacing: .08em; font-weight: 700;
 }
-.resume-compte strong { font-weight: 800; }
+.resume-compte strong { color: var(--encre); font-weight: 800; }
 
-.revue-liste { display: flex; flex-direction: column; gap: 1.75rem; }
+.revue-liste { display: flex; flex-direction: column; gap: 1rem; }
 
 .revue-carte {
-  border: 1px solid var(--bord, #d8dde3);
-  border-radius: 14px;
-  background: var(--fond-carte, #fff);
+  background: var(--carte);
+  border: 1px solid var(--trait);
+  border-radius: var(--r-m);
+  box-shadow: var(--ombre-carte);
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0,0,0,.06);
-}
-.revue-carte__tete {
-  display: flex; align-items: center; gap: 1rem;
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid var(--bord, #e5e9ee);
-  background: var(--fond-leger, #f7f9fb);
-}
-.revue-score {
-  font-variant-numeric: tabular-nums;
-  font-weight: 800; font-size: 1.05rem;
-  padding: .4rem .85rem; border-radius: 999px;
-  background: var(--accent-fond, #e8eefc); color: var(--accent, #2b4a9b);
-}
-.revue-motifs { display: flex; flex-wrap: wrap; gap: .5rem; flex: 1; }
-.revue-motifs .etiquette {
-  font-size: .8rem; padding: .3rem .75rem; border-radius: 7px;
-  background: var(--fond-etiquette, #eef1f5); color: var(--texte, #333);
-  font-weight: 500;
-}
-.revue-gen {
-  font-size: .82rem; color: var(--texte-secondaire, #555);
-  font-variant-numeric: tabular-nums; font-weight: 500;
 }
 
-.revue-cote {
-  display: grid;
-  grid-template-columns: 1fr 3rem 1fr;
-  gap: 0; align-items: stretch;
+.revue-carte__tete {
+  display: flex; align-items: center; gap: .75rem;
+  padding: .7rem 1.1rem;
+  background: var(--carte-2);
+  border-bottom: 1px solid var(--trait);
 }
+.revue-score {
+  font: 800 .875rem/1 var(--police);
+  font-variant-numeric: tabular-nums;
+  padding: .3rem .55rem; border-radius: var(--r-s);
+  background: var(--teal-pale); color: var(--teal);
+}
+.revue-motifs { display: flex; flex-wrap: wrap; gap: .35rem; flex: 1; min-width: 0; }
+.revue-motifs .etiquette {
+  font: 500 .6875rem/1 var(--police);
+  padding: .3rem .5rem; border-radius: var(--r-s);
+  background: var(--inconnu-fond); color: var(--encre-2);
+  white-space: nowrap;
+}
+.revue-gen {
+  font-size: .6875rem; color: var(--encre-3);
+  font-variant-numeric: tabular-nums;
+  text-transform: uppercase; letter-spacing: .08em; font-weight: 700;
+}
+
+.revue-cote { display: grid; grid-template-columns: minmax(0,1fr) 2.5rem minmax(0,1fr); }
 .revue-vs {
-  display: flex; align-items: center; justify-content: center;
-  background: var(--fond-leger, #f7f9fb);
-  border-left: 1px solid var(--bord, #e5e9ee);
-  border-right: 1px solid var(--bord, #e5e9ee);
-  color: var(--accent, #2b4a9b); font-size: 1.65rem; font-weight: 700;
+  display: grid; place-items: center;
+  background: var(--carte-2);
+  border-left: 1px solid var(--trait);
+  border-right: 1px solid var(--trait);
+  color: var(--teal); font-size: 1.25rem; font-weight: 700;
 }
-.revue-fiche { padding: 1.5rem; }
+
+.revue-fiche { padding: 1.1rem; min-width: 0; }
 .revue-fiche--absente {
-  color: var(--texte-secondaire, #777); font-style: italic;
-  display: flex; align-items: center; justify-content: center;
+  display: grid; place-items: center; min-height: 6rem;
+  color: var(--encre-3); font-size: .8125rem;
 }
 .revue-fiche__titre {
-  margin: 0 0 1rem; font-size: 1.15rem; line-height: 1.35;
-  color: var(--texte, #111); font-weight: 700;
+  margin: 0 0 .75rem; font-size: .9375rem; font-weight: 700;
+  line-height: 1.35; color: var(--encre);
+  letter-spacing: -.01em;
 }
 .revue-fiche__meta {
   display: grid; grid-template-columns: repeat(2, minmax(0,1fr));
-  gap: .65rem 1.25rem; margin: 0 0 1.15rem;
+  gap: .45rem .9rem; margin: 0 0 .75rem;
 }
-.revue-fiche__meta div { display: flex; gap: .55rem; font-size: .9rem; min-width: 0; }
-.revue-fiche__meta dt { color: var(--texte-secondaire, #666); flex-shrink: 0; }
-.revue-fiche__meta dd { margin: 0; font-weight: 600; color: var(--texte, #1a1a1a); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.revue-fiche__meta div { display: flex; gap: .4rem; min-width: 0; font-size: .75rem; }
+.revue-fiche__meta dt { color: var(--encre-3); flex-shrink: 0; }
+.revue-fiche__meta dd {
+  margin: 0; font-weight: 600; color: var(--encre);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.revue-fiche__meta code {
+  font-size: .6875rem; background: var(--inconnu-fond);
+  color: var(--encre-2); padding: .1em .35em; border-radius: 4px;
+}
 .revue-fiche__desc {
-  margin: 0 0 1.15rem; font-size: .925rem; line-height: 1.6;
-  color: var(--texte, #333);
+  margin: 0 0 .75rem; font-size: .8125rem; line-height: 1.55;
+  color: var(--encre-2);
 }
+.revue-fiche .lien { margin-left: 0; }
 
 .revue-carte__pied {
-  display: flex; align-items: center; justify-content: space-between; gap: 1.5rem;
-  padding: 1.15rem 1.5rem;
-  border-top: 1px solid var(--bord, #e5e9ee);
-  background: var(--fond-leger, #f7f9fb);
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  padding: .8rem 1.1rem;
+  background: var(--carte-2);
+  border-top: 1px solid var(--trait);
 }
-.revue-actions { display: flex; gap: .85rem; }
+.revue-actions { display: flex; gap: .5rem; }
+
+/* `.bouton-principal` est pleine largeur dans le gabarit de connexion :
+   ici il reprend une taille de bouton en ligne. */
 .revue-actions .bouton-principal {
-  padding: .65rem 1.5rem; border-radius: 9px; font-weight: 600; font-size: .95rem;
+  width: auto; margin-top: 0; padding: .5rem 1rem;
+  font: 600 .75rem/1 var(--police); border-radius: var(--r-s);
 }
-.revue-actions .bouton-texte {
-  padding: .65rem 1.5rem; border-radius: 9px; font-weight: 600; font-size: .95rem;
-  border: 1px solid var(--bord, #c5ccd4); background: #fff; color: var(--texte, #333);
+.revue-actions .bouton-secondaire {
+  font: 600 .75rem/1 var(--police);
+  padding: .5rem 1rem; border-radius: var(--r-s);
+  background: var(--carte); color: var(--encre-2);
+  border: 1px solid var(--trait-fort); cursor: pointer;
 }
-.revue-decision { display: flex; flex-direction: column; gap: .25rem; font-size: .95rem; }
-.revue-decision--ok strong { color: #1a7f37; font-size: 1.05rem; }
-.revue-decision--ko strong { color: #b42318; font-size: 1.05rem; }
-.revue-technique { font-size: .85rem; color: var(--texte-secondaire, #666); }
+.revue-actions .bouton-secondaire:hover {
+  color: var(--encre); border-color: var(--teal); background: var(--papier);
+}
+.revue-actions button:focus-visible,
+.revue-filtres button:focus-visible {
+  outline: 2px solid var(--teal); outline-offset: 2px;
+}
+
+.revue-decision {
+  display: flex; align-items: center; gap: .5rem; flex-wrap: wrap;
+  font-size: .75rem; padding: .4rem .6rem; border-radius: var(--r-s);
+}
+.revue-decision strong { font-weight: 700; font-size: .8125rem; }
+.revue-decision span { color: var(--encre-2); }
+.revue-decision--ok { background: var(--ok-fond); color: var(--ok); }
+.revue-decision--ko { background: var(--critique-fond); color: var(--critique); }
+
+.revue-technique { font-size: .6875rem; color: var(--encre-3); }
 .revue-technique summary { cursor: pointer; }
-.revue-technique p { margin: .45rem 0 0; }
-.revue-technique code { background: var(--fond-code, #eef1f5); padding: .15em .45em; border-radius: 5px; }
+.revue-technique p { margin: .35rem 0 0; }
+.revue-technique code {
+  background: var(--inconnu-fond); color: var(--encre-2);
+  padding: .1em .35em; border-radius: 4px;
+}
+
+/* En thème sombre, `--teal` est clair : un texte blanc dessus ne se lit pas.
+   On passe l'encre du panneau, comme le fait déjà `.segments` pour ses onglets. */
+@media (prefers-color-scheme: dark) {
+  .revue-actions .bouton-principal { color: var(--nuit); }
+  .revue-actions .bouton-principal:hover { background: var(--teal-2); color: var(--nuit); }
+}
 
 @media (max-width: 860px) {
-  .revue-cote { grid-template-columns: 1fr; }
-  .revue-vs { padding: .75rem 0; border-left: none; border-right: none;
-    border-top: 1px solid var(--bord, #e5e9ee); border-bottom: 1px solid var(--bord, #e5e9ee); }
+  .revue-cote { grid-template-columns: minmax(0,1fr); }
+  .revue-vs {
+    border-left: 0; border-right: 0;
+    border-top: 1px solid var(--trait); border-bottom: 1px solid var(--trait);
+    padding: .35rem 0;
+  }
+  .revue-carte__pied { flex-direction: column; align-items: stretch; }
+  .revue-actions { flex-wrap: wrap; }
 }

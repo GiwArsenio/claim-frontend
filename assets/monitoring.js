@@ -1208,7 +1208,7 @@
          </div>`
       : `<div class="revue-actions">
            <button type="button" class="bouton-principal" data-decider="confirmed" data-id="${p.id}">C’est le même poste</button>
-           <button type="button" class="bouton-texte" data-decider="rejected" data-id="${p.id}">Annonces distinctes</button>
+           <button type="button" class="bouton-secondaire" data-decider="rejected" data-id="${p.id}">Annonces distinctes</button>
          </div>`;
 
     return `<article class="revue-carte" data-carte="${p.id}">
