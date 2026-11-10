@@ -1234,8 +1234,17 @@
   }
 
   async function chargerRapprochements() {
+    const liste = $('rapprochements-liste');
     const statut = etat.rapproStatut || 'open';
-    const d = await appeler(`/rapprochements?statut=${encodeURIComponent(statut)}`);
+    let d;
+    try {
+      d = await appeler(`/rapprochements?statut=${encodeURIComponent(statut)}`);
+    } catch (err) {
+      if (err.message === 'Session requise') return;
+      // Ne jamais laisser le panneau en « Chargement… » : dire ce qui échoue.
+      liste.innerHTML = `<div class="absent absent--plat">Impossible de charger les rapprochements — ${echapper(err.message)}</div>`;
+      return;
+    }
     const comptes = d.comptes || {};
     const resume = $('rapprochements-resume');
     resume.innerHTML = [
@@ -1245,7 +1254,6 @@
       `À revoir : <strong>${comptes.needs_review ?? 0}</strong>`,
     ].join(' · ');
 
-    const liste = $('rapprochements-liste');
     if (!d.paires || d.paires.length === 0) {
       liste.innerHTML = '<div class="absent absent--plat">Aucune paire dans cet état.</div>';
       return;
