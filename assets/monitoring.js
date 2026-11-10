@@ -19,7 +19,7 @@
 
   const API = '/monitoring/api';
   const etat = {
-    periode: 7, onglet: 'apercu', chargement: 0, sessionValide: true,
+    periode: 7, onglet: 'apercu', chargement: 0, sessionValide: true, rapproStatut: 'open',
     // Lot E : la pagination des cas limites. Une page est un choix de
     // lecture, pas une mesure : elle ne change pas les comptes.
     casLimitesPage: 1, casLimitesTotal: 0, casLimites: [], casLimitesParPage: 10,
@@ -1176,8 +1176,114 @@
 
   // ── Orchestration ────────────────────────────────────────────────────────
 
+  // ── Rapprochements — revue humaine ─────────────────────────────────────
+
+  function rendreAnnonceCote(c, cote) {
+    // cote = 'a' | 'b'. Une fiche d'annonce pour la comparaison.
+    if (!c || c.introuvable) {
+      return '<div class="revue-fiche revue-fiche--absente">Annonce introuvable</div>';
+    }
+    return `<div class="revue-fiche">
+      <h4 class="revue-fiche__titre">${echapper(c.titre || '(sans titre)')}</h4>
+      <dl class="revue-fiche__meta">
+        <div><dt>Entreprise</dt><dd>${echapper(c.entreprise || '—')}</dd></div>
+        <div><dt>Source</dt><dd>${echapper(c.source || '—')} · <code>${echapper(c.source_id || '—')}</code></dd></div>
+        <div><dt>Contrat</dt><dd>${echapper(c.contrat || '—')}</dd></div>
+        <div><dt>Ville</dt><dd>${echapper(c.ville || '—')}</dd></div>
+        <div><dt>Date source</dt><dd>${echapper(c.date_source ? c.date_source.slice(0, 10) : '—')}</dd></div>
+        <div><dt>Statut</dt><dd>${echapper(c.statut || '—')} · ${echapper(c.classification || '—')}</dd></div>
+      </dl>
+      <p class="revue-fiche__desc">${echapper((c.description || '').slice(0, 280))}${c.description_longueur > 280 ? '…' : ''}</p>
+      ${c.source_url ? `<a class="lien" href="${echapper(c.source_url)}" target="_blank" rel="noopener">Voir l’annonce source ↗</a>` : ''}
+    </div>`;
+  }
+
+  function rendrePaire(p) {
+    const motifs = Object.keys(p.motifs || {}).map((m) => `<span class="etiquette">${echapper(m)}</span>`).join(' ');
+    const decide = (p.statut === 'confirmed' || p.statut === 'rejected');
+    const b = decide
+      ? `<div class="revue-decision revue-decision--${p.statut === 'confirmed' ? 'ok' : 'ko'}">
+           <strong>${p.statut === 'confirmed' ? 'Confirmée' : 'Rejetée'}</strong>
+           <span>${echapper(p.decided_by || '')} — ${echapper(p.motif_decision || '')}</span>
+         </div>`
+      : `<div class="revue-actions">
+           <button type="button" class="bouton-principal" data-decider="confirmed" data-id="${p.id}">C’est le même poste</button>
+           <button type="button" class="bouton-texte" data-decider="rejected" data-id="${p.id}">Annonces distinctes</button>
+         </div>`;
+
+    return `<article class="revue-carte" data-carte="${p.id}">
+      <header class="revue-carte__tete">
+        <span class="revue-score" title="Score de similarité">${(p.score ?? 0).toFixed(2)}</span>
+        <div class="revue-motifs">${motifs || '<span class="etiquette">aucun motif</span>'}</div>
+        <span class="revue-gen" title="Génération de fraîcheur des preuves">gen ${p.preuves_generation ?? '—'}</span>
+      </header>
+      <div class="revue-cote">
+        ${rendreAnnonceCote(p.a, 'a')}
+        <div class="revue-vs" aria-hidden="true">⟷</div>
+        ${rendreAnnonceCote(p.b, 'b')}
+      </div>
+      <footer class="revue-carte__pied">
+        ${b}
+        <details class="revue-technique">
+          <summary>Détail technique</summary>
+          <p>révision <code>${p.revision}</code> · preuves <code>${(p.preuves_hash || '').slice(0, 12)}…</code></p>
+          <p>ingéré par <code>${echapper(p.auteur || '')}</code> — ${echapper(p.motif || '')}</p>
+        </details>
+      </footer>
+    </article>`;
+  }
+
+  async function chargerRapprochements() {
+    const statut = etat.rapproStatut || 'open';
+    const d = await appeler(`/rapprochements?statut=${encodeURIComponent(statut)}`);
+    const comptes = d.comptes || {};
+    const resume = $('rapprochements-resume');
+    resume.innerHTML = [
+      `À examiner : <strong>${comptes.open ?? 0}</strong>`,
+      `Confirmés : <strong>${comptes.confirmed ?? 0}</strong>`,
+      `Rejetés : <strong>${comptes.rejected ?? 0}</strong>`,
+      `À revoir : <strong>${comptes.needs_review ?? 0}</strong>`,
+    ].join(' · ');
+
+    const liste = $('rapprochements-liste');
+    if (!d.paires || d.paires.length === 0) {
+      liste.innerHTML = '<div class="absent absent--plat">Aucune paire dans cet état.</div>';
+      return;
+    }
+    liste.innerHTML = d.paires.map(rendrePaire).join('');
+
+    // Boutons de décision : appel de la RPC via l'API monitoring.
+    liste.querySelectorAll('[data-decider]').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const id = btn.dataset.id;
+        const decision = btn.dataset.decider;
+        const motif = prompt(
+          decision === 'confirmed'
+            ? 'Motif de confirmation (ex : même poste, republication) :'
+            : 'Motif du rejet (ex : deux postes distincts) :'
+        );
+        if (motif === null) return;
+        if (!motif.trim()) { alert('Un motif est requis.'); return; }
+        btn.disabled = true;
+        try {
+          await appeler(`/rapprochements/${id}/decision`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+            body: JSON.stringify({ decision, auteur: 'revue-dashboard', motif: motif.trim() }),
+          });
+          await chargerRapprochements();
+        } catch (err) {
+          if (err.message === 'Session requise') return;
+          alert(`Décision non enregistrée — ${err.message}`);
+          btn.disabled = false;
+        }
+      });
+    });
+  }
+
   const CHARGEURS = {
     apercu: chargerApercu,
+    rapprochements: chargerRapprochements,
     cron: chargerCron,
     collecte: chargerCollecte,
     offres: chargerOffres,
@@ -1242,6 +1348,14 @@
         if (e.key === 'ArrowDown' || e.key === 'ArrowRight') cible = onglets[(i + 1) % onglets.length];
         if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') cible = onglets[(i - 1 + onglets.length) % onglets.length];
         if (cible) { e.preventDefault(); cible.focus(); cible.click(); }
+      });
+    });
+
+    document.querySelectorAll('#filtre-rapprochements [data-statut]').forEach((b) => {
+      b.addEventListener('click', () => {
+        etat.rapproStatut = b.dataset.statut;
+        document.querySelectorAll('#filtre-rapprochements [data-statut]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+        chargerRapprochements();
       });
     });
 

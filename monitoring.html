@@ -55,6 +55,10 @@
       <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 4h9M2 8h9M2 12h6M13 3l1.5 1.5L17 2"/></svg>
       <span>Offres</span>
     </button>
+    <button role="tab" id="onglet-rapprochements" aria-controls="panneau-rapprochements" aria-selected="false">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="5" cy="8" r="3"/><circle cx="11" cy="8" r="3"/><path d="M8 8h0"/></svg>
+      <span>Rapprochements</span>
+    </button>
     <button role="tab" id="onglet-indexation" aria-controls="panneau-indexation" aria-selected="false">
       <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg>
       <span>Indexation</span>
@@ -395,6 +399,27 @@
             <span class="mentions">Aucune valeur inventée</span>
           </header>
           <div id="operations-vide" class="absent absent--plat">Chargement…</div>
+        </div>
+      </section>
+
+      <!-- ══ Rapprochements — revue humaine ═════════════════════════════ -->
+      <section id="panneau-rapprochements" role="tabpanel" aria-labelledby="onglet-rapprochements" tabindex="0" hidden>
+        <header class="entete-section">
+          <div>
+            <h2>Rapprochements</h2>
+            <p class="sous-titre">Paires d’annonces à examiner. La décision porte sur le rapprochement, jamais sur les annonces sources.</p>
+          </div>
+          <div class="segments" role="group" aria-label="Filtrer par état" id="filtre-rapprochements">
+            <button type="button" data-statut="open" aria-pressed="true">À examiner</button>
+            <button type="button" data-statut="confirmed">Confirmés</button>
+            <button type="button" data-statut="rejected">Rejetés</button>
+            <button type="button" data-statut="needs_review">À revoir</button>
+          </div>
+        </header>
+
+        <div id="rapprochements-resume" class="resume-compte"></div>
+        <div id="rapprochements-liste" class="revue-liste">
+          <div class="absent absent--plat">Chargement…</div>
         </div>
       </section>
 

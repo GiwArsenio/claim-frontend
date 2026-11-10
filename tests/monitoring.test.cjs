@@ -322,6 +322,8 @@ verifier("aucune route orpheline dans le client", () => {
     '/classification', '/cron', '/indexation', '/analytics', '/operations',
     // Lots D et E : décomposition par source et arbitrage des cas limites.
     '/classification/decomposition', '/limit-cases',
+    // Lot 4 : revue humaine des rapprochements.
+    '/rapprochements',
   ]);
   for (const route of routes) {
     // Les routes avec paramètres (ex: /alerts/${cle}/ack) sont vérifiées
