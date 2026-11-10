@@ -1179,88 +1179,103 @@ td.description .description-complete { display: inline; }
 }
 
 /* ══ Rapprochements — revue humaine ══════════════════════════════════════ */
-.resume-compte {
-  margin: 0 0 1.25rem;
-  font-size: .875rem;
-  color: var(--texte-secondaire, #555);
-}
-.resume-compte strong { color: var(--texte, #111); font-weight: 700; }
 
-.revue-liste { display: flex; flex-direction: column; gap: 1.25rem; }
+.resume-compte {
+  margin: 0 0 1.5rem;
+  font-size: .95rem;
+  color: var(--texte, #1a1a1a);
+}
+.resume-compte strong { font-weight: 800; }
+
+.revue-liste { display: flex; flex-direction: column; gap: 1.75rem; }
 
 .revue-carte {
-  border: 1px solid var(--bord, #e2e2e2);
-  border-radius: 12px;
+  border: 1px solid var(--bord, #d8dde3);
+  border-radius: 14px;
   background: var(--fond-carte, #fff);
   overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
 }
 .revue-carte__tete {
-  display: flex; align-items: center; gap: .75rem;
-  padding: .75rem 1rem;
-  border-bottom: 1px solid var(--bord, #e2e2e2);
-  background: var(--fond-leger, #fafafa);
+  display: flex; align-items: center; gap: 1rem;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--bord, #e5e9ee);
+  background: var(--fond-leger, #f7f9fb);
 }
 .revue-score {
   font-variant-numeric: tabular-nums;
-  font-weight: 800; font-size: .95rem;
-  padding: .25rem .55rem; border-radius: 999px;
-  background: var(--accent-fond, #eef2ff); color: var(--accent, #3b5bdb);
+  font-weight: 800; font-size: 1.05rem;
+  padding: .4rem .85rem; border-radius: 999px;
+  background: var(--accent-fond, #e8eefc); color: var(--accent, #2b4a9b);
 }
-.revue-motifs { display: flex; flex-wrap: wrap; gap: .35rem; flex: 1; }
+.revue-motifs { display: flex; flex-wrap: wrap; gap: .5rem; flex: 1; }
 .revue-motifs .etiquette {
-  font-size: .72rem; padding: .15rem .5rem; border-radius: 6px;
-  background: var(--fond-etiquette, #eef1f5); color: var(--texte-secondaire, #555);
+  font-size: .8rem; padding: .3rem .75rem; border-radius: 7px;
+  background: var(--fond-etiquette, #eef1f5); color: var(--texte, #333);
+  font-weight: 500;
 }
 .revue-gen {
-  font-size: .72rem; color: var(--texte-secondaire, #777);
-  font-variant-numeric: tabular-nums;
+  font-size: .82rem; color: var(--texte-secondaire, #555);
+  font-variant-numeric: tabular-nums; font-weight: 500;
 }
 
 .revue-cote {
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: 1fr 3rem 1fr;
   gap: 0; align-items: stretch;
 }
 .revue-vs {
   display: flex; align-items: center; justify-content: center;
-  padding: 0 .5rem; color: var(--texte-secondaire, #999); font-size: 1.25rem;
+  background: var(--fond-leger, #f7f9fb);
+  border-left: 1px solid var(--bord, #e5e9ee);
+  border-right: 1px solid var(--bord, #e5e9ee);
+  color: var(--accent, #2b4a9b); font-size: 1.65rem; font-weight: 700;
 }
-.revue-fiche { padding: 1rem; }
+.revue-fiche { padding: 1.5rem; }
 .revue-fiche--absente {
-  color: var(--texte-secondaire, #888); font-style: italic;
+  color: var(--texte-secondaire, #777); font-style: italic;
   display: flex; align-items: center; justify-content: center;
 }
 .revue-fiche__titre {
-  margin: 0 0 .65rem; font-size: 1rem; line-height: 1.35;
+  margin: 0 0 1rem; font-size: 1.15rem; line-height: 1.35;
+  color: var(--texte, #111); font-weight: 700;
 }
 .revue-fiche__meta {
   display: grid; grid-template-columns: repeat(2, minmax(0,1fr));
-  gap: .35rem .75rem; margin: 0 0 .65rem;
+  gap: .65rem 1.25rem; margin: 0 0 1.15rem;
 }
-.revue-fiche__meta div { display: flex; gap: .4rem; font-size: .8rem; min-width: 0; }
-.revue-fiche__meta dt { color: var(--texte-secondaire, #777); flex-shrink: 0; }
-.revue-fiche__meta dd { margin: 0; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.revue-fiche__meta div { display: flex; gap: .55rem; font-size: .9rem; min-width: 0; }
+.revue-fiche__meta dt { color: var(--texte-secondaire, #666); flex-shrink: 0; }
+.revue-fiche__meta dd { margin: 0; font-weight: 600; color: var(--texte, #1a1a1a); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .revue-fiche__desc {
-  margin: 0 0 .65rem; font-size: .825rem; line-height: 1.5;
-  color: var(--texte-secondaire, #555);
+  margin: 0 0 1.15rem; font-size: .925rem; line-height: 1.6;
+  color: var(--texte, #333);
 }
 
 .revue-carte__pied {
-  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
-  padding: .75rem 1rem;
-  border-top: 1px solid var(--bord, #e2e2e2);
-  background: var(--fond-leger, #fafafa);
+  display: flex; align-items: center; justify-content: space-between; gap: 1.5rem;
+  padding: 1.15rem 1.5rem;
+  border-top: 1px solid var(--bord, #e5e9ee);
+  background: var(--fond-leger, #f7f9fb);
 }
-.revue-actions { display: flex; gap: .5rem; }
-.revue-decision { display: flex; flex-direction: column; gap: .15rem; font-size: .85rem; }
-.revue-decision--ok strong { color: #1a7f37; }
-.revue-decision--ko strong { color: #b42318; }
-.revue-technique { font-size: .78rem; color: var(--texte-secondaire, #777); }
+.revue-actions { display: flex; gap: .85rem; }
+.revue-actions .bouton-principal {
+  padding: .65rem 1.5rem; border-radius: 9px; font-weight: 600; font-size: .95rem;
+}
+.revue-actions .bouton-texte {
+  padding: .65rem 1.5rem; border-radius: 9px; font-weight: 600; font-size: .95rem;
+  border: 1px solid var(--bord, #c5ccd4); background: #fff; color: var(--texte, #333);
+}
+.revue-decision { display: flex; flex-direction: column; gap: .25rem; font-size: .95rem; }
+.revue-decision--ok strong { color: #1a7f37; font-size: 1.05rem; }
+.revue-decision--ko strong { color: #b42318; font-size: 1.05rem; }
+.revue-technique { font-size: .85rem; color: var(--texte-secondaire, #666); }
 .revue-technique summary { cursor: pointer; }
-.revue-technique p { margin: .35rem 0 0; }
-.revue-technique code { background: var(--fond-code, #f0f0f0); padding: 0 .3em; border-radius: 4px; }
+.revue-technique p { margin: .45rem 0 0; }
+.revue-technique code { background: var(--fond-code, #eef1f5); padding: .15em .45em; border-radius: 5px; }
 
-@media (max-width: 760px) {
+@media (max-width: 860px) {
   .revue-cote { grid-template-columns: 1fr; }
-  .revue-vs { padding: .5rem 0; }
+  .revue-vs { padding: .75rem 0; border-left: none; border-right: none;
+    border-top: 1px solid var(--bord, #e5e9ee); border-bottom: 1px solid var(--bord, #e5e9ee); }
 }
