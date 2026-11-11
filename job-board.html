@@ -476,7 +476,12 @@ select.chip { appearance: none; -webkit-appearance: none; padding-right: 2rem;
 
 /* Éléments mobiles cachés sur desktop */
 @media (min-width: 769px) {
-  .btn-back { display: none; }
+  /* Le bouton de retour reste visible sur grand ecran. Sur telephone, il
+     est indispensable : la fiche couvre l ecran. Sur grand ecran, il ne
+     l est pas moins : une offre ouverte par un lien direct s affiche seule,
+     dans le panneau de droite, sans aucun moyen de revenir a la liste.
+     C est un piege, pas une ergonomie. */
+  .btn-back { display: inline-block; }
   .btn-burger { display: none; }
   #burger-menu { display: none !important; }
 
@@ -1050,8 +1055,12 @@ const hero    = document.getElementById('hero');
 // Sur téléphone, l'en-tête est déjà effacé par la classe detail-view : ce
 // suivi ne concerne que le bureau.
 const SEUIL_LECTURE_FICHE = 24;
+// Vrai pendant la fermeture de la fiche : le scroll qui suit la fermeture
+// ne doit pas remettre le haut de page dans son etat defile.
+let ficheFermee = false;
 prEl.addEventListener('scroll', function () {
   if (isMobile()) return;
+  if (ficheFermee) return;
   const colle = this.scrollTop > SEUIL_LECTURE_FICHE;
   document.body.classList.toggle('fiche-defilee', colle);
   // Le bloc se colle des que le defilement atteint son retrait du haut, soit
@@ -1741,8 +1750,14 @@ async function partagerOffre() {
 // L'adresse suit l'offre ouverte : le lien devient copiable depuis la barre.
 function poserAdresseOffre(slug) {
   if (!slug) return;
-  const cible = `/offre/${encodeURIComponent(slug)}`;
-  if (location.pathname === cible) return;
+  const chemin = `/offre/${encodeURIComponent(slug)}`;
+  // Les filtres restent dans l'adresse : le visiteur qui ouvre une offre
+  // depuis une liste filtree doit pouvoir revenir a cette liste avec le
+  // bouton "precedent" du navigateur. Sans cela, le retour mene a une liste
+  // complete alors que le visiteur l avait filtree.
+  const recherche = location.search;
+  const cible = recherche ? chemin + recherche : chemin;
+  if (location.pathname + location.search === cible) return;
   try { history.pushState({ offre: slug }, '', cible); } catch (e) { /* sans history */ }
 }
 
@@ -1840,6 +1855,13 @@ async function renderDetail(id) {
 
   try {
     const j = await fetchDetail(id);
+
+    // Garde : le visiteur a pu changer d'offre pendant que la reponse
+    // arrivait. Une reponse perimee ne doit ni remplacer l'ecran, ni
+    // devenir l'offre courante : sinon la fiche affichee ne correspond
+    // plus a l'adresse, et le clic "Postuler" partirait sur la mauvaise offre.
+    if (id !== activeId) return;
+
     offreCourante = j;
     if (origineDetail !== 'auto') mesurer('view_item', paramOffre(j, 'board'));
 
@@ -1887,6 +1909,14 @@ function closeDetail() {
   document.body.classList.remove('detail-view');
   document.body.classList.remove('fiche-defilee');
   document.body.classList.remove('entete-collee');
+  // Le panneau garde sa position de defilement. Le scroll qui en decoule peut
+  // relancer le listener et remettre la fiche en mode defile : le haut de
+  // page resterait masque, sur une page qui n affiche plus la fiche. On
+  // remet le panneau a zero et on neutralise le listener le temps que le
+  // navigateur finisse son animation.
+  ficheFermee = true;
+  prEl.scrollTop = 0;
+  setTimeout(() => { ficheFermee = false; }, 300);
 }
 // Le bouton retour du navigateur : revenir à la liste ferme le détail,
 // revenir en avant le rouvre. Sans cela, l'adresse et l'écran divergeraient.
@@ -1929,7 +1959,14 @@ function closeBurger() {
   document.getElementById('btn-burger').classList.remove('open');
   document.body.style.overflow = '';
 }
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeBurger(); });
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closeBurger();
+    // Echap ferme aussi la fiche : c est le geste attendu au clavier, et le
+    // seul geste de fermeture que le bureau offrait jusqu ici.
+    closeDetail();
+  }
+});
 
 // ── Search events ─────────────────────────────────────────────────────────
 document.getElementById('q-input')?.addEventListener('keydown', e => { if (e.key === 'Enter') applySearch(); });
