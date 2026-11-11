@@ -11,6 +11,7 @@
 
 const API_BASE = process.env.API_URL || 'https://claim-api-production-06b3.up.railway.app/api/v1';
 const SITE_URL = process.env.SITE_URL || 'https://claimyourjob.com/fr';
+const { construireCorps, texteOriginal } = require('../src/pages/_offre-normalise.js');
 
 // Profils d'entreprise : présentation, avantages, liens sociaux. Même source
 // que le job board. La page ne doit pas tomber si ce fichier manque au
@@ -144,6 +145,9 @@ async function construire(job, urlCanonique) {
   } else {
     corps = paragraphesDe(description).map((p) => `<p>${echapper(p)}</p>`).join('');
   }
+
+  corps = construireCorps(job, corps);
+  const original = texteOriginal(job.original);
 
   const offre = {
     '@context': 'https://schema.org/',
@@ -510,6 +514,7 @@ ${BLOC_CONSENTEMENT}
   <div class="societe">${tuileSociete}<span>${echapper(nomSociete)}${ville ? ' · ' + echapper(ville) : ''}</span></div>
   <div class="pastilles">${pastilles.join('')}</div>
   ${corps || '<p>Description non disponible.</p>'}
+  ${original}
   <div class="pied">
     Offre publiée sur <a href="${SITE_URL}/">Claim!</a>.
     ${logoParHunter ? `Logo : <a href="https://hunter.io" rel="noopener" target="_blank">Hunter.io</a>.` : ''}
