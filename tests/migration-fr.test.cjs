@@ -16,11 +16,19 @@ test('migration — assets réalistes, redirections et contenu final', async () 
  }}};
  const call = (path, host='claimyourjob.com', method='GET')=>worker.fetch(new Request(`https://${host}${path}`,{method}),env);
  for(const host of ['claimyourjob.com','claimyourjob.fr','www.claimyourjob.com','www.claimyourjob.fr']) {
-  for(const [path,target] of [['/','/fr/'],['/job-board.html?q=x&page=2','/fr/job-board.html?q=x&page=2'],['/fr','/fr/'],['/fr/index.html','/fr/'],['/claim-job-board.html','/fr/job-board.html'],['/fr/claim-job-board.html','/fr/job-board.html'],['/robots.txt','/fr/robots.txt'],['/sitemap.xml','/fr/sitemap.xml']]) {
+  for(const [path,target] of [['/','/fr/'],['/job-board.html?q=x&page=2','/fr/job-board.html?q=x&page=2'],['/fr','/fr/'],['/fr/index.html','/fr/'],['/claim-job-board.html','/fr/job-board.html'],['/fr/claim-job-board.html','/fr/job-board.html']]) {
    const r=await call(path,host);
    assert.equal(r.status,301,host+path);
    assert.equal(r.headers.get('location'),`https://claimyourjob.com${target}`,host+path);
   }
+ }
+ // robots.txt est servi À LA RACINE (200) : Google ne lit pas les règles d'un
+ // robots.txt en redirection (3xx = 404 pour lui). Il est statique, sans
+ // dépendance à l'API. sitemap.xml reste redirigé, Google suit une redirection
+ // de sitemap sans perdre d'information.
+ {
+  const r=await call('/robots.txt'); assert.equal(r.status,200, 'robots.txt doit être servi à la racine');
+  const t=await r.text(); assert.ok(t.length>0, 'robots.txt doit avoir un contenu');
  }
  for(const path of ['/fr/','/fr/job-board.html','/fr/contact.html']) {
   const r=await call(path); assert.equal(r.status,200);
