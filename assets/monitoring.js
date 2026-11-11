@@ -303,10 +303,40 @@
         <div class="alerte__corps">
           <p class="alerte__titre">${echapper(a.titre)}</p>
           ${a.detail ? `<p class="alerte__detail">${echapper(a.detail)}</p>` : ''}
+          ${a.rule === 'doublons' && a.preuve ? `
+          <details class="alerte__preuve">
+            <summary>Preuve — ${a.preuve.communes} offre(s) partagée(s)</summary>
+            <ul>
+              ${(a.preuve.urls || []).map((u) => `<li><code>${echapper(u)}</code></li>`).join('')}
+            </ul>
+          </details>` : ''}
         </div>
+        ${a.rule === 'doublons' && a.preuve
+          ? `<button type="button" class="alerte__decision" data-accepter="${echapper(a.preuve.paire)}">Accepter la redondance</button>`
+          : ''}
         <button type="button" class="alerte__ack" data-ack="${echapper(a.key)}">Prendre en charge</button>
       </li>`).join('');
   }
+
+  // Décision sur une redondance : accepter dit « c'est connu, c'est normal ».
+  // Le garde-fou continue de mesurer, mais ne réalerte plus à chaque passage.
+  document.addEventListener('click', async (e) => {
+    const bouton = e.target.closest('[data-accepter]');
+    if (!bouton) return;
+    const paire = bouton.getAttribute('data-accepter');
+    if (!paire) return;
+    if (!window.confirm(`Accepter la redondance ${paire} ?\n\nCette paire ne sera plus signalée. La décision reste lisible et peut être révoquée.`)) return;
+    bouton.disabled = true;
+    try {
+      await appeler(`/monitoring/redondances/${encodeURIComponent(paire)}/accepter`, {
+        method: 'POST', body: JSON.stringify({ motif: 'Acceptée depuis le dashboard.' })
+      });
+      await rafraichirApercu();
+    } catch (err) {
+      bouton.disabled = false;
+      window.alert(`Acceptation impossible : ${err.message || err}`);
+    }
+  });
 
   async function chargerApercu() {
     const numero = ++etat.chargement;
