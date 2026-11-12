@@ -45,6 +45,13 @@ export default {
     if (cheminDecode.toLowerCase() === '/monitoring.html') return redirect('/monitoring', url.search);
 
 
+    // robots.txt est servi AVANT la redirection /fr, à la racine du domaine :
+    // Google le demande uniquement là (claimyourjob.com/robots.txt). Le
+    // rediriger donnait un 301 au robot, qui traitait le fichier comme
+    // inexistant (doc Google : un robots.txt en 3xx = 404) et n'explorait
+    // plus ses pages. Il est statique, sans dépendance à l'API.
+    if (nu === '/robots.txt') return rendreRobots(env);
+
     // Assets partagés, canoniques à la racine du .com. /fr/assets/... est un alias.
     if (estExempt(nu)) {
       if (url.hostname !== 'claimyourjob.com' || chemin !== nu || url.protocol !== 'https:') return redirect(nu, url.search);
@@ -55,7 +62,6 @@ export default {
     if (url.hostname !== 'claimyourjob.com' || chemin !== destination || url.protocol !== 'https:') {
       return redirect(destination, url.search);
     }
-    if (nu === '/robots.txt') return rendreRobots(env);
     if (nu === '/sitemap.xml') return rendreSitemap(env);
     if (nu.startsWith('/offre/')) {
       let slug = nu.slice('/offre/'.length);
