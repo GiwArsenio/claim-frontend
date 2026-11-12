@@ -67,6 +67,7 @@ const FAMILLES = {
     'tests/entete_fiche_sobre.test.cjs',
     'tests/fiche_rendu_immediat.test.cjs',
     'tests/fiche_style_offre.test.cjs',
+    'tests/normalisation_offre.test.cjs',
     'tests/rail_fiche.test.cjs',
   ],
   // Demandent un navigateur. Lents, mais locaux : ils ouvrent le serveur

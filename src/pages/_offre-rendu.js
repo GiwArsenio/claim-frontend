@@ -35,6 +35,7 @@ export function configurerUrls(apiBase, siteUrl) {
 // n'y a pas de copie — une copie divergerait en silence, comme l'a fait
 // celle qui precedait ce portage.
 import ANNUAIRE_CJS from '../../assets/companies-data.js';
+import { construireCorps, texteOriginal } from './_offre-normalise.js';
 const ANNUAIRE = ANNUAIRE_CJS;
 
 const LABELS_CONTRAT = {
@@ -159,6 +160,9 @@ export async function construire(job, urlCanonique) {
   } else {
     corps = paragraphesDe(description).map((p) => `<p>${echapper(p)}</p>`).join('');
   }
+
+  corps = construireCorps(job, corps);
+  const original = texteOriginal(job.original);
 
   const offre = {
     '@context': 'https://schema.org/',
@@ -525,6 +529,7 @@ ${BLOC_CONSENTEMENT}
   <div class="societe">${tuileSociete}<span>${echapper(nomSociete)}${ville ? ' · ' + echapper(ville) : ''}</span></div>
   <div class="pastilles">${pastilles.join('')}</div>
   ${corps || '<p>Description non disponible.</p>'}
+  ${original}
   <div class="pied">
     Offre publiée sur <a href="${SITE_URL}/">Claim!</a>.
     ${logoParHunter ? `Logo : <a href="https://hunter.io" rel="noopener" target="_blank">Hunter.io</a>.` : ''}

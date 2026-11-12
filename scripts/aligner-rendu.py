@@ -58,6 +58,17 @@ corps = corps[:fin_handler].rstrip() + "\n"
 # ── 2. Les elements partages, repris tels quels ───────────────────────────
 constantes = src[src.find("const LABELS_CONTRAT"):m.start()].rstrip() + "\n"
 
+# Le require() CJS de _offre-normalise.js devient un import ESM dans le Worker.
+# Toute autre forme de require est refusée pour ne pas laisser passer un module
+# incompatible avec le bundler ESM de Cloudflare.
+_REQUIRE_NORMALISE = "const { construireCorps, texteOriginal } = require('../src/pages/_offre-normalise.js');"
+if _REQUIRE_NORMALISE in constantes:
+    constantes = constantes.replace(_REQUIRE_NORMALISE, "").strip() + "\n"
+if "require(" in constantes:
+    import sys as _sys
+    print("  ✗ require() résiduel dans les constantes — refusé pour la compatibilité ESM")
+    _sys.exit(1)
+
 # BLOC_CONSENTEMENT est defini DANS la fonction de construction dans
 # l'original : il est donc deja dans `corps`, et ne doit pas etre ajoute
 # une seconde fois.
@@ -102,6 +113,7 @@ export function configurerUrls(apiBase, siteUrl) {
 // n'y a pas de copie — une copie divergerait en silence, comme l'a fait
 // celle qui precedait ce portage.
 import ANNUAIRE_CJS from '../../assets/companies-data.js';
+import { construireCorps, texteOriginal } from './_offre-normalise.js';
 const ANNUAIRE = ANNUAIRE_CJS;
 
 """
