@@ -35,6 +35,7 @@ export function configurerUrls(apiBase, siteUrl) {
 // n'y a pas de copie — une copie divergerait en silence, comme l'a fait
 // celle qui precedait ce portage.
 import ANNUAIRE_CJS from '../../assets/companies-data.js';
+import { construireCorps, texteOriginal } from './_offre-normalise.js';
 const ANNUAIRE = ANNUAIRE_CJS;
 
 const LABELS_CONTRAT = {

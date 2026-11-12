@@ -91,12 +91,20 @@ test('le routage international converge vers une seule source', async (t) => {
     assert.equal(r.headers.get('location'), `${SOURCE}/?utm_source=x`);
   });
 
-  await t.test('les fichiers techniques du .com rejoignent /fr', async () => {
-    for (const chemin of ['/robots.txt', '/sitemap.xml']) {
-      const r = await appeler(`https://claimyourjob.com${chemin}`);
-      assert.equal(r.status, 301, `${chemin} ne redirige pas`);
-      assert.equal(r.headers.get('location'), `${SOURCE}${chemin}`);
-    }
+  await t.test('robots.txt reste servi 200 à la racine, le sitemap rejoint /fr', async () => {
+    // Depuis 38cf551, seul robots.txt est exempté de la redirection : Google ne
+    // le demande qu'à la racine, et un robots.txt en 3xx vaut 404 pour lui.
+    const robots = await appeler('https://claimyourjob.com/robots.txt');
+    assert.equal(robots.status, 200,
+      'robots.txt doit être servi 200 à la racine (3xx = 404 pour Google)');
+    assert.match(await robots.text(), /Sitemap:/,
+      'robots.txt doit annoncer le sitemap de la source');
+
+    // Le sitemap, lui, reste canonique sous /fr : à la racine du .com il
+    // redirige (301) en un seul saut vers la source.
+    const sitemap = await appeler('https://claimyourjob.com/sitemap.xml');
+    assert.equal(sitemap.status, 301, 'sitemap.xml à la racine doit rediriger');
+    assert.equal(sitemap.headers.get('location'), `${SOURCE}/sitemap.xml`);
   });
 
   await t.test('un ancien lien du .com rejoint /fr, en un seul saut', async () => {
