@@ -48,3 +48,20 @@ test('un bloc dupliqué ne produit pas deux affectations visibles', () => {
   });
   assert.equal(html.match(/Texte unique/g).length, 1);
 });
+
+test('corpsNormalise ignore les titres internes : une seule rubrique h2 par section', () => {
+  const normalized = {
+    status: 'ready',
+    blocks: [
+      { id: 'b001', kind: 'heading', inlines: [{ text: 'Vos missions' }] },
+      { id: 'b002', kind: 'paragraph', inlines: [{ text: 'Mission exacte' }] },
+    ],
+    sections: [{ key: 'missions', block_ids: ['b001', 'b002'] }],
+  };
+  const html = corpsNormalise(normalized);
+  const titres = html.match(/<h2>/g) || [];
+  assert.equal(titres.length, 1, 'une seule rubrique h2 attendue');
+  assert.match(html, /<h2>Vos missions<\/h2>/);
+  assert.doesNotMatch(html, /<h2>Vos missions<\/h2>.*<h2>/s);
+  assert.match(html, /Mission exacte/);
+});

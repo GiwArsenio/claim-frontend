@@ -56,10 +56,14 @@ export function corpsNormalise(normalized) {
   const sections = normalized.sections
     .filter((s) => s && labels.has(s.key) && Array.isArray(s.block_ids))
     .map((s) => {
+      // Les titres internes de la source ne sont pas rendus : la rubrique porte
+      // déjà son libellé canonique en <h2>. Les rendre doublerait le titre.
+      // Le texte reste dans l'artefact et dans le texte original.
       const blocs = s.block_ids.map((id) => {
         if (seen.has(id)) return null;
         seen.add(id);
-        return blocksById.get(id);
+        const bloc = blocksById.get(id);
+        return bloc && bloc.kind !== 'heading' ? bloc : null;
       }).filter(Boolean);
       if (!blocs.length) return '';
       return `<section class="section section-${echapper(s.key)}"><h2>${echapper(labels.get(s.key))}</h2>${blocs.map(renduBloc).join('')}</section>`;
