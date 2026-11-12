@@ -317,6 +317,11 @@ verifier("aucune route orpheline dans le client", () => {
     routes.add(m[1]);
   }
   // Les routes connues de l'API (déclarées dans claim-api/api/routers/monitoring.py)
+  // Liste des préfixes exposés par claim-api (api/routers/monitoring.py).
+  // Elle doit suivre l'API : une route ajoutée côté serveur et appelée par le
+  // client fait échouer ce contrôle tant qu'elle n'est pas déclarée ici, ce qui
+  // est le but — mais l'oubli se corrige en ajoutant le préfixe, pas en
+  // supprimant le contrôle.
   const routesAPI = new Set([
     '/session', '/overview', '/sources', '/alerts', '/quality',
     '/classification', '/cron', '/indexation', '/analytics', '/operations',
@@ -324,8 +329,17 @@ verifier("aucune route orpheline dans le client", () => {
     '/classification/decomposition', '/limit-cases',
     // Lot 4 : revue humaine des rapprochements.
     '/rapprochements',
+    // Bouton « Accepter la redondance » : POST /redondances/{paire}/accepter.
+    '/redondances',
+    // Routes de suivi exposées par le relais.
+    '/runs', '/usage',
   ]);
   for (const route of routes) {
+    // `appeler()` préfixe déjà par API = '/monitoring/api'. Une route écrite
+    // avec '/monitoring/...' produirait '/monitoring/api/monitoring/...' et
+    // un chemin doublé côté API : on le signale explicitement.
+    assert.ok(!route.startsWith('/monitoring/'),
+      `chemin doublé : ${route} — appeler() ajoute déjà /monitoring/api`);
     // Les routes avec paramètres (ex: /alerts/${cle}/ack) sont vérifiées
     // par leur préfixe.
     const prefixe = route.split('/')[1];

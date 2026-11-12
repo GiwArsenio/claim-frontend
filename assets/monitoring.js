@@ -328,7 +328,7 @@
     if (!window.confirm(`Accepter la redondance ${paire} ?\n\nCette paire ne sera plus signalée. La décision reste lisible et peut être révoquée.`)) return;
     bouton.disabled = true;
     try {
-      await appeler(`/monitoring/redondances/${encodeURIComponent(paire)}/accepter`, {
+      await appeler(`/redondances/${encodeURIComponent(paire)}/accepter`, {
         method: 'POST', body: JSON.stringify({ motif: 'Acceptée depuis le dashboard.' })
       });
       await rafraichirApercu();
