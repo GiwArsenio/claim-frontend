@@ -21,6 +21,17 @@ function echapper(valeur) {
   }[c]));
 }
 
+// Compare deux titres sans tenir compte de la casse, des accents ni de la
+// ponctuation : « Votre PROFIL recherché » et « Profil recherché » sont le même.
+function normaliserTitre(texte) {
+  return String(texte == null ? '' : texte)
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+}
+
 function texteDeBloc(bloc) {
   if (typeof bloc.text === 'string') return bloc.text;
   if (Array.isArray(bloc.inlines)) return bloc.inlines.map((i) => i && i.text || '').join('');
@@ -56,14 +67,18 @@ export function corpsNormalise(normalized) {
   const sections = normalized.sections
     .filter((s) => s && labels.has(s.key) && Array.isArray(s.block_ids))
     .map((s) => {
-      // Les titres internes de la source ne sont pas rendus : la rubrique porte
-      // déjà son libellé canonique en <h2>. Les rendre doublerait le titre.
-      // Le texte reste dans l'artefact et dans le texte original.
+      // Les titres de la source sont rendus : ils portent du contenu réel
+      // (« Vos missions principales seront », « Le profil recherché »). Seul un
+      // titre identique au libellé de la rubrique est sauté, pour ne pas
+      // afficher deux fois « Vos missions ».
+      const libelle = normaliserTitre(labels.get(s.key));
       const blocs = s.block_ids.map((id) => {
         if (seen.has(id)) return null;
         seen.add(id);
         const bloc = blocksById.get(id);
-        return bloc && bloc.kind !== 'heading' ? bloc : null;
+        if (!bloc) return null;
+        if (bloc.kind === 'heading' && normaliserTitre(texteDeBloc(bloc)) === libelle) return null;
+        return bloc;
       }).filter(Boolean);
       if (!blocs.length) return '';
       return `<section class="section section-${echapper(s.key)}"><h2>${echapper(labels.get(s.key))}</h2>${blocs.map(renduBloc).join('')}</section>`;
