@@ -49,19 +49,47 @@ test('un bloc dupliqué ne produit pas deux affectations visibles', () => {
   assert.equal(html.match(/Texte unique/g).length, 1);
 });
 
-test('corpsNormalise ignore les titres internes : une seule rubrique h2 par section', () => {
+test('corpsNormalise garde un titre qui porte du contenu (aucune perte)', () => {
   const normalized = {
     status: 'ready',
     blocks: [
-      { id: 'b001', kind: 'heading', inlines: [{ text: 'Vos missions' }] },
-      { id: 'b002', kind: 'paragraph', inlines: [{ text: 'Mission exacte' }] },
+      { id: 'b001', kind: 'heading', inlines: [{ text: 'Vos missions principales seront' }] },
+      { id: 'b002', kind: 'paragraph', inlines: [{ text: 'Encadrer les equipes' }] },
     ],
     sections: [{ key: 'missions', block_ids: ['b001', 'b002'] }],
   };
   const html = corpsNormalise(normalized);
+  assert.match(html, /Vos missions principales seront/,
+    'un titre porteur de contenu doit rester visible');
+  assert.match(html, /Encadrer les equipes/);
+});
+
+test('corpsNormalise ne double pas un titre identique au libelle de rubrique', () => {
+  const normalized = {
+    status: 'ready',
+    blocks: [
+      { id: 'b001', kind: 'heading', inlines: [{ text: 'Vos missions' }] },
+      { id: 'b002', kind: 'paragraph', inlines: [{ text: 'Encadrer les equipes' }] },
+    ],
+    sections: [{ key: 'missions', block_ids: ['b001', 'b002'] }],
+  };
+  const html = corpsNormalise(normalized);
+  const titres = html.match(/<h2>Vos missions<\/h2>/g) || [];
+  assert.equal(titres.length, 1, 'le libelle ne doit apparaitre qu une fois');
+  assert.match(html, /Encadrer les equipes/);
+});
+
+test('corpsNormalise reconnait un titre egal au libelle malgre casse et accents', () => {
+  const normalized = {
+    status: 'ready',
+    blocks: [
+      { id: 'b001', kind: 'heading', inlines: [{ text: 'PROFIL RECHERCHÉ' }] },
+      { id: 'b002', kind: 'paragraph', inlines: [{ text: 'Actuaire confirme' }] },
+    ],
+    sections: [{ key: 'profile', block_ids: ['b001', 'b002'] }],
+  };
+  const html = corpsNormalise(normalized);
   const titres = html.match(/<h2>/g) || [];
-  assert.equal(titres.length, 1, 'une seule rubrique h2 attendue');
-  assert.match(html, /<h2>Vos missions<\/h2>/);
-  assert.doesNotMatch(html, /<h2>Vos missions<\/h2>.*<h2>/s);
-  assert.match(html, /Mission exacte/);
+  assert.equal(titres.length, 1, 'un seul h2 attendu');
+  assert.match(html, /Actuaire confirme/);
 });
