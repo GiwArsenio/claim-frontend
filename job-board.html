@@ -1485,7 +1485,11 @@ let detailCache   = {};
 // Les fiches de test ne doivent jamais être publiées : dernier recours côté
 // client, le serveur les exclut déjà (source test_source, slug test-*).
 function estOffreDeTest(j) {
-  return !!j && (j.source === 'test_source' || String(j.slug || '').startsWith('test-'));
+  // Les fixtures se reconnaissent à leur SOURCE, jamais à leur slug : un slug
+  // commencant par « test- » designe aussi de vrais metiers (« Test Lead
+  // Expert IA » chez AXA). Le serveur applique deja cette regle ; celle-ci ne
+  // sert plus qu'a bloquer l'affichage direct d'une fiche de test.
+  return !!j && String(j.source || '') === 'test_harness';
 }
 let KNOWN_SOURCES  = new Set(Object.values(COMPANY_QUERY_ALIASES));
 
@@ -1584,12 +1588,9 @@ async function fetchPage(page) {
   const r = await fetch(buildJobsUrl(page));
   if (!r.ok) throw new Error(`HTTP ${r.status}`);
   const d = await r.json();
-  if (Array.isArray(d.data)) {
-    const avant = d.data.length;
-    d.data = d.data.filter(j => !estOffreDeTest(j));
-    const retirees = avant - d.data.length;
-    if (retirees && d.pagination) d.pagination.total = Math.max(0, (d.pagination.total || avant) - retirees);
-  }
+  // Les fixtures sont ecartees par le serveur (UNPUBLISHED_SOURCES) : le total
+  // renvoye est deja celui du board. Soustraire ici ne voyait qu'une page, ce
+  // qui rendait le compteur dependant de la pagination.
   if (!d.pagination) d.pagination = { page, per_page: PAGE_SIZE, total: d.data?.length || 0, pages: 1 };
   return d;
 }
