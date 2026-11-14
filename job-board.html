@@ -1843,7 +1843,13 @@ function experienceLabel(j) {
 // Compétences citées dans l'offre, détectées dans le texte par l'API.
 // Ce ne sont pas des valeurs de curation : Jev ne les produit pas. L'intitulé
 // du bloc doit donc rester prudent.
-const SKILLS_FAMILIES = { outils: 'Outils', reglementation: 'Réglementation' };
+const SKILLS_FAMILIES = {
+  outils: 'Outils',
+  data: 'Données et BI',
+  methodes: 'Méthodes et IA',
+  actuariat: 'Logiciels actuariels',
+  reglementation: 'Réglementation',
+};
 
 function skillLabels(j) {
   const s = j.skills || {};
