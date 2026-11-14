@@ -64,6 +64,12 @@ constantes = src[src.find("const LABELS_CONTRAT"):m.start()].rstrip() + "\n"
 _REQUIRE_NORMALISE = "const { construireCorps, texteOriginal } = require('../src/pages/_offre-normalise.js');"
 if _REQUIRE_NORMALISE in constantes:
     constantes = constantes.replace(_REQUIRE_NORMALISE, "").strip() + "\n"
+
+# Meme traitement pour la table des familles de competences : module partage
+# avec le board, importe en ESM dans le Worker.
+_REQUIRE_FAMILLES = "const { SKILLS_FAMILIES } = require('../src/pages/_competences-familles.js');"
+if _REQUIRE_FAMILLES in constantes:
+    constantes = constantes.replace(_REQUIRE_FAMILLES, "").strip() + "\n"
 if "require(" in constantes:
     import sys as _sys
     print("  ✗ require() résiduel dans les constantes — refusé pour la compatibilité ESM")
@@ -114,6 +120,7 @@ export function configurerUrls(apiBase, siteUrl) {
 // celle qui precedait ce portage.
 import ANNUAIRE_CJS from '../../assets/companies-data.js';
 import { construireCorps, texteOriginal } from './_offre-normalise.js';
+import { SKILLS_FAMILIES } from './_competences-familles.js';
 const ANNUAIRE = ANNUAIRE_CJS;
 
 """

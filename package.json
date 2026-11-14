@@ -21,7 +21,9 @@
     "deploy:check": "bash scripts/prepare-assets.sh && wrangler deploy --dry-run",
     "test:statique": "node tools/run-tests.cjs --famille=statique",
     "test:navigateur": "node tools/run-tests.cjs --famille=navigateur",
-    "test:production": "node tools/run-tests.cjs --live"
+    "test:production": "node tools/run-tests.cjs --live",
+    "aligner:familles": "python3 scripts/aligner-familles.py",
+    "aligner:familles:verifier": "python3 scripts/aligner-familles.py --verifier"
   },
   "repository": {
     "type": "git",

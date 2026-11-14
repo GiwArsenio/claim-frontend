@@ -1843,6 +1843,7 @@ function experienceLabel(j) {
 // Compétences citées dans l'offre, détectées dans le texte par l'API.
 // Ce ne sont pas des valeurs de curation : Jev ne les produit pas. L'intitulé
 // du bloc doit donc rester prudent.
+/* DEBUT FAMILLES GENEREES — source : src/pages/_competences-familles.js */
 const SKILLS_FAMILIES = {
   outils: 'Outils',
   data: 'Données et BI',
@@ -1850,6 +1851,7 @@ const SKILLS_FAMILIES = {
   actuariat: 'Logiciels actuariels',
   reglementation: 'Réglementation',
 };
+/* FIN FAMILLES GENEREES */
 
 function skillLabels(j) {
   const s = j.skills || {};

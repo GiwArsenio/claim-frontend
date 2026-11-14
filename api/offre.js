@@ -35,26 +35,21 @@ const TYPES_EMPLOI = {
 };
 
 // Familles de compétences détectées à la lecture (voir config/skills.yaml côté
-// API). Le board porte la même table : les deux doivent rester alignées.
-const SKILLS_FAMILLES = {
-  outils: 'Outils',
-  data: 'Données et BI',
-  methodes: 'Méthodes et IA',
-  actuariat: 'Logiciels actuariels',
-  reglementation: 'Réglementation',
-};
+// API). Source unique : src/pages/_competences-familles.js. Le board reçoit la
+// même table par scripts/aligner-familles.py.
+const { SKILLS_FAMILIES } = require('../src/pages/_competences-familles.js');
 
 // Bloc « compétences citées », groupé par famille. Vide si l'offre n'en cite
 // aucune : la page ne doit pas afficher de section creuse.
 function blocCompetences(job) {
   const skills = job && job.skills && typeof job.skills === 'object' ? job.skills : {};
-  const familles = Object.keys(SKILLS_FAMILLES).filter(
+  const familles = Object.keys(SKILLS_FAMILIES).filter(
     (f) => Array.isArray(skills[f]) && skills[f].length
   );
   if (!familles.length) return '';
   const blocs = familles
     .map(
-      (f) => `<div class="comp-famille"><span class="comp-libelle">${echapper(SKILLS_FAMILLES[f])}</span>` +
+      (f) => `<div class="comp-famille"><span class="comp-libelle">${echapper(SKILLS_FAMILIES[f])}</span>` +
         `<div class="comp-liste">${skills[f].map((label) => `<span class="comp-tag">${echapper(label)}</span>`).join('')}</div></div>`
     )
     .join('');
