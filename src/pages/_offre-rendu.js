@@ -49,6 +49,34 @@ const TYPES_EMPLOI = {
   alternance: 'OTHER', freelance: 'CONTRACTOR', interim: 'TEMPORARY', vie: 'OTHER',
 };
 
+// Familles de compétences détectées à la lecture (voir config/skills.yaml côté
+// API). Le board porte la même table : les deux doivent rester alignées.
+const SKILLS_FAMILLES = {
+  outils: 'Outils',
+  data: 'Données et BI',
+  methodes: 'Méthodes et IA',
+  actuariat: 'Logiciels actuariels',
+  reglementation: 'Réglementation',
+};
+
+// Bloc « compétences citées », groupé par famille. Vide si l'offre n'en cite
+// aucune : la page ne doit pas afficher de section creuse.
+function blocCompetences(job) {
+  const skills = job && job.skills && typeof job.skills === 'object' ? job.skills : {};
+  const familles = Object.keys(SKILLS_FAMILLES).filter(
+    (f) => Array.isArray(skills[f]) && skills[f].length
+  );
+  if (!familles.length) return '';
+  const blocs = familles
+    .map(
+      (f) => `<div class="comp-famille"><span class="comp-libelle">${echapper(SKILLS_FAMILLES[f])}</span>` +
+        `<div class="comp-liste">${skills[f].map((label) => `<span class="comp-tag">${echapper(label)}</span>`).join('')}</div></div>`
+    )
+    .join('');
+  return `<section class="competences"><h2>Compétences citées</h2>${blocs}
+    <p class="comp-note">Repérées dans le texte de l'offre. Ce ne sont pas des valeurs validées par la curation.</p></section>`;
+}
+
 const LABELS_SPECIALITE = {
   actuariat: 'Actuariat', ia_data: 'IA / Data',
   souscription_technique: 'Souscription technique', autre: 'Autre',
@@ -162,6 +190,7 @@ export async function construire(job, urlCanonique) {
   }
 
   corps = construireCorps(job, corps);
+  const competences = blocCompetences(job);
   const original = texteOriginal(job.original);
 
   const offre = {
@@ -347,6 +376,13 @@ ${societe.logo_url
  html[data-theme="nuit"] .slogo.fond-logo.logo-inversable img { filter: invert(1) hue-rotate(180deg); }
  .pastilles { display:flex; flex-wrap:wrap; gap:.4rem; margin-bottom:1.6rem; }
 /* Pastilles : chaque badge tient sur sa ligne, sans jamais déborder. */
+ .competences { margin:1.8rem 0 1.4rem; }
+ .competences h2 { font-size:1rem; margin:0 0 .6rem; }
+ .comp-famille { display:flex; flex-wrap:wrap; gap:.5rem .8rem; align-items:baseline; margin:0 0 .4rem; }
+ .comp-libelle { font-size:.7rem; text-transform:uppercase; letter-spacing:.05em; color:var(--gris); min-width:9.5rem; }
+ .comp-liste { display:flex; flex-wrap:wrap; gap:.35rem; }
+ .comp-tag { display:inline-block; padding:2px 9px; border:1px solid var(--bord-carte); border-radius:9999px; background:var(--surface-2); font-size:.76rem; font-weight:600; color:var(--encre-forte); }
+ .comp-note { font-size:.75rem; color:var(--gris); margin:.7rem 0 0; }
  .pastille { display:inline-block !important; width:fit-content; max-width:100%; padding:3px 10px; border:1px solid var(--bord-carte); border-radius:9999px; background:var(--surface-2); font-size:.78rem; font-weight:600; color:var(--encre-forte); overflow-wrap:anywhere; white-space:normal; line-height:1.4; }
  .pastille-ville { background:var(--teal-clair); border-color:var(--teal-bord); color:var(--teal-texte); }
  .pastille-salaire { background:var(--vert-clair); border-color:var(--vert-bord); color:var(--vert-texte); }
@@ -529,6 +565,7 @@ ${BLOC_CONSENTEMENT}
   <div class="societe">${tuileSociete}<span>${echapper(nomSociete)}${ville ? ' · ' + echapper(ville) : ''}</span></div>
   <div class="pastilles">${pastilles.join('')}</div>
   ${corps || '<p>Description non disponible.</p>'}
+  ${competences}
   ${original}
   <div class="pied">
     Offre publiée sur <a href="${SITE_URL}/">Claim!</a>.
