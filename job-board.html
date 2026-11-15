@@ -158,6 +158,19 @@ html[data-theme="nuit"] select.chip {
   --fleche-pastille: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b9aa0' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
 }
 
+/* ── FILTRES : bouton et panneau, pour le telephone ──
+   Sur bureau, les cinq filtres tiennent sur une ligne : la rangee de
+   pastilles reste, et chaque changement s'applique aussitot. Sous 768 px,
+   la rangee debordait a droite : les derniers filtres existaient sans
+   qu'on les voie. Le bouton et le panneau ci-dessous ne servent que la ;
+   les regles de bureau les masquent, et le HTML reste unique — deux jeux
+   de contrôles auraient fini par diverger. */
+.btn-filtres, .fp-tete, .fp-actions, .voile-filtres { display: none; }
+.badge-filtres { min-width: 1.15rem; padding: 0 .3rem; border-radius: 999px;
+  background: var(--teal); color: #fff; font-size: .7rem; font-weight: 700;
+  line-height: 1.15rem; text-align: center; }
+.badge-filtres[hidden] { display: none; }
+
 /* ── SPLIT PANE ── */
 #split { display: flex; overflow: hidden; height: 100%; min-height: 0; }
 
@@ -392,6 +405,14 @@ a.ctitle:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; bo
 /* Corps : même échelle et mêmes espacements que la page d'offre. */
 .ds { margin-bottom: 1.25rem; }
 .ds h3, .desc-source h3, .desc-source h4, .desc-source h5, .desc-source h6 { font-size: .98rem; font-weight: 700; color: var(--encre); margin: 1.2rem 0 .4rem; }
+/* Les annonces AXA, Generali et d'autres portent leurs sections en <h2>,
+   ecrites en capitales par la redaction. Sans regle, le navigateur les
+   rendait a 1.5em — plus gros que le titre de l'offre, et sur deux lignes
+   en telephone. Elles prennent la taille d'une section, pas d'un titre
+   de page. La casse de la source n'est pas retouchee : « ALM », « H/F »
+   et « R&D » doivent rester lisibles. */
+.ds h2, .desc-source h2 { font-size: 1.06rem; font-weight: 700; color: var(--encre);
+  line-height: 1.35; letter-spacing: -.01em; margin: 1.2rem 0 .4rem; }
 .ds h3 { display: flex; align-items: center; gap: .35rem; }
 .ds p, .desc-source p, .mi { margin: 0 0 .7rem; color: var(--gris-texte); }
 .desc-source ul, .desc-source ol, .pb ul { margin: 0 0 .9rem; padding-left: 1.3rem; color: var(--gris-texte); }
@@ -658,14 +679,22 @@ html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1)
      Elles etaient masquees sous 768 px : le telephone perdait le titre
      et la promesse, et la page commencait par une barre de recherche
      sans dire ce qu'elle cherche. */
-  #hero { padding: 1.2rem 1rem .7rem; max-height: 320px; text-align: center; }
+  /* Hero compact : le titre et la promesse restent, comme en bureau — les
+     masquer avait prive le telephone de ce que la page cherche. Mais le
+     bloc mangeait un tiers de la fenetre avant la premiere offre. Les
+     marges internes et l'echelle du titre se resserrent : la premiere
+     carte remonte, le texte reste lisible. */
+  #hero { padding: .75rem 1rem .45rem; max-height: 320px; text-align: center; }
   /* line-height: le titre se coupe sur deux lignes en telephone. A 1,15
      — la valeur du bureau, ou il tient sur une ligne — les deux lignes
-     se touchent. 1,32 leur donne de l'air sans ecarter le bloc. */
-  #hero h1 { display: block; font-size: 1.1rem; line-height: 1.32;
-             text-align: center; margin-bottom: .5rem; }
-  #hero .sub { display: block; font-size: .85rem; line-height: 1.5;
-               text-align: center; margin-bottom: .7rem; }
+     se touchent. 1,32 leur donnait de l'air, mais le bloc entier pesait
+     sur la premiere offre : 1,22 tient les deux lignes distinctes sans
+     rallonger le bandeau. */
+  #hero h1 { display: block; font-size: 1rem; line-height: 1.22;
+             letter-spacing: -.015em;
+             text-align: center; margin-bottom: .25rem; }
+  #hero .sub { display: block; font-size: .78rem; line-height: 1.34;
+               text-align: center; margin-bottom: .5rem; }
   /* Barre de recherche : 2 lignes sur mobile */
   .sbar {
     flex-direction: column;
@@ -685,8 +714,90 @@ html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1)
     width: calc(100% - .2rem);
     text-align: center;
   }
-  .chips { gap: .3rem; }
-  .chip { font-size: 0.825rem; padding: .28rem .7rem; }
+  /* ── FILTRES : un bouton, un panneau ──
+     La rangee defilante coupait le troisieme filtre sans rien dire : un
+     candidat pouvait croire qu'il n'existait que deux filtres. Le bouton
+     annonce combien sont actifs, le panneau les montre tous.
+
+     Ferme, le panneau est en display:none : il sort aussi de l'ordre de
+     tabulation, un select invisible n'est jamais atteint par Tab. */
+  .btn-filtres { display: inline-flex; align-items: center; gap: .35rem;
+    margin: 0 auto; padding: .45rem .95rem; min-height: 44px;
+    border-radius: .5rem; border: 1px solid var(--bord-carte);
+    background: var(--surface); color: var(--encre);
+    font: inherit; font-size: .88rem; font-weight: 600; cursor: pointer; }
+  .btn-filtres .ms { font-size: 18px; color: var(--teal); }
+  .btn-filtres[aria-expanded="true"] { border-color: var(--teal); background: var(--teal-clair); }
+
+  .chips { display: none; }
+
+  /* Le panneau est en position fixe : il ne depend pas du defilement de
+     la liste, qu'il recouvre. Le hero garde overflow:hidden (il sert a
+     replier le bandeau) : on l'ouvre le temps du panneau, sinon un
+     descendant fixe serait rogne par la boite du bandeau. */
+  body.filtres-ouverts #hero { overflow: visible; }
+  /* Sur ce board, le document ne defile pas : c'est la colonne des offres
+     qui defile. Bloquer le body n'aurait rien fait — on fige la liste. */
+  body.filtres-ouverts .pl { overflow: hidden; }
+
+  .chips.ouvert {
+    display: flex; flex-direction: column; align-items: stretch;
+    gap: .5rem; overflow-x: visible;
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 960;
+    max-height: 88vh; overflow-y: auto;
+    padding: 1rem 1rem calc(1rem + env(safe-area-inset-bottom, 0px));
+    background: var(--surface);
+    border-top: 1px solid var(--bord-carte);
+    border-radius: 1rem 1rem 0 0;
+    box-shadow: 0 -18px 50px rgba(9, 26, 33, .28);
+  }
+  /* Chaque filtre prend la largeur : la fleche reste a droite, et la
+     cible fait la hauteur d'un doigt. */
+  .chips.ouvert .chip { width: 100%; justify-content: space-between;
+    min-height: 44px; font-size: .925rem; padding: .5rem .85rem; }
+  /* Le bouton Reinitialiser de la rangee n'a plus lieu d'etre : le panneau
+     porte le sien. Deux boutons au meme nom, a deux endroits, se
+     contrediraient sur celui qui remet quoi a zero. */
+  .chips > button.chip { display: none; }
+
+  .fp-tete { display: flex; align-items: center; justify-content: space-between;
+    gap: .75rem; margin-bottom: .15rem; }
+  .fp-tete h2 { font-size: 1rem; font-weight: 800; color: var(--encre); margin: 0; }
+  .fp-fermer { width: 44px; height: 44px; display: grid; place-items: center;
+    background: transparent; border: 0; border-radius: .375rem;
+    color: var(--gris); cursor: pointer; }
+  .fp-fermer:hover, .fp-fermer:focus-visible { background: var(--surface-survol); color: var(--encre); }
+
+  .fp-actions { display: flex; gap: .5rem; margin-top: .35rem; }
+  .fp-actions > button { flex: 1; min-height: 44px; border-radius: .5rem;
+    font: inherit; font-size: .92rem; font-weight: 700; cursor: pointer; }
+  .fp-reinit { background: var(--surface); border: 1px solid var(--bord-carte); color: var(--encre); }
+  .fp-appliquer { background: var(--teal); border: 1px solid var(--teal); color: #fff; }
+
+  .voile-filtres { display: block; position: fixed; inset: 0; z-index: 950;
+    background: rgba(9, 26, 33, .45); }
+  .voile-filtres[hidden] { display: none; }
+
+  /* ── CARTES : le titre sur deux lignes ──
+     Une seule ligne coupait « Stage - Actuaire / Analyste ALM & Allocation
+     Strategique d'Actifs (H/F) » avant le mot qui distingue l'offre. Deux
+     lignes suffisent a lire le poste ; au-dela, l'ellipse reprend. Le texte
+     complet reste dans le lien : un lecteur d'ecran l'annonce entier, et
+     rien n'est tronque en JavaScript. */
+  a.ctitle {
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+    line-height: 1.25;
+  }
+
+  /* Le favori garde son icone de 17 px, sa cible grandit : 32 px est plus
+     petit qu'un doigt, et le geste rate a cote. */
+  .bel { width: 44px; height: 44px; }
 
   /* Split : les deux colonnes prennent 100% de largeur,
      positionnées côte à côte en dehors du viewport */
@@ -1182,14 +1293,32 @@ a.ctitle:focus-visible, button.ctitle:focus-visible { outline: 2px solid var(--t
       </div>
       <button class="btn-srch" onclick="applySearch()">Rechercher</button>
     </div>
-    <div class="chips">
-      <select id="contract-filter" class="chip" aria-label="Type de contrat" onchange="applyFilters()"><option value="">Type de contrat</option><option value="cdi">CDI</option><option value="cdd">CDD</option><option value="alternance">Alternance</option><option value="stage">Stage</option><option value="vie">V.I.E</option><option value="freelance">Freelance</option></select>
-      <select id="specialty-filter" class="chip" aria-label="Spécialité" onchange="applyFilters()"><option value="">Spécialité</option><option value="actuariat">Actuariat</option><option value="souscription_technique">Souscription technique</option><option value="ia_data">IA / Data</option></select>
-      <select id="experience-filter" class="chip" aria-label="Expérience" onchange="applyFilters()"><option value="">Expérience</option><option value="junior">Junior</option><option value="confirmed">Confirmé</option><option value="senior">Senior</option><option value="lead">Lead</option></select>
-      <select id="date-filter" class="chip" aria-label="Date de publication" onchange="applyFilters()"><option value="">Date de publication</option><option value="1">Moins de 24 h</option><option value="7">7 derniers jours</option><option value="14">14 derniers jours</option></select>
-      <select id="ats-filter" class="chip" aria-label="Source ATS" onchange="applyFilters()"><option value="">Source ATS</option><option value="workday">Workday</option><option value="smartrecruiters">SmartRecruiters</option><option value="talentsoft">TalentSoft</option><option value="custom">Custom</option><option value="magnet">Magnet</option><option value="greenhouse">Greenhouse</option><option value="ashby">Ashby</option><option value="successfactors">SuccessFactors</option><option value="radancy">Radancy</option><option value="groupama">Groupama</option><option value="oracle_hcm">Oracle HCM</option></select>
+    <button class="btn-filtres" id="btn-filtres" type="button"
+            aria-haspopup="dialog" aria-controls="filtres-panneau" aria-expanded="false"
+            onclick="ouvrirFiltres()">
+      <span class="ms" aria-hidden="true">tune</span>
+      Filtres
+      <span class="badge-filtres" id="badge-filtres" hidden aria-hidden="true">0</span>
+    </button>
+    <div class="voile-filtres" id="voile-filtres" hidden onclick="fermerFiltres(true)"></div>
+    <div class="chips" id="filtres-panneau" role="group" aria-label="Filtres de recherche">
+      <div class="fp-tete">
+        <h2 id="fp-titre">Filtres</h2>
+        <button class="fp-fermer" type="button" onclick="fermerFiltres(true)"
+                aria-label="Fermer les filtres">
+          <span class="ms" aria-hidden="true">close</span>
+        </button>
+      </div>
+      <select id="contract-filter" class="chip" aria-label="Type de contrat" onchange="surChangementFiltre()"><option value="">Type de contrat</option><option value="cdi">CDI</option><option value="cdd">CDD</option><option value="alternance">Alternance</option><option value="stage">Stage</option><option value="vie">V.I.E</option><option value="freelance">Freelance</option></select>
+      <select id="specialty-filter" class="chip" aria-label="Spécialité" onchange="surChangementFiltre()"><option value="">Spécialité</option><option value="actuariat">Actuariat</option><option value="souscription_technique">Souscription technique</option><option value="ia_data">IA / Data</option></select>
+      <select id="experience-filter" class="chip" aria-label="Expérience" onchange="surChangementFiltre()"><option value="">Expérience</option><option value="junior">Junior</option><option value="confirmed">Confirmé</option><option value="senior">Senior</option><option value="lead">Lead</option></select>
+      <select id="date-filter" class="chip" aria-label="Date de publication" onchange="surChangementFiltre()"><option value="">Date de publication</option><option value="1">Moins de 24 h</option><option value="7">7 derniers jours</option><option value="14">14 derniers jours</option></select>
+      <select id="ats-filter" class="chip" aria-label="Source ATS" onchange="surChangementFiltre()"><option value="">Source ATS</option><option value="workday">Workday</option><option value="smartrecruiters">SmartRecruiters</option><option value="talentsoft">TalentSoft</option><option value="custom">Custom</option><option value="magnet">Magnet</option><option value="greenhouse">Greenhouse</option><option value="ashby">Ashby</option><option value="successfactors">SuccessFactors</option><option value="radancy">Radancy</option><option value="groupama">Groupama</option><option value="oracle_hcm">Oracle HCM</option></select>
       <button class="chip" onclick="resetFilters()"><span class="ms" style="font-size:13px;">restart_alt</span>Réinitialiser</button>
-      
+      <div class="fp-actions">
+        <button class="fp-reinit" type="button" onclick="reinitialiserFiltresPanneau()">Réinitialiser</button>
+        <button class="fp-appliquer" type="button" onclick="appliquerFiltresPanneau()">Afficher les offres</button>
+      </div>
     </div>
   </div>
 
@@ -1609,8 +1738,180 @@ function resetFilters() {
   loadJobs(1);
 }
 
+// ── PANNEAU DE FILTRES (telephone) ────────────────────────────────────────
+// Les cinq filtres ne tenaient pas sur la largeur d'un telephone : la
+// rangee defilait, et les derniers existaient sans qu'on les voie. Le
+// panneau les montre tous.
+//
+// Un filtre choisi dans le panneau n'est pas applique avant « Afficher les
+// offres » : la liste ne doit pas bouger sous le doigt pendant qu'on
+// compose sa recherche. Sur bureau, rien ne change — chaque changement part
+// tout de suite, comme avant.
+const IDS_FILTRES = ['contract-filter', 'specialty-filter', 'experience-filter', 'ats-filter', 'date-filter'];
+
+let filtresAppliques = null;      // etat de reference : annuler y revient
+let panneauFiltresOuvert = false;
+let dernierFocusFiltres = null;
+
+function lireFiltres() {
+  const valeurs = {};
+  IDS_FILTRES.forEach((id) => {
+    const el = document.getElementById(id);
+    valeurs[id] = el ? el.value : '';
+  });
+  return valeurs;
+}
+
+function ecrireFiltres(valeurs) {
+  IDS_FILTRES.forEach((id) => {
+    const el = document.getElementById(id);
+    if (el && Object.prototype.hasOwnProperty.call(valeurs, id)) el.value = valeurs[id];
+  });
+}
+
+function nombreFiltresActifs() {
+  return IDS_FILTRES.filter((id) => {
+    const el = document.getElementById(id);
+    return !!(el && el.value);
+  }).length;
+}
+
+// Le compteur se lit sur les valeurs APPLIQUEES, pas sur le brouillon :
+// le bouton annonce ce que la liste fait, pas ce qu'on est en train de
+// composer derriere lui.
+function majBadgeFiltres() {
+  const badge = document.getElementById('badge-filtres');
+  const bouton = document.getElementById('btn-filtres');
+  if (!badge) return;
+  const n = nombreFiltresActifs();
+  badge.textContent = String(n);
+  badge.hidden = n === 0;
+  if (bouton) {
+    bouton.setAttribute('aria-label', n === 0
+      ? 'Filtres'
+      : `Filtres, ${n} filtre${n > 1 ? 's' : ''} actif${n > 1 ? 's' : ''}`);
+  }
+}
+
+function elementsFocusables(conteneur) {
+  if (!conteneur) return [];
+  return [...conteneur.querySelectorAll('select, button, a[href], input, [tabindex]:not([tabindex="-1"])')]
+    .filter((el) => !el.disabled && el.getClientRects().length > 0);
+}
+
+function ouvrirFiltres() {
+  const panneau = document.getElementById('filtres-panneau');
+  const voile = document.getElementById('voile-filtres');
+  const bouton = document.getElementById('btn-filtres');
+  if (!panneau || panneau.classList.contains('ouvert')) return;
+
+  // L'etat applique est fige a l'ouverture : « Fermer » y revient, meme si
+  // la liste a change entre-temps pour une autre raison.
+  filtresAppliques = lireFiltres();
+  panneau.classList.add('ouvert');
+  panneau.setAttribute('role', 'dialog');
+  panneau.setAttribute('aria-modal', 'true');
+  panneau.setAttribute('aria-labelledby', 'fp-titre');
+  if (voile) voile.hidden = false;
+  document.body.classList.add('filtres-ouverts');
+  if (bouton) bouton.setAttribute('aria-expanded', 'true');
+  panneauFiltresOuvert = true;
+  dernierFocusFiltres = document.activeElement;
+
+  // Le focus va au premier FILTRE : on ouvre le panneau pour choisir, pas
+  // pour le fermer. Le bouton de fermeture reste atteignable par Tab.
+  const premier = document.getElementById(IDS_FILTRES[0]) || elementsFocusables(panneau)[0];
+  if (premier) premier.focus();
+  document.addEventListener('keydown', surTouchePanneau);
+}
+
+function fermerFiltres(annuler) {
+  const panneau = document.getElementById('filtres-panneau');
+  const voile = document.getElementById('voile-filtres');
+  const bouton = document.getElementById('btn-filtres');
+  if (!panneau || !panneau.classList.contains('ouvert')) return;
+
+  if (annuler && filtresAppliques) ecrireFiltres(filtresAppliques);
+  panneau.classList.remove('ouvert');
+  panneau.removeAttribute('role');
+  panneau.removeAttribute('aria-modal');
+  panneau.removeAttribute('aria-labelledby');
+  if (voile) voile.hidden = true;
+  document.body.classList.remove('filtres-ouverts');
+  if (bouton) bouton.setAttribute('aria-expanded', 'false');
+  panneauFiltresOuvert = false;
+  document.removeEventListener('keydown', surTouchePanneau);
+  majBadgeFiltres();
+
+  // Le focus revient la ou il etait. Sans cela il reste dans un panneau
+  // qui n'existe plus : la tabulation suivante repart du debut du document.
+  const cible = (dernierFocusFiltres && document.contains(dernierFocusFiltres))
+    ? dernierFocusFiltres : bouton;
+  if (cible) cible.focus();
+  dernierFocusFiltres = null;
+}
+
+function appliquerFiltresPanneau() {
+  filtresAppliques = lireFiltres();
+  fermerFiltres(false);
+  applyFilters();
+}
+
+// Reinitialiser ne touche qu'aux cinq filtres du panneau. Les mots-cles et
+// la localisation ne sont pas des filtres : les vider ici changerait la
+// recherche en cours sans que personne l'ait demande.
+function reinitialiserFiltresPanneau() {
+  const vides = {};
+  IDS_FILTRES.forEach((id) => { vides[id] = ''; });
+  ecrireFiltres(vides);
+  majBadgeFiltres();
+  const premier = document.getElementById('contract-filter');
+  if (premier) premier.focus();
+}
+
+function surChangementFiltre() {
+  // Panneau ouvert : le choix attend la validation.
+  if (panneauFiltresOuvert) return;
+  majBadgeFiltres();
+  applyFilters();
+}
+
+function surTouchePanneau(e) {
+  if (!panneauFiltresOuvert) return;
+  if (e.key === 'Escape') {
+    e.preventDefault();
+    fermerFiltres(true);
+    return;
+  }
+  if (e.key !== 'Tab') return;
+  // Le focus ne sort pas du panneau tant qu'il est ouvert : derriere lui,
+  // la page est recouverte par le voile.
+  const panneau = document.getElementById('filtres-panneau');
+  const liste = elementsFocusables(panneau);
+  if (!liste.length) return;
+  const premier = liste[0];
+  const dernier = liste[liste.length - 1];
+  if (e.shiftKey && document.activeElement === premier) {
+    e.preventDefault();
+    dernier.focus();
+  } else if (!e.shiftKey && document.activeElement === dernier) {
+    e.preventDefault();
+    premier.focus();
+  }
+}
+
+// Repasser en bureau avec le panneau ouvert laisserait un dialog invisible,
+// un defilement bloque et le focus dans un element masque. On ferme en
+// annulant : le brouillon non valide ne s'applique pas.
+window.addEventListener('resize', () => {
+  if (!isMobile() && panneauFiltresOuvert) fermerFiltres(true);
+});
+
 // ── Chargement initial ─────────────────────────────────────────────────────
 async function loadJobs(forcedPage) {
+  // Le compteur du bouton suit l'etat applique, y compris quand il vient de
+  // l'adresse (rechargement, lien partage) ou d'une remise a zero.
+  majBadgeFiltres();
   feedEl.innerHTML = '<div style="padding:1.5rem;color:var(--gris-doux);font-size:.8rem;">Chargement des offres…</div>';
   try {
     const urlPage = forcedPage || getUrlPage();
