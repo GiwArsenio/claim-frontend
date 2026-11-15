@@ -27,8 +27,8 @@
        « dark_mode » divergeaient : la regle 2.5.3 (Label in Name) exige que
        le texte visible figure dans le nom accessible. `aria-hidden` ne
        suffisait pas : il retire la prononciation, pas le rendu. */
-    var icone = bouton.querySelector('.ic');
-    if (icone && racine.ICONES) icone.outerHTML = racine.ICONES.icone(theme === 'nuit' ? 'sun' : 'moon', { taille: 18 });
+    var icone = bouton.querySelector('.ms');
+    if (icone) icone.setAttribute('data-icone', theme === 'nuit' ? 'light_mode' : 'dark_mode');
   }
 
   function basculer() {
@@ -44,7 +44,7 @@
     bouton.type = 'button';
     bouton.className = 'bascule-theme';
     /* Le contenu du bouton est vide : l'icone est un pseudo-element. */
-    bouton.innerHTML = racine.ICONES ? racine.ICONES.icone('moon', { taille: 18 }) : '';
+    bouton.innerHTML = '<span class="ms" aria-hidden="true" data-icone="dark_mode"></span>';
     bouton.addEventListener('click', basculer);
 
     var nav = document.querySelector('.hd nav') || document.querySelector('#hd nav');

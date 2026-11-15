@@ -9,9 +9,7 @@ const funcs = ['specialtyLabel', 'experienceLabel', 'cardExperienceHtml', 'cardF
  return html.slice(start, end);
 }).join('\n');
 const context = vm.createContext({});
-// Le module d'icones : les gabarits appellent ICONES.icone(...).
-vm.runInContext(fs.readFileSync(require('node:path').join(__dirname, '../assets/icones.js'), 'utf8'), context);
-vm.runInContext(`const JEV_SPECIALTY_LABELS = {"actuariat": "Actuariat", "ia_data": "IA / Data", "souscription_technique": "Souscription technique", "autre": "Autre"}; const JEV_EXPERIENCE_LABELS = {senior:"Senior"}; const CONTRACT_LABELS = {cdi:"CDI"}; const DESCRIPTION_PREVIEW_CHARS = 600; let descExpanded = {}; let descSections = []; const SECTION_ICONS = { "Le poste": "briefcase", "Missions": "list-checks", "Profil recherché": "person" }; function escapeHtml(x){return x;} const location={origin:"https://claimyourjob.com",href:"https://claimyourjob.com/fr/job-board.html",pathname:"/fr/job-board.html"}; ${funcs}`, context);
+vm.runInContext(`const JEV_SPECIALTY_LABELS = {"actuariat": "Actuariat", "ia_data": "IA / Data", "souscription_technique": "Souscription technique", "autre": "Autre"}; const JEV_EXPERIENCE_LABELS = {senior:"Senior"}; const CONTRACT_LABELS = {cdi:"CDI"}; const DESCRIPTION_PREVIEW_CHARS = 600; let descExpanded = {}; let descSections = []; const SECTION_ICONS = { "Le poste": "work", "Missions": "checklist", "Profil recherché": "person" }; function escapeHtml(x){return x;} const location={origin:"https://claimyourjob.com",href:"https://claimyourjob.com/fr/job-board.html",pathname:"/fr/job-board.html"}; ${funcs}`, context);
 
 function label(row){context.row = row;return vm.runInContext('specialtyLabel(row)', context);}
 assert.equal(label({specialty:'actuariat_iard',jev_specialty:'ia_data',jev_curation_status:'done',jev_publishable:{specialty:true}}), 'IA / Data');
@@ -104,15 +102,12 @@ const bandeau = vm.runInContext('cardMetadataHtml(row)', context);
 const posVille = bandeau.indexOf('Nanterre');
 const posContrat = bandeau.indexOf('CDI');
 assert.ok(posVille >= 0 && posVille < posContrat, 'la localisation doit preceder le contrat');
-// L'icone est desormais un SVG Lucide (MapPin), plus une ligature texte.
-const MARQUEUR = 'M20 10c0 4.993';
-assert.ok(bandeau.includes(MARQUEUR), 'la localisation doit porter une icone');
-assert.ok(bandeau.includes('class="ic"'), 'et cette icone est un SVG, pas une police');
+assert.ok(bandeau.includes('location_on'), 'la localisation doit porter une icone');
 assert.ok(bandeau.includes('aria-label="Localisation : Nanterre"'));
 // Sans ville, aucune pastille vide.
 context.row = {contract_type:'cdi', ville:'', jev_publishable:{}};
 const sansVille = vm.runInContext('cardMetadataHtml(row)', context);
-assert.ok(!sansVille.includes(MARQUEUR), 'pas de pastille de localisation sans ville');
+assert.ok(!sansVille.includes('location_on'), 'pas de pastille de localisation sans ville');
 assert.ok(sansVille.includes('CDI'));
 console.log('Location pill tests passed');
 
@@ -123,7 +118,7 @@ assert.ok(loc.includes('card-fact--loc'), 'la localisation doit porter sa propre
 assert.ok(!vm.runInContext("cardFactHtml('Contrat','CDI')", context).includes('card-fact--loc'));
 // La localisation porte sa propre teinte : les valeurs viennent des jetons.
 assert.ok(html.includes('.card-fact--loc { background: var(--teal-clair); border-color: var(--teal-bord); }'));
-assert.ok(html.includes('.card-fact--loc .ic { color: var(--teal); }'));
+assert.ok(html.includes('.card-fact--loc .ms { color: var(--teal); }'));
 assert.ok(html.includes('.jc .ctags .tag { font-size: 9px; padding: 3px 6px; }'));
 console.log('Location colour and badge height tests passed');
 
@@ -172,11 +167,7 @@ vm.runInContext(`descSections = [
 const htmlSections = vm.runInContext('descriptionSectionsHtml()', context);
 assert.ok(htmlSections.indexOf('Le poste') < htmlSections.indexOf('Missions'), 'ordre: poste avant missions');
 assert.ok(htmlSections.indexOf('Missions') < htmlSections.indexOf('Profil recherché'), 'ordre: missions avant profil');
-// Chaque section porte son icone : trois SVG distincts, pas une ligature.
-assert.equal((htmlSections.match(/class="ic/g) || []).length, 3, 'une icone par section');
-assert.ok(htmlSections.includes('width="20" height="14"'), 'le briefcase du poste');
-assert.ok(htmlSections.includes('m3 17 2 2 4-4'), 'la liste cochee des missions');
-assert.ok(htmlSections.includes('cy=\"8\" r=\"4\"'), 'la personne du profil');
+assert.ok(htmlSections.includes('work') && htmlSections.includes('checklist') && htmlSections.includes('person'));
 assert.ok(htmlSections.includes('desc-body-0') && htmlSections.includes('desc-body-2'));
 assert.ok(!htmlSections.includes('Aperçu du poste'), 'le titre generique disparait quand les sections existent');
 // Le bouton cible bien la section concerne.
