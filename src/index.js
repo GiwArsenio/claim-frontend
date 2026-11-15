@@ -1,6 +1,6 @@
 // CLAIM! — France uniquement : une source publique, https://claimyourjob.com/fr/.
 // run_worker_first garantit que les fichiers existants passent aussi par ce routeur.
-import { rendreOffre } from './pages/offre.js';
+import { rendreOffre, reponseOffreAbsente } from './pages/offre.js';
 import { rendreSitemap } from './pages/sitemap.js';
 import { rendreRobots } from './pages/robots.js';
 import { relayerMonitoringApi, rendreMonitoring } from './pages/monitoring.js';
@@ -59,8 +59,23 @@ export default {
     }
     const destination = nu === '/claim-job-board.html' ? '/fr/job-board.html'
       : nu === '/' || nu === '/index.html' ? '/fr/' : `/fr${nu}`;
-    if (url.hostname !== 'claimyourjob.com' || chemin !== destination || url.protocol !== 'https:') {
-      return redirect(destination, url.search);
+    const canonique = url.hostname === 'claimyourjob.com'
+      && chemin === destination && url.protocol === 'https:';
+    if (!canonique) {
+      // Une page qui n'existe pas ne doit pas être redirigée vers /fr : cela
+      // fabriquait une chaîne 301 → 404 que Google garde en mémoire (les URL
+      // héritées de l'ancien site, notamment). On répond 410 tout de suite.
+      const toujoursRedirige = nu.startsWith('/offre/') || nu === '/sitemap.xml';
+      // On teste l'existence de la page de DESTINATION, pas celle du chemin
+      // demandé : `/claim-job-board.html` est un alias de `/fr/job-board.html`,
+      // et le fichier source n'existe pas sous ce nom.
+      const cibleAsset = nu === '/claim-job-board.html' ? '/job-board.html'
+        : (nu === '/' || nu === '/index.html') ? '/index.html' : nu;
+      if (toujoursRedirige || await existePage(request, env, cibleAsset)) {
+        return redirect(destination, url.search);
+      }
+      return reponseOffreAbsente('Cette page n\'existe pas',
+        'L\'adresse demandée ne correspond à aucune page de Claim!.', ORIGINE_MARCHE + '/fr');
     }
     if (nu === '/sitemap.xml') return rendreSitemap(env);
     if (nu.startsWith('/offre/')) {
@@ -72,6 +87,16 @@ export default {
   }
 };
 
+// Une page existe-t-elle vraiment dans les assets ? Sert à ne pas rediriger
+// vers /fr une adresse qui n'y mène nulle part.
+async function existePage(request, env, chemin) {
+  if (!env.ASSETS) return false;
+  const cible = new URL(request.url);
+  cible.pathname = chemin === '/' ? '/index.html' : chemin;
+  const r = await env.ASSETS.fetch(new Request(cible.toString(), { method: 'GET' }));
+  return r.status !== 404;
+}
+
 async function servirStatique(request, env, chemin) {
   if (!env.ASSETS) return new Response('Non trouvé', {status:404});
   const cible = new URL(request.url);
@@ -82,7 +107,9 @@ async function servirStatique(request, env, chemin) {
   // les validateurs portant sur les octets d'origine devenus invalides.
   const headers = new Headers(response.headers);
   for (const key of ['content-length','etag','content-encoding']) headers.delete(key);
-  if (response.status === 404) headers.set('x-robots-tag','noindex');
+  // Pas de `x-robots-tag: noindex` sur une 404 : le code d'erreur exclut déjà
+  // la page. L'ajouter faisait classer ces URL dans « Exclue par noindex »,
+  // brouillant le rapport d'indexation.
   const html = reecrireLiens(await response.text());
   return new Response(request.method === 'HEAD' ? null : html, {status:response.status, headers});
 }

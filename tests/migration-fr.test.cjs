@@ -105,8 +105,10 @@ test('migration — les offres de test ne sont jamais exposées', async () => {
   assert.match(xml,/actuaire-confirme-risques-non-vie/);
   const fiche=await rendreOffre('test-lead-expert-ia-h-f-93f4b0c60ac9',{API_URL:'https://api.test/api/v1',SITE_URL:'https://claimyourjob.com/fr'});
   // 410 Gone : doc Google (Job Posting) — une offre disparue répond 404/410.
+  // Le statut suffit : plus de noindex, qui faisait classer ces pages dans
+  // « Exclue par la balise noindex » au lieu de « disparue » (mesuré).
   assert.equal(fiche.status,410);
-  assert.match(await fiche.text(),/noindex/);
+  assert.equal(fiche.headers.get('x-robots-tag'), null);
  } finally {global.fetch=original;}
 });
 

@@ -27,7 +27,6 @@ function pageAbsente(titre, message, siteUrl) {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${titre} — Claim!</title>
-<meta name="robots" content="noindex">
 <link rel="canonical" href="${siteUrl}/job-board.html">
 <link rel="stylesheet" href="/assets/theme.css">
 <style>
@@ -83,12 +82,15 @@ function pageAbsente(titre, message, siteUrl) {
 
 // Une offre expirée répond 410 Gone (doc Google Job Posting : 404/410 pour
 // une offre disparue), et l'URL est notifiée à Google via l'Indexing API.
-function reponseOffreAbsente(titre, message, siteUrl, statut = 410) {
+export function reponseOffreAbsente(titre, message, siteUrl, statut = 410) {
+  // Pas de `x-robots-tag: noindex` ici : le code 410 suffit à exclure la page.
+  // Mesuré : ce noindex faisait classer ces URL par Google dans « Exclue par la
+  // balise noindex » au lieu de « Introuvable / disparue », ce qui masquait leur
+  // vraie nature dans le rapport d'indexation.
   return new Response(pageAbsente(titre, message, siteUrl), {
     status: statut,
     headers: {
       'content-type': 'text/html; charset=utf-8',
-      'x-robots-tag': 'noindex',
       'cache-control': 'no-store',
     },
   });
