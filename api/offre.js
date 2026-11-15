@@ -230,7 +230,7 @@ en documentation).
        aria-labelledby="consent-titre" aria-describedby="consent-texte" hidden>
   <div class="consent-interieur">
     <div class="consent-corps">
-      <span class="consent-sceau" aria-hidden="true"><span class="ms">cookie</span></span>
+      <span class="consent-sceau" aria-hidden="true"><svg class="ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5"/><path d="M8.5 8.5v.01"/><path d="M16 15.5v.01"/><path d="M12 12v.01"/><path d="M11 17v.01"/><path d="M7 14v.01"/></svg></span>
       <div>
         <p class="consent-titre" id="consent-titre">Mesure d'audience et parcours</p>
         <p class="consent-texte" id="consent-texte">Claim! mesure la fréquentation
@@ -328,8 +328,7 @@ ${resume ? `<meta name="description" content="${echapper(resume)}">` : ''}
 <link rel="canonical" href="${echapper(urlCanonique)}">
 <link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon.png"/>
 <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"/>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap">
-<style>.ms{font-family:'Material Symbols Outlined';font-weight:normal;font-style:normal;line-height:1;letter-spacing:normal;text-transform:none;display:inline-block;white-space:nowrap;font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;vertical-align:middle;}</style>
+<style> .ic{font-family:'Material Symbols Outlined';font-weight:normal;font-style:normal;line-height:1;letter-spacing:normal;text-transform:none;display:inline-block;white-space:nowrap;font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;vertical-align:middle;}</style>
 <meta property="og:type" content="article">
 <meta property="og:title" content="${echapper(titreAffiche + ' — ' + nomSociete)}">
 <meta property="og:url" content="${echapper(urlCanonique)}">
@@ -443,7 +442,7 @@ ${societe.logo_url
     background: var(--teal-clair); border: 1px solid var(--teal-bord);
     color: var(--teal);
   }
-  .consent-sceau .ms { font-size: 20px; }
+  .consent-sceau .ic { width: 20px; height: 20px; }
   
   .consent-titre {
     margin: 0 0 .1rem; font-size: .95rem; font-weight: 700;
@@ -542,6 +541,7 @@ ${societe.logo_url
   gtag('config', 'G-SKQQXZW4LH');
 </script>
 <script>window.__claimMesure = ${JSON.stringify(mesure).replace(/</g, '\\u003c')};</script>
+<script src="/assets/icones.js"></script>
 <link rel="stylesheet" href="/assets/theme.css">
 <script>(function(){try{var t=localStorage.getItem('claim-theme');if(t==='nuit'||(!t&&window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.setAttribute('data-theme','nuit');}}catch(e){}})();</script>
 <script src="/assets/theme.js" defer></script>

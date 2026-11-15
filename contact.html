@@ -21,7 +21,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <style>
 
   /* ══ CHARTE COMMUNE — en-tête, pied, pages de contenu ══ */
@@ -29,13 +28,13 @@
   /* La feuille Material Symbols est chargee, mais sans cette regle la
      classe .ms n'applique pas la police : les noms d'icones s'affichent en
      clair dans le menu burger — « home », « work », « business ». */
-  .ms {
-    font-family: 'Material Symbols Outlined';
-    font-weight: normal; font-style: normal;
-    line-height: 1; letter-spacing: normal; text-transform: none;
-    display: inline-block; white-space: nowrap;
-    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-    vertical-align: middle;
+  /* Icônes Lucide, en SVG inline. Le trait de 1.5 et l'alignement optique
+     sont posés ici une fois ; les pages n'ont plus de police à charger. */
+  .ic {
+    display: inline-block;
+    flex: 0 0 auto;
+    vertical-align: -0.125em;
+    stroke-width: 1.5;
   }
   body { font-family: 'Inter', system-ui, -apple-system, sans-serif;
          color: var(--encre); background: var(--fond); line-height: 1.65; }
@@ -116,8 +115,8 @@
   .bm-nav a { display: flex; align-items: center; gap: .75rem; color: rgba(255, 255, 255, .85);
               padding: .7rem 1.25rem; text-decoration: none; font-weight: 600; }
   .bm-nav a.on { color: var(--blanc); background: var(--surbrillance); }
-  .bm-nav a .ms { font-size: 20px; color: rgba(255, 255, 255, .6); }
-  .bm-nav a.on .ms { color: rgba(255, 255, 255, .9); }
+  .bm-nav a .ic { width: 20px; height: 20px; color: rgba(255, 255, 255, .6); }
+  .bm-nav a.on .ic { color: rgba(255, 255, 255, .9); }
   /* Une colonne flex : le bouton s'etire sans calcul de largeur. */
   .bm-footer { padding: 1rem 1.25rem 1.5rem; border-top: 1px solid rgba(255, 255, 255, .12);
                display: flex; flex-direction: column; }
@@ -242,6 +241,7 @@
 
 
   </style>
+<script src="/assets/icones.js"></script>
 <style id="plan-critique">
 /* CSS CRITIQUE DU PLAN — injecte, ne pas modifier ici */
 /* ══ CSS CRITIQUE DU PLAN — doit precede la feuille de theme ══
@@ -455,14 +455,14 @@ body {
       <div class="bm-head">
         <a class="bm-logo" href="/" onclick="closeBurger()">Claim!</a>
         <button class="bm-close" onclick="closeBurger()" aria-label="Fermer le menu">
-          <span class="ms">close</span>
+          <svg class="ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
         </button>
       </div>
       <nav class="bm-nav" aria-label="Navigation principale">
-        <a href="/" onclick="closeBurger()"><span class="ms">home</span>Accueil</a>
-        <a href="/job-board.html" onclick="closeBurger()"><span class="ms">work</span>Offres d'emploi</a>
-        <a href="/claim-entreprises.html" onclick="closeBurger()"><span class="ms">business</span>Entreprises</a>
-        <a href="/claim-observatoire.html" onclick="closeBurger()"><span class="ms">bar_chart</span>Observatoire de l'assurance</a>
+        <a href="/" onclick="closeBurger()"><svg class="ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Accueil</a>
+        <a href="/job-board.html" onclick="closeBurger()"><svg class="ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect width="20" height="14" x="2" y="6" rx="2"/><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>Offres d'emploi</a>
+        <a href="/claim-entreprises.html" onclick="closeBurger()"><svg class="ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>Entreprises</a>
+        <a href="/claim-observatoire.html" onclick="closeBurger()"><svg class="ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>Observatoire de l'assurance</a>
       </nav>
       <div class="bm-footer">
         <a class="btn-cta" href="/contact.html" onclick="closeBurger()">Contactez-nous</a>

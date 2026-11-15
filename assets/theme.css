@@ -179,6 +179,21 @@
   --ombre-forte: 0 -10px 30px rgba(25, 44, 52, .10);
 }
 
+/* ── ICÔNES ──────────────────────────────────────────────────────────────
+   Lucide, en SVG inline. Le trait de 1.5 et l'alignement optique sont
+   poses une fois ici : les pages n'ont plus de police d'icones a charger,
+   et une icone ne peut plus « disparaitre » si Google Fonts ne repond pas.
+
+   `vertical-align: -0.125em` cale l'icone sur la ligne de texte : sans
+   elle, un SVG de 16 px s'aligne sur la ligne de base et parait remonter.
+   `flex: 0 0 auto` l'empeche de se compresser dans une barre de filtres. */
+.ic {
+  display: inline-block;
+  flex: 0 0 auto;
+  vertical-align: -0.125em;
+  stroke-width: 1.5;
+}
+
 /* ─────────────────────────────────────────────────────────────────────────────
    LE PLAN DE LA PAGE
 
@@ -348,20 +363,9 @@ html[data-theme="nuit"] select {
    et le bouton « Rechercher » — et le texte y reste blanc, lisible dans
    les deux themes. */
 .bascule-theme:hover { background: var(--teal-aplat-survol); border-color: var(--teal-texte); }
-/* La police d'icones. Elle etait definie page par page : les quatre
-   pages de mentions ne l'avaient pas, et le bouton de theme y affichait
-   « light_mode » en toutes lettres au lieu de l'icone. Une feuille
-   partagee est le bon endroit pour une police partagee. */
-.bascule-theme .ms { font-family: 'Material Symbols Outlined'; font-weight: normal;
-                     font-style: normal; font-size: 18px; line-height: 1;
-                     letter-spacing: normal; text-transform: none;
-                     display: inline-block; white-space: nowrap;
-                     direction: ltr; -webkit-font-feature-settings: 'liga';
-                     -webkit-font-smoothing: antialiased; }
-/* L'icone de la bascule passe par le pseudo-element : son nom ne vit pas
-   dans le DOM, et le texte visible ne peut plus diverger du nom accessible
-   (regle 2.5.3, Label in Name). */
-.bascule-theme .ms::before { content: attr(data-icone); }
+/* L'icone de la bascule : un SVG de 18 px, sans police a charger. Le nom
+   accessible vient de l'aria-label du bouton, le SVG est aria-hidden. */
+.bascule-theme .ic { width: 18px; height: 18px; }
 html[data-theme="nuit"] .bascule-theme {
   border-color: var(--bord-carte); background: var(--surface-2); color: var(--encre);
 }
