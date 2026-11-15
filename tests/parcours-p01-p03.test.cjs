@@ -244,12 +244,15 @@ test('P02 — les filtres se combinent et se remettent à zéro', async () => {
 
       const total = await aide.compterCartes(page);
 
-      /* Un filtre seul. */
+      /* Un filtre seul. Le board n'a plus de liste native : on ouvre la
+         facette, on coche, on valide — c'est le parcours réel du visiteur. */
       await aide.avecReponse(
         page,
         aide.estListeDuBoard,
         async () => {
-          await page.locator('#contract-filter').selectOption('cdi');
+          await page.click('#btn-contract');
+          await page.check('#pop-contract input[value="cdi"]');
+          await page.click('#pop-contract .fpop-ok');
         }
       );
       await aide.attendre(page, 1200);
@@ -263,7 +266,9 @@ test('P02 — les filtres se combinent et se remettent à zéro', async () => {
         page,
         aide.estListeDuBoard,
         async () => {
-          await page.locator('#experience-filter').selectOption('senior');
+          await page.click('#btn-experience');
+          await page.check('#pop-experience input[value="senior"]');
+          await page.click('#pop-experience .fpop-ok');
         }
       );
       await aide.attendre(page, 1200);
@@ -291,7 +296,7 @@ test('P02 — les filtres se combinent et se remettent à zéro', async () => {
         `la remise à zéro ne rend pas la liste complète : ${total} avant, ${apresReset} après`
       );
       assert.equal(
-        await page.locator('#contract-filter').inputValue(), '',
+        await page.locator('#btn-contract.actif').count(), 0,
         'le filtre « CDI » n\'a pas été vidé'
       );
     } finally {

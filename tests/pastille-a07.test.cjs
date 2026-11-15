@@ -36,7 +36,9 @@ const aide = require('./aide-parcours.cjs');
 
 const PAGES = [
   { nom: 'accueil', url: '/index.html', selecteur: '#acc-contrat' },
-  { nom: 'board', url: '/job-board.html', selecteur: '#contract-filter' },
+  // Le board n'a plus de liste native : son filtre est un bouton a facette,
+  // dont la fleche est une icone de police dans un span .farrow.
+  { nom: 'board', url: '/job-board.html', selecteur: '#btn-contract' },
 ];
 
 /** L'état de survol d'une pastille, mesuré par le style calculé. */
@@ -101,6 +103,29 @@ test('A07 — la flèche de la pastille ne bouge pas au survol', async (t) => {
 
           const m = await mesurerSurvol(page, p.selecteur);
           assert.ok(m, `la pastille ${p.selecteur} est introuvable`);
+
+          if (p.nom === 'board') {
+            /* Sur le board, la fleche est une icone de police : sa place se
+               mesure sur son rectangle, pas sur un fond d'image. Le survol
+               ne doit ni la deplacer ni la faire disparaitre. */
+            const rectAvant = await page.evaluate((c) =>
+              document.querySelector(c + ' .farrow').getBoundingClientRect().toJSON(), p.selecteur);
+            const pos = await page.evaluate((c) => {
+              const r = document.querySelector(c).getBoundingClientRect();
+              return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+            }, p.selecteur);
+            await page.mouse.move(pos.x, pos.y);
+            await page.waitForTimeout(300);
+            const rectApres = await page.evaluate((c) =>
+              document.querySelector(c + ' .farrow').getBoundingClientRect().toJSON(), p.selecteur);
+            assert.deepEqual(
+              { x: rectApres.x, y: rectApres.y, w: rectApres.width, h: rectApres.height },
+              { x: rectAvant.x, y: rectAvant.y, w: rectAvant.width, h: rectAvant.height },
+              'board : la fleche se deplace ou change de taille au survol'
+            );
+            await page.mouse.move(2, 2);
+            return;
+          }
 
           assert.equal(
             m.apres.position, m.avant.position,
@@ -216,8 +241,18 @@ test('A07 — le trait de la flèche est lisible sur le fond de la pastille', as
               const el = document.querySelector(c);
               const st = getComputedStyle(el);
               const m = /stroke='%23([0-9a-f]{6})'/i.exec(st.backgroundImage || '');
+              // Sur le board, le trait de la fleche est la couleur du texte
+              // de l'icone : c'est elle qu'il faut lire.
+              const fleche = el.querySelector('.farrow');
+              const rgbVersHex = (v) => {
+                const t = /rgba?\(([^)]+)\)/.exec(v || '');
+                if (!t) return null;
+                const p = t[1].split(',').map((x) => parseInt(x, 10));
+                return '#' + p.slice(0, 3).map((n) => n.toString(16).padStart(2, '0')).join('');
+              };
               return {
-                trait: m ? '#' + m[1].toLowerCase() : null,
+                trait: m ? '#' + m[1].toLowerCase()
+                         : (fleche ? rgbVersHex(getComputedStyle(fleche).color) : null),
                 fond: st.backgroundColor,
               };
             }, p.selecteur);

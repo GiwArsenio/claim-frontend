@@ -186,7 +186,9 @@ test('A02 — les actions principales sont atteignables au clavier', async (t) =
          famille A04 verifie deja. */
       const etapes = [
         { selecteur: '#q-input', nom: 'le champ de recherche' },
-        { selecteur: '#contract-filter', nom: 'la liste des contrats' },
+        // Les listes natives ont laisse la place aux facettes : le bouton
+        // est le nouveau point d'entree clavier des filtres.
+        { selecteur: '#btn-contract', nom: 'le bouton des contrats' },
         { selecteur: '#feed .jc, #feed .oc', nom: 'la première offre' },
       ];
 

@@ -69,6 +69,12 @@ const FAMILLES = {
     'tests/fiche_style_offre.test.cjs',
     'tests/normalisation_offre.test.cjs',
     'tests/rail_fiche.test.cjs',
+    // Casse d'affichage des titres (Lot 2) : pure, sans reseau.
+    'tests/titres-affichage.test.cjs',
+    // Le fichier existait deja mais n'etait range dans aucune famille : le
+    // lanceur refusait alors TOUTES les suites (« ne s'executeraient
+    // jamais »). Il appartient a la famille statique.
+    'tests/familles_competences_alignees.test.cjs',
   ],
   // Demandent un navigateur. Lents, mais locaux : ils ouvrent le serveur
   // de test et n'appellent que lui.
@@ -88,6 +94,8 @@ const FAMILLES = {
     'tests/theme.test.cjs',
     'tests/pied_arret_defilement.test.cjs',
     'tests/plan_premier_paint.test.cjs',
+    // Facettes de filtres (Lot 3) : interactions, ARIA, comptes.
+    'tests/facettes.test.cjs',
   ],
   // Parlent à la production. Une régression en ligne doit se voir, mais
   // elle ne doit pas bloquer une fusion : la production peut tomber sans

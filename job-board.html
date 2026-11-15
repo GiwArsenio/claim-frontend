@@ -158,6 +158,113 @@ html[data-theme="nuit"] select.chip {
   --fleche-pastille: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b9aa0' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
 }
 
+/* ── FILTRES A FACETTES ───────────────────────────────────────────────────
+   Cinq listes natives ne disaient ni combien d'offres chaque valeur ouvre,
+   ni comment demander deux contrats a la fois. Chaque facette devient un
+   bouton qui ouvre un panneau ou les valeurs se cochent, avec leur compte.
+
+   Le panneau est un simple bloc positionne sous son bouton : pas de
+   bibliotheque, pas de portail, et le focus reste dans la page. */
+.fsel { position: relative; flex-shrink: 0; }
+.fbtn { position: relative; }
+.fbtn.actif { border-color: var(--teal-bord); color: var(--encre); background-color: var(--surface-survol); }
+.fbtn.actif:hover { background-color: var(--surface-survol); }
+.farrow { width: 14px; height: 14px; margin-left: .1rem; flex-shrink: 0;
+          transition: transform .18s ease; }
+.fbtn[aria-expanded="true"] .farrow { transform: rotate(180deg); }
+/* Le nombre de valeurs cochees, quand il y en a plus d'une : « Spécialité (2) ». */
+.fnb { display: inline-flex; align-items: center; justify-content: center;
+       min-width: 1.1rem; height: 1.1rem; padding: 0 .3rem; border-radius: 999px;
+       background: var(--teal-fond); color: var(--blanc); font-size: .68rem; font-weight: 800; }
+/* Le meme nombre, lu par un lecteur d'ecran en toutes lettres. */
+.fsr { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+       overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+/* Le panneau est pose sur la FENETRE, pas dans le flux : le bandeau du haut
+   coupe ce qu'il deborde (`overflow: hidden`, indispensable a son repli), et
+   la rangee de filtres defile horizontalement sur telephone — deux raisons
+   de ne pas y accrocher un panneau. Sa position est calculee a l'ouverture,
+   a partir du rectangle du bouton. */
+.fpop { position: fixed; z-index: 60; width: max-content;
+        min-width: 15rem; max-width: min(22rem, calc(100vw - 1.5rem));
+        background: var(--surface); border: 1px solid var(--bord-carte);
+        border-radius: .625rem; box-shadow: 0 12px 32px rgba(0,0,0,.18);
+        padding: .4rem; }
+.fopts { list-style: none; margin: 0; padding: 0; max-height: 16rem; overflow-y: auto; }
+.fopt { display: flex; align-items: center; gap: .55rem; padding: .45rem .6rem;
+        border-radius: .375rem; cursor: pointer; font-size: .875rem; color: var(--encre); }
+.fopt:hover { background: var(--surface-survol); }
+.fopt input { width: 16px; height: 16px; accent-color: var(--teal-fond); cursor: pointer; flex-shrink: 0; }
+.fopt-l { flex: 1; text-align: left; }
+.fopt-n { font-size: .75rem; color: var(--gris-doux); font-variant-numeric: tabular-nums; }
+/* Une valeur qui n'ouvre aucune offre reste lisible et cochable : elle est
+   la preuve que le filtre n'est pas la cause du vide. */
+.fopt.vide .fopt-l { color: var(--gris-doux); }
+.fpop-ft { display: flex; align-items: center; justify-content: space-between;
+           gap: .5rem; margin-top: .35rem; padding: .4rem .3rem .1rem;
+           border-top: 1px solid var(--bord-carte); }
+.fpop-eff { background: none; border: none; cursor: pointer; color: var(--gris);
+            font-family: inherit; font-size: .8rem; font-weight: 600; padding: .3rem .2rem; }
+.fpop-eff:hover { color: var(--encre); text-decoration: underline; }
+.fpop-ok { background: var(--teal-fond); color: var(--blanc); border: none; cursor: pointer;
+           font-family: inherit; font-size: .8rem; font-weight: 700; padding: .45rem .9rem;
+           border-radius: .375rem; }
+.fpop-ok:hover { background: var(--teal-aplat-survol); }
+.fpop-eff:focus-visible, .fpop-ok:focus-visible, .fopt input:focus-visible {
+  outline: 2px solid var(--teal); outline-offset: 2px; }
+html[data-theme="nuit"] .fpop { box-shadow: 0 12px 32px rgba(0,0,0,.55); }
+
+/* ── BANDEAU COMPACT (bureau) ─────────────────────────────────────────────
+   Mesure avant ce bloc, à 1 440 x 900 : en-tête 64 px + bandeau 197 px,
+   soit 260 px — 29 % de la fenêtre — avant la première offre. Le titre,
+   l'accroche, la recherche et les filtres s'empilaient sur quatre étages.
+
+   Le bandeau devient une bande de trois étages, dont deux partagés en
+   colonnes : le titre et son accroche à gauche, la recherche à droite, les
+   filtres dessous sur toute la largeur. La place rendue va à la liste.
+
+   La règle ne s'applique qu'au-delà de 1 024 px : sur téléphone, le
+   bandeau garde sa disposition empilée, où il n'y a pas de colonne à
+   partager. Aucune règle mobile n'est touchée. */
+@media (min-width: 1024px) {
+  #hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(19rem, 33rem);
+    grid-template-rows: auto auto auto;
+    align-items: center;
+    column-gap: 2rem;
+    row-gap: .4rem;
+    /* Le plafond suit le contenu : trop court, il rognerait les filtres ;
+       l'ancien 200 px laissait 60 px de vide sous les pastilles. */
+    max-height: 176px;
+    padding: .8rem 2rem .55rem;
+  }
+  #hero h1 {
+    grid-column: 1; grid-row: 1;
+    align-self: end;
+    font-size: clamp(1.15rem, 1.7vw, 1.55rem);
+    line-height: 1.12;
+    margin-bottom: 0;
+  }
+  #hero .sub {
+    grid-column: 1; grid-row: 2;
+    align-self: start;
+    font-size: .875rem;
+    margin-bottom: 0;
+  }
+  #hero .sbar {
+    grid-column: 2; grid-row: 1 / span 2;
+    align-self: center;
+    width: 100%;
+    max-width: 33rem;
+    margin-bottom: 0;
+  }
+  #hero .chips {
+    grid-column: 1 / span 2; grid-row: 3;
+    padding-bottom: 0;
+  }
+}
+
 /* ── SPLIT PANE ── */
 #split { display: flex; overflow: hidden; height: 100%; min-height: 0; }
 
@@ -215,7 +322,7 @@ html[data-theme="nuit"] select.chip {
 .jc.on:hover { transform: translateY(-1px); border-color: var(--teal-fonce);
                box-shadow: 0 0 0 3px rgba(0,104,118,.16), 0 5px 16px rgba(25,44,52,.14); }
 .ct { display: flex; align-items: flex-start; margin-bottom: .45rem; }
-.clogo { width: 38px; height: 38px; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: var(--blanc); font-weight: 900; font-size: 9.5px; flex-shrink: 0; position: relative; overflow: hidden; }
+.clogo { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--blanc); font-weight: 900; font-size: 10px; flex-shrink: 0; position: relative; overflow: hidden; }
 .ci { flex: 1; min-width: 0; padding-left: .5rem; }
 .ctitle { font-size: .875rem; font-weight: 700; color: var(--encre); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 /* Le titre est un bouton pour le clavier et les lecteurs d'écran, mais il
@@ -224,6 +331,16 @@ html[data-theme="nuit"] select.chip {
 a.ctitle { display: block; width: 100%; text-align: left; font-family: inherit; color: inherit; text-decoration: none;
   background: none; border: 0; padding: 0; cursor: pointer; }
 a.ctitle:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; border-radius: 3px; }
+/* Un intitule de poste tient rarement sur une ligne : « Charge d'etudes
+   actuarielles (F/H) - stage » finissait en « … sta ». En bureau, la carte
+   porte deux lignes sans quitter sa grille : le titre se lit en entier, et
+   l'ellipse ne tombe plus au milieu d'un mot. Le texte complet reste dans
+   le DOM, et le nom accessible du lien aussi — l'ellipse est visuelle.
+   Sur telephone, la regle mobile reste seule juge. */
+@media (min-width: 1024px) {
+  .ctitle { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical; overflow: hidden; }
+}
 .csub { font-size: .75rem; color: var(--gris); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .cm { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin: 9px 0; }
 .card-fact { display: inline-flex; align-items: center; flex: 0 0 auto; max-width: 100%; padding: 2px 8px; border: 1px solid var(--bord-carte); border-radius: 4px; background: var(--surface-2); }
@@ -1182,15 +1299,10 @@ a.ctitle:focus-visible, button.ctitle:focus-visible { outline: 2px solid var(--t
       </div>
       <button class="btn-srch" onclick="applySearch()">Rechercher</button>
     </div>
-    <div class="chips">
-      <select id="contract-filter" class="chip" aria-label="Type de contrat" onchange="applyFilters()"><option value="">Type de contrat</option><option value="cdi">CDI</option><option value="cdd">CDD</option><option value="alternance">Alternance</option><option value="stage">Stage</option><option value="vie">V.I.E</option><option value="freelance">Freelance</option></select>
-      <select id="specialty-filter" class="chip" aria-label="Spécialité" onchange="applyFilters()"><option value="">Spécialité</option><option value="actuariat">Actuariat</option><option value="souscription_technique">Souscription technique</option><option value="ia_data">IA / Data</option></select>
-      <select id="experience-filter" class="chip" aria-label="Expérience" onchange="applyFilters()"><option value="">Expérience</option><option value="junior">Junior</option><option value="confirmed">Confirmé</option><option value="senior">Senior</option><option value="lead">Lead</option></select>
-      <select id="date-filter" class="chip" aria-label="Date de publication" onchange="applyFilters()"><option value="">Date de publication</option><option value="1">Moins de 24 h</option><option value="7">7 derniers jours</option><option value="14">14 derniers jours</option></select>
-      <select id="ats-filter" class="chip" aria-label="Source ATS" onchange="applyFilters()"><option value="">Source ATS</option><option value="workday">Workday</option><option value="smartrecruiters">SmartRecruiters</option><option value="talentsoft">TalentSoft</option><option value="custom">Custom</option><option value="magnet">Magnet</option><option value="greenhouse">Greenhouse</option><option value="ashby">Ashby</option><option value="successfactors">SuccessFactors</option><option value="radancy">Radancy</option><option value="groupama">Groupama</option><option value="oracle_hcm">Oracle HCM</option></select>
-      <button class="chip" onclick="resetFilters()"><span class="ms" style="font-size:13px;">restart_alt</span>Réinitialiser</button>
-      
-    </div>
+    <!-- Les cinq listes derivees sont construites par le script : leurs
+         valeurs, leurs libelles et leurs comptes vivent en un seul endroit
+         (FACETTES), pour que l'affichage et la requete ne divergent pas. -->
+    <div class="chips" id="chips" role="group" aria-label="Filtres des offres"></div>
   </div>
 
   <!-- ══ SPLIT PANE ══ -->
@@ -1396,6 +1508,123 @@ function escapeHtml(value) {
   }[c]));
 }
 
+// ── Casse d'affichage des titres ───────────────────────────────────────────
+// Beaucoup d'annonces arrivent des ATS en capitales : « CDI - RESPONSABLE
+// D'ETUDES D'ACTUARIAT N1 - H/F », « STAGIAIRE », « STAGE - DATA SCIENTIST
+// H/F ». Une carte qui crie ne se lit pas plus vite : elle se lit plus mal,
+// et deux cartes voisines n'ont plus la meme voix.
+//
+// La correction est une correction d'AFFICHAGE. Le titre stocke n'est pas
+// touche : l'API, la fiche d'origine et les evenements de mesure gardent le
+// texte recu. On n'agit que sur un titre reellement compose en capitales ;
+// un titre deja redige n'est jamais reecrit, meme partiellement.
+//
+// Les acronymes metier restent en capitales : « ALM » ne devient pas « Alm »,
+// et « IFRS 17 » reste « IFRS 17 ». Les sigles sont la ou ils portent un
+// sens ; les casser couterait plus que le gain de lisibilite.
+const ACRONYMES_TITRE = new Set([
+  'CDI', 'CDD', 'VIE', 'VSI',
+  'IA', 'AI', 'ALM', 'IT', 'SI', 'IS', 'RH', 'HR', 'BI', 'ML', 'NLP', 'LLM',
+  'SQL', 'SAS', 'VBA', 'API', 'ETL', 'ELT', 'GCP', 'AWS', 'AZURE', 'RGPD',
+  'IARD', 'RC', 'DAB', 'ORSA', 'IFRS', 'SII', 'ACPR', 'EIOPA', 'SCR', 'MCEV',
+  'KPI', 'ROI', 'P&L', 'UX', 'UI', 'QA', 'CI', 'CD', 'RPA', 'CRM', 'ERP',
+  'CEO', 'CFO', 'CTO', 'CDO', 'DSI', 'MOA', 'MOE', 'AMOA', 'POC', 'MVP',
+  'AXA', 'CNP', 'MGEN', 'MAIF', 'MACIF', 'GMF', 'MAAF', 'BNP', 'SG', 'BPCE',
+  'KPMG', 'EY', 'PWC', 'WTW', 'SCOR', 'AON', 'APRIL', 'AG2R', 'GAN', 'MSA',
+  'SMABTP', 'BPI', 'AAH', 'HSE', 'QSE', 'CACES', 'BTS', 'DUT', 'MBA', 'M2',
+  'L3', 'DESS', 'DEA', 'GRC', 'SAP', 'PLM', 'SIRH', 'GDPR', 'PSI',
+]);
+
+// Mots qui ne prennent pas de majuscule a l'interieur d'un titre, sauf en
+// tete. C'est la regle typographique francaise, et l'anglaise pour les
+// memes mots.
+const PETITS_MOTS_TITRE = new Set([
+  'de', 'du', 'des', 'la', 'le', 'les', 'et', 'en', 'a', 'au', 'aux', 'ou',
+  'pour', 'sur', 'sous', 'dans', 'par', 'avec', 'sans', 'chez', 'vers',
+  'of', 'and', 'in', 'for', 'the', 'to', 'at', 'on', 'with', 'by', 'or',
+]);
+
+// Formes composees qu'un decoupage naif casserait : « H/F » en « H » et
+// « F », « V.I.E » en trois lettres isolees. Elles sont mises de cote le
+// temps de la composition, puis remises telles quelles.
+function protegerTitres(texte) {
+  const gardes = [];
+  const garder = (m) => {
+    gardes.push(m.toUpperCase());
+    return '\u0001' + (gardes.length - 1) + '\u0002';
+  };
+  const protege = texte
+    .replace(/\b[HFM]\/[HFM]\b/g, garder)      // H/F, F/H, M/F
+    .replace(/\bV\.I\.E\.?\b/gi, garder)       // V.I.E
+    .replace(/\bBAC\s*\+\s*\d{1,2}\b/gi, garder)
+    .replace(/\b[A-Z]&[A-Z]\b/g, garder);      // P&L, R&D
+  return { protege, gardes };
+}
+
+function composerSousMot(mot, majusculeInitiale, estPremierMot, apresApostrophe) {
+  if (/[0-9]/.test(mot)) return mot;                  // N1, N2, IFRS17
+  const haut = mot.toUpperCase();
+  if (ACRONYMES_TITRE.has(haut)) return haut;         // CDI, ALM, ATS
+  const bas = mot.toLowerCase();
+  // La particule elidee reste en minuscules : « d'etudes », jamais
+  // « d'Etudes ». C'est la regle francaise, et elle vaut aussi dans un
+  // titre anglais.
+  if (apresApostrophe) return bas;
+  // « ET » en tete de titre garde sa majuscule ; au milieu, il la perd.
+  if (PETITS_MOTS_TITRE.has(bas) && !estPremierMot) return bas;
+  // Tout le reste prend une capitale : c'est la casse des intitules de
+  // poste, ou chaque mot porteur de sens se lit comme un nom.
+  return bas.charAt(0).toUpperCase() + bas.slice(1);
+}
+
+function composerMot(mot, majusculeInitiale, estPremierMot) {
+  // « D'ETUDES » : la particule elidee reste en minuscules, comme en
+  // typographie francaise — « d'etudes ». L'accent manque parce que la
+  // source ne le porte pas ; on ne l'invente pas.
+  const morceaux = mot.replace(/[\u2019]/g, "'").split("'");
+  // « D' » et « L' » sont des particules elidees, pas des mots : elles
+  // restent en minuscules meme quand elles ouvrent un segment.
+  const elision = morceaux.length > 1 && morceaux[0].length <= 2;
+  return morceaux
+    .map((m, i) => (m ? composerSousMot(m, i === 0 && majusculeInitiale,
+                                       i === 0 && estPremierMot,
+                                       i > 0 || (i === 0 && elision)) : ''))
+    .join("'");
+}
+
+function titreAffichage(titre) {
+  const brut = String(titre == null ? '' : titre).trim().replace(/\s+/g, ' ');
+  if (brut.length < 4) return brut;
+
+  // Seules les lettres decident : un titre qui contient deja une minuscule
+  // est un titre redige, et il n'est pas touche.
+  const lettres = brut.replace(/[^A-Za-z\u00C0-\u00FF]/g, '');
+  if (lettres.length < 4 || lettres !== lettres.toUpperCase()) return brut;
+
+  const { protege, gardes } = protegerTitres(brut);
+
+  let debutSegment = true;
+  let premierMot = true;
+  let compose = protege.replace(
+    /([A-Za-z\u00C0-\u00FF][A-Za-z\u00C0-\u00FF'\u2019]*)|([^A-Za-z\u00C0-\u00FF]+)/g,
+    (tout, mot, separateur) => {
+      if (separateur !== undefined) {
+        // Une ponctuation de separation ouvre un nouveau segment ; l'espace
+        // seul, non : « CHARGE D'ETUDES » n'est pas deux segments.
+        if (/[-\u2013\u2014\/\u00b7(:;|]/.test(separateur)) debutSegment = true;
+        return separateur;
+      }
+      const sortie = composerMot(mot, debutSegment, premierMot);
+      debutSegment = false;
+      premierMot = false;
+      return sortie;
+    }
+  );
+
+  compose = compose.replace(/\u0001(\d+)\u0002/g, (tout, i) => gardes[Number(i)] || '');
+  return compose;
+}
+
 // ── State ──────────────────────────────────────────────────────────────────
 let ALL_JOBS      = [];   // toutes les offres chargées côté client
 let VISIBLE_COUNT = PAGE_SIZE; // combien sont affichées
@@ -1452,15 +1681,283 @@ function paramOffre(j, contexte) {
   };
 }
 
+// ── Facettes ───────────────────────────────────────────────────────────────
+// Une seule table décrit les cinq filtres : leurs clés de requête, leurs
+// libellés, leurs valeurs et leur nature — plusieurs choix ou un seul.
+// L'affichage, la requête, l'adresse et les comptes lisent tous celle-ci.
+const FACETTES = [
+  { cle: 'contract', libelle: 'Type de contrat', multiple: true, options: [
+    ['cdi', 'CDI'], ['cdd', 'CDD'], ['alternance', 'Alternance'],
+    ['stage', 'Stage'], ['vie', 'V.I.E'], ['freelance', 'Freelance'],
+  ]},
+  { cle: 'specialty', libelle: 'Spécialité', multiple: true, options: [
+    ['actuariat', 'Actuariat'], ['souscription_technique', 'Souscription technique'],
+    ['ia_data', 'IA / Data'],
+  ]},
+  { cle: 'experience', libelle: 'Expérience', multiple: true, options: [
+    ['junior', 'Junior'], ['confirmed', 'Confirmé'], ['senior', 'Senior'], ['lead', 'Lead'],
+  ]},
+  // La date est un intervalle, pas une liste : une seule valeur à la fois.
+  { cle: 'days', libelle: 'Date de publication', multiple: false, options: [
+    ['1', 'Moins de 24 h'], ['7', '7 derniers jours'], ['14', '14 derniers jours'],
+  ]},
+  { cle: 'ats', libelle: 'Source ATS', multiple: true, options: [
+    ['workday', 'Workday'], ['smartrecruiters', 'SmartRecruiters'],
+    ['talentsoft', 'TalentSoft'], ['custom', 'Custom'], ['magnet', 'Magnet'],
+    ['greenhouse', 'Greenhouse'], ['ashby', 'Ashby'],
+    ['successfactors', 'SuccessFactors'], ['radancy', 'Radancy'],
+    ['groupama', 'Groupama'], ['oracle_hcm', 'Oracle HCM'],
+  ]},
+];
+
+// L'état appliqué : la seule vérité de la liste. Les boutons l'affichent,
+// la requête le lit, l'adresse le reflète.
+const ETAT_FILTRES = { contract: [], specialty: [], experience: [], days: [], ats: [] };
+
+// Le brouillon : ce qui est coché dans le panneau ouvert, avant validation.
+// Un panneau qu'on referme sans valider ne change rien — c'est le contrat.
+let BROUILLON = null;
+let facetteOuverte = null;
+// Comptes déjà obtenus, par signature de l'état appliqué : rouvrir un
+// panneau ne relance pas onze requêtes.
+const cacheComptes = new Map();
+
+const chipsEl = document.getElementById('chips');
+
+function facetteParCle(cle) { return FACETTES.find(f => f.cle === cle); }
+
+function libelleOption(cle, valeur) {
+  const f = facetteParCle(cle);
+  const o = f && f.options.find(x => x[0] === valeur);
+  return o ? o[1] : valeur;
+}
+
+// Signature des filtres appliqués : sert de clé de cache des comptes.
+function signatureFiltres() {
+  return JSON.stringify(ETAT_FILTRES);
+}
+
+function panneauFacette(f) {
+  const sel = (BROUILLON && BROUILLON.cle === f.cle) ? BROUILLON.valeurs : ETAT_FILTRES[f.cle];
+  const comptes = cacheComptes.get(signatureFiltres() + '|' + f.cle) || {};
+  const lignes = f.options.map(([valeur, libelle]) => {
+    const coche = sel.indexOf(valeur) >= 0;
+    const compte = comptes[valeur];
+    const nombre = compte === undefined
+      ? '<span class="fopt-n" data-opt="' + escapeHtml(valeur) + '"></span>'
+      : '<span class="fopt-n" data-opt="' + escapeHtml(valeur) + '">' + compte + '</span>';
+    return '<li><label class="fopt' + (compte === 0 ? ' vide' : '') + '">'
+      + '<input type="' + (f.multiple ? 'checkbox' : 'radio') + '" name="facette-' + f.cle + '"'
+      + ' value="' + escapeHtml(valeur) + '"' + (coche ? ' checked' : '')
+      + ' onchange="choisirOption(\'' + f.cle + '\',\'' + escapeHtml(valeur) + '\',this.checked)">'
+      + '<span class="fopt-l">' + escapeHtml(libelle) + '</span>' + nombre
+      + '</label></li>';
+  }).join('');
+
+  return '<div class="fpop" id="pop-' + f.cle + '" role="group" aria-label="' + escapeHtml(f.libelle) + '">'
+    + '<ul class="fopts">' + lignes + '</ul>'
+    + '<div class="fpop-ft">'
+    + '<button class="fpop-eff" type="button" onclick="viderFacette(\'' + f.cle + '\')">Effacer</button>'
+    + '<button class="fpop-ok" type="button" onclick="validerFacette(\'' + f.cle + '\')">Voir les offres</button>'
+    + '</div></div>';
+}
+
+function boutonFacette(f) {
+  const sel = ETAT_FILTRES[f.cle];
+  const n = sel.length;
+  const actif = n > 0;
+  // Une seule valeur : son nom remplace le libellé. Deux : le libellé et un
+  // compte. Un panneau ouvert montre le brouillon, pas encore l'appliqué.
+  const libelle = n === 1 ? libelleOption(f.cle, sel[0]) : f.libelle;
+  const compte = n > 1 ? '<span class="fnb">' + n + '</span>' : '';
+  const lecture = actif
+    ? '<span class="fsr">' + (n === 1 ? '1 filtre actif' : n + ' filtres actifs') + '</span>'
+    : '';
+  const ouvert = facetteOuverte === f.cle;
+  return '<div class="fsel" data-facette="' + f.cle + '">'
+    + '<button class="chip fbtn' + (actif ? ' actif' : '') + '" type="button" id="btn-' + f.cle + '"'
+    + ' aria-expanded="' + (ouvert ? 'true' : 'false') + '" aria-controls="pop-' + f.cle + '"'
+    + ' onclick="basculerFacette(\'' + f.cle + '\', event)">'
+    + '<span class="flib">' + escapeHtml(String(libelle)) + '</span>' + compte + lecture
+    + '<svg class="farrow" viewBox="0 0 24 24" fill="none" stroke="currentColor"'
+    + ' stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+    + '<path d="M6 9l6 6 6-6"></path></svg>'
+    + '</button>'
+    + (ouvert ? panneauFacette(f) : '')
+    + '</div>';
+}
+
+function renderFacettes() {
+  if (!chipsEl) return;
+  const reset = '<button class="chip" type="button" onclick="resetFilters()">'
+    + '<span class="ms" style="font-size:13px;">restart_alt</span>Réinitialiser</button>';
+  chipsEl.innerHTML = FACETTES.map(boutonFacette).join('') + reset;
+}
+
+function majFacette(cle) {
+  const f = facetteParCle(cle);
+  const hote = chipsEl && chipsEl.querySelector('.fsel[data-facette="' + cle + '"]');
+  if (!hote || !f) return;
+  hote.outerHTML = boutonFacette(f);
+}
+
+// Pose le panneau sous son bouton, en le ramenant dans la fenetre quand il
+// deborderait a droite ou en bas. La largeur reelle n'est connue qu'apres
+// insertion : on mesure, puis on place.
+function positionnerPanneau(cle) {
+  const panneau = chipsEl && chipsEl.querySelector('#pop-' + cle);
+  const bouton = chipsEl && chipsEl.querySelector('#btn-' + cle);
+  if (!panneau || !bouton) return;
+  const b = bouton.getBoundingClientRect();
+  const largeur = panneau.offsetWidth;
+  const hauteur = panneau.offsetHeight;
+  const marge = 8;
+  let gauche = b.left;
+  if (gauche + largeur > window.innerWidth - marge) {
+    gauche = Math.max(marge, window.innerWidth - largeur - marge);
+  }
+  let haut = b.bottom + 6;
+  if (haut + hauteur > window.innerHeight - marge) {
+    haut = Math.max(marge, b.top - hauteur - 6);
+  }
+  panneau.style.left = Math.round(gauche) + 'px';
+  panneau.style.top = Math.round(haut) + 'px';
+}
+
+function basculerFacette(cle, evenement) {
+  if (evenement) evenement.stopPropagation();
+  if (facetteOuverte === cle) { fermerFacettes(); return; }
+  facetteOuverte = cle;
+  BROUILLON = { cle, valeurs: ETAT_FILTRES[cle].slice() };
+  // Une seule facette ouverte à la fois : les autres se referment d'elles-mêmes.
+  renderFacettes();
+  positionnerPanneau(cle);
+  const premier = chipsEl.querySelector('#pop-' + cle + ' input');
+  if (premier) premier.focus();
+  compterOptions(cle);
+}
+
+function fermerFacettes(donnerFocus) {
+  const ouverte = facetteOuverte;
+  facetteOuverte = null;
+  BROUILLON = null;
+  renderFacettes();
+  if (donnerFocus && ouverte) {
+    const bouton = chipsEl.querySelector('#btn-' + ouverte);
+    if (bouton) bouton.focus();
+  }
+}
+
+function choisirOption(cle, valeur, coche) {
+  if (!BROUILLON || BROUILLON.cle !== cle) {
+    BROUILLON = { cle, valeurs: ETAT_FILTRES[cle].slice() };
+  }
+  const f = facetteParCle(cle);
+  if (!f.multiple) {
+    BROUILLON.valeurs = [valeur];
+  } else if (coche) {
+    if (BROUILLON.valeurs.indexOf(valeur) < 0) BROUILLON.valeurs.push(valeur);
+  } else {
+    BROUILLON.valeurs = BROUILLON.valeurs.filter(v => v !== valeur);
+  }
+  // Rien n'est appliqué ici : le brouillon attend « Voir les offres ».
+}
+
+function viderFacette(cle) {
+  if (!BROUILLON || BROUILLON.cle !== cle) {
+    BROUILLON = { cle, valeurs: ETAT_FILTRES[cle].slice() };
+  }
+  BROUILLON.valeurs = [];
+  const hote = chipsEl.querySelector('#pop-' + cle);
+  if (hote) hote.outerHTML = panneauFacette(facetteParCle(cle));
+  const premier = chipsEl.querySelector('#pop-' + cle + ' input');
+  if (premier) premier.focus();
+}
+
+function validerFacette(cle) {
+  ETAT_FILTRES[cle] = (BROUILLON && BROUILLON.cle === cle ? BROUILLON.valeurs : []).slice();
+  fermerFacettes(true);
+  applyFilters();
+}
+
+// Combien d'offres chaque valeur ouvrirait, les autres filtres inchangés.
+// Une requête par valeur, une seule fois par état : le panneau s'ouvre
+// tout de suite, les comptes arrivent ensuite, et un compte inconnu reste
+// vide plutôt que faux.
+async function compterOptions(cle) {
+  const f = facetteParCle(cle);
+  if (!f) return;
+  const signature = signatureFiltres();
+  const cleCache = signature + '|' + cle;
+  if (cacheComptes.has(cleCache)) {
+    afficherComptes(cle, cacheComptes.get(cleCache));
+    return;
+  }
+  cacheComptes.set(cleCache, {});   // réserve la clé : pas de double appel
+
+  const base = JSON.parse(signature);
+  const resultats = {};
+  await Promise.all(f.options.map(async ([valeur]) => {
+    try {
+      const filtres = JSON.parse(JSON.stringify(base));
+      filtres[cle] = f.multiple
+        ? Array.from(new Set((ETAT_FILTRES[cle] || []).concat([valeur])))
+        : [valeur];
+      const r = await fetch(buildJobsUrl(1, filtres, 1));
+      if (!r.ok) return;
+      const d = await r.json();
+      resultats[valeur] = d.pagination ? d.pagination.total : (d.data || []).length;
+    } catch (e) {
+      /* le compte reste inconnu : il ne bloque pas le filtre */
+    }
+  }));
+
+  cacheComptes.set(cleCache, resultats);
+  if (facetteOuverte === cle) afficherComptes(cle, resultats);
+}
+
+function afficherComptes(cle, comptes) {
+  const hote = chipsEl && chipsEl.querySelector('#pop-' + cle);
+  if (!hote) return;
+  Object.entries(comptes).forEach(([valeur, n]) => {
+    const cible = hote.querySelector('.fopt-n[data-opt="' + valeur + '"]');
+    if (cible) cible.textContent = String(n);
+    if (n === 0) {
+      const ligne = cible && cible.closest('.fopt');
+      if (ligne) ligne.classList.add('vide');
+    }
+  });
+}
+
+// Fermeture au clic extérieur et à Échap. Posés une fois, pas à chaque rendu.
+document.addEventListener('click', (e) => {
+  // `isConnected` : un bouton du panneau peut redessiner ce panneau pendant
+  // son propre clic (« Effacer »). La cible est alors detachee du document,
+  // et « hors de #chips » se lirait a tort comme un clic exterieur — le
+  // panneau se fermerait a chaque effacement.
+  if (!e.target || !e.target.isConnected) return;
+  if (facetteOuverte && chipsEl && !chipsEl.contains(e.target)) fermerFacettes(false);
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && facetteOuverte) { e.stopPropagation(); fermerFacettes(true); }
+});
+// Le panneau est pose sur la fenetre : un defilement le laisserait derriere
+// son bouton. Il se ferme — c'est plus sur qu'un panneau qui derive.
+window.addEventListener('scroll', () => { if (facetteOuverte) fermerFacettes(false); }, true);
+window.addEventListener('resize', () => { if (facetteOuverte) positionnerPanneau(facetteOuverte); });
+
 // Filtres actifs : ce que les visiteurs cherchent réellement.
 function paramsFiltres(reinitialise) {
   const f = currentFilters();
   const p = {};
-  if (f.contract)   p.filtre_contrat    = f.contract;
-  if (f.specialty)  p.filtre_specialite = f.specialty;
-  if (f.experience) p.filtre_experience = f.experience;
-  if (f.ats)        p.filtre_source     = f.ats;
-  if (f.city)       p.filtre_ville      = f.city;
+  // Une dimension peut porter plusieurs valeurs : elles partent jointes par
+  // une virgule, comme dans la requete. GA4 veut une valeur, pas un tableau.
+  const joint = (v) => (Array.isArray(v) ? v.join(',') : (v || ''));
+  if (joint(f.contract))   p.filtre_contrat    = joint(f.contract);
+  if (joint(f.specialty))  p.filtre_specialite = joint(f.specialty);
+  if (joint(f.experience)) p.filtre_experience = joint(f.experience);
+  if (joint(f.ats))        p.filtre_source     = joint(f.ats);
+  if (f.city)              p.filtre_ville      = f.city;
   if (reinitialise) p.filtres_reinitialises = true;
   return p;
 }
@@ -1470,7 +1967,11 @@ function paramsFiltres(reinitialise) {
 // jamais la compter.
 function compteFiltres() {
   const f = currentFilters();
-  const actifs = [f.contract, f.specialty, f.experience, f.ats, f.city].filter(Boolean).length;
+  // Une dimension cochee compte pour UN, meme avec trois valeurs : c'est la
+  // dimension qui est filtree, pas le nombre de cases.
+  const actifs = [f.contract, f.specialty, f.experience, f.ats]
+    .filter(v => (Array.isArray(v) ? v.length > 0 : !!v)).length
+    + (f.city ? 1 : 0);
   return { filters_count: actifs };
 }
 
@@ -1533,52 +2034,79 @@ function getUrlPage() {
 // Les paramètres sont posés sur les champs, pas passés à la requête : les
 // selects affichent alors le filtre appliqué, et la liste se charge par le même
 // chemin que si l'internaute l'avait choisi lui-même. Une seule logique.
+// Chaque facette accepte deux ecritures : la francaise et celle de l'API.
+// Une adresse partagee avant ce lot porte une valeur ; elle reste valable,
+// et devient une liste d'un element.
 const PARAMETRES_URL = {
-  q: 'q-input',
-  ville: 'city-input', city: 'city-input',
-  contrat: 'contract-filter', contract: 'contract-filter',
-  specialite: 'specialty-filter', specialty: 'specialty-filter',
-  experience: 'experience-filter',
-  ats: 'ats-filter',
-  days: 'date-filter', jours: 'date-filter',
+  ville: 'city', city: 'city',
+  contrat: 'contract', contract: 'contract',
+  specialite: 'specialty', specialty: 'specialty',
+  experience: 'experience',
+  ats: 'ats',
+  days: 'days', jours: 'days',
 };
+
+function valeursDepuisAdresse(brut) {
+  return String(brut || '').split(',').map(v => v.trim()).filter(Boolean);
+}
 
 function remplirDepuisAdresse() {
   const params = new URLSearchParams(window.location.search);
-  Object.entries(PARAMETRES_URL).forEach(([cle, id]) => {
+  Object.entries(PARAMETRES_URL).forEach(([cle, facette]) => {
     const valeur = params.get(cle);
     if (!valeur) return;
-    const champ = document.getElementById(id);
-    if (champ) champ.value = valeur;
+    const f = facetteParCle(facette);
+    if (!f) return;
+    const connues = valeursDepuisAdresse(valeur)
+      .filter(v => f.options.some(o => o[0] === v));
+    // Une valeur hors liste est ignoree : mieux vaut aucun filtre qu'un
+    // filtre qui ne rend rien et ne s'affiche nulle part.
+    ETAT_FILTRES[facette] = f.multiple ? connues : connues.slice(0, 1);
   });
+  const q = params.get('q');
+  if (q) { const champ = document.getElementById('q-input'); if (champ) champ.value = q; }
+  const ville = params.get('ville') || params.get('city');
+  if (ville) { const champ = document.getElementById('city-input'); if (champ) champ.value = ville; }
+  renderFacettes();
 }
 
 // ── Fetch une page serveur ─────────────────────────────────────────────────
 function currentFilters() {
+  // Les cinq facettes viennent de l'etat, et non du DOM : c'est ce qui
+  // permet une valeur multiple, et une seule source pour la liste, les
+  // boutons et l'adresse.
   return {
     q: document.getElementById('q-input')?.value.trim() || '',
     city: document.getElementById('city-input')?.value.trim() || '',
-    contract: document.getElementById('contract-filter')?.value || '',
-    specialty: document.getElementById('specialty-filter')?.value || '',
-    experience: document.getElementById('experience-filter')?.value || '',
-    ats: document.getElementById('ats-filter')?.value || '',
-    days: document.getElementById('date-filter')?.value || '',
+    contract: ETAT_FILTRES.contract.slice(),
+    specialty: ETAT_FILTRES.specialty.slice(),
+    experience: ETAT_FILTRES.experience.slice(),
+    ats: ETAT_FILTRES.ats.slice(),
+    days: ETAT_FILTRES.days.slice(),
   };
 }
-function buildJobsUrl(page) {
-  const f = currentFilters();
+function buildJobsUrl(page, filtres, parPage) {
+  // `filtres` sert aux comptes de facettes : on interroge l'API avec un etat
+  // qui n'est pas encore applique, sans toucher a celui de la liste.
+  const f = Object.assign({ q: '', city: '', contract: [], specialty: [],
+                            experience: [], ats: [], days: [] }, filtres || currentFilters());
   const qKey = f.q.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[- ]/g, '_');
   const companySource = COMPANY_QUERY_ALIASES[f.q.toLowerCase()] || (KNOWN_SOURCES.has(qKey) ? qKey : '');
   const isSearch = f.q.length >= 2;
-  const params = new URLSearchParams({ per_page: PAGE_SIZE, limit: PAGE_SIZE, page });
+  const taille = parPage || PAGE_SIZE;
+  const params = new URLSearchParams({ per_page: taille, limit: taille, page });
   if (isSearch) params.set('q', f.q);
   const normalizedCity = normalizeLocationQuery(f.city);
   if (normalizedCity) params.set('city', normalizedCity);
-  if (f.contract) params.set('contract', f.contract);
-  if (f.specialty) params.set('specialty', f.specialty);
-  if (f.experience) params.set('experience', f.experience);
-  if (f.ats) params.set('ats', f.ats);
-  if (f.days) params.set('days', f.days);
+  // Une dimension sans valeur ne part pas ; plusieurs valeurs partent
+  // jointes, et l'API les lit comme un OU.
+  const liste = (v) => (Array.isArray(v) ? v : (v ? String(v).split(',') : []))
+    .map(x => String(x).trim()).filter(Boolean);
+  if (liste(f.contract).length)   params.set('contract', liste(f.contract).join(','));
+  if (liste(f.specialty).length)  params.set('specialty', liste(f.specialty).join(','));
+  if (liste(f.experience).length) params.set('experience', liste(f.experience).join(','));
+  if (liste(f.ats).length)        params.set('ats', liste(f.ats).join(','));
+  if (liste(f.days).length)       params.set('days', liste(f.days)[0]);
   // Plus de filtre France côté navigateur : la portée géographique est
   // appliquée à la collecte (cabinets de conseil uniquement).
   if (!isSearch) params.set('order', 'desc');
@@ -1605,7 +2133,11 @@ function applyFilters() {
 }
 function resetFilters() {
   mesureEnAttente = { nom: 'filter_apply', params: paramsFiltres(true) };
-  ['q-input','city-input','contract-filter','specialty-filter','experience-filter','ats-filter','date-filter'].forEach(id => { const el=document.getElementById(id); if (el) el.value=''; });
+  Object.keys(ETAT_FILTRES).forEach(cle => { ETAT_FILTRES[cle] = []; });
+  facetteOuverte = null;
+  BROUILLON = null;
+  ['q-input', 'city-input'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  renderFacettes();
   loadJobs(1);
 }
 
@@ -2282,7 +2814,7 @@ function renderFeed() {
       <div class="ct">
         ${renderCompanyLogo(co, 'clogo')}
         <div class="ci">
-          <a class="ctitle" href="${urlOffre(j.slug)}">${escapeHtml(j.title)}</a>
+          <a class="ctitle" href="${urlOffre(j.slug)}">${escapeHtml(titreAffichage(j.title))}</a>
           <div class="csub">${co.name || j.source}</div>
         </div>
         <button class="bel" type="button"
@@ -2535,14 +3067,14 @@ function dessinerDetail(j, sansCorps) {
       <button class="btn-back" onclick="closeDetail()">← Toutes les offres</button>
       <div class="d-entete">
         <div class="d-entete-corps">
-          <h1 class="dtitle">${j.title}</h1>
+          <h1 class="dtitle">${escapeHtml(titreAffichage(j.title))}</h1>
           <div class="dco">${co.name || j.source}${j.ville ? ' · ' + escapeHtml(j.ville) : ''}</div>
           <div class="pastilles">${pastillesOffreHtml(j)}</div>
         </div>
         <div class="dact">
           ${j.source_url ? `<a class="bap" href="${escapeHtml(j.source_url)}" target="_blank" rel="nofollow noopener" onclick="mesurerClicPostuler()">Postuler</a>` : ''}
           <button class="bsh bal" type="button"
-                  data-titre="${escapeHtml(j.title)}"
+                  data-titre="${escapeHtml(titreAffichage(j.title))}"
                   data-societe="${escapeHtml(co.name || j.source || '')}"
                   data-logo="${escapeHtml(initialesSociete(co.name || j.source || '?'))}"
                   data-criteres="${escapeHtml(JSON.stringify(criteresAlerte(j)))}"
@@ -2694,6 +3226,9 @@ document.getElementById('q-input')?.addEventListener('keydown', e => { if (e.key
 document.getElementById('city-input')?.addEventListener('keydown', e => { if (e.key === 'Enter') applySearch(); });
 
 // ── Init ───────────────────────────────────────────────────────────────────
+// Les facettes se dessinent d'abord : l'adresse s'y applique ensuite, et
+// les boutons montrent tout de suite le filtre recu.
+renderFacettes();
 remplirDepuisAdresse();
 loadJobs();
 </script>

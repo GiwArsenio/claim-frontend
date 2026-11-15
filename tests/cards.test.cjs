@@ -26,9 +26,15 @@ assert.ok(!html.includes('specialty_tags'), 'les tags errones ne doivent plus et
 const skillsBlock = html.match(/function skillsHtml\(j\)[\s\S]*?\n\}/)[0];
 assert.ok(skillsBlock.includes("Repérés dans le texte de l'offre"), 'le bloc doit rester prudent');
 assert.ok(html.includes('Non précisé'));
-const filter = html.match(/<select id="specialty-filter"[\s\S]*?<\/select>/)[0];
-for (const name of ['actuariat','ia_data','souscription_technique']) assert.ok(filter.includes(`value="${name}"`));
-assert.ok(!filter.includes('actuariat_iard'));
+// Les listes natives ont laisse la place aux facettes : les valeurs vivent
+// desormais dans la table FACETTES, seule source de l'affichage et de la
+// requete. L'intention du test est inchangee : les trois specialites
+// restent proposees.
+const facettes = html.match(/const FACETTES = \[[\s\S]*?\n\];/)[0];
+for (const name of ['actuariat','ia_data','souscription_technique']) {
+  assert.ok(facettes.includes(`'${name}'`), `specialite manquante : ${name}`);
+}
+assert.ok(!facettes.includes('actuariat_iard'), 'la specialite brute ne doit pas etre proposee');
 console.log('Cards Jev regression tests passed');
 
 // Le libellé de lieu vient de l'API (champ ville) : la carte ne doit plus

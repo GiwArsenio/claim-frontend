@@ -74,12 +74,17 @@ function filtrer(q) {
   }
   const ville = (q.get('city') || '').toLowerCase();
   if (ville) offres = offres.filter((o) => (o.city || '').toLowerCase().includes(ville));
-  const contrat = q.get('contract');
-  if (contrat) offres = offres.filter((o) => o.contract_type === contrat);
-  const specialite = q.get('specialty');
-  if (specialite) offres = offres.filter((o) => o.specialty === specialite);
-  const experience = q.get('experience');
-  if (experience) offres = offres.filter((o) => o.experience_level === experience);
+  /* Une dimension peut porter plusieurs valeurs jointes par une virgule :
+     le board envoie « cdi,stage ». L'API les lit comme un OU ; le serveur de
+     test doit en faire autant, sinon un test passerait sur un filtre que la
+     production ne rend pas. */
+  const liste = (v) => (v || '').split(',').map((x) => x.trim()).filter(Boolean);
+  const contrat = liste(q.get('contract'));
+  if (contrat.length) offres = offres.filter((o) => contrat.includes(o.contract_type));
+  const specialite = liste(q.get('specialty'));
+  if (specialite.length) offres = offres.filter((o) => specialite.includes(o.specialty));
+  const experience = liste(q.get('experience'));
+  if (experience.length) offres = offres.filter((o) => experience.includes(o.experience_level));
 
   return offres;
 }
