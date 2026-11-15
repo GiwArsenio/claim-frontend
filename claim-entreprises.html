@@ -5,16 +5,15 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Les entreprises qui recrutent en Actuariat & IA — Claim!</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-.ms {
-  font-family: 'Material Symbols Outlined';
-  font-weight: normal; font-style: normal; line-height: 1;
-  letter-spacing: normal; text-transform: none;
-  display: inline-block; white-space: nowrap;
-  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-  vertical-align: middle;
+/* Icônes Lucide, en SVG inline. Le trait de 1.5 et l'alignement optique
+   sont posés ici une fois ; les pages n'ont plus de police à charger. */
+.ic {
+  display: inline-block;
+  flex: 0 0 auto;
+  vertical-align: -0.125em;
+  stroke-width: 1.5;
 }
 
 html, body { font-family: 'Inter', sans-serif; color: var(--encre); background: var(--champ); }
@@ -300,7 +299,7 @@ html, body { font-family: 'Inter', sans-serif; color: var(--encre); background: 
 .ec:hover .ec-see { color: var(--teal); }
 
 .empty-state { grid-column: 1/-1; text-align: center; padding: 3rem 1rem; color: var(--gris-doux); }
-.empty-state .ms { font-size: 2.5rem; display: block; margin-bottom: .75rem; opacity: .4; }
+.empty-state .ic { width: 40px; height: 40px; display: block; margin-bottom: .75rem; opacity: .4; }
 .empty-state p { font-size: .875rem; font-weight: 600; }
 .empty-state small { font-size: .75rem; opacity: .7; }
 
@@ -448,8 +447,8 @@ html, body { font-family: 'Inter', sans-serif; color: var(--encre); background: 
   }
   .bm-nav a.on { color: var(--blanc); background: var(--surbrillance); }
   .bm-nav a:active { background: var(--surbrillance-forte); }
-  .bm-nav a .ms { font-size: 20px; color: rgba(255,255,255,.6); }
-  .bm-nav a.on .ms { color: rgba(255,255,255,.9); }
+  .bm-nav a .ic { width: 20px; height: 20px; color: rgba(255,255,255,.6); }
+  .bm-nav a.on .ic { color: rgba(255,255,255,.9); }
   .bm-footer {
     padding: 1rem 1.25rem 1.5rem;
     border-top: 1px solid rgba(255,255,255,.12);
@@ -580,7 +579,7 @@ en documentation).
        aria-labelledby="consent-titre" aria-describedby="consent-texte" hidden>
   <div class="consent-interieur">
     <div class="consent-corps">
-      <span class="consent-sceau" aria-hidden="true"><span class="ms">cookie</span></span>
+      <span class="consent-sceau" aria-hidden="true"><svg class="ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5"/><path d="M8.5 8.5v.01"/><path d="M16 15.5v.01"/><path d="M12 12v.01"/><path d="M11 17v.01"/><path d="M7 14v.01"/></svg></span>
       <div>
         <p class="consent-titre" id="consent-titre">Mesure d'audience et parcours</p>
         <p class="consent-texte" id="consent-texte">Claim! mesure la fréquentation
@@ -626,7 +625,7 @@ en documentation).
   background: var(--teal-clair); border: 1px solid var(--teal-bord);
   color: var(--teal);
 }
-.consent-sceau .ms { font-size: 20px; }
+.consent-sceau .ic { width: 20px; height: 20px; }
 
 .consent-titre {
   margin: 0 0 .1rem; font-size: .95rem; font-weight: 700;
@@ -813,6 +812,7 @@ en documentation).
      fichier porte l'identifiant du projet et le signal de consentement. -->
 <script src="/assets/clarity.js" defer></script><!-- Thème jour / nuit : la préférence est posée avant le rendu, pour qu'aucune
      page ne s'affiche en clair avant de basculer. -->
+<script src="/assets/icones.js"></script>
 <style id="plan-critique">
 /* CSS CRITIQUE DU PLAN — injecte, ne pas modifier ici */
 /* ══ CSS CRITIQUE DU PLAN — doit precede la feuille de theme ══
@@ -968,7 +968,7 @@ body {
       <!-- Recherche -->
       <div class="sbar">
         <div class="sf">
-          <span class="ms" style="color:var(--gris-doux);font-size:17px;">search</span>
+          <svg class="ic" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="color:var(--gris-doux)"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
           <input type="text" id="search-input" data-clarity-mask="true" placeholder="Entreprise, secteur, technologie…"/>
         </div>
         <button class="btn-srch">Rechercher</button>
@@ -979,7 +979,7 @@ body {
       <!-- Dropdown 1 : Type d'entreprise -->
       <div class="dd-wrap" id="dd-type">
         <button class="dd-trigger" id="trig-type">
-          <span class="ms" style="font-size:13px;">domain</span>
+          <svg class="ic" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>
           <span class="dd-label">Type</span>
           <span class="ms dd-arrow">expand_more</span>
         </button>
@@ -990,25 +990,25 @@ body {
           </div>
           <div class="dd-divider"></div>
           <div class="dd-option" data-group="type" data-val="assureur">
-            <span class="check"></span><span class="ms" style="font-size:14px;color:var(--gris-doux);">shield</span>Assureur
+            <span class="check"></span><svg class="ic" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="color:var(--gris-doux)"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>Assureur
           </div>
           <div class="dd-option" data-group="type" data-val="mutuelle">
-            <span class="check"></span><span class="ms" style="font-size:14px;color:var(--gris-doux);">favorite</span>Mutuelle / IP
+            <span class="check"></span><svg class="ic" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="color:var(--gris-doux)"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>Mutuelle / IP
           </div>
           <div class="dd-option" data-group="type" data-val="reassurance">
-            <span class="check"></span><span class="ms" style="font-size:14px;color:var(--gris-doux);">public</span>Réassurance
+            <span class="check"></span><svg class="ic" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="color:var(--gris-doux)"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>Réassurance
           </div>
           <div class="dd-option" data-group="type" data-val="courtier">
-            <span class="check"></span><span class="ms" style="font-size:14px;color:var(--gris-doux);">handshake</span>Courtier
+            <span class="check"></span><svg class="ic" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="color:var(--gris-doux)"><path d="m11 17 2 2a1 1 0 1 0 3-3"/><path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4"/><path d="m21 3 1 11h-2"/><path d="M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3"/><path d="M3 4h8"/></svg>Courtier
           </div>
           <div class="dd-option" data-group="type" data-val="insurtech">
-            <span class="check"></span><span class="ms" style="font-size:14px;color:var(--gris-doux);">rocket_launch</span>InsurTech
+            <span class="check"></span><svg class="ic" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="color:var(--gris-doux)"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>InsurTech
           </div>
           <div class="dd-option" data-group="type" data-val="conseil">
-            <span class="check"></span><span class="ms" style="font-size:14px;color:var(--gris-doux);">analytics</span>Conseil / Audit
+            <span class="check"></span><svg class="ic" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="color:var(--gris-doux)"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>Conseil / Audit
           </div>
           <div class="dd-option" data-group="type" data-val="recrutement">
-            <span class="check"></span><span class="ms" style="font-size:14px;color:var(--gris-doux);">person_search</span>Cabinet RH
+            <span class="check"></span><svg class="ic" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="color:var(--gris-doux)"><circle cx="10" cy="8" r="5"/><path d="M2 21a8 8 0 0 1 10.434-7.62"/><circle cx="18" cy="18" r="3"/><path d="m22 22-1.9-1.9"/></svg>Cabinet RH
           </div>
         </div>
       </div>
@@ -1016,7 +1016,7 @@ body {
       <!-- Dropdown 2 : Télétravail -->
       <div class="dd-wrap" id="dd-remote">
         <button class="dd-trigger" id="trig-remote">
-          <span class="ms" style="font-size:13px;">home_work</span>
+          <svg class="ic" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>
           <span class="dd-label">Télétravail</span>
           <span class="ms dd-arrow">expand_more</span>
         </button>
@@ -1027,19 +1027,19 @@ body {
           </div>
           <div class="dd-divider"></div>
           <div class="dd-option" data-group="remote" data-val="full">
-            <span class="check"></span><span class="ms" style="font-size:14px;color:var(--gris-doux);">laptop_mac</span>Full remote
+            <span class="check"></span><svg class="ic" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="color:var(--gris-doux)"><path d="M20 16V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9m16 0H4m16 0 1.28 2.55a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45L4 16"/></svg>Full remote
           </div>
           <div class="dd-option" data-group="remote" data-val="3j">
-            <span class="check"></span><span class="ms" style="font-size:14px;color:var(--gris-doux);">home_work</span>3 jours / semaine
+            <span class="check"></span><svg class="ic" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="color:var(--gris-doux)"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>3 jours / semaine
           </div>
           <div class="dd-option" data-group="remote" data-val="2j">
-            <span class="check"></span><span class="ms" style="font-size:14px;color:var(--gris-doux);">home_work</span>2 jours / semaine
+            <span class="check"></span><svg class="ic" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="color:var(--gris-doux)"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>2 jours / semaine
           </div>
           <div class="dd-option" data-group="remote" data-val="1j">
-            <span class="check"></span><span class="ms" style="font-size:14px;color:var(--gris-doux);">home_work</span>1 jour / semaine
+            <span class="check"></span><svg class="ic" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="color:var(--gris-doux)"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>1 jour / semaine
           </div>
           <div class="dd-option" data-group="remote" data-val="none">
-            <span class="check"></span><span class="ms" style="font-size:14px;color:var(--gris-doux);">location_city</span>Présentiel uniquement
+            <span class="check"></span><svg class="ic" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="color:var(--gris-doux)"><rect width="16" height="20" x="4" y="2" rx="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>Présentiel uniquement
           </div>
         </div>
       </div>
@@ -1047,7 +1047,7 @@ body {
       <!-- Dropdown 3 : Avantages -->
       <div class="dd-wrap" id="dd-avantages">
         <button class="dd-trigger" id="trig-avantages">
-          <span class="ms" style="font-size:13px;">savings</span>
+          <svg class="ic" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2h0V5z"/><path d="M2 9v1c0 1.1.9 2 2 2h1"/><path d="M16 11h.01"/></svg>
           <span class="dd-label">Avantages</span>
           <span class="ms dd-arrow">expand_more</span>
         </button>
@@ -1058,19 +1058,19 @@ body {
           </div>
           <div class="dd-divider"></div>
           <div class="dd-option" data-group="avantages" data-val="pee">
-            <span class="check"></span><span class="ms" style="font-size:14px;color:var(--gris-doux);">account_balance</span>PEE — Plan Épargne Entreprise
+            <span class="check"></span><svg class="ic" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="color:var(--gris-doux)"><line x1="3" x2="21" y1="22" y2="22"/><line x1="6" x2="6" y1="18" y2="11"/><line x1="10" x2="10" y1="18" y2="11"/><line x1="14" x2="14" y1="18" y2="11"/><line x1="18" x2="18" y1="18" y2="11"/><polygon points="12 2 20 7 4 7"/></svg>PEE — Plan Épargne Entreprise
           </div>
           <div class="dd-option" data-group="avantages" data-val="participation">
-            <span class="check"></span><span class="ms" style="font-size:14px;color:var(--gris-doux);">pie_chart</span>Participation aux bénéfices
+            <span class="check"></span><svg class="ic" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="color:var(--gris-doux)"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>Participation aux bénéfices
           </div>
           <div class="dd-option" data-group="avantages" data-val="interessement">
-            <span class="check"></span><span class="ms" style="font-size:14px;color:var(--gris-doux);">trending_up</span>Intéressement
+            <span class="check"></span><svg class="ic" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="color:var(--gris-doux)"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>Intéressement
           </div>
           <div class="dd-option" data-group="avantages" data-val="abondement">
-            <span class="check"></span><span class="ms" style="font-size:14px;color:var(--gris-doux);">add_circle</span>Abondement
+            <span class="check"></span><svg class="ic" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="color:var(--gris-doux)"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>Abondement
           </div>
           <div class="dd-option" data-group="avantages" data-val="cse">
-            <span class="check"></span><span class="ms" style="font-size:14px;color:var(--gris-doux);">celebration</span>CSE — Comité Social &amp; Éco.
+            <span class="check"></span><svg class="ic" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="color:var(--gris-doux)"><path d="M5.8 11.3 2 22l10.7-3.79"/><path d="M4 3h.01"/><path d="M22 8h.01"/><path d="M15 2h.01"/><path d="M22 20h.01"/><path d="m22 2-2.24.75a2.9 2.9 0 0 0-1.96 3.12c.1.86-.57 1.63-1.45 1.63h-.38c-.86 0-1.6.6-1.76 1.44L14 10"/><path d="m22 13-.82-.33c-.86-.34-1.82.2-1.98 1.11c-.11.7-.72 1.22-1.43 1.22H17"/><path d="m11 2 .33.82c.34.86-.2 1.82-1.11 1.98C9.52 4.9 9 5.52 9 6.23V7"/><path d="M11 13c1.93 1.93 2.83 4.17 2 5-.83.83-3.07-.07-5-2-1.93-1.93-2.83-4.17-2-5 .83-.83 3.07.07 5 2Z"/></svg>CSE — Comité Social &amp; Éco.
           </div>
         </div>
       </div>
@@ -1083,7 +1083,7 @@ body {
 
       <!-- Reset -->
       <button class="btn-reset hidden" id="btn-reset">
-        <span class="ms" style="font-size:11px;">close</span>Réinitialiser
+        <svg class="ic" viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>Réinitialiser
       </button>
 
     </div>
@@ -1166,7 +1166,7 @@ const LABELS = {
 };
 
 const REMOTE_LABEL = { full:'Full remote', '3j':'3j/sem.', '2j':'2j/sem.', '1j':'1j/sem.', none:'Présentiel' };
-const REMOTE_ICON  = { full:'laptop_mac', '3j':'home_work', '2j':'home_work', '1j':'home_work', none:'location_city' };
+const REMOTE_ICON  = { full:'laptop', '3j':'building-2', '2j':'building-2', '1j':'building-2', none:'building' };
 const AV_LABEL     = { pee:'PEE', participation:'Participation', interessement:'Intéressement', abondement:'Abondement', cse:'CSE' };
 
 /* ══════════════════════════════════════════════
@@ -1329,7 +1329,7 @@ function render() {
 
   if (list.length === 0) {
     grid.innerHTML = `<div class="empty-state">
-      <span class="ms">search_off</span>
+      <svg class="ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m13.5 8.5-5 5"/><path d="m8.5 8.5 5 5"/><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
       <p>Aucune entreprise ne correspond à vos filtres.</p>
       <small>Essayez de modifier ou réinitialiser vos critères.</small>
     </div>`;
@@ -1354,18 +1354,18 @@ function render() {
           <div class="ec-kpi"><div class="ec-kl">Siège</div><div class="ec-kv">${c.hq}</div></div>
           <div class="ec-kpi">
             <div class="ec-kl">Télétravail</div>
-            <div class="ec-kv"><span class="ec-remote"><span class="ms" style="font-size:12px;">${REMOTE_ICON[c.remote]}</span>${REMOTE_LABEL[c.remote]}</span></div>
+            <div class="ec-kv"><span class="ec-remote">${ICONES.icone(REMOTE_ICON[c.remote] || 'building', { taille: 12 })}${REMOTE_LABEL[c.remote]}</span></div>
           </div>
         </div>
         <div class="ec-tags">${c.tags.map((t,i) => `<span class="ec-tag${i<2?' hl':''}">${t}</span>`).join('')}</div>
-        <div class="ec-avantages">${c.avantages.map(a => `<span class="ec-av"><span class="ms" style="font-size:10px;">savings</span>${AV_LABEL[a]}</span>`).join('')}</div>
+        <div class="ec-avantages">${c.avantages.map(a => `<span class="ec-av"><svg class="ic" viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2h0V5z"/><path d="M2 9v1c0 1.1.9 2 2 2h1"/><path d="M16 11h.01"/></svg>${AV_LABEL[a]}</span>`).join('')}</div>
       </div>
       <div class="ec-foot">
         <div class="ec-jobs${recruiting ? '' : ' no-jobs'}">
           <div class="dot"></div>
           ${recruiting ? `${c.jobs} offre${c.jobs>1?'s':''} en cours` : 'Aucune offre active'}
         </div>
-        <div class="ec-see">Voir le profil <span class="ms" style="font-size:14px;">arrow_forward</span></div>
+        <div class="ec-see">Voir le profil <svg class="ic" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></div>
       </div>
     `;
     grid.appendChild(el);
@@ -1397,18 +1397,18 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeBurger(
     <div class="bm-header">
       <a class="bm-logo" href="/" onclick="closeBurger()">Claim!</a>
       <button class="bm-close" onclick="closeBurger()">
-        <span class="ms" style="font-size:18px;">close</span>
+        <svg class="ic" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
       </button>
     </div>
     <nav class="bm-nav">
       <a href="job-board.html" onclick="closeBurger()">
-        <span class="ms">work</span>Offres d'emploi
+        <svg class="ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect width="20" height="14" x="2" y="6" rx="2"/><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>Offres d'emploi
       </a>
       <a href="/claim-entreprises.html" class="on" onclick="closeBurger()">
-        <span class="ms">business</span>Entreprises
+        <svg class="ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>Entreprises
       </a>
       <a href="claim-observatoire.html" onclick="closeBurger()">
-        <span class="ms">bar_chart</span>Observatoire de l'assurance
+        <svg class="ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>Observatoire de l'assurance
       </a>
     </nav>
     <div class="bm-footer">
