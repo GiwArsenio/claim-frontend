@@ -130,7 +130,12 @@ export async function rendreOffre(slug, env) {
       return reponseOffreAbsente('Cette offre n\'est plus disponible',
         'Cette adresse ne correspond à aucune offre publiée.', siteUrl);
     }
-    const urlCanonique = `${siteUrl}/offre/${encodeURIComponent(job.slug || slug)}`;
+    // Lot 4 — une fiche secondaire déclare la fiche principale comme canonique.
+    // Le regroupement vient d'une décision humaine (paire confirmée) ; l'API
+    // l'expose dans `canonical_slug`. Sans ce champ, le comportement est
+    // inchangé : la fiche reste sa propre canonique.
+    const slugCanonique = job.canonical_slug || job.slug || slug;
+    const urlCanonique = `${siteUrl}/offre/${encodeURIComponent(slugCanonique)}`;
     const { html } = await construire(job, urlCanonique);
     return new Response(reecrireLiens(html), {
       status: 200,

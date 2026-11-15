@@ -85,6 +85,30 @@ test('migration — panne temporaire API : pas de faux 404', async()=>{
  }finally{global.fetch=original;}
 });
 
+test('migration — une fiche regroupée déclare la principale comme canonique', async () => {
+ const {rendreOffre}=await import('../src/pages/offre.js');
+ const original=global.fetch;
+ try {
+  global.fetch=async url => {
+   const u=String(url);
+   if(u.includes('/jobs/')) return Response.json({
+    id:'aaaaaaaa-1111-2222-3333-444444444444',
+    slug:'offre-secondaire',
+    // Lot 4 : paire confirmée -> l'API désigne la fiche principale.
+    canonical_slug:'offre-principale',
+    source:'ey', title:'Consultant Senior', description_raw:'Une description suffisante.',
+   });
+   return Response.json({});
+  };
+  const r=await rendreOffre('offre-secondaire',{API_URL:'https://api.test/api/v1',SITE_URL:'https://claimyourjob.com/fr'});
+  const html=await r.text();
+  assert.match(html,/rel="canonical" href="https:\/\/claimyourjob\.com\/fr\/offre\/offre-principale"/,
+    'la canonique doit pointer vers la fiche principale');
+  assert.doesNotMatch(html,/rel="canonical" href="[^"]*offre-secondaire"/,
+    'la fiche secondaire ne doit pas se déclarer canonique');
+ } finally {global.fetch=original;}
+});
+
 test('migration — les offres de test ne sont jamais exposées', async () => {
  const {rendreSitemap}=await import('../src/pages/sitemap.js');
  const {rendreOffre}=await import('../src/pages/offre.js');
