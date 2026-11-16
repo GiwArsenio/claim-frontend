@@ -33,6 +33,9 @@ const aide = require('./aide-parcours.cjs');
 const { OFFRE_COMPLETE } = require('./fixtures/offres.cjs');
 
 const LARGEURS = [320, 360, 390, 430];
+/* Le bureau a sa propre colonne de liste : le titre y est aussi limite a
+   deux lignes, depuis la meme regle. */
+const BUREAU = { viewport: { width: 1440, height: 900 }, isMobile: false, hasTouch: false };
 
 /* L'annonce AXA qui a motivé le lot 4 : ses sections sont des <h2> en
    capitales, telles que la rédaction de la source les a écrites. */
@@ -115,6 +118,49 @@ test('M01 — un titre de carte tient sur deux lignes au plus', async () => {
       } finally {
         await ctx.close();
       }
+    }
+  } finally {
+    await aide.arreterNavigateur();
+    await aide.arreterServeur();
+  }
+});
+
+test('M01a — le bureau limite aussi les titres à deux lignes', async () => {
+  await aide.demarrerServeur();
+  await aide.demarrerNavigateur();
+
+  try {
+    const { ctx, page } = await aide.ouvrirPage(BUREAU);
+    try {
+      await page.goto(aide.BASE + '/job-board.html', { waitUntil: 'domcontentloaded' });
+      await page.waitForSelector('.jc', { timeout: 20000 });
+      await aide.attendre(page, 1200);
+
+      const releve = await page.evaluate(() => {
+        const titres = [...document.querySelectorAll('.jc .ctitle')].map((t) => {
+          const st = getComputedStyle(t);
+          return {
+            texte: t.textContent.trim(),
+            lignes: t.getBoundingClientRect().height / parseFloat(st.lineHeight),
+            retourLigne: st.whiteSpace,
+          };
+        });
+        return {
+          titres,
+          overflowX: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+        };
+      });
+
+      assert.equal(releve.overflowX, 0, 'défilement horizontal en bureau');
+      assert.ok(releve.titres.some((t) => t.lignes > 1.5),
+        'aucun titre ne passe à deux lignes en bureau : la règle ne s\'applique pas');
+      for (const t of releve.titres) {
+        assert.equal(t.retourLigne, 'normal', `titre encore sur une seule ligne : « ${t.texte} »`);
+        assert.ok(t.lignes <= 2.05,
+          `le titre dépasse deux lignes en bureau (${t.lignes.toFixed(2)}) : « ${t.texte} »`);
+      }
+    } finally {
+      await ctx.close();
     }
   } finally {
     await aide.arreterNavigateur();
@@ -279,15 +325,28 @@ test('M02b — « Réinitialiser » ne vide que les filtres, jamais la recherche
   try {
     const { ctx, page } = await ouvrirBoard(390);
     try {
+      /* Sur téléphone le bouton « Rechercher » a quitté la barre : la
+         recherche part de la touche Entrée du champ. C'est ce geste-là
+         qu'on éprouve, pas un bouton qui n'existe plus. */
       await page.fill('#q-input', 'actuaire');
       await aide.avecReponse(page, aide.estListeDuBoard, async () => {
-        await page.click('.btn-srch');
+        await page.press('#q-input', 'Enter');
       });
       await aide.attendre(page, 900);
 
       await page.click('#btn-filtres');
       await aide.attendre(page, 300);
       await page.selectOption('#experience-filter', 'senior');
+      await page.fill('#city-input', 'Paris');
+      await aide.avecReponse(page, aide.estListeDuBoard, async () => {
+        await page.click('.fp-appliquer');
+      });
+      await aide.attendre(page, 900);
+
+      /* « Réinitialiser » vide ce que le panneau montre — filtres ET
+         localisation — et laisse les mots-clés, restés dans la barre. */
+      await page.click('#btn-filtres');
+      await aide.attendre(page, 300);
       await page.click('.fp-reinit');
       await aide.attendre(page, 200);
 
@@ -299,7 +358,7 @@ test('M02b — « Réinitialiser » ne vide que les filtres, jamais la recherche
       }));
 
       assert.equal(apres.mots, 'actuaire', 'la réinitialisation a effacé les mots-clés');
-      assert.equal(apres.ville, '', 'la réinitialisation a touché la localisation');
+      assert.equal(apres.ville, '', 'la réinitialisation n\'a pas vidé la localisation du panneau');
       assert.equal(apres.experience, '', 'la réinitialisation n\'a pas vidé les filtres');
       assert.ok(apres.cartes > 0, 'la liste a été vidée par la réinitialisation');
     } finally {
@@ -351,7 +410,7 @@ test('M02c — le panneau ne survit pas au passage en bureau', async () => {
 
 /* ── 3. Bandeau compact ─────────────────────────────────────────────────── */
 
-test('M03 — le bandeau compacte le titre sans le perdre', async () => {
+test('M03 — le bloc titre a disparu, la barre tient seule', async () => {
   await aide.demarrerServeur();
   await aide.demarrerNavigateur();
 
@@ -361,49 +420,139 @@ test('M03 — le bandeau compacte le titre sans le perdre', async () => {
       const releve = await page.evaluate(() => {
         const h1 = document.querySelector('#hero h1');
         const sub = document.querySelector('#hero .sub');
+        const barre = document.querySelector('.sbar');
+        const bouton = document.querySelector('#btn-filtres');
         const premiere = document.querySelector('.jc');
         const r = (el) => el.getBoundingClientRect();
         return {
-          titreVide: !h1 || !h1.textContent.trim(),
-          titreVisible: r(h1).height > 0,
-          tailleTitre: parseFloat(getComputedStyle(h1).fontSize),
-          taillePromesse: parseFloat(getComputedStyle(sub).fontSize),
-          promesseVide: !sub || !sub.textContent.trim(),
-          blocTitrePromesse: Math.round(r(sub).bottom - r(h1).top),
+          /* Le titre reste dans le document — pour l'indexation et les
+             lecteurs d'écran — mais ne doit plus rien occuper à l'écran. */
+          titrePresent: !!h1 && !!h1.textContent.trim(),
+          titreMasque: h1 ? (r(h1).width <= 2 || r(h1).height <= 2) : true,
+          promesse: !!sub,
+          hauteurHero: Math.round(r(document.querySelector('#hero')).height),
+          memeLigne: Math.abs(r(barre).top - r(bouton).top) <= 3,
+          boutonDansEcran: r(bouton).right <= window.innerWidth + 1,
+          rechercheVisible: getComputedStyle(document.querySelector('.btn-srch')).display !== 'none',
           premiereCarteTop: Math.round(r(premiere).top),
-          premiereCarteBas: Math.round(r(premiere).bottom),
           fenetre: window.innerHeight,
         };
       });
 
-      assert.equal(releve.titreVide, false, 'le titre de la page a disparu');
-      assert.equal(releve.promesseVide, false, 'la promesse a disparu');
-      assert.ok(releve.titreVisible, 'le titre n\'est pas rendu');
-      assert.ok(releve.tailleTitre >= 15,
-        `le titre tombe à ${releve.tailleTitre} px : la hiérarchie ne tient plus`);
-      assert.ok(releve.tailleTitre > releve.taillePromesse,
-        'le titre n\'est plus plus grand que la promesse');
+      assert.ok(releve.titrePresent, 'le titre de niveau 1 a été supprimé du document');
+      assert.ok(releve.titreMasque, 'le titre est encore visible à l\'écran');
+      assert.equal(releve.promesse, false, 'la promesse est encore dans la page');
 
-      /* Le bloc mesuré valait 95 px avant le chantier. Vingt pour cent de
-         moins : 76 px. La borne est explicite pour qu'une dérive se voie. */
-      assert.ok(releve.blocTitrePromesse <= 78,
-        `le bloc titre + promesse mesure ${releve.blocTitrePromesse} px, au-delà de 78`);
+      /* La barre doit tenir sur une seule ligne : recherche et Filtres
+         côte à côte, comme la référence. 72 px laisse la place à la bordure
+         et à l'arrondi sans autoriser un retour à deux lignes. */
+      assert.ok(releve.hauteurHero <= 72,
+        `le bandeau mesure ${releve.hauteurHero} px : il ne tient pas sur une ligne`);
+      assert.ok(releve.memeLigne, 'la recherche et le bouton Filtres ne sont pas sur la même ligne');
+      assert.ok(releve.boutonDansEcran, 'le bouton Filtres sort de l\'écran');
+      assert.equal(releve.rechercheVisible, false,
+        'le bouton « Rechercher » occupe encore la barre sur téléphone');
 
-      assert.ok(releve.premiereCarteBas <= releve.fenetre,
-        'la première offre n\'est pas entièrement visible au chargement');
+      /* La première offre remontait à 355 px avant le retrait du bloc. */
+      assert.ok(releve.premiereCarteTop <= 210,
+        `la première offre commence à ${releve.premiereCarteTop} px : le bloc n'a pas disparu`);
     } finally {
       await ctx.close();
     }
 
-    /* Le bureau garde son échelle : la compaction est mobile seulement. */
-    const bureau = await aide.ouvrirPage(aide.FORMATS.bureau);
+    /* En bureau : même retrait, et le champ de localisation reste dans la
+       barre — il n'a pas à voyager là où le panneau n'existe pas. */
+    const bureau = await aide.ouvrirPage(BUREAU);
     try {
       await bureau.page.goto(aide.BASE + '/job-board.html', { waitUntil: 'domcontentloaded' });
       await bureau.page.waitForSelector('.jc', { timeout: 20000 });
       await aide.attendre(bureau.page, 900);
-      const taille = await bureau.page.evaluate(() =>
-        parseFloat(getComputedStyle(document.querySelector('#hero h1')).fontSize));
-      assert.ok(taille >= 20, `le titre de bureau est descendu à ${taille} px`);
+      const b = await bureau.page.evaluate(() => {
+        const h1 = document.querySelector('#hero h1');
+        const ville = document.querySelector('#city-input');
+        return {
+          titreMasque: h1 ? h1.getBoundingClientRect().height <= 2 : true,
+          promesse: !!document.querySelector('#hero .sub'),
+          villeDansBarre: !!(ville && ville.closest('.sbar')),
+          hauteurHero: Math.round(document.querySelector('#hero').getBoundingClientRect().height),
+        };
+      });
+      assert.ok(b.titreMasque, 'le titre est encore visible en bureau');
+      assert.equal(b.promesse, false, 'la promesse est encore là en bureau');
+      assert.ok(b.villeDansBarre, 'le champ de localisation a quitté la barre de bureau');
+      assert.ok(b.hauteurHero <= 160,
+        `le bandeau de bureau mesure ${b.hauteurHero} px : le titre n'a pas disparu`);
+    } finally {
+      await bureau.ctx.close();
+    }
+  } finally {
+    await aide.arreterNavigateur();
+    await aide.arreterServeur();
+  }
+});
+
+/* ── 3 bis. La barre reste, l'en-tête s'efface ──────────────────────────── */
+
+test('M05 — au défilement, la barre reste et l\'en-tête s\'efface', async () => {
+  await aide.demarrerServeur();
+  await aide.demarrerNavigateur();
+
+  try {
+    const { ctx, page } = await ouvrirBoard(390);
+    try {
+      const haut = await page.evaluate(() => ({
+        entete: Math.round(document.querySelector('#hd').getBoundingClientRect().height),
+        collee: document.body.classList.contains('barre-collee'),
+      }));
+      assert.ok(haut.entete > 0, 'l\'en-tête n\'est pas visible au chargement');
+      assert.equal(haut.collee, false, 'la barre est déjà signalée comme collée en haut de page');
+
+      /* C'est la LISTE qui défile sur ce board, pas le document. */
+      await page.evaluate(() => { document.querySelector('.pl').scrollTop = 400; });
+      await aide.attendre(page, 500);
+
+      const bas = await page.evaluate(() => ({
+        entete: Math.round(document.querySelector('#hd').getBoundingClientRect().height),
+        heroTop: Math.round(document.querySelector('#hero').getBoundingClientRect().top),
+        heroH: Math.round(document.querySelector('#hero').getBoundingClientRect().height),
+        collee: document.body.classList.contains('barre-collee'),
+        rechercheVisible: !!document.querySelector('#q-input').getClientRects().length,
+      }));
+      assert.equal(bas.collee, true, 'le défilement de la liste n\'a pas posé l\'état collé');
+      assert.equal(bas.entete, 0, 'l\'en-tête occupe encore la place au défilement');
+      assert.equal(bas.heroTop, 0, 'la barre n\'est pas remontée au bord haut de l\'écran');
+      assert.ok(bas.heroH >= 55,
+        `la barre s'est écrasée à ${bas.heroH} px : la recherche a disparu`);
+      assert.ok(bas.rechercheVisible, 'le champ de recherche n\'est plus rendu au défilement');
+
+      /* Remonter rend l'en-tête. */
+      await page.evaluate(() => { document.querySelector('.pl').scrollTop = 0; });
+      await aide.attendre(page, 500);
+      const remonte = await page.evaluate(() => ({
+        entete: Math.round(document.querySelector('#hd').getBoundingClientRect().height),
+        collee: document.body.classList.contains('barre-collee'),
+      }));
+      assert.ok(remonte.entete > 0, 'l\'en-tête ne revient pas quand on remonte');
+      assert.equal(remonte.collee, false, 'l\'état collé reste posé en haut de page');
+    } finally {
+      await ctx.close();
+    }
+
+    /* En bureau, le repli du bandeau reste celui d'avant : il doit encore
+       s'effacer au défilement de la liste. */
+    const bureau = await aide.ouvrirPage(BUREAU);
+    try {
+      await bureau.page.goto(aide.BASE + '/job-board.html', { waitUntil: 'domcontentloaded' });
+      await bureau.page.waitForSelector('.jc', { timeout: 20000 });
+      await aide.attendre(bureau.page, 900);
+      await bureau.page.evaluate(() => { document.querySelector('.pl').scrollTop = 400; });
+      await aide.attendre(bureau.page, 700);
+      const b = await bureau.page.evaluate(() => ({
+        collapsed: document.querySelector('#hero').classList.contains('collapsed'),
+        entete: Math.round(document.querySelector('#hd').getBoundingClientRect().height),
+      }));
+      assert.ok(b.collapsed, 'en bureau, le bandeau ne se replie plus au défilement');
+      assert.ok(b.entete > 0, 'l\'en-tête de bureau a disparu au défilement de la liste');
     } finally {
       await bureau.ctx.close();
     }
