@@ -74,6 +74,15 @@ test('V1 — quatre cartes en photo, nommées et cliquables', async () => {
         /* Une photo décorative : le nom de la ville est déjà dans le texte. */
         assert.equal(c.alt, '', `l'image de « ${c.nom} » ne devrait pas être annoncée`);
       }
+
+      /* Aucun credit photo visible : les images sont en CC0, qui n'exige
+         aucune attribution. Si un credit revenait, c'est que la licence
+         aurait change sans qu'on le sache. */
+      const texte = await page.evaluate(
+        () => (document.getElementById('carte-france') || {}).textContent || '',
+      );
+      assert.doesNotMatch(texte, /Wikimedia|CC BY|CC-BY|photo/i,
+        'un crédit photo est encore affiché dans la section');
     } finally {
       await ctx.close();
     }
@@ -102,6 +111,15 @@ test('V2 — les autres villes sont en pastilles, chacune vers son board', async
         assert.ok(p.nom.length > 2, 'une pastille est vide');
         assert.match(p.href, /job-board\.html\?city=/, `« ${p.nom} » ne mène pas au board : ${p.href}`);
       }
+
+      /* Aucune ville d'Ile-de-France en pastille : Paris est deja sur
+         l'image, et les communes de sa couronne n'ont pas a figurer en
+         dessous — le visiteur y verrait deux fois la meme region. */
+      const IDF = ['puteaux', 'nanterre', 'bois-colombes', 'saint-ouen', 'courbevoie',
+        'boulogne-billancourt', 'levallois-perret', 'saint-denis', 'argenteuil', 'montreuil'];
+      const enIdf = puces.filter((p) => IDF.includes(p.nom.toLowerCase()));
+      assert.deepEqual(enIdf.map((p) => p.nom), [],
+        `des villes d'Ile-de-France figurent en pastille : ${enIdf.map((p) => p.nom).join(', ')}`);
 
       /* Aucune ville ne doit figurer deux fois : une carte et une pastille
          pour la même ville, c'est deux fois le même lien. */
