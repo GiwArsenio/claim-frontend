@@ -1536,6 +1536,7 @@ html[data-theme="nuit"] body {
 a.ctitle:hover { text-decoration: underline; text-underline-offset: .18em; }
 a.ctitle:focus-visible, button.ctitle:focus-visible { outline: 2px solid var(--teal); outline-offset: 3px; }
 </style>
+<link rel="stylesheet" href="/assets/filtres-entrees.css">
 </head>
 <body>
 <div id="app">
@@ -1581,18 +1582,23 @@ a.ctitle:focus-visible, button.ctitle:focus-visible { outline: 2px solid var(--t
     <div class="voile-filtres" id="voile-filtres" hidden onclick="fermerFiltres(true)"></div>
     <!-- Le bouton et la rangee de filtres vivent dans le meme conteneur : sans
          cela, ils ne peuvent pas tenir sur une ligne, quel que soit le CSS. -->
-    <div class="rangee-filtres">
-      <button class="btn-filtres" id="btn-filtres" type="button"
+    <div class="rangee-filtres filtres-entrees">
+      <button class="filtre-entree" id="btn-filtres" type="button"
               aria-haspopup="dialog" aria-controls="filtres-panneau" aria-expanded="false"
               onclick="ouvrirFiltres()">
         <svg class="ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/></svg>
         Filtres
         <span class="badge-filtres" id="badge-filtres" hidden aria-hidden="true">0</span>
       </button>
+<button class="filtre-entree" type="button" data-categorie="contract-filter" aria-haspopup="dialog" aria-controls="filtres-panneau" aria-expanded="false" onclick="ouvrirFiltres('contract-filter')">Contrats</button>
+<button class="filtre-entree" type="button" data-categorie="specialty-filter" aria-haspopup="dialog" aria-controls="filtres-panneau" aria-expanded="false" onclick="ouvrirFiltres('specialty-filter')">Spécialité</button>
+<button class="filtre-entree" type="button" data-categorie="experience-filter" aria-haspopup="dialog" aria-controls="filtres-panneau" aria-expanded="false" onclick="ouvrirFiltres('experience-filter')">Expérience</button>
+<button class="filtre-entree" type="button" data-categorie="date-filter" aria-haspopup="dialog" aria-controls="filtres-panneau" aria-expanded="false" onclick="ouvrirFiltres('date-filter')">Date de publication</button>
+<button class="filtre-entree" type="button" data-categorie="ats-filter" aria-haspopup="dialog" aria-controls="filtres-panneau" aria-expanded="false" onclick="ouvrirFiltres('ats-filter')">Source ATS</button>
       <!-- tabindex="-1" : le panneau peut recevoir le focus sans entrer dans
            l'ordre de tabulation. C'est lui qui s'annonce a l'ouverture, pas
            son premier champ. -->
-      <div class="chips" id="filtres-panneau" role="group" aria-label="Filtres de recherche" tabindex="-1">
+      <div class="chips" id="filtres-panneau" hidden role="group" aria-label="Filtres de recherche" tabindex="-1">
       <div class="fp-tete"><h2 id="fp-titre">Filtres</h2><button class="fp-fermer" type="button" onclick="fermerFiltres(true)" aria-label="Fermer les filtres"><svg class="ic" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div><div class="fp-corps"><section class="fp-groupe" data-filtre="contract-filter"><h3 class="fp-groupe-titre">Contrats</h3><div class="fp-choix"><button class="fp-puce" type="button" data-valeur="cdi" aria-pressed="false">CDI</button><button class="fp-puce" type="button" data-valeur="cdd" aria-pressed="false">CDD</button><button class="fp-puce" type="button" data-valeur="alternance" aria-pressed="false">Alternance</button><button class="fp-puce" type="button" data-valeur="stage" aria-pressed="false">Stage</button><button class="fp-puce" type="button" data-valeur="vie" aria-pressed="false">V.I.E</button><button class="fp-puce" type="button" data-valeur="freelance" aria-pressed="false">Freelance</button><button class="fp-puce" type="button" data-valeur="interim" aria-pressed="false">Intérim</button><button class="fp-puce" type="button" data-valeur="autre" aria-pressed="false">Autre</button></div></section><section class="fp-groupe" data-filtre="specialty-filter"><h3 class="fp-groupe-titre">Spécialité</h3><div class="fp-choix"><button class="fp-puce" type="button" data-valeur="actuariat" aria-pressed="false">Actuariat</button><button class="fp-puce" type="button" data-valeur="souscription_technique" aria-pressed="false">Souscription technique</button><button class="fp-puce" type="button" data-valeur="ia_data" aria-pressed="false">IA / Data</button></div></section><section class="fp-groupe" data-filtre="experience-filter"><h3 class="fp-groupe-titre">Expérience</h3><div class="fp-choix"><button class="fp-puce" type="button" data-valeur="junior" aria-pressed="false">Junior</button><button class="fp-puce" type="button" data-valeur="confirmed" aria-pressed="false">Confirmé</button><button class="fp-puce" type="button" data-valeur="senior" aria-pressed="false">Senior</button><button class="fp-puce" type="button" data-valeur="lead" aria-pressed="false">Lead</button></div></section><section class="fp-groupe" data-filtre="ats-filter"><h3 class="fp-groupe-titre">Source ATS</h3><div class="fp-choix"><button class="fp-puce" type="button" data-valeur="workday" aria-pressed="false">Workday</button><button class="fp-puce" type="button" data-valeur="smartrecruiters" aria-pressed="false">SmartRecruiters</button><button class="fp-puce" type="button" data-valeur="talentsoft" aria-pressed="false">TalentSoft</button><button class="fp-puce" type="button" data-valeur="custom" aria-pressed="false">Custom</button><button class="fp-puce" type="button" data-valeur="magnet" aria-pressed="false">Magnet</button><button class="fp-puce" type="button" data-valeur="greenhouse" aria-pressed="false">Greenhouse</button><button class="fp-puce" type="button" data-valeur="ashby" aria-pressed="false">Ashby</button><button class="fp-puce" type="button" data-valeur="successfactors" aria-pressed="false">SuccessFactors</button><button class="fp-puce" type="button" data-valeur="radancy" aria-pressed="false">Radancy</button><button class="fp-puce" type="button" data-valeur="groupama" aria-pressed="false">Groupama</button><button class="fp-puce" type="button" data-valeur="oracle_hcm" aria-pressed="false">Oracle HCM</button></div></section><section class="fp-groupe" data-filtre="date-filter" data-simple="true"><h3 class="fp-groupe-titre">Date de publication</h3><div class="fp-choix"><button class="fp-puce" type="button" data-valeur="1" aria-pressed="false">Moins de 24 h</button><button class="fp-puce" type="button" data-valeur="7" aria-pressed="false">7 derniers jours</button><button class="fp-puce" type="button" data-valeur="14" aria-pressed="false">14 derniers jours</button></div></section></div><div class="fp-pied"><button class="fp-tout-effacer" type="button" onclick="reinitialiserFiltresPanneau()">Tout effacer</button><button class="fp-afficher" type="button" onclick="appliquerFiltresPanneau()">Afficher les offres</button></div><input type="hidden" id="contract-filter" value=""><input type="hidden" id="specialty-filter" value=""><input type="hidden" id="experience-filter" value=""><input type="hidden" id="ats-filter" value=""><input type="hidden" id="date-filter" value="">
       </div>
       </div>
@@ -2086,7 +2092,7 @@ function elementsFocusables(conteneur) {
     .filter((el) => !el.disabled && el.getClientRects().length > 0);
 }
 
-function ouvrirFiltres() {
+function ouvrirFiltres(categorie) {
   const panneau = document.getElementById('filtres-panneau');
   const voile = document.getElementById('voile-filtres');
   const bouton = document.getElementById('btn-filtres');
@@ -2097,6 +2103,7 @@ function ouvrirFiltres() {
   filtresAppliques = lireFiltres();
   /* Meme raison a l'ouverture : le panneau montre l'etat applique. */
   rafraichirMultiSelects();
+  panneau.hidden = false;
   panneau.classList.add('ouvert');
   panneau.setAttribute('role', 'dialog');
   panneau.setAttribute('aria-modal', 'true');
@@ -2118,6 +2125,12 @@ function ouvrirFiltres() {
      que rien n'etait selectionne. Le focus sur le panneau annonce la boite de
      dialogue ; la premiere tabulation atteint le premier filtre. */
   panneau.focus();
+  document.querySelectorAll('[data-categorie]').forEach(b => b.setAttribute('aria-expanded', 'true'));
+  requestAnimationFrame(() => {
+    const corps = panneau.querySelector('.fp-corps');
+    const groupe = [...panneau.querySelectorAll('.fp-groupe')].find(g => g.dataset.filtre === categorie);
+    if (corps) corps.scrollTop = groupe ? groupe.offsetTop - corps.offsetTop : 0;
+  });
   document.addEventListener('keydown', surTouchePanneau);
 }
 
@@ -2135,6 +2148,8 @@ function fermerFiltres(annuler) {
      Le controle a choix multiples affichait donc un etat qui n'existait pas. */
   rafraichirMultiSelects();
   panneau.classList.remove('ouvert');
+  panneau.hidden = true;
+  document.querySelectorAll('[data-categorie]').forEach(b => b.setAttribute('aria-expanded', 'false'));
   /* Le panneau redevient la rangee de filtres qu'il etait. Supprimer le
      role l'aurait laissee sans aucun role : « group » est son etat de
      repos, pas une absence. */
@@ -2435,6 +2450,12 @@ function initialiserMultiSelects() {
   rafraichirMultiSelects();
 }
 
+// Un seul panneau, hors des conteneurs de recherche qui peuvent rogner
+// leurs enfants. hidden garantit l'absence de contenu au repos, même iOS.
+const panneauUnique = document.getElementById('filtres-panneau');
+const voileUnique = document.getElementById('voile-filtres');
+if (panneauUnique) document.body.appendChild(panneauUnique);
+if (voileUnique) document.body.appendChild(voileUnique);
 initialiserMultiSelects();
 
 function surChangementFiltre() {
@@ -3002,9 +3023,9 @@ function adresseValide(v) {
    #filtres : le panneau s'ouvre a l'arrivee. Sur bureau, la rangee montre
    deja tous les criteres : l'ancre ne fait rien. */
 document.addEventListener('DOMContentLoaded', function () {
-  if (location.hash !== '#filtres') return;
-  if (!window.matchMedia('(max-width: 768px)').matches) return;
-  ouvrirFiltres();
+  if (!location.hash.startsWith('#filtres')) return;
+  const categorie = location.hash.startsWith('#filtres-') ? location.hash.slice(9) : null;
+  ouvrirFiltres(categorie);
 });
 
 document.addEventListener('DOMContentLoaded', function () {

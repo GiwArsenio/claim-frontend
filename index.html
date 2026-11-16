@@ -931,6 +931,7 @@ html[data-theme="nuit"] body {
 <link rel="stylesheet" href="/assets/theme.css">
 <script>(function(){try{var t=localStorage.getItem('claim-theme-v2');if(t==='nuit'){document.documentElement.setAttribute('data-theme','nuit');}}catch(e){}})();</script>
 <script src="/assets/theme.js" defer></script>
+<link rel="stylesheet" href="/assets/filtres-entrees.css">
 </head>
 <body>
 
@@ -979,60 +980,12 @@ html[data-theme="nuit"] body {
 
     <!-- Les mêmes filtres que le board : ils ouvrent la liste sur le critère
          choisi plutôt que de filtrer une grille qui n'en montre que six. -->
-    <div class="chips">
-      <!-- Sur telephone, la rangee se reduit aux trois filtres du board :
-           Filtres, Specialite, Type de contrat. Le bouton ouvre le board
-           avec son panneau deja ouvert : l'accueil n'a que six offres, il
-           n'y a rien a filtrer sur place. -->
-      <a class="chip btn-filtres-accueil" href="/job-board.html#filtres"
-         onclick="location.href=prefMarche()+'/job-board.html#filtres';return false;">
-        <svg class="ic" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/></svg>Filtres
-      </a>
-      <select id="acc-contrat" class="chip" onchange="versBoard('contrat', this.value)" aria-label="Type de contrat">
-        <option value="">Type de contrat</option>
-        <option value="cdi">CDI</option>
-        <option value="cdd">CDD</option>
-        <option value="alternance">Alternance</option>
-        <option value="stage">Stage</option>
-        <option value="vie">V.I.E</option>
-        <option value="freelance">Freelance</option>
-      </select>
-      <select id="acc-date" class="chip" onchange="versBoard('jours', this.value)" aria-label="Date de publication">
-        <option value="">Date de publication</option>
-        <option value="1">Moins de 24 h</option>
-        <option value="7">7 derniers jours</option>
-        <option value="14">14 derniers jours</option>
-      </select>
-      <select id="acc-specialite" class="chip" onchange="versBoard('specialite', this.value)" aria-label="Spécialité">
-        <option value="">Spécialité</option>
-        <option value="actuariat">Actuariat</option>
-        <option value="souscription_technique">Souscription technique</option>
-        <option value="ia_data">IA / Data</option>
-      </select>
-      <select id="acc-experience" class="chip" onchange="versBoard('experience', this.value)" aria-label="Expérience">
-        <option value="">Expérience</option>
-        <option value="junior">Junior</option>
-        <option value="confirmed">Confirmé</option>
-        <option value="senior">Senior</option>
-        <option value="lead">Lead</option>
-      </select>
-      <select id="acc-ats" class="chip" onchange="versBoard('ats', this.value)" aria-label="Source ATS">
-        <option value="">Source ATS</option>
-        <option value="workday">Workday</option>
-        <option value="smartrecruiters">SmartRecruiters</option>
-        <option value="talentsoft">TalentSoft</option>
-        <option value="custom">Custom</option>
-        <option value="magnet">Magnet</option>
-        <option value="greenhouse">Greenhouse</option>
-        <option value="ashby">Ashby</option>
-        <option value="successfactors">SuccessFactors</option>
-        <option value="radancy">Radancy</option>
-        <option value="groupama">Groupama</option>
-        <option value="oracle_hcm">Oracle HCM</option>
-      </select>
-      <button class="chip chip-reset-accueil" onclick="location.href=prefMarche()+'/job-board.html'">
-        <svg class="ic" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>Réinitialiser
-      </button>
+    <div class="filtres-entrees" aria-label="Filtres de recherche"><a class="filtre-entree" href="/job-board.html#filtres" onclick="location.href=prefMarche()+'/job-board.html#filtres';return false;"><svg class="ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16M9 3v6M15 9v6M9 15v6"/></svg>Filtres</a>
+<a class="filtre-entree" href="/job-board.html#filtres-contract-filter" onclick="location.href=prefMarche()+'/job-board.html#filtres-contract-filter';return false;">Contrats</a>
+<a class="filtre-entree" href="/job-board.html#filtres-specialty-filter" onclick="location.href=prefMarche()+'/job-board.html#filtres-specialty-filter';return false;">Spécialité</a>
+<a class="filtre-entree" href="/job-board.html#filtres-experience-filter" onclick="location.href=prefMarche()+'/job-board.html#filtres-experience-filter';return false;">Expérience</a>
+<a class="filtre-entree" href="/job-board.html#filtres-date-filter" onclick="location.href=prefMarche()+'/job-board.html#filtres-date-filter';return false;">Date de publication</a>
+<a class="filtre-entree" href="/job-board.html#filtres-ats-filter" onclick="location.href=prefMarche()+'/job-board.html#filtres-ats-filter';return false;">Source ATS</a>
     </div>
   </div>
 </div>
