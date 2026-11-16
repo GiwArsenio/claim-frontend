@@ -214,3 +214,55 @@ test('C4 — la carte ne déborde pas sur téléphone', async () => {
     await aide.arreterServeur();
   }
 });
+
+test('C5 — un cache d\'une ancienne version ne vide pas la carte', async () => {
+  await aide.demarrerServeur();
+  await aide.demarrerNavigateur();
+
+  try {
+    const { ctx, page } = await aide.ouvrirPage(aide.FORMATS.bureau);
+    try {
+      /* Le 16 novembre, la carte est restee invisible en production alors que
+         le deploiement etait bon : le cache de session gardait les villes
+         dans l'ANCIENNE forme (sans les positions d'etiquettes). Le rendu
+         levait une erreur, et la section — revelee seulement a la fin —
+         n'apparaissait jamais. On rejoue exactement ce cas. */
+      await page.goto(aide.BASE + '/index.html', { waitUntil: 'domcontentloaded' });
+      await page.evaluate(() => {
+        sessionStorage.setItem('claim-france-v1', JSON.stringify({
+          quand: Date.now(),
+          villes: [{ nom: 'Paris', x: 151.3, y: 69.2, n: 199 }],
+        }));
+        sessionStorage.setItem('claim-france-v2', JSON.stringify({
+          quand: Date.now(),
+          villes: [{ nom: 'Paris', x: 151.3, y: 69.2, n: 199 }],
+        }));
+      });
+
+      await page.reload({ waitUntil: 'domcontentloaded' });
+      await page.waitForSelector('.oc .ctitle', { timeout: 20000 });
+      await aide.attendre(page, 2000);
+      await page.waitForFunction(
+        () => {
+          const s = document.getElementById('carte-france');
+          return s && !s.hidden;
+        },
+        { timeout: 20000 },
+      );
+
+      const releve = await page.evaluate(() => ({
+        villes: document.querySelectorAll('.fr-ville').length,
+        noms: [...document.querySelectorAll('.fr-etiquette')].map((t) => t.textContent),
+      }));
+
+      assert.ok(releve.villes >= 3,
+        `un cache d'ancienne forme casse la carte : ${releve.villes} ville(s) affichee(s)`);
+      assert.equal(releve.noms.length, releve.villes, 'une ville est muette');
+    } finally {
+      await ctx.close();
+    }
+  } finally {
+    await aide.arreterNavigateur();
+    await aide.arreterServeur();
+  }
+});
