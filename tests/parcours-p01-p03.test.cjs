@@ -249,7 +249,7 @@ test('P02 — les filtres se combinent et se remettent à zéro', async () => {
         page,
         aide.estListeDuBoard,
         async () => {
-          await page.locator('#contract-filter').selectOption('cdi');
+          await aide.choisirFiltre(page, 'contract-filter', 'cdi');
         }
       );
       await aide.attendre(page, 1200);
@@ -263,7 +263,7 @@ test('P02 — les filtres se combinent et se remettent à zéro', async () => {
         page,
         aide.estListeDuBoard,
         async () => {
-          await page.locator('#experience-filter').selectOption('senior');
+          await aide.choisirFiltre(page, 'experience-filter', 'senior');
         }
       );
       await aide.attendre(page, 1200);
