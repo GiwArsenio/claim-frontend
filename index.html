@@ -1576,7 +1576,13 @@ const VILLES_CARTE = [
   { nom: 'Niort', x: 91.5, y: 147.4, etq: [9, 4, 'start'] },
 ];
 
-const CLE_FRANCE = 'claim-france-v1';
+/* Le cache ne garde que des NOMBRES, jamais des objets de ville : il a
+   deja casse la carte une fois. L'ancienne version memorisait les villes
+   entieres ; apres l'ajout des positions d'etiquettes, les objets relus
+   n'avaient plus cette donnee, le rendu levait une erreur, et la section —
+   revelee seulement a la fin — restait invisible. Un visiteur deja passe
+   ne voyait plus rien, alors que le deploiement etait bon. */
+const CLE_FRANCE = 'claim-france-v2';
 const VIE_FRANCE = 10 * 60 * 1000;
 
 /** Le nombre d'offres d'une ville. Une offre suffit : on lit le total. */
@@ -1628,7 +1634,10 @@ async function dessinerFrance() {
   let villes = null;
   try {
     const cache = JSON.parse(sessionStorage.getItem(CLE_FRANCE) || 'null');
-    if (cache && Date.now() - cache.quand < VIE_FRANCE) villes = cache.villes;
+    if (cache && cache.comptes && Date.now() - cache.quand < VIE_FRANCE) {
+      /* La geometrie vient TOUJOURS du code, jamais du cache. */
+      villes = VILLES_CARTE.map((v) => Object.assign({}, v, { n: cache.comptes[v.nom] || 0 }));
+    }
   } catch (e) { /* cache illisible : on redemande */ }
 
   if (!villes) {
@@ -1638,7 +1647,9 @@ async function dessinerFrance() {
         const totaux = await Promise.all(noms.map(compteVille));
         return Object.assign({}, v, { n: totaux.reduce((a, b) => a + b, 0) });
       }));
-      sessionStorage.setItem(CLE_FRANCE, JSON.stringify({ quand: Date.now(), villes }));
+      const comptes = {};
+      villes.forEach((v) => { comptes[v.nom] = v.n; });
+      sessionStorage.setItem(CLE_FRANCE, JSON.stringify({ quand: Date.now(), comptes }));
     } catch (e) {
       /* L'API ne repond pas : pas de carte, et pas de trou non plus. */
       return;
@@ -1658,7 +1669,7 @@ async function dessinerFrance() {
     const halo = v.n === max
       ? `<circle class="fr-halo" cx="${v.x}" cy="${v.y}" r="${(r * 2.1).toFixed(1)}"></circle>`
       : '';
-    const [dx, dy, ancre] = v.etq;
+    const [dx, dy, ancre] = v.etq || [12, 3.5, 'start'];
     return `<g class="fr-ville" tabindex="0" role="button" data-ville="${echappe(v.nom)}"`
       + ` aria-label="${echappe(nomAffiche(v))} : ${v.n} offre${v.n > 1 ? 's' : ''}">`
       + halo
