@@ -2629,6 +2629,15 @@ function adresseValide(v) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim());
 }
 
+/* Le bouton « Filtres » de l'accueil (telephone) renvoie ici avec l'ancre
+   #filtres : le panneau s'ouvre a l'arrivee. Sur bureau, la rangee montre
+   deja tous les criteres : l'ancre ne fait rien. */
+document.addEventListener('DOMContentLoaded', function () {
+  if (location.hash !== '#filtres') return;
+  if (!window.matchMedia('(max-width: 768px)').matches) return;
+  ouvrirFiltres();
+});
+
 document.addEventListener('DOMContentLoaded', function () {
   var mail = alerteEl('alerte-mail');
   if (!mail) return;

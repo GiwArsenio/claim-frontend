@@ -150,6 +150,9 @@
           border-radius: .375rem; background: var(--surface); color: var(--gris); font-size: .8rem;
           font-weight: 500; border: 1px solid var(--bord-carte); cursor: pointer;
           white-space: nowrap; flex-shrink: 0; transition: background .15s; font-family: inherit; }
+  /* Le bouton « Filtres » n'apparait qu'en dessous de 768 px : sur bureau,
+     la rangee montre les cinq criteres directement. */
+  .btn-filtres-accueil { display: none; }
   /* Le survol d'un filtre doit se VOIR. Le fond de survol est un jeton
    dedie : --teal-survol reste le fond des badges, ou un fond clair le
    jour eclaircissait le badge au lieu de le lire. */
@@ -506,8 +509,30 @@ html[data-theme="nuit"] select.chip {
     .sdiv { display: none; }
     .btn-srch { border-radius: .375rem; padding: .5rem 1rem; font-size: .85rem;
                 margin: .2rem .1rem .1rem; width: calc(100% - .2rem); text-align: center; }
-    .chips { gap: .3rem; }
+    .chips { gap: .3rem; justify-content: center; }
     .chip { font-size: .825rem; padding: .28rem .7rem; }
+
+    /* Les trois filtres du board, dans son ordre : bouton, specialite,
+       type de contrat. Les deux autres criteres et la remise a zero
+       restent sur bureau — ici, ils vivent dans le panneau du board. */
+    .btn-filtres-accueil { display: inline-flex; order: 1; font-weight: 700; flex: 0 0 auto; }
+    /* Les deux listes se partagent la largeur restante : sans cela, elles
+       prennent la largeur de leur option la plus longue et la rangee
+       deborde — « Filtres » coupé à gauche, « Type de contrat » à droite. */
+    #acc-specialite, #acc-contrat { order: 2; flex: 1 1 0; min-width: 0;
+                                    padding-right: 1.4rem; font-size: .75rem; }
+    /* « Type de contrat » est le libelle le plus long : il lui faut un peu
+       plus de place, sinon le texte est coupe. */
+    #acc-contrat { order: 3; flex-grow: 1.3; }
+    #acc-date, #acc-experience, #acc-ats, .chip-reset-accueil { display: none; }
+
+    /* Le titre d'une carte tient sur DEUX lignes, comme sur le board. Sur
+       une seule, un titre de poste etait coupe a la moitie de son premier
+       mot utile. */
+    .oc .ctitle { display: -webkit-box; -webkit-box-orient: vertical;
+                  -webkit-line-clamp: 2; line-clamp: 2;
+                  white-space: normal; overflow: hidden;
+                  overflow-wrap: anywhere; line-height: 1.3; }
   }
 
 
@@ -900,6 +925,14 @@ html[data-theme="nuit"] body {
     <!-- Les mêmes filtres que le board : ils ouvrent la liste sur le critère
          choisi plutôt que de filtrer une grille qui n'en montre que six. -->
     <div class="chips">
+      <!-- Sur telephone, la rangee se reduit aux trois filtres du board :
+           Filtres, Specialite, Type de contrat. Le bouton ouvre le board
+           avec son panneau deja ouvert : l'accueil n'a que six offres, il
+           n'y a rien a filtrer sur place. -->
+      <a class="chip btn-filtres-accueil" href="/job-board.html#filtres"
+         onclick="location.href=prefMarche()+'/job-board.html#filtres';return false;">
+        <span class="ms" style="font-size:15px;" aria-hidden="true">tune</span>Filtres
+      </a>
       <select id="acc-contrat" class="chip" onchange="versBoard('contrat', this.value)" aria-label="Type de contrat">
         <option value="">Type de contrat</option>
         <option value="cdi">CDI</option>
@@ -942,7 +975,7 @@ html[data-theme="nuit"] body {
         <option value="groupama">Groupama</option>
         <option value="oracle_hcm">Oracle HCM</option>
       </select>
-      <button class="chip" onclick="location.href=prefMarche()+'/job-board.html'">
+      <button class="chip chip-reset-accueil" onclick="location.href=prefMarche()+'/job-board.html'">
         <span class="ms" style="font-size:13px;">restart_alt</span>Réinitialiser
       </button>
     </div>

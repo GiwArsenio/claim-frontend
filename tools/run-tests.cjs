@@ -95,6 +95,7 @@ const FAMILLES = {
     'tests/pied_arret_defilement.test.cjs',
     'tests/board_mobile_lisibilite.test.cjs',
     'tests/casse_titre_surfaces.test.cjs',
+    'tests/accueil_mobile.test.cjs',
     // Simule iOS par l'agent utilisateur, mais tourne sous Chromium comme
     // les autres : l'import de WebKit qui trainait ici n'etait jamais lu.
     'tests/plan_premier_paint.test.cjs',
