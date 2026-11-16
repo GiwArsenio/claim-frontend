@@ -188,12 +188,53 @@ select.chip, .msel.chip { min-width: calc(7ch + 3.2rem); }
    rien n'est jamais masque. */
 #filtres-panneau .msel-panneau { position: static; width: 100%; margin-top: .4rem;
   max-height: none; box-shadow: none; border-radius: .375rem; }
-/* La pastille est un .chip, donc un conteneur FLEX : la liste se posait a
-   cote du libelle, qui restait centre dans un grand vide. Dans le panneau,
-   le composant s'empile — libelle au-dessus, liste en dessous, pleine
-   largeur. */
 #filtres-panneau.ouvert .msel { display: block; }
 #filtres-panneau.ouvert .msel-btn { width: 100%; justify-content: space-between; }
+
+/* ── LA FEUILLE DU BAS (telephone) ──────────────────────────────────────
+   Ouvrir une liste dans le flux faisait grandir le panneau de 314 px : les
+   autres filtres sautaient vers le bas et la liste flottait dans un vide.
+   La feuille se pose PAR-DESSUS, sur un voile : rien ne bouge derriere, et
+   la liste a son propre defilement. */
+.msel-voile { position: fixed; inset: 0; z-index: 970;
+  background: rgba(8, 18, 22, .5); -webkit-tap-highlight-color: transparent; }
+.msel-voile[hidden], .msel-feuille[hidden] { display: none; }
+.msel-feuille { position: fixed; left: 0; right: 0; bottom: 0; z-index: 980;
+  display: flex; flex-direction: column;
+  max-height: 74dvh; background: var(--surface);
+  border-radius: 1.1rem 1.1rem 0 0;
+  box-shadow: 0 -14px 44px rgba(0, 0, 0, .34);
+  animation: feuille-monte .18s ease-out; }
+@keyframes feuille-monte { from { transform: translateY(12%); opacity: .6; }
+  to { transform: translateY(0); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .msel-feuille { animation: none; } }
+
+.msel-feuille-tete { display: flex; align-items: center; justify-content: space-between;
+  gap: .75rem; padding: .9rem 1.1rem .55rem; }
+.msel-feuille-titre { font-size: 1rem; font-weight: 700; color: var(--encre); }
+.msel-feuille-x { display: grid; place-items: center; width: 30px; height: 30px;
+  border: 0; border-radius: 9999px; background: var(--surface-2); color: var(--gris);
+  font-size: 1rem; cursor: pointer; }
+.msel-feuille-corps { overflow-y: auto; overscroll-behavior: contain;
+  padding: 0 .6rem .35rem; -webkit-overflow-scrolling: touch; }
+/* Dans la feuille, la liste perd son cadre : elle EST le contenu. */
+.msel-feuille .msel-panneau { position: static; width: auto; max-height: none;
+  padding: 0; border: 0; border-radius: 0; box-shadow: none; background: none;
+  display: block; }
+.msel-feuille .msel-opt { padding: .72rem .5rem; font-size: .95rem;
+  border-bottom: 1px solid var(--bord-carte); border-radius: 0; }
+.msel-feuille .msel-opt:last-child { border-bottom: 0; }
+.msel-feuille .msel-opt input { width: 17px; height: 17px; }
+.msel-feuille-pied { display: flex; gap: .6rem; padding: .7rem 1.1rem;
+  padding-bottom: calc(.7rem + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--bord-carte); }
+.msel-feuille-pied button { flex: 1; height: 42px; border-radius: .5rem;
+  font: inherit; font-weight: 600; font-size: .92rem; cursor: pointer; }
+.msel-feuille-effacer { background: var(--surface); color: var(--gris);
+  border: 1px solid var(--bord-carte); }
+.msel-feuille-fin { background: var(--teal); color: #fff; border: 0; }
+/* Le fond ne defile pas quand la feuille est ouverte. */
+body.feuille-ouverte { overflow: hidden; }
 .msel-opt { display: flex; align-items: center; gap: .5rem; padding: .4rem .5rem;
   border-radius: .3rem; font-size: .9rem; white-space: nowrap; cursor: pointer; }
 .msel-opt:hover { background: var(--surface-survol); }
@@ -2137,6 +2178,7 @@ function ajusterLargeurFiltres() {
  * ne sait rien du changement de controle.
  */
 function fermerMultiSelects() {
+  fermerFeuille();
   document.querySelectorAll('.msel').forEach((c) => {
     const p = c.querySelector('.msel-panneau');
     if (p) p.hidden = true;
@@ -2146,10 +2188,24 @@ function fermerMultiSelects() {
   });
 }
 
+/* Le panneau d'un filtre peut vivre a deux endroits : dans son conteneur,
+   ou dans la feuille du bas quand elle est ouverte. Les cases se lisent la
+   ou il est reellement — sinon on lit un conteneur vide, et le filtre perd
+   sa valeur. */
+function panneauDe(conteneur) {
+  const dedans = conteneur.querySelector('.msel-panneau');
+  if (dedans) return dedans;
+  if (feuilleOrigine === conteneur && feuille) {
+    return feuille.f.querySelector('.msel-feuille-corps .msel-panneau');
+  }
+  return null;
+}
+
 function majMultiSelect(c) {
   const champ = document.getElementById(c.dataset.filtre);
   if (!champ) return;
-  const coches = [...c.querySelectorAll('input[type="checkbox"]:checked')];
+  const panneau = panneauDe(c);
+  const coches = panneau ? [...panneau.querySelectorAll('input[type="checkbox"]:checked')] : [];
   champ.value = coches.map((i) => i.value).join(',');
 
   const txt = c.querySelector('.msel-txt');
@@ -2171,11 +2227,104 @@ function rafraichirMultiSelects() {
     const champ = document.getElementById(c.dataset.filtre);
     if (!champ) return;
     const valeurs = String(champ.value || '').split(',').filter(Boolean);
-    c.querySelectorAll('input[type="checkbox"]').forEach((i) => {
-      i.checked = valeurs.includes(i.value);
-    });
+    const panneau = panneauDe(c);
+    if (panneau) {
+      panneau.querySelectorAll('input[type="checkbox"]').forEach((i) => {
+        i.checked = valeurs.includes(i.value);
+      });
+    }
     majMultiSelect(c);
   });
+}
+
+/* ── LA FEUILLE DU BAS ────────────────────────────────────────────────
+ *
+ * Une liste ouverte dans le panneau de filtres le faisait grandir de
+ * 314 px : les autres filtres sautaient, et la liste flottait dans un
+ * vide. La feuille se pose par-dessus, sans deplacer le fond.
+ *
+ * Le panneau de cases lui-meme est DEPLACE dans la feuille, puis remis a
+ * sa place : une seule source de verite pour les cases cochees.
+ */
+var feuille = null;
+var feuilleOrigine = null;
+
+function creerFeuille() {
+  if (feuille) return feuille;
+
+  var voile = document.createElement('div');
+  voile.className = 'msel-voile';
+  voile.hidden = true;
+
+  var f = document.createElement('div');
+  f.className = 'msel-feuille';
+  f.hidden = true;
+  f.setAttribute('role', 'dialog');
+  f.setAttribute('aria-modal', 'true');
+  f.innerHTML =
+    '<div class="msel-feuille-tete">'
+    + '<span class="msel-feuille-titre"></span>'
+    + '<button class="msel-feuille-x" type="button" aria-label="Fermer">✕</button>'
+    + '</div>'
+    + '<div class="msel-feuille-corps"></div>'
+    + '<div class="msel-feuille-pied">'
+    + '<button class="msel-feuille-effacer" type="button">Effacer</button>'
+    + '<button class="msel-feuille-fin" type="button">Terminé</button>'
+    + '</div>';
+
+  document.body.appendChild(voile);
+  document.body.appendChild(f);
+
+  voile.addEventListener('click', fermerFeuille);
+  f.querySelector('.msel-feuille-x').addEventListener('click', fermerFeuille);
+  f.querySelector('.msel-feuille-fin').addEventListener('click', fermerFeuille);
+  f.querySelector('.msel-feuille-effacer').addEventListener('click', function () {
+    if (!feuilleOrigine) return;
+    var panneau = panneauDe(feuilleOrigine);
+    if (panneau) {
+      panneau.querySelectorAll('input[type="checkbox"]').forEach(function (i) {
+        i.checked = false;
+      });
+    }
+    majMultiSelect(feuilleOrigine);
+    surChangementFiltre();
+  });
+
+  feuille = { voile: voile, f: f };
+  return feuille;
+}
+
+function ouvrirFeuille(conteneur) {
+  if (!isMobile()) return false;
+  var pieces = creerFeuille();
+  var panneau = conteneur.querySelector('.msel-panneau');
+  if (!panneau) return false;
+
+  pieces.f.querySelector('.msel-feuille-titre').textContent = conteneur.dataset.label || '';
+  pieces.f.querySelector('.msel-feuille-corps').appendChild(panneau);
+  panneau.hidden = false;
+  pieces.voile.hidden = false;
+  pieces.f.hidden = false;
+  document.body.classList.add('feuille-ouverte');
+  feuilleOrigine = conteneur;
+  return true;
+}
+
+function fermerFeuille() {
+  if (!feuille || !feuilleOrigine) return;
+  var panneau = feuille.f.querySelector('.msel-panneau');
+  var conteneur = feuilleOrigine;
+  if (panneau) {
+    panneau.hidden = true;
+    conteneur.appendChild(panneau); // retour a sa place
+  }
+  feuille.voile.hidden = true;
+  feuille.f.hidden = true;
+  document.body.classList.remove('feuille-ouverte');
+  conteneur.dataset.ouvert = 'false';
+  var b = conteneur.querySelector('.msel-btn');
+  if (b) b.setAttribute('aria-expanded', 'false');
+  feuilleOrigine = null;
 }
 
 function initialiserMultiSelects() {
@@ -2188,6 +2337,9 @@ function initialiserMultiSelects() {
       // Le clic sur le bouton ne doit pas atteindre le document, qui ferme
       // tous les panneaux : le panneau se rouvrirait pour se refermer.
       e.stopPropagation();
+      // Sur telephone, la liste s'ouvre dans une FEUILLE : dans le flux,
+      // elle faisait grandir le panneau de 314 px et decalait tout.
+      if (ouvrirFeuille(c)) return;
       const etaitOuvert = panneau.hidden === false;
       fermerMultiSelects();
       if (!etaitOuvert) {
