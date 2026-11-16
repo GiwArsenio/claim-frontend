@@ -277,7 +277,7 @@ test('M02 — le panneau montre tous les filtres, sans en appliquer aucun avant 
       assert.equal(ouvert.role, 'dialog', 'le panneau n\'est pas annoncé comme une boîte de dialogue');
       assert.equal(ouvert.modal, 'true');
       assert.ok(ouvert.nomme, 'le panneau n\'a pas de nom accessible');
-      assert.equal(ouvert.nombre, 5, 'tous les filtres ne sont pas dans le panneau');
+      assert.equal(ouvert.nombre, 7, 'tous les filtres ne sont pas dans le panneau');
       assert.ok(ouvert.tousVisibles, 'un filtre reste masqué dans le panneau');
       assert.ok(ouvert.tousDansEcran, 'un filtre sort de l\'écran');
       assert.ok(ouvert.tousTactiles, 'un filtre est plus court que 44 px');
