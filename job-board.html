@@ -83,6 +83,13 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
 .btn-cta:hover { background: var(--teal-survol-element); border-color: var(--teal);
                     color: var(--encre); }
 
+/* Un titre visible par les lecteurs d'ecran, invisible a l'oeil.
+   Le board n'a plus de bloc titre : la page garde quand meme son titre de
+   niveau 1, sans quoi elle n'en aurait aucun — pour l'indexation comme pour
+   la navigation au lecteur d'ecran. */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; border: 0; }
+
 /* ── HERO ── */
 #hero {
   background: var(--champ);
@@ -98,9 +105,8 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
 }
 #hero.collapsed { max-height: 0; opacity: 0; padding-top: 0; padding-bottom: 0; }
 
-#hero h1 { font-size: clamp(1.3rem, 2.2vw, 2rem); font-weight: 900; color: var(--encre); letter-spacing: -.02em; line-height: 1.15; margin-bottom: .3rem; }
-#hero h1 em { color: var(--teal); font-style: normal; }
-#hero .sub { color: var(--gris); font-size: 0.925rem; margin-bottom: .75rem; }
+/* Le bloc titre + promesse a ete retire : le board ouvre directement sur la
+   recherche. Les deux regles qui le stylaient sont parties avec lui. */
 
 .sbar { display: flex; align-items: center; background: var(--surface); border: 1px solid var(--bord-carte); border-radius: .625rem; padding: .3rem; max-width: 50rem; box-shadow: 0 1px 4px rgba(0,0,0,.07); margin-bottom: .5rem; }
 .sf { flex: 1; display: flex; align-items: center; padding: 0 1rem; gap: .4rem; }
@@ -230,11 +236,19 @@ html[data-theme="nuit"] select.chip {
 .ct { display: flex; align-items: flex-start; margin-bottom: .45rem; }
 .clogo { width: 38px; height: 38px; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: var(--blanc); font-weight: 900; font-size: 9.5px; flex-shrink: 0; position: relative; overflow: hidden; }
 .ci { flex: 1; min-width: 0; padding-left: .5rem; }
-.ctitle { font-size: .875rem; font-weight: 700; color: var(--encre); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* Deux lignes, sur toutes les largeurs. Une seule coupait « Stage - Actuaire
+   / Analyste ALM & Allocation Strategique d'Actifs (H/F) » avant le mot qui
+   distingue l'offre ; trois mangeraient la liste. Le texte complet reste dans
+   le lien : rien n'est tronque en JavaScript, et un lecteur d'ecran annonce
+   le titre entier. */
+.ctitle { font-size: .875rem; font-weight: 700; color: var(--encre);
+  display: -webkit-box; -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2; line-clamp: 2;
+  overflow: hidden; overflow-wrap: anywhere; line-height: 1.3; }
 /* Le titre est un bouton pour le clavier et les lecteurs d'écran, mais il
    se lit comme un titre : aucun fond, aucune bordure, aucune police
    d'interface. Le laisser tel quel aurait changé le rendu de chaque carte. */
-a.ctitle { display: block; width: 100%; text-align: left; font-family: inherit; color: inherit; text-decoration: none;
+a.ctitle { width: 100%; text-align: left; font-family: inherit; color: inherit; text-decoration: none;
   background: none; border: 0; padding: 0; cursor: pointer; }
 a.ctitle:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; border-radius: 3px; }
 .csub { font-size: .75rem; color: var(--gris); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -684,36 +698,47 @@ html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1)
      bloc mangeait un tiers de la fenetre avant la premiere offre. Les
      marges internes et l'echelle du titre se resserrent : la premiere
      carte remonte, le texte reste lisible. */
-  #hero { padding: .75rem 1rem .45rem; max-height: 320px; text-align: center; }
-  /* line-height: le titre se coupe sur deux lignes en telephone. A 1,15
-     — la valeur du bureau, ou il tient sur une ligne — les deux lignes
-     se touchent. 1,32 leur donnait de l'air, mais le bloc entier pesait
-     sur la premiere offre : 1,22 tient les deux lignes distinctes sans
-     rallonger le bandeau. */
-  #hero h1 { display: block; font-size: 1rem; line-height: 1.22;
-             letter-spacing: -.015em;
-             text-align: center; margin-bottom: .25rem; }
-  #hero .sub { display: block; font-size: .78rem; line-height: 1.34;
-               text-align: center; margin-bottom: .5rem; }
-  /* Barre de recherche : 2 lignes sur mobile */
-  .sbar {
-    flex-direction: column;
-    border-radius: .625rem;
-    padding: .25rem .25rem .25rem;
-    gap: 0;
+  /* Le bandeau tient sur une seule ligne : la recherche et le bouton Filtres
+     cote a cote, comme la barre d'un site d'emploi mobile. Il ne defile pas :
+     la colonne des offres defile sous lui (voir #split plus bas). Le titre et
+     la promesse ne sont plus la — la page ouvre sur la recherche. */
+  #hero {
+    padding: .55rem .75rem .5rem;
+    max-height: none;
+    display: flex;
+    /* Les deux blocs prennent la meme hauteur : une barre et un bouton de
+       hauteurs differentes se lisaient comme deux objets sans rapport. */
     align-items: stretch;
+    gap: .5rem;
   }
-  .sf { padding: .3rem .75rem; }
-  .sf.loc-field { border-top: 1px solid var(--bord-doux); }
+  /* Le champ de localisation est deplace dans le panneau par le script :
+     il n'a plus sa place sur cette ligne. La regle ci-dessous ne sert que
+     de filet si le script ne s'executait pas — mieux vaut un champ en trop
+     qu'un champ perdu. */
+  .sbar .loc-field { display: none; }
+  .sbar {
+    flex: 1;
+    min-width: 0;
+    border-radius: .625rem;
+    padding: .1rem;
+    margin-bottom: 0;
+    flex-direction: row;
+    align-items: center;
+  }
+  .sf { padding: .35rem .55rem; min-height: 44px; }
+  .sf input { font-size: .95rem; }
   .sdiv { display: none; }
-  .btn-srch {
-    border-radius: .375rem;
-    padding: .5rem 1rem;
-    font-size: 0.85rem;
-    margin: .2rem .1rem .1rem;
-    width: calc(100% - .2rem);
-    text-align: center;
-  }
+  /* La recherche part au clavier (touche Entree du champ) : un bouton plein
+     largeur sur cette ligne la ferait deborder, et il occupait la moitie de
+     la hauteur a lui seul. */
+  .btn-srch { display: none; }
+  .btn-filtres { margin: 0; flex: 0 0 auto; padding: .45rem .8rem; }
+
+  /* L'en-tete s'efface des qu'on fait defiler les offres : la barre de
+     recherche remonte au bord haut de l'ecran et le logo libere la place.
+     C'est l'effet de la barre qui reste, sans l'en-tete qui la suit. */
+  #hd { transition: height .2s ease, opacity .2s ease; overflow: hidden; }
+  body.barre-collee #hd { height: 0; opacity: 0; }
   /* ── FILTRES : un bouton, un panneau ──
      La rangee defilante coupait le troisieme filtre sans rien dire : un
      candidat pouvait croire qu'il n'existait que deux filtres. Le bouton
@@ -760,6 +785,19 @@ html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1)
      contrediraient sur celui qui remet quoi a zero. */
   .chips > button.chip { display: none; }
 
+  /* Le champ de localisation vient de la barre : dans le panneau, il doit se
+     lire comme un champ, pas comme une ligne de texte posee entre deux
+     listes. Meme bordure, meme hauteur que les filtres. */
+  .chips.ouvert .loc-field {
+    width: 100%;
+    min-height: 44px;
+    padding: .5rem .85rem;
+    border: 1px solid var(--bord-carte);
+    border-radius: .375rem;
+    background: var(--surface);
+  }
+  .chips.ouvert .loc-field input { font-size: .925rem; }
+
   .fp-tete { display: flex; align-items: center; justify-content: space-between;
     gap: .75rem; margin-bottom: .15rem; }
   .fp-tete h2 { font-size: 1rem; font-weight: 800; color: var(--encre); margin: 0; }
@@ -777,23 +815,6 @@ html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1)
   .voile-filtres { display: block; position: fixed; inset: 0; z-index: 950;
     background: rgba(9, 26, 33, .45); }
   .voile-filtres[hidden] { display: none; }
-
-  /* ── CARTES : le titre sur deux lignes ──
-     Une seule ligne coupait « Stage - Actuaire / Analyste ALM & Allocation
-     Strategique d'Actifs (H/F) » avant le mot qui distingue l'offre. Deux
-     lignes suffisent a lire le poste ; au-dela, l'ellipse reprend. Le texte
-     complet reste dans le lien : un lecteur d'ecran l'annonce entier, et
-     rien n'est tronque en JavaScript. */
-  a.ctitle {
-    white-space: normal;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-    overflow: hidden;
-    overflow-wrap: anywhere;
-    line-height: 1.25;
-  }
 
   /* Le favori garde son icone de 17 px, sa cible grandit : 32 px est plus
      petit qu'un doigt, et le geste rate a cote. */
@@ -1278,9 +1299,11 @@ a.ctitle:focus-visible, button.ctitle:focus-visible { outline: 2px solid var(--t
   </header>
 
   <!-- ══ HERO ══ -->
-  <div id="hero">
-    <h1>Trouvez le job idéal en Actuariat <em>&amp;</em> Intelligence Artificielle.</h1>
-    <p class="sub">La plateforme de référence pour les experts de la donnée et du risque assurantiel.</p>
+  <!-- Le board ouvre sur la recherche : plus de bloc titre ni de promesse.
+       La page garde son titre de niveau 1, invisible a l'oeil, pour qu'elle
+       en ait encore un — indexation et navigation au lecteur d'ecran. -->
+  <div id="hero" role="search" aria-label="Recherche d'offres">
+    <h1 class="sr-only">Trouvez le job idéal en Actuariat &amp; Intelligence Artificielle.</h1>
     <div class="sbar">
       <div class="sf">
         <span class="ms" style="color:var(--gris-doux);font-size:17px;">search</span>
@@ -1303,7 +1326,7 @@ a.ctitle:focus-visible, button.ctitle:focus-visible { outline: 2px solid var(--t
     <div class="voile-filtres" id="voile-filtres" hidden onclick="fermerFiltres(true)"></div>
     <div class="chips" id="filtres-panneau" role="group" aria-label="Filtres de recherche">
       <div class="fp-tete">
-        <h2 id="fp-titre">Filtres</h2>
+        <h2 id="fp-titre">Recherche et filtres</h2>
         <button class="fp-fermer" type="button" onclick="fermerFiltres(true)"
                 aria-label="Fermer les filtres">
           <span class="ms" aria-hidden="true">close</span>
@@ -1748,6 +1771,10 @@ function resetFilters() {
 // compose sa recherche. Sur bureau, rien ne change — chaque changement part
 // tout de suite, comme avant.
 const IDS_FILTRES = ['contract-filter', 'specialty-filter', 'experience-filter', 'ats-filter', 'date-filter'];
+/* Sur telephone, le champ de localisation vit dans le panneau : il fait
+   partie du brouillon qu'on annule, mais ce n'est pas un filtre — il ne
+   compte pas dans le badge, et « Reinitialiser » ne le vide pas. */
+const IDS_PANNEAU = IDS_FILTRES.concat(['city-input']);
 
 let filtresAppliques = null;      // etat de reference : annuler y revient
 let panneauFiltresOuvert = false;
@@ -1755,7 +1782,7 @@ let dernierFocusFiltres = null;
 
 function lireFiltres() {
   const valeurs = {};
-  IDS_FILTRES.forEach((id) => {
+  IDS_PANNEAU.forEach((id) => {
     const el = document.getElementById(id);
     valeurs[id] = el ? el.value : '';
   });
@@ -1763,7 +1790,7 @@ function lireFiltres() {
 }
 
 function ecrireFiltres(valeurs) {
-  IDS_FILTRES.forEach((id) => {
+  IDS_PANNEAU.forEach((id) => {
     const el = document.getElementById(id);
     if (el && Object.prototype.hasOwnProperty.call(valeurs, id)) el.value = valeurs[id];
   });
@@ -1857,12 +1884,13 @@ function appliquerFiltresPanneau() {
   applyFilters();
 }
 
-// Reinitialiser ne touche qu'aux cinq filtres du panneau. Les mots-cles et
-// la localisation ne sont pas des filtres : les vider ici changerait la
-// recherche en cours sans que personne l'ait demande.
+// Reinitialiser vide ce que le panneau montre : les cinq filtres et la
+// localisation, qui y est descendue. Les mots-cles, eux, sont restes dans la
+// barre : les effacer d'ici changerait la recherche en cours sans que
+// personne l'ait demande.
 function reinitialiserFiltresPanneau() {
   const vides = {};
-  IDS_FILTRES.forEach((id) => { vides[id] = ''; });
+  IDS_PANNEAU.forEach((id) => { vides[id] = ''; });
   ecrireFiltres(vides);
   majBadgeFiltres();
   const premier = document.getElementById('contract-filter');
@@ -1900,12 +1928,61 @@ function surTouchePanneau(e) {
   }
 }
 
+/* ── LE CHAMP DE LOCALISATION CHANGE DE MAISON ──
+   Sur telephone, la barre tient sur une ligne : recherche + Filtres. Le lieu
+   n'y tient pas, et il n'est pas un filtre : il rejoint le panneau, sous son
+   nouveau nom « Recherche et filtres ». Sur bureau, il reprend sa place dans
+   la barre.
+
+   On DEPLACE le champ existant au lieu d'en creer un second : deux champs
+   portant le meme identifiant auraient fini par diverger, l'un affichant une
+   ville que l'autre ignorait. */
+function placerChampVille() {
+  const champ = document.querySelector('.loc-field');
+  const barre = document.querySelector('.sbar');
+  const panneau = document.getElementById('filtres-panneau');
+  if (!champ || !barre || !panneau) return;
+
+  // Sur une ligne etroite, « Mots-cles (e.g. Actuaire, Data Scientist) » se
+  // coupait au milieu d'un mot. Le champ garde son nom accessible ; seul le
+  // texte d'invite s'adapte a la place disponible.
+  const recherche = document.getElementById('q-input');
+  if (recherche) {
+    recherche.placeholder = isMobile()
+      ? 'Rechercher un poste'
+      : 'Mots-clés (e.g. Actuaire, Data Scientist)';
+  }
+
+  if (isMobile()) {
+    const premierFiltre = document.getElementById(IDS_FILTRES[0]);
+    if (premierFiltre) panneau.insertBefore(champ, premierFiltre);
+    else panneau.appendChild(champ);
+  } else {
+    const bouton = barre.querySelector('.btn-srch');
+    if (bouton) barre.insertBefore(champ, bouton);
+    else barre.appendChild(champ);
+  }
+}
+
 // Repasser en bureau avec le panneau ouvert laisserait un dialog invisible,
 // un defilement bloque et le focus dans un element masque. On ferme en
 // annulant : le brouillon non valide ne s'applique pas.
 window.addEventListener('resize', () => {
   if (!isMobile() && panneauFiltresOuvert) fermerFiltres(true);
+  placerChampVille();
+  if (!isMobile()) document.body.classList.remove('barre-collee');
 });
+
+/* ── LA BARRE RESTE, L'EN-TETE S'EFFACE ──
+   Sur ce board, ce n'est pas le document qui defile : c'est la colonne des
+   offres. La barre de recherche est donc deja hors du defilement. Reste
+   l'en-tete, qui occupait 59 px au-dessus d'elle : il s'efface des qu'on
+   descend dans la liste, la barre remonte au bord haut de l'ecran, et il
+   revient quand on remonte. */
+function suivreDefilementListe() {
+  if (!isMobile()) return;
+  document.body.classList.toggle('barre-collee', plEl.scrollTop > 12);
+}
 
 // ── Chargement initial ─────────────────────────────────────────────────────
 async function loadJobs(forcedPage) {
@@ -2966,7 +3043,12 @@ window.addEventListener('popstate', async () => {
   closeDetail();
 });
 
+// Le bandeau se repliait au defilement de la liste, sur TOUTES les largeurs :
+// sur telephone, la recherche disparaissait des qu'on descendait dans les
+// offres. Elle reste desormais en place — c'est la barre qui tient l'ecran,
+// comme sur un site d'emploi mobile. En bureau, le repli est conserve.
 plEl.addEventListener('scroll', function () {
+  if (isMobile()) return;
   hero.classList.toggle('collapsed', this.scrollTop > 30);
 });
 let touchStartX = 0;
@@ -2996,6 +3078,10 @@ document.getElementById('city-input')?.addEventListener('keydown', e => { if (e.
 
 // ── Init ───────────────────────────────────────────────────────────────────
 remplirDepuisAdresse();
+// Le lieu change de maison AVANT le premier rendu : sur telephone, il doit
+// deja etre dans le panneau, sinon il apparait une seconde dans la barre.
+placerChampVille();
+plEl.addEventListener('scroll', suivreDefilementListe, { passive: true });
 loadJobs();
 </script>
 <!-- ══ BURGER MENU DRAWER ══ -->
