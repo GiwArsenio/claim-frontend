@@ -42,7 +42,6 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const { webkit } = require('playwright');
 const aide = require('./aide-parcours.cjs');
 
 const RACINE = path.join(__dirname, '..');

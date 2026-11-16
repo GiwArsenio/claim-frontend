@@ -55,8 +55,10 @@ jobs:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
 
-      - name: Installer les navigateurs
-        run: npx playwright install --with-deps chromium webkit
+      # Chromium seul : aucun test n'utilise WebKit (celui du premier
+      # rendu simule iOS par l'agent utilisateur, pas par le moteur).
+      - name: Installer Chromium
+        run: npx playwright install --with-deps chromium
 
       - name: Tests statiques
         run: node tools/run-tests.cjs --famille=statique
@@ -64,9 +66,6 @@ jobs:
       # Les six largeurs : LARGEURS n'est pas defini ici, volontairement.
       - name: Tests navigateur (6 largeurs)
         run: node tools/run-tests.cjs --famille=navigateur
-
-      - name: Premier rendu WebKit
-        run: node tools/run-tests.cjs --famille=webkit
 
       - name: Rendu visuel
         continue-on-error: true
