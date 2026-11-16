@@ -126,6 +126,10 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
 
 .chips { display: flex; gap: .5rem; overflow-x: auto; padding-bottom: .15rem; }
 .chips::-webkit-scrollbar { display: none; }
+/* `overflow-x: auto` rogne aussi l'axe vertical : un panneau absolu pose
+   dans la rangee y serait coupe. Tant qu'une liste est ouverte, on laisse
+   le debordement passer — le temps de choisir, pas plus. */
+.chips.msel-ouvert { overflow: visible; }
 .chip { display: flex; align-items: center; gap: .3rem; padding: .38rem .85rem; border-radius: .375rem; background: var(--surface); color: var(--gris); font-size: 0.925rem; font-weight: 500; border: 1px solid var(--bord-carte); cursor: pointer; white-space: nowrap; flex-shrink: 0; transition: background .15s; }
 /* Le survol d'un filtre doit se VOIR. Le fond de survol est un jeton
    dedie : --teal-survol reste le fond des badges, ou un fond clair le
@@ -186,8 +190,6 @@ select.chip, .msel.chip { min-width: calc(7ch + 3.2rem); }
    En position absolue elle recouvrait « Afficher les offres » : le doigt
    tombait sur une case au lieu du bouton. Ici elle pousse le contenu, et
    rien n'est jamais masque. */
-#filtres-panneau .msel-panneau { position: static; width: 100%; margin-top: .4rem;
-  max-height: none; box-shadow: none; border-radius: .375rem; }
 #filtres-panneau.ouvert .msel { display: block; }
 #filtres-panneau.ouvert .msel-btn { width: 100%; justify-content: space-between; }
 
@@ -2187,6 +2189,7 @@ function ajusterLargeurFiltres() {
  */
 function fermerMultiSelects() {
   fermerFeuille();
+  document.querySelectorAll('.chips.msel-ouvert').forEach((r) => r.classList.remove('msel-ouvert'));
   document.querySelectorAll('.msel').forEach((c) => {
     const p = c.querySelector('.msel-panneau');
     if (p) p.hidden = true;
@@ -2354,6 +2357,9 @@ function initialiserMultiSelects() {
         panneau.hidden = false;
         c.dataset.ouvert = 'true';
         bouton.setAttribute('aria-expanded', 'true');
+        // La rangee doit laisser passer le panneau, sinon il est rogne.
+        const rangee = c.closest('.chips');
+        if (rangee) rangee.classList.add('msel-ouvert');
       }
     });
 
