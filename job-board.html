@@ -1166,6 +1166,70 @@ html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1)
   .chips { justify-content: center; }
 }
 
+
+/* ══ PANNEAU DE FILTRES — GROUPES DE PASTILLES ══════════════════════════
+   Tous les criteres visibles d'un coup, en pastilles. Pas de menu
+   deroulant : on voit ce qui existe sans ouvrir six fois la meme chose.
+   Le pied reste colle : « Tout effacer » et « Afficher les offres » sont
+   toujours a portee du pouce. */
+.fp-corps { flex: 1 1 auto; overflow-y: auto; overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch; padding: 0 1rem; }
+
+.fp-groupe { padding: 1.05rem 0 1.15rem; border-bottom: 1px solid var(--bord-carte); }
+.fp-groupe:last-child { border-bottom: 0; }
+.fp-groupe-titre { margin: 0 0 .75rem; font-size: 1.05rem; font-weight: 800;
+  color: var(--encre); letter-spacing: -.01em; }
+
+.fp-choix { display: flex; flex-wrap: wrap; gap: .5rem; }
+.fp-puce { display: inline-flex; align-items: center; min-height: 40px;
+  padding: .45rem .9rem; border: 1px solid var(--bord-carte); border-radius: .5rem;
+  background: var(--surface); color: var(--encre);
+  font: inherit; font-size: .92rem; font-weight: 500; line-height: 1.2;
+  cursor: pointer; transition: background .12s, color .12s, border-color .12s; }
+.fp-puce:hover { border-color: var(--teal-bord); background: var(--surface-survol); }
+/* La pastille choisie se lit d'un coup d'oeil : aplat d'encre, texte clair.
+   Un simple liseré teal se confondait avec le survol. */
+.fp-puce[aria-pressed="true"] { background: var(--encre); border-color: var(--encre);
+  color: var(--surface); font-weight: 600; }
+.fp-puce[aria-pressed="true"]:hover { background: var(--encre); border-color: var(--encre); }
+.fp-puce:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+
+.fp-pied { display: flex; align-items: center; justify-content: space-between;
+  gap: .75rem; padding: .8rem 1rem calc(.8rem + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--bord-carte); background: var(--surface); }
+.fp-tout-effacer { background: none; border: 0; padding: .5rem .25rem;
+  font: inherit; font-size: .92rem; color: var(--gris); cursor: pointer; }
+.fp-tout-effacer:hover { color: var(--encre); text-decoration: underline; }
+.fp-afficher { background: var(--encre); color: var(--surface); border: 0;
+  border-radius: 9999px; padding: .7rem 1.35rem; font: inherit;
+  font-size: .92rem; font-weight: 700; cursor: pointer; white-space: nowrap; }
+.fp-afficher:hover { background: var(--teal); }
+
+/* Le corps defile, le pied ne bouge pas : le panneau doit etre une colonne. */
+.chips.ouvert { gap: 0; overflow: hidden; padding: 0; }
+.chips.ouvert > .fp-tete { padding: 1rem 1rem .35rem; margin: 0; flex: 0 0 auto; }
+.chips.ouvert > .fp-pied { flex: 0 0 auto; }
+
+/* ── BUREAU : le meme panneau, en modale centree ─────────────────────── */
+@media (min-width: 769px) {
+  /* Les filtres ne vivent plus en ligne : ils vivent dans le panneau. */
+  .chips:not(.ouvert) { display: none; }
+  .btn-filtres { display: inline-flex; }
+
+  .chips.ouvert {
+    display: flex; flex-direction: column;
+    position: fixed; inset: 0; margin: auto;
+    width: min(680px, 92vw); height: fit-content; max-height: 84vh;
+    z-index: 960; border: 1px solid var(--bord-carte);
+    border-radius: 1rem; box-shadow: 0 26px 70px rgba(9, 26, 33, .34);
+    overflow: hidden;
+  }
+  .chips.ouvert > .fp-tete { padding: 1.1rem 1.35rem .4rem; }
+  .chips.ouvert > .fp-corps { padding: 0 1.35rem; }
+  .chips.ouvert > .fp-pied { padding: .9rem 1.35rem; }
+  .voile-filtres { display: block; }
+}
+
 </style>
 
 <!-- Balises SEO : titre enrichi, description, URL canonique, partage social -->
@@ -1529,22 +1593,7 @@ a.ctitle:focus-visible, button.ctitle:focus-visible { outline: 2px solid var(--t
            l'ordre de tabulation. C'est lui qui s'annonce a l'ouverture, pas
            son premier champ. -->
       <div class="chips" id="filtres-panneau" role="group" aria-label="Filtres de recherche" tabindex="-1">
-      <div class="fp-tete">
-        <h2 id="fp-titre">Recherche et filtres</h2>
-        <button class="fp-fermer" type="button" onclick="fermerFiltres(true)"
-                aria-label="Fermer les filtres">
-          <svg class="ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-        </button>
-      </div>
-      <div class="msel chip" data-filtre="contract-filter" data-label="Type de contrat"><button class="msel-btn" type="button" aria-haspopup="listbox" aria-expanded="false"><span class="msel-txt">Type de contrat</span><svg class="ic msel-fleche" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg></button><div class="msel-panneau" role="listbox" aria-multiselectable="true" hidden><label class="msel-opt"><input type="checkbox" value="cdi"><span>CDI</span></label><label class="msel-opt"><input type="checkbox" value="cdd"><span>CDD</span></label><label class="msel-opt"><input type="checkbox" value="alternance"><span>Alternance</span></label><label class="msel-opt"><input type="checkbox" value="stage"><span>Stage</span></label><label class="msel-opt"><input type="checkbox" value="vie"><span>V.I.E</span></label><label class="msel-opt"><input type="checkbox" value="freelance"><span>Freelance</span></label><label class="msel-opt"><input type="checkbox" value="interim"><span>Intérim</span></label><label class="msel-opt"><input type="checkbox" value="autre"><span>Autre</span></label></div></div><input type="hidden" id="contract-filter" value="">
-      <div class="msel chip" data-filtre="specialty-filter" data-label="Spécialité"><button class="msel-btn" type="button" aria-haspopup="listbox" aria-expanded="false"><span class="msel-txt">Spécialité</span><svg class="ic msel-fleche" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg></button><div class="msel-panneau" role="listbox" aria-multiselectable="true" hidden><label class="msel-opt"><input type="checkbox" value="actuariat"><span>Actuariat</span></label><label class="msel-opt"><input type="checkbox" value="souscription_technique"><span>Souscription technique</span></label><label class="msel-opt"><input type="checkbox" value="ia_data"><span>IA / Data</span></label></div></div><input type="hidden" id="specialty-filter" value="">
-      <div class="msel chip" data-filtre="experience-filter" data-label="Expérience"><button class="msel-btn" type="button" aria-haspopup="listbox" aria-expanded="false"><span class="msel-txt">Expérience</span><svg class="ic msel-fleche" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg></button><div class="msel-panneau" role="listbox" aria-multiselectable="true" hidden><label class="msel-opt"><input type="checkbox" value="junior"><span>Junior</span></label><label class="msel-opt"><input type="checkbox" value="confirmed"><span>Confirmé</span></label><label class="msel-opt"><input type="checkbox" value="senior"><span>Senior</span></label><label class="msel-opt"><input type="checkbox" value="lead"><span>Lead</span></label></div></div><input type="hidden" id="experience-filter" value="">
-      <select id="date-filter" class="chip" aria-label="Date de publication" onchange="surChangementFiltre()"><option value="">Date de publication</option><option value="1">Moins de 24 h</option><option value="7">7 derniers jours</option><option value="14">14 derniers jours</option></select>
-      <div class="msel chip" data-filtre="ats-filter" data-label="Source ATS"><button class="msel-btn" type="button" aria-haspopup="listbox" aria-expanded="false"><span class="msel-txt">Source ATS</span><svg class="ic msel-fleche" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg></button><div class="msel-panneau" role="listbox" aria-multiselectable="true" hidden><label class="msel-opt"><input type="checkbox" value="workday"><span>Workday</span></label><label class="msel-opt"><input type="checkbox" value="smartrecruiters"><span>SmartRecruiters</span></label><label class="msel-opt"><input type="checkbox" value="talentsoft"><span>TalentSoft</span></label><label class="msel-opt"><input type="checkbox" value="custom"><span>Custom</span></label><label class="msel-opt"><input type="checkbox" value="magnet"><span>Magnet</span></label><label class="msel-opt"><input type="checkbox" value="greenhouse"><span>Greenhouse</span></label><label class="msel-opt"><input type="checkbox" value="ashby"><span>Ashby</span></label><label class="msel-opt"><input type="checkbox" value="successfactors"><span>SuccessFactors</span></label><label class="msel-opt"><input type="checkbox" value="radancy"><span>Radancy</span></label><label class="msel-opt"><input type="checkbox" value="groupama"><span>Groupama</span></label><label class="msel-opt"><input type="checkbox" value="oracle_hcm"><span>Oracle HCM</span></label></div></div><input type="hidden" id="ats-filter" value="">
-      <button class="chip" onclick="resetFilters()"><svg class="ic" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>Réinitialiser</button>
-      <div class="fp-actions">
-        <button class="fp-reinit" type="button" onclick="reinitialiserFiltresPanneau()">Réinitialiser</button>
-        <button class="fp-appliquer" type="button" onclick="appliquerFiltresPanneau()">Afficher les offres</button>
+      <div class="fp-tete"><h2 id="fp-titre">Filtres</h2><button class="fp-fermer" type="button" onclick="fermerFiltres(true)" aria-label="Fermer les filtres"><svg class="ic" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div><div class="fp-corps"><section class="fp-groupe" data-filtre="contract-filter"><h3 class="fp-groupe-titre">Contrats</h3><div class="fp-choix"><button class="fp-puce" type="button" data-valeur="cdi" aria-pressed="false">CDI</button><button class="fp-puce" type="button" data-valeur="cdd" aria-pressed="false">CDD</button><button class="fp-puce" type="button" data-valeur="alternance" aria-pressed="false">Alternance</button><button class="fp-puce" type="button" data-valeur="stage" aria-pressed="false">Stage</button><button class="fp-puce" type="button" data-valeur="vie" aria-pressed="false">V.I.E</button><button class="fp-puce" type="button" data-valeur="freelance" aria-pressed="false">Freelance</button><button class="fp-puce" type="button" data-valeur="interim" aria-pressed="false">Intérim</button><button class="fp-puce" type="button" data-valeur="autre" aria-pressed="false">Autre</button></div></section><section class="fp-groupe" data-filtre="specialty-filter"><h3 class="fp-groupe-titre">Spécialité</h3><div class="fp-choix"><button class="fp-puce" type="button" data-valeur="actuariat" aria-pressed="false">Actuariat</button><button class="fp-puce" type="button" data-valeur="souscription_technique" aria-pressed="false">Souscription technique</button><button class="fp-puce" type="button" data-valeur="ia_data" aria-pressed="false">IA / Data</button></div></section><section class="fp-groupe" data-filtre="experience-filter"><h3 class="fp-groupe-titre">Expérience</h3><div class="fp-choix"><button class="fp-puce" type="button" data-valeur="junior" aria-pressed="false">Junior</button><button class="fp-puce" type="button" data-valeur="confirmed" aria-pressed="false">Confirmé</button><button class="fp-puce" type="button" data-valeur="senior" aria-pressed="false">Senior</button><button class="fp-puce" type="button" data-valeur="lead" aria-pressed="false">Lead</button></div></section><section class="fp-groupe" data-filtre="ats-filter"><h3 class="fp-groupe-titre">Source ATS</h3><div class="fp-choix"><button class="fp-puce" type="button" data-valeur="workday" aria-pressed="false">Workday</button><button class="fp-puce" type="button" data-valeur="smartrecruiters" aria-pressed="false">SmartRecruiters</button><button class="fp-puce" type="button" data-valeur="talentsoft" aria-pressed="false">TalentSoft</button><button class="fp-puce" type="button" data-valeur="custom" aria-pressed="false">Custom</button><button class="fp-puce" type="button" data-valeur="magnet" aria-pressed="false">Magnet</button><button class="fp-puce" type="button" data-valeur="greenhouse" aria-pressed="false">Greenhouse</button><button class="fp-puce" type="button" data-valeur="ashby" aria-pressed="false">Ashby</button><button class="fp-puce" type="button" data-valeur="successfactors" aria-pressed="false">SuccessFactors</button><button class="fp-puce" type="button" data-valeur="radancy" aria-pressed="false">Radancy</button><button class="fp-puce" type="button" data-valeur="groupama" aria-pressed="false">Groupama</button><button class="fp-puce" type="button" data-valeur="oracle_hcm" aria-pressed="false">Oracle HCM</button></div></section><section class="fp-groupe" data-filtre="date-filter" data-simple="true"><h3 class="fp-groupe-titre">Date de publication</h3><div class="fp-choix"><button class="fp-puce" type="button" data-valeur="" aria-pressed="false">Toutes dates</button><button class="fp-puce" type="button" data-valeur="1" aria-pressed="false">Moins de 24 h</button><button class="fp-puce" type="button" data-valeur="7" aria-pressed="false">7 derniers jours</button><button class="fp-puce" type="button" data-valeur="14" aria-pressed="false">14 derniers jours</button></div></section></div><div class="fp-pied"><button class="fp-tout-effacer" type="button" onclick="reinitialiserFiltresPanneau()">Tout effacer</button><button class="fp-afficher" type="button" onclick="appliquerFiltresPanneau()">Afficher les offres</button></div><input type="hidden" id="contract-filter" value=""><input type="hidden" id="specialty-filter" value=""><input type="hidden" id="experience-filter" value=""><input type="hidden" id="ats-filter" value=""><input type="hidden" id="date-filter" value="">
       </div>
       </div>
     </div>
@@ -2119,11 +2168,10 @@ function appliquerFiltresPanneau() {
 // barre : les effacer d'ici changerait la recherche en cours sans que
 // personne l'ait demande.
 function reinitialiserFiltresPanneau() {
+  // « Tout effacer » vide ce que le panneau montre. Il n'applique pas :
+  // c'est « Afficher les offres » qui le fait. Vider et recharger d'un
+  // meme geste surprendrait au milieu d'une composition.
   const vides = {};
-  /* On vide ce que le panneau MONTRE. En haut de page, la localisation est
-     restee dans la barre : la vider d'ici effacerait un champ qu'on ne voit
-     pas depuis le panneau. Une fois resserre, elle y est descendue et
-     disparait avec le reste. */
   const ids = IDS_FILTRES.slice();
   const ville = document.getElementById('city-input');
   if (ville && ville.closest('#filtres-panneau')) ids.push('city-input');
@@ -2131,15 +2179,8 @@ function reinitialiserFiltresPanneau() {
   ecrireFiltres(vides);
   rafraichirMultiSelects();
   majBadgeFiltres();
-
-  /* Le bouton APPLIQUE, il ne se contente pas de vider les champs.
-     Avant, le panneau restait ouvert sur cinq filtres vides pendant que la
-     liste affichait encore 263 offres : rien ne bougeait, et le bouton
-     etait lu comme casse. Un « Reinitialiser » est une action explicite :
-     elle prend effet, et le panneau se referme sur son resultat. */
-  filtresAppliques = lireFiltres();
-  fermerFiltres(false);
-  applyFilters();
+  const premier = document.getElementById('contract-filter');
+  if (premier) premier.focus();
 }
 
 /* ── LA LARGEUR D'UN FILTRE SUIT SON TEXTE ──
@@ -2234,19 +2275,52 @@ function majMultiSelect(c) {
 }
 
 function rafraichirMultiSelects() {
-  document.querySelectorAll('.msel').forEach((c) => {
-    const champ = document.getElementById(c.dataset.filtre);
+  // Les groupes de pastilles lisent leur etat sur le champ cache : c'est lui
+  // qui fait foi (adresse, reinitialisation, retour arriere).
+  document.querySelectorAll('.fp-groupe').forEach((g) => {
+    const champ = document.getElementById(g.dataset.filtre);
     if (!champ) return;
     const valeurs = String(champ.value || '').split(',').filter(Boolean);
-    const panneau = panneauDe(c);
-    if (panneau) {
-      panneau.querySelectorAll('input[type="checkbox"]').forEach((i) => {
-        i.checked = valeurs.includes(i.value);
-      });
-    }
-    majMultiSelect(c);
+    g.querySelectorAll('.fp-puce').forEach((b) => {
+      const v = b.dataset.valeur;
+      // La pastille « Toutes dates » porte une valeur vide : elle est
+      // allumee quand aucune autre ne l'est.
+      const actif = v === '' ? valeurs.length === 0 : valeurs.includes(v);
+      b.setAttribute('aria-pressed', actif ? 'true' : 'false');
+    });
   });
+  majPiedFiltres();
 }
+
+/* Recopie les pastilles allumees dans les champs caches. */
+function majPuces() {
+  document.querySelectorAll('.fp-groupe').forEach((g) => {
+    const champ = document.getElementById(g.dataset.filtre);
+    if (!champ) return;
+    champ.value = [...g.querySelectorAll('.fp-puce[aria-pressed="true"]')]
+      .map((b) => b.dataset.valeur)
+      .filter((v) => v !== '')
+      .join(',');
+  });
+  majBadgeFiltres();
+  majPiedFiltres();
+}
+
+/* Le pied annonce ce que la liste contiendra. On ne promet un nombre que
+   lorsqu'il est connu : le total affiche correspond a l'etat APPLIQUE, pas
+   au brouillon en cours de composition. */
+function majPiedFiltres() {
+  const bouton = document.querySelector('.fp-afficher');
+  if (!bouton) return;
+  const total = (typeof TOTAL_SERVER === 'number') ? TOTAL_SERVER : 0;
+  const brouillon = lireFiltres();
+  const modifie = filtresAppliques
+    && Object.keys(brouillon).some((k) => brouillon[k] !== filtresAppliques[k]);
+  bouton.textContent = (total && !modifie)
+    ? 'Afficher les ' + total.toLocaleString('fr-FR') + ' offres'
+    : 'Afficher les offres';
+}
+
 
 /* ── LA FEUILLE DU BAS ────────────────────────────────────────────────
  *
@@ -2339,45 +2413,26 @@ function fermerFeuille() {
 }
 
 function initialiserMultiSelects() {
-  document.querySelectorAll('.msel').forEach((c) => {
-    const panneau = c.querySelector('.msel-panneau');
-    const bouton = c.querySelector('.msel-btn');
-    if (!panneau || !bouton) return;
+  document.querySelectorAll('.fp-puce').forEach((b) => {
+    b.addEventListener('click', () => {
+      const groupe = b.closest('.fp-groupe');
+      if (!groupe) return;
+      const simple = groupe.dataset.simple === 'true';
+      const deja = b.getAttribute('aria-pressed') === 'true';
 
-    bouton.addEventListener('click', (e) => {
-      // Le clic sur le bouton ne doit pas atteindre le document, qui ferme
-      // tous les panneaux : le panneau se rouvrirait pour se refermer.
-      e.stopPropagation();
-      // Sur telephone, la liste s'ouvre dans une FEUILLE : dans le flux,
-      // elle faisait grandir le panneau de 314 px et decalait tout.
-      if (ouvrirFeuille(c)) return;
-      const etaitOuvert = panneau.hidden === false;
-      fermerMultiSelects();
-      if (!etaitOuvert) {
-        panneau.hidden = false;
-        c.dataset.ouvert = 'true';
-        bouton.setAttribute('aria-expanded', 'true');
-        // La rangee doit laisser passer le panneau, sinon il est rogne.
-        const rangee = c.closest('.chips');
-        if (rangee) rangee.classList.add('msel-ouvert');
+      if (simple) {
+        // Un seul choix : cliquer une autre pastille remplace la precedente.
+        groupe.querySelectorAll('.fp-puce').forEach((x) => x.setAttribute('aria-pressed', 'false'));
+        if (!deja) b.setAttribute('aria-pressed', 'true');
+      } else {
+        b.setAttribute('aria-pressed', deja ? 'false' : 'true');
       }
-    });
 
-    // Un clic dans le panneau ne le referme pas : on y coche plusieurs
-    // valeurs de suite.
-    panneau.addEventListener('click', (e) => e.stopPropagation());
-    panneau.addEventListener('change', () => {
-      majMultiSelect(c);
+      majPuces();
       surChangementFiltre();
     });
-
-    majMultiSelect(c);
   });
-
-  document.addEventListener('click', fermerMultiSelects);
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') fermerMultiSelects();
-  });
+  rafraichirMultiSelects();
 }
 
 initialiserMultiSelects();

@@ -30,8 +30,9 @@ assert.ok(skillsBlock.includes("Repérés dans le texte de l'offre"), 'le bloc d
 assert.ok(html.includes('Non précisé'));
 // Le filtre est desormais une liste a cases : on lit le bloc .msel et ses
 // valeurs de case, pas un <select> qui n'existe plus.
-const filter = html.match(/<div class="msel chip" data-filtre="specialty-filter"[\s\S]*?<\/div><\/div>/)[0];
-for (const name of ['actuariat','ia_data','souscription_technique']) assert.ok(filter.includes(`value="${name}"`));
+// Le filtre est un groupe de pastilles : on lit le bloc et ses valeurs.
+const filter = html.match(/<section class="fp-groupe" data-filtre="specialty-filter"[\s\S]*?<\/section>/)[0];
+for (const name of ['actuariat','ia_data','souscription_technique']) assert.ok(filter.includes(`data-valeur="${name}"`));
 assert.ok(!filter.includes('actuariat_iard'));
 console.log('Cards Jev regression tests passed');
 
