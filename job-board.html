@@ -153,6 +153,46 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
    remet a zero background-position et background-repeat, et la fleche
    partait dans le coin haut-gauche, repetee sur toute la pastille —
    101 pixels de fleche au repos, 464 au survol. */
+/* ── LISTES A CHOIX MULTIPLES ──────────────────────────────────────────
+   Un <select multiple> natif est inutilisable : sur telephone il faut
+   Ctrl pour choisir deux valeurs, et aucun navigateur ne l'annonce. On
+   garde donc l'apparence de la pastille, avec un panneau de cases.
+
+   La valeur lisible vit dans un champ cache : tout le reste du code
+   (lecture des filtres, reinitialisation, adresse) continue de lire
+   `.value`, sans savoir que le controle a change de nature. */
+.msel { position: relative; }
+.msel-btn { display: flex; align-items: center; gap: .32rem; padding: 0; border: 0;
+  background: none; font: inherit; color: inherit; cursor: pointer; }
+.msel-txt { white-space: nowrap; }
+.msel-fleche { transition: transform .15s ease; }
+.msel[data-ouvert="true"] .msel-fleche { transform: rotate(180deg); }
+/* La pastille choisie se lit comme active : meme traitement que le survol. */
+.msel.actif { background: var(--teal-clair); border-color: var(--teal-bord); color: var(--teal-texte); }
+
+/* Largeur minimale : sept lettres, quoi qu'affiche le libelle. Sans elle,
+   « Spécialité » et « Expérience » n'avaient pas la meme largeur et la
+   rangee dansait a chaque choix. 7ch est la largeur de sept « 0 » dans la
+   police courante ; on y ajoute les marges et la place de la fleche. */
+select.chip, .msel.chip { min-width: calc(7ch + 3.2rem); }
+
+.msel-panneau { position: absolute; z-index: 70; top: calc(100% + .35rem); left: 0;
+  min-width: 100%; max-height: 60vh; overflow-y: auto; padding: .3rem;
+  background: var(--surface); border: 1px solid var(--bord-carte);
+  border-radius: .5rem; box-shadow: 0 10px 26px rgba(0,0,0,.22);
+  display: flex; flex-direction: column; gap: .05rem; }
+.msel-panneau[hidden] { display: none; }
+/* Dans le panneau de filtres (telephone), la liste s'ouvre DANS LE FLUX.
+   En position absolue elle recouvrait « Afficher les offres » : le doigt
+   tombait sur une case au lieu du bouton. Ici elle pousse le contenu, et
+   rien n'est jamais masque. */
+#filtres-panneau .msel-panneau { position: static; width: 100%; margin-top: .4rem;
+  max-height: none; box-shadow: none; border-radius: .375rem; }
+.msel-opt { display: flex; align-items: center; gap: .5rem; padding: .4rem .5rem;
+  border-radius: .3rem; font-size: .9rem; white-space: nowrap; cursor: pointer; }
+.msel-opt:hover { background: var(--surface-survol); }
+.msel-opt input { accent-color: var(--teal); width: 15px; height: 15px; margin: 0; }
+
 select.chip { appearance: none; -webkit-appearance: none; padding-right: 2rem;
   --fleche-pastille: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23515f78' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
   background-image: var(--fleche-pastille);
@@ -803,7 +843,9 @@ html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1)
      un filtre qui affiche « Spécialité ». La mesure est posee en JavaScript,
      faute d'equivalent fiable partout ; la variable n'existe que dans cette
      rangee, jamais dans le panneau. */
-  .chips:not(.ouvert) > select.chip { width: var(--largeur-texte, auto); }
+  .chips:not(.ouvert) > select.chip,
+  .chips:not(.ouvert) > .msel.chip { width: var(--largeur-texte, auto); }
+  .chips:not(.ouvert) > .msel:not([data-filtre="contract-filter"]):not([data-filtre="specialty-filter"]),
   .chips:not(.ouvert) > .chip:not(#contract-filter):not(#specialty-filter),
   .chips:not(.ouvert) > button.chip,
   .chips:not(.ouvert) > .fp-tete,
@@ -1442,11 +1484,11 @@ a.ctitle:focus-visible, button.ctitle:focus-visible { outline: 2px solid var(--t
           <svg class="ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
         </button>
       </div>
-      <select id="contract-filter" class="chip" aria-label="Type de contrat" onchange="surChangementFiltre()"><option value="">Type de contrat</option><option value="cdi">CDI</option><option value="cdd">CDD</option><option value="alternance">Alternance</option><option value="stage">Stage</option><option value="vie">V.I.E</option><option value="freelance">Freelance</option></select>
-      <select id="specialty-filter" class="chip" aria-label="Spécialité" onchange="surChangementFiltre()"><option value="">Spécialité</option><option value="actuariat">Actuariat</option><option value="souscription_technique">Souscription technique</option><option value="ia_data">IA / Data</option></select>
-      <select id="experience-filter" class="chip" aria-label="Expérience" onchange="surChangementFiltre()"><option value="">Expérience</option><option value="junior">Junior</option><option value="confirmed">Confirmé</option><option value="senior">Senior</option><option value="lead">Lead</option></select>
+      <div class="msel chip" data-filtre="contract-filter" data-label="Type de contrat"><button class="msel-btn" type="button" aria-haspopup="listbox" aria-expanded="false"><span class="msel-txt">Type de contrat</span><svg class="ic msel-fleche" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg></button><div class="msel-panneau" role="listbox" aria-multiselectable="true" hidden><label class="msel-opt"><input type="checkbox" value="cdi"><span>CDI</span></label><label class="msel-opt"><input type="checkbox" value="cdd"><span>CDD</span></label><label class="msel-opt"><input type="checkbox" value="alternance"><span>Alternance</span></label><label class="msel-opt"><input type="checkbox" value="stage"><span>Stage</span></label><label class="msel-opt"><input type="checkbox" value="vie"><span>V.I.E</span></label><label class="msel-opt"><input type="checkbox" value="freelance"><span>Freelance</span></label><label class="msel-opt"><input type="checkbox" value="interim"><span>Intérim</span></label><label class="msel-opt"><input type="checkbox" value="autre"><span>Autre</span></label></div></div><input type="hidden" id="contract-filter" value="">
+      <div class="msel chip" data-filtre="specialty-filter" data-label="Spécialité"><button class="msel-btn" type="button" aria-haspopup="listbox" aria-expanded="false"><span class="msel-txt">Spécialité</span><svg class="ic msel-fleche" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg></button><div class="msel-panneau" role="listbox" aria-multiselectable="true" hidden><label class="msel-opt"><input type="checkbox" value="actuariat"><span>Actuariat</span></label><label class="msel-opt"><input type="checkbox" value="souscription_technique"><span>Souscription technique</span></label><label class="msel-opt"><input type="checkbox" value="ia_data"><span>IA / Data</span></label></div></div><input type="hidden" id="specialty-filter" value="">
+      <div class="msel chip" data-filtre="experience-filter" data-label="Expérience"><button class="msel-btn" type="button" aria-haspopup="listbox" aria-expanded="false"><span class="msel-txt">Expérience</span><svg class="ic msel-fleche" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg></button><div class="msel-panneau" role="listbox" aria-multiselectable="true" hidden><label class="msel-opt"><input type="checkbox" value="junior"><span>Junior</span></label><label class="msel-opt"><input type="checkbox" value="confirmed"><span>Confirmé</span></label><label class="msel-opt"><input type="checkbox" value="senior"><span>Senior</span></label><label class="msel-opt"><input type="checkbox" value="lead"><span>Lead</span></label></div></div><input type="hidden" id="experience-filter" value="">
       <select id="date-filter" class="chip" aria-label="Date de publication" onchange="surChangementFiltre()"><option value="">Date de publication</option><option value="1">Moins de 24 h</option><option value="7">7 derniers jours</option><option value="14">14 derniers jours</option></select>
-      <select id="ats-filter" class="chip" aria-label="Source ATS" onchange="surChangementFiltre()"><option value="">Source ATS</option><option value="workday">Workday</option><option value="smartrecruiters">SmartRecruiters</option><option value="talentsoft">TalentSoft</option><option value="custom">Custom</option><option value="magnet">Magnet</option><option value="greenhouse">Greenhouse</option><option value="ashby">Ashby</option><option value="successfactors">SuccessFactors</option><option value="radancy">Radancy</option><option value="groupama">Groupama</option><option value="oracle_hcm">Oracle HCM</option></select>
+      <div class="msel chip" data-filtre="ats-filter" data-label="Source ATS"><button class="msel-btn" type="button" aria-haspopup="listbox" aria-expanded="false"><span class="msel-txt">Source ATS</span><svg class="ic msel-fleche" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg></button><div class="msel-panneau" role="listbox" aria-multiselectable="true" hidden><label class="msel-opt"><input type="checkbox" value="workday"><span>Workday</span></label><label class="msel-opt"><input type="checkbox" value="smartrecruiters"><span>SmartRecruiters</span></label><label class="msel-opt"><input type="checkbox" value="talentsoft"><span>TalentSoft</span></label><label class="msel-opt"><input type="checkbox" value="custom"><span>Custom</span></label><label class="msel-opt"><input type="checkbox" value="magnet"><span>Magnet</span></label><label class="msel-opt"><input type="checkbox" value="greenhouse"><span>Greenhouse</span></label><label class="msel-opt"><input type="checkbox" value="ashby"><span>Ashby</span></label><label class="msel-opt"><input type="checkbox" value="successfactors"><span>SuccessFactors</span></label><label class="msel-opt"><input type="checkbox" value="radancy"><span>Radancy</span></label><label class="msel-opt"><input type="checkbox" value="groupama"><span>Groupama</span></label><label class="msel-opt"><input type="checkbox" value="oracle_hcm"><span>Oracle HCM</span></label></div></div><input type="hidden" id="ats-filter" value="">
       <button class="chip" onclick="resetFilters()"><svg class="ic" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>Réinitialiser</button>
       <div class="fp-actions">
         <button class="fp-reinit" type="button" onclick="reinitialiserFiltresPanneau()">Réinitialiser</button>
@@ -1871,6 +1913,10 @@ function applyFilters() {
 function resetFilters() {
   mesureEnAttente = { nom: 'filter_apply', params: paramsFiltres(true) };
   ['q-input','city-input','contract-filter','specialty-filter','experience-filter','ats-filter','date-filter'].forEach(id => { const el=document.getElementById(id); if (el) el.value=''; });
+  // Les listes a cases lisent leur etat sur le champ cache : sans ce
+  // rafraichissement, elles gardaient leurs coches et affichaient un choix
+  // que la liste ne filtrait plus.
+  rafraichirMultiSelects();
   loadJobs(1);
 }
 
@@ -2023,9 +2069,17 @@ function reinitialiserFiltresPanneau() {
   if (ville && ville.closest('#filtres-panneau')) ids.push('city-input');
   ids.forEach((id) => { vides[id] = ''; });
   ecrireFiltres(vides);
+  rafraichirMultiSelects();
   majBadgeFiltres();
-  const premier = document.getElementById('contract-filter');
-  if (premier) premier.focus();
+
+  /* Le bouton APPLIQUE, il ne se contente pas de vider les champs.
+     Avant, le panneau restait ouvert sur cinq filtres vides pendant que la
+     liste affichait encore 263 offres : rien ne bougeait, et le bouton
+     etait lu comme casse. Un « Reinitialiser » est une action explicite :
+     elle prend effet, et le panneau se referme sur son resultat. */
+  filtresAppliques = lireFiltres();
+  fermerFiltres(false);
+  applyFilters();
 }
 
 /* ── LA LARGEUR D'UN FILTRE SUIT SON TEXTE ──
@@ -2054,12 +2108,11 @@ function ajusterLargeurFiltres() {
     && !panneau.classList.contains('ouvert');
 
   ['contract-filter', 'specialty-filter'].forEach((id) => {
-    const el = document.getElementById(id);
+    const el = document.querySelector('.msel[data-filtre="' + id + '"]');
     if (!el) return;
     if (!rangeeSeule) { el.style.removeProperty('--largeur-texte'); return; }
 
-    const option = el.options[el.selectedIndex];
-    const texte = option ? option.text : '';
+    const texte = (el.querySelector('.msel-txt') || {}).textContent || '';
     const cs = getComputedStyle(el);
     const cadre = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight)
       + parseFloat(cs.borderLeftWidth) + parseFloat(cs.borderRightWidth);
@@ -2067,6 +2120,92 @@ function ajusterLargeurFiltres() {
     el.style.setProperty('--largeur-texte', `${Math.ceil(largeurDuTexte(el, texte) + cadre) + 2}px`);
   });
 }
+
+/* ── LISTES A CHOIX MULTIPLES ─────────────────────────────────────────
+ *
+ * Le champ cache porte la valeur : « cdi,cdd » quand deux contrats sont
+ * choisis, « cdi » quand un seul. Tout le reste du code lit `.value` et
+ * ne sait rien du changement de controle.
+ */
+function fermerMultiSelects() {
+  document.querySelectorAll('.msel').forEach((c) => {
+    const p = c.querySelector('.msel-panneau');
+    if (p) p.hidden = true;
+    c.dataset.ouvert = 'false';
+    const b = c.querySelector('.msel-btn');
+    if (b) b.setAttribute('aria-expanded', 'false');
+  });
+}
+
+function majMultiSelect(c) {
+  const champ = document.getElementById(c.dataset.filtre);
+  if (!champ) return;
+  const coches = [...c.querySelectorAll('input[type="checkbox"]:checked')];
+  champ.value = coches.map((i) => i.value).join(',');
+
+  const txt = c.querySelector('.msel-txt');
+  const etiquette = c.dataset.label;
+  if (!coches.length) {
+    txt.textContent = etiquette;
+  } else if (coches.length === 1) {
+    txt.textContent = coches[0].parentElement.querySelector('span').textContent;
+  } else {
+    // Deux valeurs ou plus : le libelle du champ, et le nombre. Lister les
+    // valeurs ferait deborder la pastille des la troisieme.
+    txt.textContent = etiquette + ' · ' + coches.length;
+  }
+  c.classList.toggle('actif', coches.length > 0);
+}
+
+function rafraichirMultiSelects() {
+  document.querySelectorAll('.msel').forEach((c) => {
+    const champ = document.getElementById(c.dataset.filtre);
+    if (!champ) return;
+    const valeurs = String(champ.value || '').split(',').filter(Boolean);
+    c.querySelectorAll('input[type="checkbox"]').forEach((i) => {
+      i.checked = valeurs.includes(i.value);
+    });
+    majMultiSelect(c);
+  });
+}
+
+function initialiserMultiSelects() {
+  document.querySelectorAll('.msel').forEach((c) => {
+    const panneau = c.querySelector('.msel-panneau');
+    const bouton = c.querySelector('.msel-btn');
+    if (!panneau || !bouton) return;
+
+    bouton.addEventListener('click', (e) => {
+      // Le clic sur le bouton ne doit pas atteindre le document, qui ferme
+      // tous les panneaux : le panneau se rouvrirait pour se refermer.
+      e.stopPropagation();
+      const etaitOuvert = panneau.hidden === false;
+      fermerMultiSelects();
+      if (!etaitOuvert) {
+        panneau.hidden = false;
+        c.dataset.ouvert = 'true';
+        bouton.setAttribute('aria-expanded', 'true');
+      }
+    });
+
+    // Un clic dans le panneau ne le referme pas : on y coche plusieurs
+    // valeurs de suite.
+    panneau.addEventListener('click', (e) => e.stopPropagation());
+    panneau.addEventListener('change', () => {
+      majMultiSelect(c);
+      surChangementFiltre();
+    });
+
+    majMultiSelect(c);
+  });
+
+  document.addEventListener('click', fermerMultiSelects);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') fermerMultiSelects();
+  });
+}
+
+initialiserMultiSelects();
 
 function surChangementFiltre() {
   // Panneau ouvert : le choix attend la validation.

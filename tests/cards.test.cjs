@@ -28,7 +28,9 @@ assert.ok(!html.includes('specialty_tags'), 'les tags errones ne doivent plus et
 const skillsBlock = html.match(/function skillsHtml\(j\)[\s\S]*?\n\}/)[0];
 assert.ok(skillsBlock.includes("Repérés dans le texte de l'offre"), 'le bloc doit rester prudent');
 assert.ok(html.includes('Non précisé'));
-const filter = html.match(/<select id="specialty-filter"[\s\S]*?<\/select>/)[0];
+// Le filtre est desormais une liste a cases : on lit le bloc .msel et ses
+// valeurs de case, pas un <select> qui n'existe plus.
+const filter = html.match(/<div class="msel chip" data-filtre="specialty-filter"[\s\S]*?<\/div><\/div>/)[0];
 for (const name of ['actuariat','ia_data','souscription_technique']) assert.ok(filter.includes(`value="${name}"`));
 assert.ok(!filter.includes('actuariat_iard'));
 console.log('Cards Jev regression tests passed');
