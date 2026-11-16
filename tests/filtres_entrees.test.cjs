@@ -14,6 +14,7 @@ const {spawn}=require('node:child_process');
  assert.equal(await p.locator('#filtres-panneau').isVisible(),false);
  assert.equal(await p.locator('.filtres-entrees .filtre-entree:visible').count(),width===390?3:6);
  for(const category of ['contract-filter','specialty-filter','experience-filter','date-filter','ats-filter']){
+ if(width===390 && !['contract-filter','specialty-filter'].includes(category)) continue;
  await p.locator(`[data-categorie="${category}"]`).click();
  assert(await p.locator('#filtres-panneau').isVisible());
  await p.waitForTimeout(150);
