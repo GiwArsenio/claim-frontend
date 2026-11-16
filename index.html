@@ -1592,9 +1592,10 @@ async function dessinerFrance() {
   if (actives.length < 3) return;
 
   const max = actives[0].n;
+  const rayon = (n) => Math.min(15, 3 + 5.2 * Math.log10(1 + n));
   const points = document.getElementById('fr-points');
   points.innerHTML = actives.map((v) => {
-    const r = Math.min(15, 3 + 5.2 * Math.log10(1 + v.n));
+    const r = rayon(v.n);
     const halo = v.n === max
       ? `<circle class="fr-halo" cx="${v.x}" cy="${v.y}" r="${(r * 2.1).toFixed(1)}"></circle>`
       : '';
@@ -1604,11 +1605,13 @@ async function dessinerFrance() {
   }).join('');
 
   /* Les trois premiers portent leur nom sur la carte : au-delà, les
-     étiquettes se chevauchent et la carte devient un brouillamini. */
-  const decalage = { Paris: [13, 3.5], Lyon: [12, 3.5], Marseille: [12, 4.5] };
+     étiquettes se chevauchent et la carte devient un brouillamini.
+     Le nom se place à l'extérieur du point — un décalage fixe passait sous
+     le halo de Paris, qui est le plus gros. */
   points.insertAdjacentHTML('beforeend', actives.slice(0, 3).map((v) => {
-    const [dx, dy] = decalage[v.nom] || [12, 3.5];
-    return `<text class="fr-etiquette" x="${(v.x + dx).toFixed(1)}" y="${(v.y + dy).toFixed(1)}">${v.nom}</text>`;
+    const x = v.x + rayon(v.n) + 4;
+    const y = v.y + 3.5;
+    return `<text class="fr-etiquette" x="${x.toFixed(1)}" y="${y.toFixed(1)}">${v.nom}</text>`;
   }).join(''));
 
   document.getElementById('fr-liste').innerHTML = actives.map((v, i) => `
