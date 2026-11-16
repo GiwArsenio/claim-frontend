@@ -1,5 +1,5 @@
 /* Même bouton d'entrée sur l'accueil et le board. */
-.filtres-entrees { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:.5rem; margin-top:.65rem; }
+.filtres-entrees { display:flex !important; flex-wrap:wrap; align-items:center; justify-content:center; gap:.5rem; margin-top:.65rem; }
 .filtre-entree { display:inline-flex; align-items:center; justify-content:center; gap:.375rem;
   flex:0 0 auto; box-sizing:border-box; min-height:44px; min-width:calc(7ch + 1.4rem);
   padding:.55rem .85rem; border:1px solid var(--bord-carte); border-radius:.5rem;
