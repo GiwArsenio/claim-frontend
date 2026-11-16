@@ -229,8 +229,10 @@ test('M02 — le panneau montre tous les filtres, sans en appliquer aucun avant 
       });
       /* En haut de page, la rangée montre deux filtres — pas le panneau. */
       assert.equal(ferme.range, 'flex', 'la rangée de filtres n\'est pas affichée en haut de page');
-      assert.deepEqual(ferme.visibles, ['contract-filter', 'specialty-filter'],
-        'les deux filtres attendus ne sont pas les seuls visibles en haut de page');
+      /* Le board a unifie ses filtres : la rangee ne montre plus que le
+         bouton, les cinq filtres vivent dans le panneau. */
+      assert.deepEqual(ferme.visibles, [],
+        'des filtres traînent encore dans la rangée au lieu du seul bouton');
       /* Inline, la rangée reste un groupe de filtres ; c'est à l'ouverture
          qu'elle devient une boîte de dialogue. */
       assert.equal(ferme.role, 'group', 'la rangée inline a perdu son rôle de groupe');
@@ -246,7 +248,8 @@ test('M02 — le panneau montre tous les filtres, sans en appliquer aucun avant 
       const ouvert = await page.evaluate(() => {
         const p = document.querySelector('#filtres-panneau');
         /* Quatre listes a choix multiples et un select : cinq filtres. */
-        const selects = [...p.querySelectorAll('.msel, select')];
+        /* Cinq groupes de filtres, tous rendus en pastilles. */
+        const selects = [...p.querySelectorAll('.fp-groupe, .msel, select')];
         return {
           display: getComputedStyle(p).display,
           role: p.getAttribute('role'),
@@ -262,7 +265,7 @@ test('M02 — le panneau montre tous les filtres, sans en appliquer aucun avant 
              mesurent 35 px, et 24 est le minimum de WCAG 2.2 AA. 35 reste
              au-dessus — on garde un plancher, pas l'ancien chiffre. */
           tousTactiles: selects.every((s) => {
-            const b = s.querySelector('.msel-btn') || s;
+            const b = s.querySelector('.fp-puce, .msel-btn') || s;
             return b.getBoundingClientRect().height >= 24;
           }),
           focus: document.activeElement ? document.activeElement.id : '',
@@ -327,7 +330,10 @@ test('M02 — le panneau montre tous les filtres, sans en appliquer aucun avant 
       }));
       assert.equal(requetes, 0, 'le panneau a rechargé la liste avant validation');
       assert.equal(brouillon.cartes, avant, 'la liste a changé avant la validation');
-      assert.equal(brouillon.badge, true, 'le compteur annonce un filtre non appliqué');
+      /* Le compteur signale maintenant le choix en cours : c'est lui qui dit
+         qu'il reste quelque chose a valider. L'ancien contrat — « ne rien
+         annoncer tant que rien n'est applique » — ne tient plus. */
+      assert.equal(brouillon.badge, false, 'le compteur ne signale pas le choix en attente');
       assert.equal(brouillon.valeur, 'cdi', 'le choix n\'est pas conservé dans le panneau');
 
       /* Annuler rend l'état appliqué, sans toucher à la liste. */
@@ -361,7 +367,7 @@ test('M02 — le panneau montre tous les filtres, sans en appliquer aucun avant 
       await aide.attendre(page, 200);
 
       await aide.avecReponse(page, aide.estListeDuBoard, async () => {
-        await page.click('.fp-appliquer');
+        await page.click('.fp-afficher');
       });
       await aide.attendre(page, 1200);
 
@@ -409,7 +415,7 @@ test('M02b — « Réinitialiser » ne vide que les filtres, jamais la recherche
       await aide.choisirFiltre(page, 'experience-filter', 'senior');
       await page.fill('#city-input', 'Paris');
       await aide.avecReponse(page, aide.estListeDuBoard, async () => {
-        await page.click('.fp-appliquer');
+        await page.click('.fp-afficher');
       });
       await aide.attendre(page, 900);
 
@@ -417,7 +423,7 @@ test('M02b — « Réinitialiser » ne vide que les filtres, jamais la recherche
          localisation — et laisse les mots-clés, restés dans la barre. */
       await page.click('#btn-filtres');
       await aide.attendre(page, 300);
-      await page.click('.fp-reinit');
+      await page.click('.fp-tout-effacer');
       await aide.attendre(page, 200);
 
       const apres = await page.evaluate(() => ({
@@ -459,7 +465,7 @@ test('M02b — « Réinitialiser » ne vide que les filtres, jamais la recherche
       }));
       assert.equal(avantReset.dansPanneau, true, 'le lieu n\'a pas rejoint le panneau une fois resserré');
 
-      await page.click('.fp-reinit');
+      await page.click('.fp-tout-effacer');
       await aide.attendre(page, 200);
       const resserre = await page.evaluate(() => ({
         ville: document.querySelector('#city-input').value,
@@ -500,8 +506,10 @@ test('M02c — le panneau ne survit pas au passage en bureau', async () => {
       assert.equal(etat.ouvert, false, 'le panneau reste ouvert en passant en bureau');
       assert.equal(etat.role, 'group', 'la rangée ne retrouve pas son rôle de groupe en bureau');
       assert.equal(etat.valeur, '', 'le brouillon non validé a été conservé');
-      assert.notEqual(etat.range, 'none', 'la rangée de filtres de bureau a disparu');
-      assert.equal(etat.bouton, 'none', 'le bouton mobile reste affiché en bureau');
+      /* Le bureau n'a plus sa propre rangee de filtres : le bouton et le
+         panneau servent aux deux tailles d'ecran. Ce qui doit rester vrai,
+         c'est que le panneau se referme et que le brouillon ne survit pas. */
+      assert.notEqual(etat.bouton, 'none', 'le bouton Filtres a disparu en bureau');
       assert.deepEqual(page.erreurs, [], `erreurs JavaScript : ${page.erreurs.join(' | ')}`);
     } finally {
       await ctx.close();
@@ -551,57 +559,25 @@ test('M03 — le bloc titre a disparu, la barre complète reste', async () => {
       assert.ok(releve.lieuDansBarre, 'la localisation n\'est pas dans la barre en haut de page');
       assert.ok(releve.rechercheVisible, 'le bouton Rechercher a disparu de la barre complète');
       assert.notEqual(releve.boutonFiltres, 'none', 'le bouton Filtres est absent');
-      assert.deepEqual(releve.filtresVisibles, ['contract-filter', 'specialty-filter'],
-        'les deux filtres attendus ne sont pas visibles sous le bouton');
+      assert.deepEqual(releve.filtresVisibles, [],
+        'des filtres restent dans la rangée au lieu du seul bouton');
 
-      /* Le bouton et les deux filtres tiennent sur UNE ligne. */
+      /* Le bouton est seul dans la rangée : il doit tenir, sans déborder. */
       const rangee = await page.evaluate(() => {
-        const r = (s) => document.querySelector(s).getBoundingClientRect();
-        const b = r('#btn-filtres');
-        const c = r('[data-filtre="contract-filter"]');
-        const sp = r('[data-filtre="specialty-filter"]');
+        const b = document.querySelector('#btn-filtres').getBoundingClientRect();
         return {
-          memeLigne: Math.abs(b.top - c.top) <= 4 && Math.abs(c.top - sp.top) <= 4,
-          memeHauteur: Math.abs(b.height - c.height) <= 4,
           hauteur: b.height,
-          dansEcran: sp.right <= window.innerWidth + 1 && b.left >= -1,
-          ecartGauche: Math.round(b.left),
-          ecartDroite: Math.round(window.innerWidth - sp.right),
+          dansEcran: b.left >= -1 && b.right <= window.innerWidth + 1,
         };
       });
-      assert.ok(rangee.memeLigne, 'le bouton Filtres et les deux filtres ne sont pas sur la même ligne');
-      assert.ok(rangee.memeHauteur, 'les trois boîtes n\'ont pas la même hauteur');
+      assert.ok(rangee.dansEcran, 'le bouton Filtres sort de l\'écran');
       assert.ok(Math.abs(rangee.hauteur - 35) <= 1,
         `la rangée mesure ${rangee.hauteur} px au lieu de 35 (44 px moins 20 %)`);
-      assert.ok(rangee.dansEcran, 'la rangée sort de l\'écran');
-      assert.ok(Math.abs(rangee.ecartGauche - rangee.ecartDroite) <= 6,
-        `la rangée n'est pas centrée : ${rangee.ecartGauche} px à gauche, ${rangee.ecartDroite} px à droite`);
 
-      /* La largeur suit le texte AFFICHÉ, pas l'option la plus longue :
-         on choisit cette option, la boîte doit s'élargir, puis revenir. */
-      const tailles = await page.evaluate(async () => {
-        /* La boite visible est la liste a choix multiples ; le champ cache
-           ne mesure rien. On lui donne une valeur comme le ferait un choix,
-           puis on laisse le code recalculer le texte et la largeur. */
-        const boite = document.querySelector('[data-filtre="specialty-filter"]');
-        const champ = document.getElementById('specialty-filter');
-        const attendre = (ms) => new Promise((r) => setTimeout(r, ms));
-        const avant = boite.getBoundingClientRect().width;
-        champ.value = 'souscription_technique';
-        rafraichirMultiSelects();
-        ajusterLargeurFiltres();
-        await attendre(500);
-        const apres = boite.getBoundingClientRect().width;
-        champ.value = '';
-        rafraichirMultiSelects();
-        ajusterLargeurFiltres();
-        await attendre(500);
-        return { avant, apres, retour: boite.getBoundingClientRect().width };
-      });
-      assert.ok(tailles.apres > tailles.avant + 20,
-        `la boîte ne s'élargit pas avec son texte : ${Math.round(tailles.avant)} → ${Math.round(tailles.apres)}`);
-      assert.ok(Math.abs(tailles.retour - tailles.avant) <= 2,
-        `la boîte ne revient pas à sa largeur : ${Math.round(tailles.retour)} au lieu de ${Math.round(tailles.avant)}`);
+      /* La mesure de largeur a disparu avec son sujet : les filtres ne sont
+         plus des boites de la rangee qui s'elargissent avec le texte, mais
+         des pastilles dans le panneau. Le controle ci-dessus (le bouton
+         reste dans l'ecran) suffit a ce que cette suite doit garantir. */
     } finally {
       await ctx.close();
     }

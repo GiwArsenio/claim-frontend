@@ -404,35 +404,34 @@ function formatPourLargeur(largeur, hauteur = 900) {
  * cache porte le resultat. Un test qui appelle selectOption ne pilote plus
  * rien — il pilote un <input type="hidden">, invisible et immuable.
  */
-async function choisirFiltre(page, filtre, valeurs) {
-  const conteneur = `[data-filtre="${filtre}"]`;
+async function choisirFiltre(page, filtre, valeurs, options) {
+  const opts = options || {};
 
-  /* Sur telephone, la liste ne s'ouvre pas sous le bouton : elle part dans
-     une feuille ancree en bas de l'ecran, et le panneau y est DEPLACE. Le
-     chercher dans son conteneur ne trouve donc rien. On regarde ou il est
-     avant de cocher. */
-  const etat = async () => page.evaluate((sel) => {
-    const c = document.querySelector(sel);
-    const p = c && c.querySelector('.msel-panneau');
-    if (p && p.hidden === false) return 'inline';
-    return document.querySelector('.msel-feuille:not([hidden])') ? 'feuille' : null;
-  }, conteneur);
-
-  let ou = await etat();
-  if (!ou) {
-    await page.click(`${conteneur} .msel-btn`);
-    await page.waitForTimeout(250);
-    ou = (await etat()) || 'inline';
+  /* Les filtres ont encore change de forme : ils vivent tous dans le
+     panneau, ouverts par un seul bouton « Filtres », et chaque valeur est
+     une pastille a bascule. On ouvre si besoin, on clique la valeur, et on
+     valide seulement si on le demande — le panneau sert aussi a composer
+     sans rien appliquer. */
+  const ouvert = await page.evaluate(
+    () => !!document.querySelector('#filtres-panneau')?.classList.contains('ouvert'),
+  );
+  if (!ouvert) {
+    await page.click('#btn-filtres');
+    await page.waitForTimeout(300);
   }
 
-  const zone = ou === 'feuille' ? '.msel-feuille' : conteneur;
   for (const v of [].concat(valeurs)) {
-    await page.check(`${zone} input[value="${v}"]`);
+    const cible = `[data-filtre="${filtre}"] .fp-puce[data-valeur="${v}"]`;
+    if (await page.locator(cible).count()) {
+      await page.click(cible);
+    } else {
+      /* Ancien controle (liste a cases) : on garde le chemin, au cas ou. */
+      await page.check(`[data-filtre="${filtre}"] input[value="${v}"]`);
+    }
   }
-  /* Refermer la feuille : le panneau revient a sa place, coche. */
-  if (ou === 'feuille') {
-    await page.click('.msel-feuille-fin');
-    await page.waitForTimeout(200);
+
+  if (opts.appliquer !== false && !ouvert) {
+    await page.click('.fp-afficher');
   }
 }
 
