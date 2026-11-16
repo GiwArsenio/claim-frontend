@@ -201,13 +201,24 @@ test('M02 — le panneau montre tous les filtres, sans en appliquer aucun avant 
     const { ctx, page } = await ouvrirBoard(390);
     try {
       /* Fermé : la rangée n'existe plus, le bouton prend sa place. */
-      const ferme = await page.evaluate(() => ({
-        range: getComputedStyle(document.querySelector('#filtres-panneau')).display,
-        bouton: getComputedStyle(document.querySelector('#btn-filtres')).display,
-        expanded: document.querySelector('#btn-filtres').getAttribute('aria-expanded'),
-        badge: document.querySelector('#badge-filtres').hidden,
-      }));
-      assert.equal(ferme.range, 'none', 'la rangée de filtres reste affichée sur téléphone');
+      const ferme = await page.evaluate(() => {
+        const p = document.querySelector('#filtres-panneau');
+        return {
+          range: getComputedStyle(p).display,
+          bouton: getComputedStyle(document.querySelector('#btn-filtres')).display,
+          expanded: document.querySelector('#btn-filtres').getAttribute('aria-expanded'),
+          badge: document.querySelector('#badge-filtres').hidden,
+          visibles: [...p.querySelectorAll('select')].filter((s) => s.getClientRects().length > 0).map((s) => s.id),
+          role: p.getAttribute('role'),
+        };
+      });
+      /* En haut de page, la rangée montre deux filtres — pas le panneau. */
+      assert.equal(ferme.range, 'flex', 'la rangée de filtres n\'est pas affichée en haut de page');
+      assert.deepEqual(ferme.visibles, ['contract-filter', 'specialty-filter'],
+        'les deux filtres attendus ne sont pas les seuls visibles en haut de page');
+      /* Inline, la rangée reste un groupe de filtres ; c'est à l'ouverture
+         qu'elle devient une boîte de dialogue. */
+      assert.equal(ferme.role, 'group', 'la rangée inline a perdu son rôle de groupe');
       assert.notEqual(ferme.bouton, 'none', 'le bouton Filtres est introuvable');
       assert.equal(ferme.expanded, 'false');
       assert.equal(ferme.badge, true, 'le compteur s\'affiche alors qu\'aucun filtre n\'est actif');
@@ -276,12 +287,18 @@ test('M02 — le panneau montre tous les filtres, sans en appliquer aucun avant 
         cartes: document.querySelectorAll('.jc').length,
         focus: document.activeElement ? document.activeElement.id : '',
         panneau: getComputedStyle(document.querySelector('#filtres-panneau')).display,
+        ouvert: document.querySelector('#filtres-panneau').classList.contains('ouvert'),
+        role: document.querySelector('#filtres-panneau').getAttribute('role'),
         defilement: getComputedStyle(document.querySelector('.pl')).overflowY,
         voile: document.querySelector('#voile-filtres').hidden,
       }));
       assert.equal(annule.valeur, '', 'Échap n\'a pas annulé le choix');
       assert.equal(annule.cartes, avant, 'Échap a modifié la liste');
-      assert.equal(annule.panneau, 'none', 'Échap ne ferme pas le panneau');
+      /* Fermer ramène la rangée inline, pas le vide : c'est l'état du haut
+         de page, avec ses deux filtres visibles. */
+      assert.equal(annule.ouvert, false, 'Échap ne referme pas le panneau');
+      assert.equal(annule.panneau, 'flex', 'la rangée inline ne revient pas après la fermeture');
+      assert.equal(annule.role, 'group', 'la rangée garde un rôle de dialogue après fermeture');
       assert.equal(annule.focus, 'btn-filtres', 'le focus ne revient pas au bouton Filtres');
       assert.notEqual(annule.defilement, 'hidden', 'la liste reste figée après la fermeture');
       assert.equal(annule.voile, true, 'le voile reste affiché après la fermeture');
@@ -302,12 +319,14 @@ test('M02 — le panneau montre tous les filtres, sans en appliquer aucun avant 
         badge: document.querySelector('#badge-filtres').textContent,
         badgeCache: document.querySelector('#badge-filtres').hidden,
         panneau: getComputedStyle(document.querySelector('#filtres-panneau')).display,
+        ouvert: document.querySelector('#filtres-panneau').classList.contains('ouvert'),
         cartes: document.querySelectorAll('.jc').length,
       }));
       assert.equal(applique.valeur, 'cdi', 'la validation n\'a pas gardé le filtre');
       assert.equal(applique.badge, '1', 'le compteur n\'annonce pas le filtre appliqué');
       assert.equal(applique.badgeCache, false);
-      assert.equal(applique.panneau, 'none', 'le panneau reste ouvert après validation');
+      assert.equal(applique.ouvert, false, 'le panneau reste ouvert après validation');
+      assert.equal(applique.panneau, 'flex', 'la rangée inline ne revient pas après validation');
       assert.ok(applique.cartes > 0 && applique.cartes <= avant, 'la liste filtrée est incohérente');
     } finally {
       await ctx.close();
@@ -358,9 +377,32 @@ test('M02b — « Réinitialiser » ne vide que les filtres, jamais la recherche
       }));
 
       assert.equal(apres.mots, 'actuaire', 'la réinitialisation a effacé les mots-clés');
-      assert.equal(apres.ville, '', 'la réinitialisation n\'a pas vidé la localisation du panneau');
+      assert.equal(apres.ville, 'Paris',
+        'la réinitialisation a vidé une localisation restée dans la barre, hors du panneau');
       assert.equal(apres.experience, '', 'la réinitialisation n\'a pas vidé les filtres');
       assert.ok(apres.cartes > 0, 'la liste a été vidée par la réinitialisation');
+
+      /* On referme avant de continuer : le panneau resté ouvert aurait
+         recouvert le bouton Filtres, et le clic suivant serait tombé sur le
+         voile. */
+      await page.keyboard.press('Escape');
+      await aide.attendre(page, 400);
+
+      /* Une fois le bandeau resserré, la localisation est DANS le panneau :
+         elle disparaît alors avec les filtres, parce qu'elle est visible. */
+      await page.evaluate(() => { document.querySelector('.pl').scrollTop = 500; });
+      await aide.attendre(page, 600);
+      await page.click('#btn-filtres');
+      await aide.attendre(page, 400);
+      await page.fill('#city-input', 'Lyon');
+      await page.click('.fp-reinit');
+      await aide.attendre(page, 200);
+      const resserre = await page.evaluate(() => ({
+        ville: document.querySelector('#city-input').value,
+        dansPanneau: !!document.querySelector('#city-input').closest('#filtres-panneau'),
+      }));
+      assert.equal(resserre.dansPanneau, true, 'le lieu n\'a pas rejoint le panneau une fois resserré');
+      assert.equal(resserre.ville, '', 'la réinitialisation n\'a pas vidé le lieu pourtant visible');
     } finally {
       await ctx.close();
     }
@@ -394,7 +436,7 @@ test('M02c — le panneau ne survit pas au passage en bureau', async () => {
       }));
 
       assert.equal(etat.ouvert, false, 'le panneau reste ouvert en passant en bureau');
-      assert.equal(etat.role, null, 'le rôle de dialogue reste posé en bureau');
+      assert.equal(etat.role, 'group', 'la rangée ne retrouve pas son rôle de groupe en bureau');
       assert.equal(etat.valeur, '', 'le brouillon non validé a été conservé');
       assert.notEqual(etat.range, 'none', 'la rangée de filtres de bureau a disparu');
       assert.equal(etat.bouton, 'none', 'le bouton mobile reste affiché en bureau');
@@ -410,7 +452,7 @@ test('M02c — le panneau ne survit pas au passage en bureau', async () => {
 
 /* ── 3. Bandeau compact ─────────────────────────────────────────────────── */
 
-test('M03 — le bloc titre a disparu, la barre tient seule', async () => {
+test('M03 — le bloc titre a disparu, la barre complète reste', async () => {
   await aide.demarrerServeur();
   await aide.demarrerNavigateur();
 
@@ -420,9 +462,8 @@ test('M03 — le bloc titre a disparu, la barre tient seule', async () => {
       const releve = await page.evaluate(() => {
         const h1 = document.querySelector('#hero h1');
         const sub = document.querySelector('#hero .sub');
-        const barre = document.querySelector('.sbar');
-        const bouton = document.querySelector('#btn-filtres');
-        const premiere = document.querySelector('.jc');
+        const ville = document.querySelector('#city-input');
+        const panneau = document.querySelector('#filtres-panneau');
         const r = (el) => el.getBoundingClientRect();
         return {
           /* Le titre reste dans le document — pour l'indexation et les
@@ -431,11 +472,13 @@ test('M03 — le bloc titre a disparu, la barre tient seule', async () => {
           titreMasque: h1 ? (r(h1).width <= 2 || r(h1).height <= 2) : true,
           promesse: !!sub,
           hauteurHero: Math.round(r(document.querySelector('#hero')).height),
-          memeLigne: Math.abs(r(barre).top - r(bouton).top) <= 3,
-          boutonDansEcran: r(bouton).right <= window.innerWidth + 1,
+          /* En haut de page la barre est complète : lieu et bouton présents. */
+          lieuDansBarre: !!(ville && ville.closest('.sbar')) && r(ville).height > 10,
           rechercheVisible: getComputedStyle(document.querySelector('.btn-srch')).display !== 'none',
-          premiereCarteTop: Math.round(r(premiere).top),
-          fenetre: window.innerHeight,
+          boutonFiltres: getComputedStyle(document.querySelector('#btn-filtres')).display,
+          filtresVisibles: [...panneau.querySelectorAll('select')]
+            .filter((s) => s.getClientRects().length > 0).map((s) => s.id),
+          premiereCarteTop: Math.round(r(document.querySelector('.jc')).top),
         };
       });
 
@@ -443,25 +486,17 @@ test('M03 — le bloc titre a disparu, la barre tient seule', async () => {
       assert.ok(releve.titreMasque, 'le titre est encore visible à l\'écran');
       assert.equal(releve.promesse, false, 'la promesse est encore dans la page');
 
-      /* La barre doit tenir sur une seule ligne : recherche et Filtres
-         côte à côte, comme la référence. 72 px laisse la place à la bordure
-         et à l'arrondi sans autoriser un retour à deux lignes. */
-      assert.ok(releve.hauteurHero <= 72,
-        `le bandeau mesure ${releve.hauteurHero} px : il ne tient pas sur une ligne`);
-      assert.ok(releve.memeLigne, 'la recherche et le bouton Filtres ne sont pas sur la même ligne');
-      assert.ok(releve.boutonDansEcran, 'le bouton Filtres sort de l\'écran');
-      assert.equal(releve.rechercheVisible, false,
-        'le bouton « Rechercher » occupe encore la barre sur téléphone');
-
-      /* La première offre remontait à 355 px avant le retrait du bloc. */
-      assert.ok(releve.premiereCarteTop <= 210,
-        `la première offre commence à ${releve.premiereCarteTop} px : le bloc n'a pas disparu`);
+      assert.ok(releve.lieuDansBarre, 'la localisation n\'est pas dans la barre en haut de page');
+      assert.ok(releve.rechercheVisible, 'le bouton Rechercher a disparu de la barre complète');
+      assert.notEqual(releve.boutonFiltres, 'none', 'le bouton Filtres est absent');
+      assert.deepEqual(releve.filtresVisibles, ['contract-filter', 'specialty-filter'],
+        'les deux filtres attendus ne sont pas visibles sous le bouton');
     } finally {
       await ctx.close();
     }
 
-    /* En bureau : même retrait, et le champ de localisation reste dans la
-       barre — il n'a pas à voyager là où le panneau n'existe pas. */
+    /* En bureau : même retrait du titre, et le champ de localisation reste
+       dans la barre — le panneau n'y existe pas. */
     const bureau = await aide.ouvrirPage(BUREAU);
     try {
       await bureau.page.goto(aide.BASE + '/job-board.html', { waitUntil: 'domcontentloaded' });
@@ -500,12 +535,28 @@ test('M05 — au défilement, la barre reste et l\'en-tête s\'efface', async ()
   try {
     const { ctx, page } = await ouvrirBoard(390);
     try {
-      const haut = await page.evaluate(() => ({
-        entete: Math.round(document.querySelector('#hd').getBoundingClientRect().height),
-        collee: document.body.classList.contains('barre-collee'),
-      }));
+      const haut = await page.evaluate(() => {
+        const barre = document.querySelector('.sbar').getBoundingClientRect();
+        const ville = document.querySelector('#city-input');
+        return {
+          entete: Math.round(document.querySelector('#hd').getBoundingClientRect().height),
+          collee: document.body.classList.contains('barre-collee'),
+          hauteurHero: Math.round(document.querySelector('#hero').getBoundingClientRect().height),
+          villeDansBarre: !!(ville && ville.closest('.sbar')),
+          /* La barre est empilée : la localisation est SOUS les mots-clés. */
+          villeSousRecherche: ville
+            ? Math.round(ville.getBoundingClientRect().top) >
+              Math.round(document.querySelector('#q-input').getBoundingClientRect().top)
+            : false,
+          barre: Math.round(barre.height),
+        };
+      });
       assert.ok(haut.entete > 0, 'l\'en-tête n\'est pas visible au chargement');
       assert.equal(haut.collee, false, 'la barre est déjà signalée comme collée en haut de page');
+      assert.ok(haut.hauteurHero > 150,
+        `le bandeau du haut mesure ${haut.hauteurHero} px : la barre complète n'est pas là`);
+      assert.ok(haut.villeDansBarre, 'la localisation n\'est pas dans la barre avant défilement');
+      assert.ok(haut.villeSousRecherche, 'la localisation n\'est pas empilée sous les mots-clés');
 
       /* C'est la LISTE qui défile sur ce board, pas le document. */
       await page.evaluate(() => { document.querySelector('.pl').scrollTop = 400; });
@@ -524,6 +575,11 @@ test('M05 — au défilement, la barre reste et l\'en-tête s\'efface', async ()
       assert.ok(bas.heroH >= 55,
         `la barre s'est écrasée à ${bas.heroH} px : la recherche a disparu`);
       assert.ok(bas.rechercheVisible, 'le champ de recherche n\'est plus rendu au défilement');
+      const lieu = await page.evaluate(() => {
+        const v = document.querySelector('#city-input');
+        return { dansPanneau: !!(v && v.closest('#filtres-panneau')) };
+      });
+      assert.ok(lieu.dansPanneau, 'la localisation n\'a pas rejoint le panneau une fois resserré');
 
       /* Remonter rend l'en-tête. */
       await page.evaluate(() => { document.querySelector('.pl').scrollTop = 0; });

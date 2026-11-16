@@ -698,41 +698,79 @@ html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1)
      bloc mangeait un tiers de la fenetre avant la premiere offre. Les
      marges internes et l'echelle du titre se resserrent : la premiere
      carte remonte, le texte reste lisible. */
-  /* Le bandeau tient sur une seule ligne : la recherche et le bouton Filtres
-     cote a cote, comme la barre d'un site d'emploi mobile. Il ne defile pas :
-     la colonne des offres defile sous lui (voir #split plus bas). Le titre et
-     la promesse ne sont plus la — la page ouvre sur la recherche. */
+  /* ── DEUX ETATS DU BANDEAU ──
+     En haut de page : la barre complete (mots-cles + localisation +
+     Rechercher), puis le bouton Filtres, puis les deux filtres qu'on veut
+     garder sous la main. C'est la disposition d'un formulaire, pas d'une
+     barre.
+
+     Des qu'on descend dans les offres : tout se resserre sur une ligne —
+     recherche et Filtres cote a cote — et l'en-tete s'efface. Les deux
+     etats sont poses par la classe « barre-collee » sur <body>. */
   #hero {
     padding: .55rem .75rem .5rem;
     max-height: none;
     display: flex;
-    /* Les deux blocs prennent la meme hauteur : une barre et un bouton de
-       hauteurs differentes se lisaient comme deux objets sans rapport. */
+    flex-direction: column;
     align-items: stretch;
     gap: .5rem;
   }
-  /* Le champ de localisation est deplace dans le panneau par le script :
-     il n'a plus sa place sur cette ligne. La regle ci-dessous ne sert que
-     de filet si le script ne s'executait pas — mieux vaut un champ en trop
-     qu'un champ perdu. */
-  .sbar .loc-field { display: none; }
+
+  /* — Etat haut : la barre complete, empilee comme avant — */
   .sbar {
+    border-radius: .625rem;
+    padding: .25rem;
+    margin-bottom: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+  }
+  .sf { padding: .4rem .75rem; min-height: 44px; }
+  .sf input { font-size: .95rem; }
+  .sf.loc-field { border-top: 1px solid var(--bord-doux); }
+  .sdiv { display: none; }
+  .btn-srch {
+    border-radius: .375rem;
+    padding: .5rem 1rem;
+    font-size: .9rem;
+    margin: .2rem .1rem .1rem;
+    width: calc(100% - .2rem);
+    text-align: center;
+  }
+  .btn-filtres { margin: 0 auto; padding: .45rem 1rem; }
+
+  /* — La rangee de filtres, en haut : deux filtres visibles — */
+  /* Les autres restent dans le panneau, ouverts par le bouton : les cacher
+     ici n'est pas les supprimer. */
+  .chips:not(.ouvert) {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: .4rem;
+    overflow: visible;
+  }
+  .chips:not(.ouvert) > .chip:not(#contract-filter):not(#specialty-filter),
+  .chips:not(.ouvert) > button.chip,
+  .chips:not(.ouvert) > .fp-tete,
+  .chips:not(.ouvert) > .fp-actions { display: none; }
+
+  /* — Etat apres defilement : une seule ligne — */
+  body.barre-collee #hero { flex-direction: row; align-items: stretch; }
+  body.barre-collee .sbar {
     flex: 1;
     min-width: 0;
-    border-radius: .625rem;
     padding: .1rem;
-    margin-bottom: 0;
     flex-direction: row;
     align-items: center;
   }
-  .sf { padding: .35rem .55rem; min-height: 44px; }
-  .sf input { font-size: .95rem; }
-  .sdiv { display: none; }
-  /* La recherche part au clavier (touche Entree du champ) : un bouton plein
-     largeur sur cette ligne la ferait deborder, et il occupait la moitie de
-     la hauteur a lui seul. */
-  .btn-srch { display: none; }
-  .btn-filtres { margin: 0; flex: 0 0 auto; padding: .45rem .8rem; }
+  /* Le lieu n'a plus sa place sur une ligne : il passe dans le panneau, et
+     le script l'y deplace pour de bon — un seul champ, jamais deux. */
+  body.barre-collee .sbar .loc-field { display: none; }
+  body.barre-collee .btn-srch { display: none; }
+  body.barre-collee .btn-filtres { margin: 0; flex: 0 0 auto; padding: .45rem .8rem; }
+  body.barre-collee .chips:not(.ouvert) { display: none; }
+  /* Le panneau ouvert garde la priorite sur la regle ci-dessus. */
+  body.barre-collee .chips.ouvert { display: flex; }
 
   /* L'en-tete s'efface des qu'on fait defiler les offres : la barre de
      recherche remonte au bord haut de l'ecran et le logo libere la place.
@@ -1860,7 +1898,10 @@ function fermerFiltres(annuler) {
 
   if (annuler && filtresAppliques) ecrireFiltres(filtresAppliques);
   panneau.classList.remove('ouvert');
-  panneau.removeAttribute('role');
+  /* Le panneau redevient la rangee de filtres qu'il etait. Supprimer le
+     role l'aurait laissee sans aucun role : « group » est son etat de
+     repos, pas une absence. */
+  panneau.setAttribute('role', 'group');
   panneau.removeAttribute('aria-modal');
   panneau.removeAttribute('aria-labelledby');
   if (voile) voile.hidden = true;
@@ -1890,7 +1931,14 @@ function appliquerFiltresPanneau() {
 // personne l'ait demande.
 function reinitialiserFiltresPanneau() {
   const vides = {};
-  IDS_PANNEAU.forEach((id) => { vides[id] = ''; });
+  /* On vide ce que le panneau MONTRE. En haut de page, la localisation est
+     restee dans la barre : la vider d'ici effacerait un champ qu'on ne voit
+     pas depuis le panneau. Une fois resserre, elle y est descendue et
+     disparait avec le reste. */
+  const ids = IDS_FILTRES.slice();
+  const ville = document.getElementById('city-input');
+  if (ville && ville.closest('#filtres-panneau')) ids.push('city-input');
+  ids.forEach((id) => { vides[id] = ''; });
   ecrireFiltres(vides);
   majBadgeFiltres();
   const premier = document.getElementById('contract-filter');
@@ -1953,7 +2001,20 @@ function placerChampVille() {
       : 'Mots-clés (e.g. Actuaire, Data Scientist)';
   }
 
-  if (isMobile()) {
+  /* Le lieu ne quitte la barre que dans l'etat resserre : en haut de page, la
+     barre est complete et il y a sa place. Le deplacer a chaque fois aurait
+     donne deux champs, ou un champ qui saute d'un conteneur a l'autre sans
+     raison visible. */
+  const dansPanneau = isMobile() && document.body.classList.contains('barre-collee');
+  const cible = dansPanneau ? panneau : barre;
+  if (champ.parentElement === cible) return;
+
+  // Le panneau ne s'appelle pas pareil selon ce qu'il contient : annoncer
+  // « Recherche et filtres » sans champ de recherche serait faux.
+  const titre = document.getElementById('fp-titre');
+  if (titre) titre.textContent = dansPanneau ? 'Recherche et filtres' : 'Filtres';
+
+  if (dansPanneau) {
     const premierFiltre = document.getElementById(IDS_FILTRES[0]);
     if (premierFiltre) panneau.insertBefore(champ, premierFiltre);
     else panneau.appendChild(champ);
@@ -1981,7 +2042,13 @@ window.addEventListener('resize', () => {
    revient quand on remonte. */
 function suivreDefilementListe() {
   if (!isMobile()) return;
-  document.body.classList.toggle('barre-collee', plEl.scrollTop > 12);
+  const collee = plEl.scrollTop > 12;
+  if (collee === document.body.classList.contains('barre-collee')) return;
+  document.body.classList.toggle('barre-collee', collee);
+  // Le lieu change de place en meme temps que le bandeau se resserre : il
+  // n'est plus question de le laisser dans une barre qui n'a plus de ligne
+  // pour lui, ni de le retirer du panneau au moment ou on le rouvre.
+  placerChampVille();
 }
 
 // ── Chargement initial ─────────────────────────────────────────────────────
