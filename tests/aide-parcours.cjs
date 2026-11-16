@@ -406,13 +406,33 @@ function formatPourLargeur(largeur, hauteur = 900) {
  */
 async function choisirFiltre(page, filtre, valeurs) {
   const conteneur = `[data-filtre="${filtre}"]`;
-  const ouvert = await page.evaluate((sel) => {
-    const p = document.querySelector(`${sel} .msel-panneau`);
-    return p ? !p.hidden : false;
+
+  /* Sur telephone, la liste ne s'ouvre pas sous le bouton : elle part dans
+     une feuille ancree en bas de l'ecran, et le panneau y est DEPLACE. Le
+     chercher dans son conteneur ne trouve donc rien. On regarde ou il est
+     avant de cocher. */
+  const etat = async () => page.evaluate((sel) => {
+    const c = document.querySelector(sel);
+    const p = c && c.querySelector('.msel-panneau');
+    if (p && p.hidden === false) return 'inline';
+    return document.querySelector('.msel-feuille:not([hidden])') ? 'feuille' : null;
   }, conteneur);
-  if (!ouvert) await page.click(`${conteneur} .msel-btn`);
+
+  let ou = await etat();
+  if (!ou) {
+    await page.click(`${conteneur} .msel-btn`);
+    await page.waitForTimeout(250);
+    ou = (await etat()) || 'inline';
+  }
+
+  const zone = ou === 'feuille' ? '.msel-feuille' : conteneur;
   for (const v of [].concat(valeurs)) {
-    await page.check(`${conteneur} input[value="${v}"]`);
+    await page.check(`${zone} input[value="${v}"]`);
+  }
+  /* Refermer la feuille : le panneau revient a sa place, coche. */
+  if (ou === 'feuille') {
+    await page.click('.msel-feuille-fin');
+    await page.waitForTimeout(200);
   }
 }
 

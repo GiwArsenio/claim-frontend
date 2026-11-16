@@ -535,55 +535,60 @@ html[data-theme="nuit"] select.chip {
 
 
 
-  /* ── La carte de France ──────────────────────────────────────────────────
-     Une carte, pas une illustration : les points sont places aux coordonnees
-     reelles des villes, et leur taille suit le nombre d'offres.
+  /* ── Les villes ──────────────────────────────────────────────────────────
+     Quatre villes en photo, les autres en pastilles. Chaque bloc est un
+     lien vers le board filtre : « Voir les offres » mene quelque part.
 
-     La section vit sur son propre fond. Posee sur le meme blanc que la bande
-     de chiffres, elle s'y collait : on ne voyait pas ou finissait l'une et ou
-     commencait l'autre. */
-  /* Le fond de la page est gris : une section laissee en gris se lit comme
-     le fond lui-meme, et se colle a la bande blanche posee au-dessus. Le
-     bandeau est donc blanc, avec une marge — le gris de la page passe
-     au-dessus et en dessous, et la section devient un objet. */
+     La section vit sur son propre fond, avec une marge : le gris de la page
+     passe au-dessus et en dessous, et la section se lit comme un objet. */
   .france { background: var(--surface); border-top: 1px solid var(--bord);
             border-bottom: 1px solid var(--bord);
-            margin: 1.7rem 0; padding: 2.2rem 0 2.4rem; }
-  .france .tete { margin-bottom: .8rem; justify-content: center; text-align: center; }
-  .fr-scene { position: relative; display: flex; justify-content: center; }
-  .fr-svg { display: block; width: 100%; max-width: 430px; height: auto; }
-  .fr-contour { fill: var(--champ); stroke: var(--bord); stroke-width: 1;
-                stroke-linejoin: round; }
-  .fr-halo { fill: var(--teal); opacity: .13; }
-  .fr-point { fill: var(--teal); stroke: var(--surface); stroke-width: 1.6; }
-  .fr-etiquette { font-size: 9.5px; font-weight: 700; fill: var(--gris);
-                  letter-spacing: .01em; }
-  /* Une cible invisible autour du point : 16 px de diametre, c'est court au
-     doigt. Elle reste dans le groupe, donc le clic ouvre la meme bulle. */
-  .fr-cible { fill: transparent; }
+            margin: 1.7rem 0; padding: 2.2rem 0 1.9rem; }
+  .france .tete { margin-bottom: 1.2rem; }
 
-  /* Une ville est une cible : elle se clique et se parcourt au clavier. */
-  .fr-ville { cursor: pointer; outline: none; }
-  .fr-ville:hover .fr-point { fill: #00525c; }
-  .fr-ville:focus-visible .fr-point { stroke: var(--teal); stroke-width: 3; }
-  .fr-ville:hover .fr-etiquette,
-  .fr-ville:focus-visible .fr-etiquette,
-  .fr-ville.actif .fr-etiquette { fill: var(--teal); }
+  .villes { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; }
+  .ville-carte { position: relative; display: block; aspect-ratio: 4 / 3;
+                 border-radius: 10px; overflow: hidden; text-decoration: none;
+                 background: var(--champ); }
+  .ville-carte img { position: absolute; inset: 0; width: 100%; height: 100%;
+                     object-fit: cover; transition: transform .5s ease; }
+  .ville-carte:hover img { transform: scale(1.04); }
+  /* Le voile est le PARENT du texte, pas un frere : pose en frere, il
+     n'entrait pas dans la chaine de fond mesuree par l'audit de contraste,
+     et le nom blanc etait juge sur le blanc de la carte. */
+  .ville-texte { position: absolute; inset: 0; display: flex; flex-direction: column;
+                 justify-content: space-between; align-items: flex-start;
+                 padding: .85rem 1rem;
+                 background: linear-gradient(180deg, rgba(0,0,0,.55) 0%, rgba(0,0,0,.12) 42%,
+                            rgba(0,0,0,.38) 100%); }
+  .ville-nom { color: #fff; font-size: 1.3rem; font-weight: 800;
+               letter-spacing: -.015em; text-shadow: 0 1px 8px rgba(0,0,0,.35); }
+  /* Le bouton garde ses couleurs fixes : en theme nuit, « encre » devient
+     clair, et le texte blanc sur la pastille blanche disparaissait. */
+  .ville-btn { background: #fff; color: #191c1d; font-size: .8rem; font-weight: 700;
+               padding: .48rem .9rem; border-radius: 999px; white-space: nowrap;
+               transition: background .15s, color .15s; }
+  .ville-carte:hover .ville-btn { background: var(--teal); color: #fff; }
+  .ville-carte:focus-visible { outline: 2px solid var(--teal); outline-offset: 3px; }
 
-  /* La bulle : le nombre, pose sous la ville cliquee. */
-  .fr-bulle { position: absolute; transform: translate(-50%, calc(-100% - 26px));
-              background: var(--encre); color: #fff; margin: 0;
-              padding: .45rem .7rem; border-radius: 8px; font-size: .82rem;
-              font-weight: 600; line-height: 1.3; white-space: nowrap;
-              box-shadow: 0 8px 22px rgba(0,0,0,.22); pointer-events: none; }
-  .fr-bulle b { font-weight: 800; }
-  .fr-bulle span { color: #c8d2d6; font-weight: 600; }
-  .fr-bulle::after { content: ''; position: absolute; left: 50%; top: 100%;
-                     transform: translateX(-50%); border: 6px solid transparent;
-                     border-top-color: var(--encre); }
+  .villes-liste { display: flex; flex-wrap: wrap; gap: .5rem;
+                  margin-top: 1.1rem; padding-top: 1.3rem;
+                  border-top: 1px solid var(--bord-doux); }
+  .ville-puce { border: 1px solid var(--bord-carte); border-radius: 999px;
+                padding: .42rem .85rem; font-size: .84rem; font-weight: 500;
+                color: var(--encre); text-decoration: none; background: var(--surface); }
+  .ville-puce:hover { background: var(--teal-clair); border-color: var(--teal-bord);
+                      color: var(--teal-texte); }
+
+  .villes-credit { margin: .9rem 0 0; font-size: .68rem; color: var(--gris-doux); }
+
+  @media (max-width: 900px) {
+    .villes { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .7rem; }
+  }
   @media (max-width: 768px) {
-    .fr-svg { max-width: 100%; }
-    .fr-bulle { font-size: .78rem; }
+    .ville-texte { padding: .7rem .75rem; }
+    .ville-nom { font-size: 1.1rem; }
+    .ville-btn { font-size: .75rem; padding: .42rem .75rem; }
   }
 </style>
 <!-- Google tag (gtag.js) -->
@@ -1075,25 +1080,68 @@ html[data-theme="nuit"] body {
   </div>
 </section>
 
-<section class="france" id="carte-france" aria-labelledby="titre-france" hidden>
+<!-- Ou sont les offres. Quatre villes en tete, les autres en pastilles.
+     Les liens pointent sur le board filtre par ville : /job-board.html sans
+     prefixe redirige vers le marche (/fr) en gardant la requete.
+     Photos : Wikimedia Commons, sous licence libre — credit en bas de
+     section, comme la licence le demande. -->
+<section class="france" id="carte-france" aria-labelledby="titre-france">
   <div class="env">
     <div class="tete">
       <div>
         <h2 id="titre-france">Partout en France</h2>
-        <p><span id="fr-resume">Les pôles où nous relevons des offres.</span>
-           Touchez une ville pour voir ce qu'elle porte.</p>
+        <p>Des offres en assurance, actuariat et data, dans toute la France.</p>
       </div>
     </div>
-    <div class="fr-scene">
-      <!-- role="group", pas role="img" : la carte contient des boutons, et
-           axe signale a juste titre un element interactif dans une image. -->
-      <svg class="fr-svg" viewBox="0 0 305 300" role="group" aria-labelledby="fr-desc">
-        <title id="fr-desc">Répartition des offres par ville, en France</title>
-        <path class="fr-contour" d="M302.8 256.1 L302.3 260.7 L303.8 263.9 L304.3 277.0 L301.1 283.3 L300.6 290.9 L296.6 300.0 L288.5 293.7 L290.2 290.2 L286.6 288.4 L287.1 283.3 L284.6 283.1 L286.3 278.0 L283.9 276.0 L283.4 274.2 L285.7 272.2 L283.4 270.0 L288.7 262.2 L295.6 258.4 L299.3 259.0 L300.3 249.6 L302.5 250.7 L302.8 256.1 ZM263.2 108.2 L257.4 113.2 L254.4 113.2 L253.0 111.4 L249.4 112.6 L248.0 114.4 L250.1 116.6 L243.0 125.7 L238.5 128.2 L237.6 134.1 L232.3 138.6 L230.3 143.3 L231.5 145.7 L230.9 148.8 L228.2 150.8 L229.0 153.0 L233.1 151.5 L234.6 149.7 L233.8 147.2 L238.0 144.1 L245.3 144.9 L246.2 148.9 L245.3 152.3 L250.5 159.7 L245.9 163.2 L245.7 165.4 L253.4 175.9 L251.8 180.9 L246.7 184.1 L243.6 183.9 L242.2 184.7 L242.3 186.2 L244.5 190.8 L249.9 193.7 L250.8 197.1 L246.8 203.4 L248.0 208.9 L256.9 215.0 L263.6 214.1 L264.5 216.7 L260.4 223.4 L260.6 226.4 L254.0 229.8 L244.1 238.6 L241.0 244.0 L231.3 247.9 L224.8 247.1 L216.2 243.1 L214.4 239.5 L209.1 238.8 L208.8 236.4 L201.5 238.6 L191.1 235.3 L187.4 231.8 L184.4 232.7 L170.6 244.1 L166.2 252.7 L167.0 262.7 L169.5 267.7 L162.7 266.9 L158.7 268.4 L157.6 270.5 L148.0 268.0 L144.5 270.1 L137.5 265.5 L137.6 262.3 L133.2 261.1 L131.6 262.6 L130.0 259.7 L117.5 255.1 L115.5 255.2 L114.7 259.7 L100.4 259.7 L94.9 255.5 L88.8 256.3 L85.0 252.0 L76.3 249.5 L73.6 247.0 L72.1 249.0 L70.2 248.5 L71.3 242.7 L64.8 240.6 L63.1 237.5 L66.6 236.6 L69.7 232.7 L74.8 201.9 L76.4 198.8 L78.4 197.9 L76.7 195.6 L74.8 198.6 L76.0 183.3 L78.3 171.9 L83.7 176.6 L86.6 185.4 L89.6 188.3 L87.6 185.5 L84.4 173.9 L75.8 166.3 L75.5 164.5 L79.3 165.4 L76.9 147.8 L71.7 146.6 L63.3 141.5 L57.5 132.4 L56.8 129.0 L58.3 125.4 L54.5 121.5 L56.4 118.4 L58.2 118.1 L64.2 119.9 L59.3 117.0 L48.0 116.9 L47.5 114.8 L49.6 112.0 L47.0 110.3 L42.4 110.7 L43.2 108.0 L42.0 107.2 L38.2 108.0 L34.1 105.1 L28.0 104.6 L18.3 100.7 L9.6 101.1 L7.1 96.6 L1.8 94.4 L9.2 90.4 L3.9 86.7 L11.1 86.3 L7.9 84.3 L0.9 84.4 L0.0 81.8 L0.9 79.0 L4.9 76.5 L22.3 73.7 L27.5 70.6 L32.6 69.7 L37.4 71.2 L44.0 79.1 L49.3 75.6 L57.0 75.7 L58.7 77.7 L60.7 74.1 L62.5 76.2 L72.0 75.5 L68.0 70.8 L67.6 58.5 L62.7 49.6 L61.8 43.7 L74.5 43.8 L75.1 49.5 L77.1 52.8 L97.8 55.6 L110.1 50.9 L104.0 49.1 L105.2 43.1 L114.4 38.1 L127.7 33.9 L135.1 26.1 L134.3 24.8 L134.8 11.1 L136.8 6.6 L141.9 3.3 L154.9 0.0 L156.5 6.8 L159.9 10.7 L161.6 11.9 L167.3 9.8 L170.0 13.4 L170.9 17.5 L177.7 19.1 L179.7 24.4 L185.2 23.5 L190.0 26.3 L189.2 29.4 L190.4 31.0 L189.2 33.9 L190.1 35.1 L197.9 35.1 L203.7 29.2 L204.6 29.7 L203.1 35.1 L204.8 40.4 L213.5 43.8 L218.4 49.0 L224.4 48.2 L229.1 51.0 L234.0 49.5 L240.2 52.6 L244.5 59.8 L247.8 58.4 L250.1 59.2 L250.9 61.3 L259.7 60.1 L263.1 62.9 L274.2 65.6 L274.3 68.3 L267.9 76.0 L263.2 90.8 L261.4 105.7 L263.2 108.2 ZM76.2 160.4 L75.5 163.1 L71.7 155.9 L76.2 160.4 Z"/>
-        <g id="fr-points"></g>
-      </svg>
-      <p class="fr-bulle" id="fr-bulle" role="status" aria-live="polite" hidden></p>
+
+    <div class="villes">
+        <a class="ville-carte" href="/job-board.html?city=Paris">
+          <img src="/assets/villes/paris.jpg" alt="" aria-hidden="true"
+               width="800" height="533" loading="lazy" decoding="async"/>
+          <span class="ville-texte">
+            <span class="ville-nom">Paris</span>
+            <span class="ville-btn">Voir les offres</span>
+          </span>
+        </a>
+        <a class="ville-carte" href="/job-board.html?city=Lyon">
+          <img src="/assets/villes/lyon.jpg" alt="" aria-hidden="true"
+               width="800" height="533" loading="lazy" decoding="async"/>
+          <span class="ville-texte">
+            <span class="ville-nom">Lyon</span>
+            <span class="ville-btn">Voir les offres</span>
+          </span>
+        </a>
+        <a class="ville-carte" href="/job-board.html?city=Marseille">
+          <img src="/assets/villes/marseille.jpg" alt="" aria-hidden="true"
+               width="800" height="533" loading="lazy" decoding="async"/>
+          <span class="ville-texte">
+            <span class="ville-nom">Marseille</span>
+            <span class="ville-btn">Voir les offres</span>
+          </span>
+        </a>
+        <a class="ville-carte" href="/job-board.html?city=Nantes">
+          <img src="/assets/villes/nantes.jpg" alt="" aria-hidden="true"
+               width="800" height="533" loading="lazy" decoding="async"/>
+          <span class="ville-texte">
+            <span class="ville-nom">Nantes</span>
+            <span class="ville-btn">Voir les offres</span>
+          </span>
+        </a>
     </div>
+
+    <div class="villes-liste">
+        <a class="ville-puce" href="/job-board.html?city=Bordeaux">Bordeaux</a>
+        <a class="ville-puce" href="/job-board.html?city=Grenoble">Grenoble</a>
+        <a class="ville-puce" href="/job-board.html?city=Niort">Niort</a>
+        <a class="ville-puce" href="/job-board.html?city=Schiltigheim">Schiltigheim</a>
+        <a class="ville-puce" href="/job-board.html?city=Puteaux">Puteaux</a>
+        <a class="ville-puce" href="/job-board.html?city=Nanterre">Nanterre</a>
+        <a class="ville-puce" href="/job-board.html?city=Bois-Colombes">Bois-Colombes</a>
+        <a class="ville-puce" href="/job-board.html?city=Saint-Ouen">Saint-Ouen</a>
+        <a class="ville-puce" href="/job-board.html?city=Courbevoie">Courbevoie</a>
+    </div>
+
+    <p class="villes-credit">Photos : Wikimedia Commons — Jorge Royan (CC BY-SA 3.0), Zairon (CC BY-SA 3.0, CC BY-SA 4.0), Guilhem Vellut (CC BY 2.0).</p>
   </div>
 </section>
 
@@ -1556,175 +1604,8 @@ function dessinerEmployeurs() {
 }
 
 
-/* ── La carte de France ─────────────────────────────────────────────────────
-   Combien d'offres, et où. Un total par ville, demandé à l'API : la requête
-   ne ramène qu'une offre, on ne lit que `pagination.total`. Treize requêtes
-   de 8 Ko, en parallèle, et le résultat est gardé dix minutes.
-
-   Paris est additionné à sa proche couronne. À l'échelle de cette carte,
-   Puteaux et Nanterre tombent à deux pixels de Paris : quatre points
-   confondus ne diraient rien. Le regroupement est un choix, il est écrit ici
-   et il est dit dans le libellé — jamais dans le nombre. */
-const VILLES_CARTE = [
-  /* etq : decalage de l'etiquette [dx, dy] et son ancrage — regle a la main
-     pour qu'aucun nom n'en recouvre un autre. */
-  { nom: 'Paris', libelle: 'Paris et proche couronne', x: 151.3, y: 69.2, etq: [19, 4, 'start'],
-    villes: ['Paris', 'Puteaux', 'Nanterre', 'Bois-Colombes', 'Saint-Ouen', 'Courbevoie'] },
-  { nom: 'Lyon', x: 204.1, y: 164.7, etq: [-10, 3, 'end'] },
-  { nom: 'Marseille', x: 215.4, y: 241.0, etq: [9, 4, 'start'] },
-  { nom: 'Bordeaux', x: 88.9, y: 193.3, etq: [9, 4, 'start'] },
-  { nom: 'Nantes', x: 68.2, y: 119.8, etq: [-9, 3.5, 'end'] },
-  { nom: 'Grenoble', x: 223.0, y: 182.5, etq: [9, 4, 'start'] },
-  { nom: 'Schiltigheim', x: 266.0, y: 77.0, etq: [0, -7, 'middle'] },
-  { nom: 'Niort', x: 91.5, y: 147.4, etq: [9, 4, 'start'] },
-];
-
-/* Le cache ne garde que des NOMBRES, jamais des objets de ville : il a
-   deja casse la carte une fois. L'ancienne version memorisait les villes
-   entieres ; apres l'ajout des positions d'etiquettes, les objets relus
-   n'avaient plus cette donnee, le rendu levait une erreur, et la section —
-   revelee seulement a la fin — restait invisible. Un visiteur deja passe
-   ne voyait plus rien, alors que le deploiement etait bon. */
-const CLE_FRANCE = 'claim-france-v2';
-const VIE_FRANCE = 10 * 60 * 1000;
-
-/** Le nombre d'offres d'une ville. Une offre suffit : on lit le total. */
-async function compteVille(nom) {
-  const r = await fetch(`${API_BASE}/jobs?per_page=1&city=${encodeURIComponent(nom)}`);
-  if (!r.ok) throw new Error('HTTP ' + r.status);
-  const d = await r.json();
-  return (d.pagination && d.pagination.total) || 0;
-}
-
-/** Le nom tel qu'il s'affiche : la liste des villes additionnees pour Paris. */
-function nomAffiche(v) {
-  return v.libelle || v.nom;
-}
-
-/**
- * Pose la bulle sous une ville. La position se calcule sur la geometrie
- * reelle du SVG — la carte est centree et sa largeur depend de l'ecran.
- */
-function placerBulle(ville) {
-  const bulle = document.getElementById('fr-bulle');
-  const scene = document.querySelector('.fr-scene');
-  const svg = document.querySelector('.fr-svg');
-  if (!bulle || !scene || !svg) return;
-
-  const r = svg.getBoundingClientRect();
-  const s = scene.getBoundingClientRect();
-  const px = r.left - s.left + (ville.x / 305) * r.width;
-  const py = r.top - s.top + (ville.y / 300) * r.height;
-
-  bulle.innerHTML = `<b>${nomAffiche(ville)}</b> <span>· ${ville.n} offre${ville.n > 1 ? 's' : ''}</span>`;
-  bulle.hidden = false;
-  const marge = bulle.offsetWidth / 2 + 6;
-  const gauche = Math.min(Math.max(px, marge), s.width - marge);
-  bulle.style.left = `${gauche}px`;
-  bulle.style.top = `${py}px`;
-}
-
-function fermerBulle() {
-  const bulle = document.getElementById('fr-bulle');
-  if (bulle) bulle.hidden = true;
-  document.querySelectorAll('.fr-ville.actif').forEach((el) => el.classList.remove('actif'));
-}
-
-async function dessinerFrance() {
-  const section = document.getElementById('carte-france');
-  if (!section) return;
-
-  let villes = null;
-  try {
-    const cache = JSON.parse(sessionStorage.getItem(CLE_FRANCE) || 'null');
-    if (cache && cache.comptes && Date.now() - cache.quand < VIE_FRANCE) {
-      /* La geometrie vient TOUJOURS du code, jamais du cache. */
-      villes = VILLES_CARTE.map((v) => Object.assign({}, v, { n: cache.comptes[v.nom] || 0 }));
-    }
-  } catch (e) { /* cache illisible : on redemande */ }
-
-  if (!villes) {
-    try {
-      villes = await Promise.all(VILLES_CARTE.map(async (v) => {
-        const noms = v.villes || [v.nom];
-        const totaux = await Promise.all(noms.map(compteVille));
-        return Object.assign({}, v, { n: totaux.reduce((a, b) => a + b, 0) });
-      }));
-      const comptes = {};
-      villes.forEach((v) => { comptes[v.nom] = v.n; });
-      sessionStorage.setItem(CLE_FRANCE, JSON.stringify({ quand: Date.now(), comptes }));
-    } catch (e) {
-      /* L'API ne repond pas : pas de carte, et pas de trou non plus. */
-      return;
-    }
-  }
-
-  const actives = villes.filter((v) => v.n > 0).sort((a, b) => b.n - a.n);
-  if (actives.length < 3) return;
-
-  /* La phrase d'accroche se calcule : « 8 poles, de Niort a Strasbourg ».
-     Ecrire les villes a la main aurait menti des qu'un pole bouge. */
-  const ouest = actives.reduce((a, b) => (a.x < b.x ? a : b));
-  const est = actives.reduce((a, b) => (a.x > b.x ? a : b));
-  const resume = document.getElementById('fr-resume');
-  if (resume) {
-    resume.textContent = ouest === est
-      ? `${actives.length} pôles relevés.`
-      : `${actives.length} pôles, de ${ouest.nom} à ${est.nom}.`;
-  }
-
-  const max = actives[0].n;
-  const rayon = (n) => Math.min(15, 3 + 5.2 * Math.log10(1 + n));
-  const echappe = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-
-  const points = document.getElementById('fr-points');
-  points.innerHTML = actives.map((v) => {
-    const r = rayon(v.n);
-    const halo = v.n === max
-      ? `<circle class="fr-halo" cx="${v.x}" cy="${v.y}" r="${(r * 2.1).toFixed(1)}"></circle>`
-      : '';
-    const [dx, dy, ancre] = v.etq || [12, 3.5, 'start'];
-    return `<g class="fr-ville" tabindex="0" role="button" data-ville="${echappe(v.nom)}"`
-      + ` aria-label="${echappe(nomAffiche(v))} : ${v.n} offre${v.n > 1 ? 's' : ''}">`
-      + halo
-      + `<circle class="fr-cible" cx="${v.x}" cy="${v.y}" r="${Math.max(r + 7, 15).toFixed(1)}"></circle>`
-      + `<circle class="fr-point" cx="${v.x}" cy="${v.y}" r="${r.toFixed(1)}"></circle>`
-      + `<text class="fr-etiquette" x="${(v.x + dx).toFixed(1)}" y="${(v.y + dy).toFixed(1)}"`
-      + ` text-anchor="${ancre}">${echappe(v.nom)}</text>`
-      + '</g>';
-  }).join('');
-
-  /* Chaque ville porte son nombre, mais seulement quand on la touche : huit
-     nombres ecrits sur la carte auraient fait un brouillamini. */
-  const parNom = {};
-  actives.forEach((v) => { parNom[v.nom] = v; });
-
-  points.querySelectorAll('.fr-ville').forEach((g) => {
-    const ville = parNom[g.dataset.ville];
-    const montrer = (e) => {
-      e.stopPropagation();
-      if (g.classList.contains('actif')) { fermerBulle(); return; }
-      document.querySelectorAll('.fr-ville.actif').forEach((el) => el.classList.remove('actif'));
-      g.classList.add('actif');
-      placerBulle(ville);
-    };
-    g.addEventListener('click', montrer);
-    g.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); montrer(e); }
-      if (e.key === 'Escape') fermerBulle();
-    });
-  });
-
-  document.addEventListener('click', (e) => {
-    if (!e.target.closest('.fr-ville')) fermerBulle();
-  });
-  window.addEventListener('resize', fermerBulle);
-
-  section.hidden = false;
-}
 dessinerEmployeurs();
 chargerOffres();
-dessinerFrance();
 chargerChiffres();
 </script>
 <!-- ══ TIROIR DU MENU (téléphone) ══ -->
