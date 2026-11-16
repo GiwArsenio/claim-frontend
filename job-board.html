@@ -172,6 +172,10 @@ html[data-theme="nuit"] select.chip {
    les regles de bureau les masquent, et le HTML reste unique — deux jeux
    de contrôles auraient fini par diverger. */
 .btn-filtres, .fp-tete, .fp-actions, .voile-filtres { display: none; }
+/* Conteneur du bouton Filtres et de la rangee : en bureau il ne fait rien,
+   le bouton est masque et la rangee se centre comme avant. Sur telephone,
+   c'est lui qui met les trois sur une ligne. */
+.rangee-filtres { display: block; }
 .badge-filtres { min-width: 1.15rem; padding: 0 .3rem; border-radius: 999px;
   background: var(--teal); color: #fff; font-size: .7rem; font-weight: 700;
   line-height: 1.15rem; text-align: center; }
@@ -737,18 +741,62 @@ html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1)
     width: calc(100% - .2rem);
     text-align: center;
   }
-  .btn-filtres { margin: 0 auto; padding: .45rem 1rem; }
-
-  /* — La rangee de filtres, en haut : deux filtres visibles — */
-  /* Les autres restent dans le panneau, ouverts par le bouton : les cacher
-     ici n'est pas les supprimer. */
+  /* — La rangee du haut : bouton et deux filtres sur UNE ligne — */
+  .rangee-filtres {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .4rem;
+  }
+  /* Les trois boites partagent la meme echelle : c'est ce qui les fait tenir
+     ensemble. Un cran sous la taille du bureau, sinon les trois depassent la
+     largeur d'un telephone de 390 px. */
+  .btn-filtres {
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+    padding: 0 .6rem;
+    min-height: 44px;
+    gap: .3rem;
+    font: inherit;
+    font-size: .8rem;
+    font-weight: 600;
+    white-space: nowrap;
+    border-radius: .5rem;
+    border: 1px solid var(--bord-carte);
+    background: var(--surface);
+    color: var(--encre);
+    cursor: pointer;
+  }
+  .btn-filtres .ms { font-size: 16px; color: var(--teal); }
+  /* Le bouton et les deux filtres forment une seule rangee, chacun a la
+     largeur de son texte. Les trois autres filtres restent dans le panneau :
+     les cacher ici n'est pas les supprimer. */
   .chips:not(.ouvert) {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
+    align-items: center;
     gap: .4rem;
     overflow: visible;
   }
+  /* Trois cibles de la meme hauteur : une rangee ou les boites se suivent
+     sans s'aligner se lit comme un accident. Le texte passe un cran sous
+     celui du bureau : a trois boites, la taille d'origine depassait la
+     largeur d'un telephone de 390 px. */
+  .chips:not(.ouvert) > .chip {
+    min-height: 44px;
+    font-size: .8rem;
+    padding-left: .55rem;
+    padding-right: 1.5rem;
+    background-position: right .45rem center;
+  }
+  /* Chaque filtre prend la largeur de sa VALEUR, pas celle de son option la
+     plus longue — sans quoi « Souscription technique » imposait sa largeur a
+     un filtre qui affiche « Spécialité ». La mesure est posee en JavaScript,
+     faute d'equivalent fiable partout ; la variable n'existe que dans cette
+     rangee, jamais dans le panneau. */
+  .chips:not(.ouvert) > select.chip { width: var(--largeur-texte, auto); }
   .chips:not(.ouvert) > .chip:not(#contract-filter):not(#specialty-filter),
   .chips:not(.ouvert) > button.chip,
   .chips:not(.ouvert) > .fp-tete,
@@ -777,22 +825,14 @@ html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1)
      C'est l'effet de la barre qui reste, sans l'en-tete qui la suit. */
   #hd { transition: height .2s ease, opacity .2s ease; overflow: hidden; }
   body.barre-collee #hd { height: 0; opacity: 0; }
-  /* ── FILTRES : un bouton, un panneau ──
+  /* ── LE PANNEAU, QUAND IL S'OUVRE ──
      La rangee defilante coupait le troisieme filtre sans rien dire : un
      candidat pouvait croire qu'il n'existait que deux filtres. Le bouton
-     annonce combien sont actifs, le panneau les montre tous.
-
-     Ferme, le panneau est en display:none : il sort aussi de l'ordre de
-     tabulation, un select invisible n'est jamais atteint par Tab. */
-  .btn-filtres { display: inline-flex; align-items: center; gap: .35rem;
-    margin: 0 auto; padding: .45rem .95rem; min-height: 44px;
-    border-radius: .5rem; border: 1px solid var(--bord-carte);
-    background: var(--surface); color: var(--encre);
-    font: inherit; font-size: .88rem; font-weight: 600; cursor: pointer; }
-  .btn-filtres .ms { font-size: 18px; color: var(--teal); }
+     annonce combien sont actifs, le panneau les montre tous. */
   .btn-filtres[aria-expanded="true"] { border-color: var(--teal); background: var(--teal-clair); }
 
-  .chips { display: none; }
+  /* Ferme, le panneau sort de l'ordre de tabulation : un select en
+     display:none n'est jamais atteint par Tab. Ouvert, il reprend tout. */
 
   /* Le panneau est en position fixe : il ne depend pas du defilement de
      la liste, qu'il recouvre. Le hero garde overflow:hidden (il sert a
@@ -1354,15 +1394,18 @@ a.ctitle:focus-visible, button.ctitle:focus-visible { outline: 2px solid var(--t
       </div>
       <button class="btn-srch" onclick="applySearch()">Rechercher</button>
     </div>
-    <button class="btn-filtres" id="btn-filtres" type="button"
-            aria-haspopup="dialog" aria-controls="filtres-panneau" aria-expanded="false"
-            onclick="ouvrirFiltres()">
-      <span class="ms" aria-hidden="true">tune</span>
-      Filtres
-      <span class="badge-filtres" id="badge-filtres" hidden aria-hidden="true">0</span>
-    </button>
     <div class="voile-filtres" id="voile-filtres" hidden onclick="fermerFiltres(true)"></div>
-    <div class="chips" id="filtres-panneau" role="group" aria-label="Filtres de recherche">
+    <!-- Le bouton et la rangee de filtres vivent dans le meme conteneur : sans
+         cela, ils ne peuvent pas tenir sur une ligne, quel que soit le CSS. -->
+    <div class="rangee-filtres">
+      <button class="btn-filtres" id="btn-filtres" type="button"
+              aria-haspopup="dialog" aria-controls="filtres-panneau" aria-expanded="false"
+              onclick="ouvrirFiltres()">
+        <span class="ms" aria-hidden="true">tune</span>
+        Filtres
+        <span class="badge-filtres" id="badge-filtres" hidden aria-hidden="true">0</span>
+      </button>
+      <div class="chips" id="filtres-panneau" role="group" aria-label="Filtres de recherche">
       <div class="fp-tete">
         <h2 id="fp-titre">Recherche et filtres</h2>
         <button class="fp-fermer" type="button" onclick="fermerFiltres(true)"
@@ -1379,6 +1422,7 @@ a.ctitle:focus-visible, button.ctitle:focus-visible { outline: 2px solid var(--t
       <div class="fp-actions">
         <button class="fp-reinit" type="button" onclick="reinitialiserFiltresPanneau()">Réinitialiser</button>
         <button class="fp-appliquer" type="button" onclick="appliquerFiltresPanneau()">Afficher les offres</button>
+      </div>
       </div>
     </div>
   </div>
@@ -1885,6 +1929,10 @@ function ouvrirFiltres() {
 
   // Le focus va au premier FILTRE : on ouvre le panneau pour choisir, pas
   // pour le fermer. Le bouton de fermeture reste atteignable par Tab.
+  // Le panneau prend toute la largeur : la mesure de la rangee n'a plus
+  // lieu d'etre tant qu'il est ouvert.
+  ajusterLargeurFiltres();
+
   const premier = document.getElementById(IDS_FILTRES[0]) || elementsFocusables(panneau)[0];
   if (premier) premier.focus();
   document.addEventListener('keydown', surTouchePanneau);
@@ -1910,6 +1958,7 @@ function fermerFiltres(annuler) {
   panneauFiltresOuvert = false;
   document.removeEventListener('keydown', surTouchePanneau);
   majBadgeFiltres();
+  ajusterLargeurFiltres();
 
   // Le focus revient la ou il etait. Sans cela il reste dans un panneau
   // qui n'existe plus : la tabulation suivante repart du debut du document.
@@ -1945,10 +1994,51 @@ function reinitialiserFiltresPanneau() {
   if (premier) premier.focus();
 }
 
+/* ── LA LARGEUR D'UN FILTRE SUIT SON TEXTE ──
+   Un <select> prend par defaut la largeur de son option la plus longue :
+   « Souscription technique » imposait sa taille à un filtre qui affichait
+   « Spécialité ». On mesure donc le texte REELLEMENT affiché, et on pose la
+   largeur correspondante.
+
+   La mesure passe par un canevas : c'est la seule façon d'obtenir la largeur
+   exacte d'une chaîne avec la police du document, sans insérer un élément
+   invisible dans la page. */
+let canevasMesure = null;
+function largeurDuTexte(el, texte) {
+  if (!canevasMesure) canevasMesure = document.createElement('canvas');
+  const ctx = canevasMesure.getContext('2d');
+  const cs = getComputedStyle(el);
+  ctx.font = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+  return ctx.measureText(texte).width;
+}
+
+function ajusterLargeurFiltres() {
+  const panneau = document.getElementById('filtres-panneau');
+  if (!panneau) return;
+  const rangeeSeule = isMobile()
+    && !document.body.classList.contains('barre-collee')
+    && !panneau.classList.contains('ouvert');
+
+  ['contract-filter', 'specialty-filter'].forEach((id) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (!rangeeSeule) { el.style.removeProperty('--largeur-texte'); return; }
+
+    const option = el.options[el.selectedIndex];
+    const texte = option ? option.text : '';
+    const cs = getComputedStyle(el);
+    const cadre = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight)
+      + parseFloat(cs.borderLeftWidth) + parseFloat(cs.borderRightWidth);
+    // Deux pixels de marge : sans eux, la derniere lettre touche la fleche.
+    el.style.setProperty('--largeur-texte', `${Math.ceil(largeurDuTexte(el, texte) + cadre) + 2}px`);
+  });
+}
+
 function surChangementFiltre() {
   // Panneau ouvert : le choix attend la validation.
   if (panneauFiltresOuvert) return;
   majBadgeFiltres();
+  ajusterLargeurFiltres();
   applyFilters();
 }
 
@@ -2031,6 +2121,7 @@ function placerChampVille() {
 window.addEventListener('resize', () => {
   if (!isMobile() && panneauFiltresOuvert) fermerFiltres(true);
   placerChampVille();
+  ajusterLargeurFiltres();
   if (!isMobile()) document.body.classList.remove('barre-collee');
 });
 
@@ -2049,6 +2140,7 @@ function suivreDefilementListe() {
   // n'est plus question de le laisser dans une barre qui n'a plus de ligne
   // pour lui, ni de le retirer du panneau au moment ou on le rouvre.
   placerChampVille();
+  ajusterLargeurFiltres();
 }
 
 // ── Chargement initial ─────────────────────────────────────────────────────
@@ -3148,6 +3240,12 @@ remplirDepuisAdresse();
 // Le lieu change de maison AVANT le premier rendu : sur telephone, il doit
 // deja etre dans le panneau, sinon il apparait une seconde dans la barre.
 placerChampVille();
+// Les largeurs dependent de la police : on les repose quand elle est prete,
+// sinon la mesure se fait sur une police de substitution.
+if (document.fonts && document.fonts.ready) {
+  document.fonts.ready.then(() => ajusterLargeurFiltres());
+}
+ajusterLargeurFiltres();
 plEl.addEventListener('scroll', suivreDefilementListe, { passive: true });
 loadJobs();
 </script>

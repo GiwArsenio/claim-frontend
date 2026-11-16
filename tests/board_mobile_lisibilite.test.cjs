@@ -491,6 +491,40 @@ test('M03 — le bloc titre a disparu, la barre complète reste', async () => {
       assert.notEqual(releve.boutonFiltres, 'none', 'le bouton Filtres est absent');
       assert.deepEqual(releve.filtresVisibles, ['contract-filter', 'specialty-filter'],
         'les deux filtres attendus ne sont pas visibles sous le bouton');
+
+      /* Le bouton et les deux filtres tiennent sur UNE ligne. */
+      const rangee = await page.evaluate(() => {
+        const r = (s) => document.querySelector(s).getBoundingClientRect();
+        const b = r('#btn-filtres'), c = r('#contract-filter'), sp = r('#specialty-filter');
+        return {
+          memeLigne: Math.abs(b.top - c.top) <= 4 && Math.abs(c.top - sp.top) <= 4,
+          memeHauteur: Math.abs(b.height - c.height) <= 4,
+          dansEcran: sp.right <= window.innerWidth + 1 && b.left >= -1,
+        };
+      });
+      assert.ok(rangee.memeLigne, 'le bouton Filtres et les deux filtres ne sont pas sur la même ligne');
+      assert.ok(rangee.memeHauteur, 'les trois boîtes n\'ont pas la même hauteur');
+      assert.ok(rangee.dansEcran, 'la rangée sort de l\'écran');
+
+      /* La largeur suit le texte AFFICHÉ, pas l'option la plus longue :
+         on choisit cette option, la boîte doit s'élargir, puis revenir. */
+      const tailles = await page.evaluate(async () => {
+        const sp = document.querySelector('#specialty-filter');
+        const attendre = (ms) => new Promise((r) => setTimeout(r, ms));
+        const avant = sp.getBoundingClientRect().width;
+        sp.value = 'souscription_technique';
+        sp.dispatchEvent(new Event('change'));
+        await attendre(500);
+        const apres = sp.getBoundingClientRect().width;
+        sp.value = '';
+        sp.dispatchEvent(new Event('change'));
+        await attendre(500);
+        return { avant, apres, retour: sp.getBoundingClientRect().width };
+      });
+      assert.ok(tailles.apres > tailles.avant + 20,
+        `la boîte ne s'élargit pas avec son texte : ${Math.round(tailles.avant)} → ${Math.round(tailles.apres)}`);
+      assert.ok(Math.abs(tailles.retour - tailles.avant) <= 2,
+        `la boîte ne revient pas à sa largeur : ${Math.round(tailles.retour)} au lieu de ${Math.round(tailles.avant)}`);
     } finally {
       await ctx.close();
     }
