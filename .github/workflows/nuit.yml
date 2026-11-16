@@ -1,0 +1,99 @@
+# CLAIM! — La suite complete, chaque nuit.
+#
+# Le workflow de deploiement doit rendre la main vite : il ne balaie que
+# trois largeurs d'ecran. Les trois autres — 390, 769, 1920 — se
+# verifient ici, quand personne n'attend.
+#
+# Ce workflow ne publie rien. Il ne fait que mesurer, et il ouvre une
+# issue en cas d'echec : une suite qui rougit la nuit sans que personne
+# ne le sache ne sert a rien.
+#
+# Les six largeurs sont le defaut de `tests/aide-parcours.cjs` ; il suffit
+# de ne pas definir LARGEURS.
+
+name: Nuit
+
+on:
+  schedule:
+    # 03 h 12 UTC : assez tard pour ne generer personne, assez tot pour
+    # que le resultat soit lu le matin.
+    - cron: '12 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: nuit
+  cancel-in-progress: false
+
+env:
+  # Six largeurs, toutes : c'est tout l'interet de la nuit.
+  NODE_VERSION: '24'
+
+jobs:
+  suite:
+    name: Suite complete
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Installer les dependances
+        run: npm ci
+
+      - name: Cache des navigateurs
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Installer les navigateurs
+        run: npx playwright install --with-deps chromium webkit
+
+      - name: Tests statiques
+        run: node tools/run-tests.cjs --famille=statique
+
+      # Les six largeurs : LARGEURS n'est pas defini ici, volontairement.
+      - name: Tests navigateur (6 largeurs)
+        run: node tools/run-tests.cjs --famille=navigateur
+
+      - name: Premier rendu WebKit
+        run: node tools/run-tests.cjs --famille=webkit
+
+      - name: Rendu visuel
+        continue-on-error: true
+        run: node tools/run-tests.cjs --famille=visuel
+
+      - name: Controles de production
+        continue-on-error: true
+        run: node tools/run-tests.cjs --famille=production
+
+      # Un echec nocturne se voit dans l'onglet Actions, que personne
+      # n'ouvre a 3 h du matin. L'issue, elle, se voit.
+      - name: Ouvrir une issue si la nuit est rouge
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const titre = 'Suite de nuit rouge — ' + new Date().toISOString().slice(0, 10);
+            const run = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const deja = await github.rest.issues.listForRepo({
+              owner: context.repo.owner, repo: context.repo.repo,
+              state: 'open', labels: 'nuit',
+            });
+            if (deja.data.some((i) => i.title === titre)) return;
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: titre,
+              labels: ['nuit'],
+              body: `La suite complete a echoue.\n\nJournal : ${run}\n\nCe workflow ne publie rien : le site n'est pas en cause tant que le deploiement n'a pas eu lieu.`,
+            });

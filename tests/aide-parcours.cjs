@@ -17,7 +17,18 @@ let PORT = Number(process.env.CLAIM_TEST_PORT || 0);
 let BASE = '';
 
 /* Les largeurs que la famille A05 impose. */
-const LARGEURS = [360, 390, 768, 769, 1280, 1920];
+/* Les largeurs balayees par les tests d'affichage. Six en local et dans la
+   nuit ; trois en integration continue, ou la suite doit rendre la main vite.
+   La variable d'environnement LARGEURS (« 360,768,1280 ») prend le pas : c'est
+   ainsi que le workflow choisit sans recompiler de code. Les bornes de
+   rupture 768/769 restent dans les deux jeux — c'est la ou tout bascule. */
+const LARGEURS_MESUREES = [360, 390, 768, 769, 1280, 1920];
+const LARGEURS = (() => {
+  const brut = process.env.LARGEURS;
+  if (!brut) return LARGEURS_MESUREES;
+  const lues = brut.split(',').map((v) => Number(v.trim())).filter((v) => Number.isFinite(v) && v > 0);
+  return lues.length ? lues : LARGEURS_MESUREES;
+})();
 
 /* Les formats usuels. */
 const FORMATS = {
