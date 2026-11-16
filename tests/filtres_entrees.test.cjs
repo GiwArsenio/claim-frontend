@@ -12,7 +12,7 @@ const {spawn}=require('node:child_process');
  await p.goto('http://localhost:8899/job-board.html');
  await p.waitForTimeout(700);
  assert.equal(await p.locator('#filtres-panneau').isVisible(),false);
- assert.equal(await p.locator('.filtres-entrees .filtre-entree:visible').count(),6);
+ assert.equal(await p.locator('.filtres-entrees .filtre-entree:visible').count(),width===390?3:6);
  for(const category of ['contract-filter','specialty-filter','experience-filter','date-filter','ats-filter']){
  await p.locator(`[data-categorie="${category}"]`).click();
  assert(await p.locator('#filtres-panneau').isVisible());
@@ -30,7 +30,7 @@ const {spawn}=require('node:child_process');
  await p.locator('.fp-fermer').click();
  assert.equal(await p.locator('#contract-filter').inputValue(),'');
  await p.goto('http://localhost:8899/index.html');
- assert.equal(await p.locator('.filtres-entrees .filtre-entree:visible').count(),6);
+ assert.equal(await p.locator('.filtres-entrees .filtre-entree:visible').count(),width===390?3:6);
  await p.locator('.filtres-entrees a').filter({hasText:'Spécialité'}).click();
  await p.waitForTimeout(300);
  assert(await p.locator('#filtres-panneau').isVisible());

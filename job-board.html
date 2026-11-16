@@ -2601,6 +2601,7 @@ async function loadJobs(forcedPage) {
     // Pas de paramètre « page » : ce nom est réservé à GA4, qui gère déjà
     // la pagination de son côté. Émis par nos soins, il rend l'événement
     // entier invalide (HTTP 400) — et un événement invalide n'est jamais compté.
+    try {
     mesurer('view_item_list', {
       results_count: TOTAL_SERVER,
       view_context: 'board',
@@ -2611,7 +2612,12 @@ async function loadJobs(forcedPage) {
       mesurer(mesureEnAttente.nom, { ...mesureEnAttente.params, results_count: TOTAL_SERVER });
       mesureEnAttente = null;
     }
+    } catch (erreurMesure) {
+      // Une mesure GA4 ne doit jamais masquer les offres.
+      console.warn('[CLAIM!] mesure ignoree :', erreurMesure);
+    }
 
+    // Le rendu est prioritaire sur toute mesure ou tout compteur annexe.
     if (ALL_JOBS.length > 0) {
       activeId = ALL_JOBS[0].id;
       origineDetail = 'auto';
