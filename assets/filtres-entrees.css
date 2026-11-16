@@ -24,6 +24,8 @@
      et source ATS vivent dans le panneau ouvert par « Filtres ». */
   .filtres-entrees .filtre-entree:not(#btn-filtres):not([data-categorie="contract-filter"]):not([data-categorie="specialty-filter"]) { display:none; }
   .filtres-entrees { gap:.4rem; }
+  .filtres-entrees .filtre-entree { display:inline-flex; }
+  .filtres-entrees .filtre-entree:not(#btn-filtres):not([data-categorie="contract-filter"]):not([data-categorie="specialty-filter"]) { display:none; }
   .filtre-entree { font-size:.8rem; }
   #filtres-panneau.ouvert { inset:0; width:100%; height:100dvh; max-height:100dvh; border:0; border-radius:0; }
 }
