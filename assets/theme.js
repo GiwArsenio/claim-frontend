@@ -8,6 +8,10 @@
      evite qu'une ancienne valeur impose la nuit par defaut. */
   var CLE = 'claim-theme-v2';
   var racine = document.documentElement;
+  /* Les icônes vivent sur `window` (module assets/icones.js). `racine` est
+     <html> : y chercher ICONES ne renvoyait rien, et le bouton se créait
+     vide — sans icône du tout. */
+  var icones = typeof window !== 'undefined' ? window.ICONES : null;
 
   function courant() {
     return racine.getAttribute('data-theme') === 'nuit' ? 'nuit' : 'jour';
@@ -28,7 +32,7 @@
        le texte visible figure dans le nom accessible. `aria-hidden` ne
        suffisait pas : il retire la prononciation, pas le rendu. */
     var icone = bouton.querySelector('.ic');
-    if (icone && racine.ICONES) icone.outerHTML = racine.ICONES.icone(theme === 'nuit' ? 'sun' : 'moon', { taille: 18 });
+    if (icone && icones) icone.outerHTML = icones.icone(theme === 'nuit' ? 'sun' : 'moon', { taille: 18 });
   }
 
   function basculer() {
@@ -44,7 +48,7 @@
     bouton.type = 'button';
     bouton.className = 'bascule-theme';
     /* Le contenu du bouton est vide : l'icone est un pseudo-element. */
-    bouton.innerHTML = racine.ICONES ? racine.ICONES.icone('moon', { taille: 18 }) : '';
+    bouton.innerHTML = icones ? icones.icone('moon', { taille: 18 }) : '';
     bouton.addEventListener('click', basculer);
 
     var nav = document.querySelector('.hd nav') || document.querySelector('#hd nav');
