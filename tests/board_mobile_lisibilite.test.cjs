@@ -283,6 +283,21 @@ test('M02 — le panneau montre tous les filtres, sans en appliquer aucun avant 
       assert.equal(rienChoisi.valeur, '', 'un filtre est présélectionné à l\'ouverture');
       assert.equal(rienChoisi.enAvant, false, 'le premier filtre prend le focus à l\'ouverture');
       assert.equal(rienChoisi.contour, 'none', 'le premier filtre s\'entoure comme s\'il était choisi');
+
+      /* Le bouton ne doit pas se retrouver seul et recentré sous les yeux :
+         il s'efface pendant que le panneau est ouvert, et garde sa place. */
+      const boutonPendant = await page.evaluate(() => {
+        const b = document.querySelector('#btn-filtres');
+        const avant = window.__avantOuverture;
+        return {
+          visible: getComputedStyle(b).visibility,
+          place: Math.round(b.getBoundingClientRect().height),
+        };
+      });
+      assert.equal(boutonPendant.visible, 'hidden',
+        'le bouton reste visible pendant que le panneau est ouvert — il se recentre sous les yeux');
+      assert.ok(boutonPendant.place > 20,
+        'le bouton masqué a perdu sa place : la rangée s\'est effondrée');
       assert.equal(ouvert.listeFigee, 'hidden', 'la liste continue de défiler derrière le panneau');
 
       /* Un choix dans le panneau ne déclenche AUCUNE requête : la liste ne
@@ -527,6 +542,8 @@ test('M03 — le bloc titre a disparu, la barre complète reste', async () => {
           memeHauteur: Math.abs(b.height - c.height) <= 4,
           hauteur: b.height,
           dansEcran: sp.right <= window.innerWidth + 1 && b.left >= -1,
+          ecartGauche: Math.round(b.left),
+          ecartDroite: Math.round(window.innerWidth - sp.right),
         };
       });
       assert.ok(rangee.memeLigne, 'le bouton Filtres et les deux filtres ne sont pas sur la même ligne');
@@ -534,6 +551,8 @@ test('M03 — le bloc titre a disparu, la barre complète reste', async () => {
       assert.ok(Math.abs(rangee.hauteur - 35) <= 1,
         `la rangée mesure ${rangee.hauteur} px au lieu de 35 (44 px moins 20 %)`);
       assert.ok(rangee.dansEcran, 'la rangée sort de l\'écran');
+      assert.ok(Math.abs(rangee.ecartGauche - rangee.ecartDroite) <= 6,
+        `la rangée n'est pas centrée : ${rangee.ecartGauche} px à gauche, ${rangee.ecartDroite} px à droite`);
 
       /* La largeur suit le texte AFFICHÉ, pas l'option la plus longue :
          on choisit cette option, la boîte doit s'élargir, puis revenir. */
