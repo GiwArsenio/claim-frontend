@@ -59,6 +59,18 @@ const OFFRE_AVEC_H2 = Object.assign({}, OFFRE_COMPLETE, {
   sections: [],
 });
 
+/* Un titre venu d'une source : minuscules, sigle, tiret, et du balisage.
+   Il éprouve les deux choses d'un coup — la casse et l'échappement. */
+const OFFRE_TITRE_SOURCE = Object.assign({}, OFFRE_COMPLETE, {
+  id: 'offre-titre-source',
+  slug: 'offre-titre-source',
+  // IFRS en capitales : c'est ainsi que les sources l'ecrivent. Un sigle
+  // ecrit en minuscules n'est pas reinvente (voir le test de la regle).
+  title: 'chargé d\'études <script>alert("xss")</script> - IFRS 17',
+  description_html: '<p>Description.</p>',
+  sections: [],
+});
+
 /** Ouvre le board à une largeur donnée, puis attend la première carte. */
 async function ouvrirBoard(largeur, hauteur = 844) {
   const format = { viewport: { width: largeur, height: hauteur }, isMobile: true, hasTouch: true };
@@ -728,6 +740,54 @@ test('M04 — les titres de section de la fiche restent des titres', async () =>
       /* La première section tenait sur deux lignes avant le chantier. */
       assert.ok(releve.hauteurs[0] <= releve.interlignes[0] * 1.3,
         `« ${releve.textes[0]} » occupe encore ${releve.hauteurs[0]} px`);
+    } finally {
+      await ctx.close();
+    }
+  } finally {
+    await aide.arreterNavigateur();
+    await aide.arreterServeur();
+  }
+});
+
+/* ── 3 ter. Le titre affiché : casse de titre et échappement ────────────── */
+
+test('M06 — le titre de la fiche est mis en casse et échappé', async () => {
+  await aide.demarrerServeur();
+  await aide.demarrerNavigateur();
+
+  try {
+    const { ctx, page } = await ouvrirBoard(390);
+    try {
+      await page.evaluate((offre) => {
+        dessinerDetail(offre, false);
+        openDetail();
+      }, OFFRE_TITRE_SOURCE);
+      await page.waitForSelector('.dtitle', { timeout: 10000 });
+      await aide.attendre(page, 400);
+
+      const releve = await page.evaluate(() => {
+        const t = document.querySelector('.dtitle');
+        return {
+          texte: t.textContent,
+          scripts: t.querySelectorAll('script').length,
+          baliseScript: !!document.querySelector('.dtitle script'),
+        };
+      });
+
+      /* Le balisage ne doit pas devenir un élément : il reste du texte. */
+      assert.equal(releve.scripts, 0, 'le balisage du titre est devenu un élément');
+      assert.equal(releve.baliseScript, false, 'une balise <script> a été créée dans le titre');
+      /* La casse de titre passe sur le balisage comme sur le reste : il
+         ressort en « <Script> ». Ce qui compte, c'est qu'il reste du TEXTE. */
+      assert.match(releve.texte, /<\/?script/i,
+        'le balisage a disparu au lieu d\'être affiché comme texte');
+
+      /* Et la casse s'applique : première lettre, puis sigle et nombre
+         intacts après le tiret. */
+      assert.match(releve.texte, /^Chargé d'études/,
+        `le titre n'est pas mis en casse : « ${releve.texte} »`);
+      assert.match(releve.texte, /IFRS 17/,
+        `le sigle ou le nombre a été abîmé : « ${releve.texte} »`);
     } finally {
       await ctx.close();
     }

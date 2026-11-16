@@ -1485,6 +1485,8 @@ a.ctitle:focus-visible, button.ctitle:focus-visible { outline: 2px solid var(--t
 </div>
 
 <script src="/assets/companies-data.js"></script>
+<!-- La casse de titre : une seule regle, deux endroits (carte et fiche). -->
+<script src="/assets/casse-titre.js"></script>
 <script>
 // ── Configuration ──────────────────────────────────────────────────────────
 const API_BASE    = (typeof CLAIM_API_BASE === 'string' && CLAIM_API_BASE)
@@ -2842,7 +2844,7 @@ function renderFeed() {
       <div class="ct">
         ${renderCompanyLogo(co, 'clogo')}
         <div class="ci">
-          <a class="ctitle" href="${urlOffre(j.slug)}">${escapeHtml(j.title)}</a>
+          <a class="ctitle" href="${urlOffre(j.slug)}">${escapeHtml(enCasseDeTitre(j.title))}</a>
           <div class="csub">${co.name || j.source}</div>
         </div>
         <button class="bel" type="button"
@@ -3095,7 +3097,7 @@ function dessinerDetail(j, sansCorps) {
       <button class="btn-back" onclick="closeDetail()">← Toutes les offres</button>
       <div class="d-entete">
         <div class="d-entete-corps">
-          <h1 class="dtitle">${j.title}</h1>
+          <h1 class="dtitle">${escapeHtml(enCasseDeTitre(j.title))}</h1>
           <div class="dco">${co.name || j.source}${j.ville ? ' · ' + escapeHtml(j.ville) : ''}</div>
           <div class="pastilles">${pastillesOffreHtml(j)}</div>
         </div>
