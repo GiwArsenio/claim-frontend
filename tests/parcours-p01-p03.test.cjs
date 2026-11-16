@@ -280,7 +280,14 @@ test('P02 — les filtres se combinent et se remettent à zéro', async () => {
         page,
         aide.estListeDuBoard,
         async () => {
-          await page.locator('.chip', { hasText: 'Réinitialiser' }).first().click();
+          /* La remise a zero a quitte la rangee : elle vit dans le pied du
+             panneau, et c'est « Afficher les offres » qui relance la liste.
+             Vider ne recharge plus rien tout seul. */
+          await page.click('#btn-filtres');
+          await page.waitForTimeout(350);
+          await page.click('.fp-tout-effacer');
+          await page.waitForTimeout(150);
+          await page.click('.fp-afficher');
         }
       );
       await aide.attendre(page, 1200);
