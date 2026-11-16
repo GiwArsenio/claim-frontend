@@ -1,0 +1,22 @@
+{
+ "paris": {
+  "fichier": "File:Paris skyline view (Unsplash).jpg",
+  "licence": "CC0",
+  "page": "https://commons.wikimedia.org/wiki/File:Paris_skyline_view_(Unsplash).jpg"
+ },
+ "lyon": {
+  "fichier": "File:Skyline de la Part Dieu en novembre 2025.jpg",
+  "licence": "CC0",
+  "page": "https://commons.wikimedia.org/wiki/File:Skyline_de_la_Part_Dieu_en_novembre_2025.jpg"
+ },
+ "marseille": {
+  "fichier": "File:Marseille Vieux-port 1.jpg",
+  "licence": "CC0",
+  "page": "https://commons.wikimedia.org/wiki/File:Marseille_Vieux-port_1.jpg"
+ },
+ "nantes": {
+  "fichier": "File:Château des Ducs de Bretagne, Pont d'accès au château-01.jpg",
+  "licence": "CC0",
+  "page": "https://commons.wikimedia.org/wiki/File:Ch%C3%A2teau_des_Ducs_de_Bretagne,_Pont_d%27acc%C3%A8s_au_ch%C3%A2teau-01.jpg"
+ }
+}

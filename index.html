@@ -580,8 +580,6 @@ html[data-theme="nuit"] select.chip {
   .ville-puce:hover { background: var(--teal-clair); border-color: var(--teal-bord);
                       color: var(--teal-texte); }
 
-  .villes-credit { margin: .9rem 0 0; font-size: .68rem; color: var(--gris-doux); }
-
   @media (max-width: 900px) {
     .villes { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .7rem; }
   }
@@ -1083,8 +1081,9 @@ html[data-theme="nuit"] body {
 <!-- Ou sont les offres. Quatre villes en tete, les autres en pastilles.
      Les liens pointent sur le board filtre par ville : /job-board.html sans
      prefixe redirige vers le marche (/fr) en gardant la requete.
-     Photos : Wikimedia Commons, sous licence libre — credit en bas de
-     section, comme la licence le demande. -->
+     Photos : Wikimedia Commons, CC0 (domaine public). Aucune attribution
+     n'est exigee par cette licence, donc aucun credit ne s'affiche — la
+     provenance reste dans assets/villes/PROVENANCE.json. -->
 <section class="france" id="carte-france" aria-labelledby="titre-france">
   <div class="env">
     <div class="tete">
@@ -1134,14 +1133,7 @@ html[data-theme="nuit"] body {
         <a class="ville-puce" href="/job-board.html?city=Grenoble">Grenoble</a>
         <a class="ville-puce" href="/job-board.html?city=Niort">Niort</a>
         <a class="ville-puce" href="/job-board.html?city=Schiltigheim">Schiltigheim</a>
-        <a class="ville-puce" href="/job-board.html?city=Puteaux">Puteaux</a>
-        <a class="ville-puce" href="/job-board.html?city=Nanterre">Nanterre</a>
-        <a class="ville-puce" href="/job-board.html?city=Bois-Colombes">Bois-Colombes</a>
-        <a class="ville-puce" href="/job-board.html?city=Saint-Ouen">Saint-Ouen</a>
-        <a class="ville-puce" href="/job-board.html?city=Courbevoie">Courbevoie</a>
     </div>
-
-    <p class="villes-credit">Photos : Wikimedia Commons — Jorge Royan (CC BY-SA 3.0), Zairon (CC BY-SA 3.0, CC BY-SA 4.0), Guilhem Vellut (CC BY 2.0).</p>
   </div>
 </section>
 
