@@ -1706,7 +1706,7 @@ function paramOffre(j, contexte) {
   return {
     items: [{
       item_id:   tronquer(j && j.id, 100),
-      item_name: tronquer(j && j.title, 100),
+      item_name: tronquer(j && enCasseDeTitre(j.title), 100),
     }],
     company_name:     tronquer(co.name || (j && j.source), 100),
     job_specialty:    tronquer(j && (j.jev_specialty || j.specialty), 100),
@@ -3031,7 +3031,7 @@ async function partagerOffre() {
   // Sur mobile, la feuille de partage du système est le geste attendu.
   if (navigator.share) {
     try {
-      await navigator.share({ title: j.title || 'Offre', url });
+      await navigator.share({ title: enCasseDeTitre(j.title) || 'Offre', url });
       mesurer('share', { ...paramOffre(j, 'board'), method: 'partage_systeme' });
       return;
     } catch (e) {
@@ -3113,7 +3113,7 @@ function dessinerDetail(j, sansCorps) {
         <div class="dact">
           ${j.source_url ? `<a class="bap" href="${escapeHtml(j.source_url)}" target="_blank" rel="nofollow noopener" onclick="mesurerClicPostuler()">Postuler</a>` : ''}
           <button class="bsh bal" type="button"
-                  data-titre="${escapeHtml(j.title)}"
+                  data-titre="${escapeHtml(enCasseDeTitre(j.title))}"
                   data-societe="${escapeHtml(co.name || j.source || '')}"
                   data-logo="${escapeHtml(initialesSociete(co.name || j.source || '?'))}"
                   data-criteres="${escapeHtml(JSON.stringify(criteresAlerte(j)))}"
