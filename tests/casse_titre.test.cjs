@@ -42,7 +42,7 @@ const CAS = [
   ],
   [
     "chargé d'études actuarielles - IFRS 17",
-    "Chargé d'études Actuarielles - IFRS 17",
+    "Chargé d'Études Actuarielles - IFRS 17",
     'IFRS reste un sigle, 17 reste un nombre',
   ],
   [
@@ -64,6 +64,26 @@ const CAS = [
     'ASSISTANT(E)',
     'Assistant(e)',
     'les parenthèses collées ne cassent rien',
+  ],
+  [
+    "Chargé d'études",
+    "Chargé d'Études",
+    'apres une elision, le nom prend la majuscule — l\'article reste bas',
+  ],
+  [
+    "CDI - Responsable D'ETUDES D'ACTUARIAT N1 - H/F",
+    "CDI - Responsable d'Etudes d'Actuariat N1 - H/F",
+    'le titre Generali : sigle garde, elisions traitees, H/F intact',
+  ],
+  [
+    "qu'il",
+    "qu'il",
+    'une elision suivie d\'un pronom ne prend pas de majuscule',
+  ],
+  [
+    "aujourd'hui",
+    "Aujourd'hui",
+    'une apostrophe qui n\'est pas une elision ne coupe pas le mot',
   ],
   [
     'Actuaire confirmé (H/F) — risques Non-Vie',

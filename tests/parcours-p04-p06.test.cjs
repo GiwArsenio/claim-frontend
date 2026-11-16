@@ -579,12 +579,15 @@ test('P06 — un lien profond ouvre la bonne fiche', async () => {
         description: (document.body.innerText || '').includes('direction actuarie'),
       }));
 
+      /* Comparaison sans la casse : la fiche affiche le titre en casse de
+         titre souple (« Actuaire Confirmé »), la source l'ecrit autrement.
+         Ce qui compte, c'est que ce soit la MEME offre. */
       assert.ok(
-        page_.h1.some((t) => t.includes('Actuaire confirmé')),
+        page_.h1.some((t) => /actuaire confirmé/i.test(t)),
         `le lien profond n'a pas ouvert la bonne fiche : ${JSON.stringify(page_.h1)}`
       );
       assert.ok(
-        page_.titre.includes('Actuaire confirmé'),
+        /actuaire confirmé/i.test(page_.titre),
         `le titre de la page ne nomme pas l'offre : "${page_.titre}"`
       );
       assert.ok(

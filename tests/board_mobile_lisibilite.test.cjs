@@ -803,7 +803,7 @@ test('M06 — le titre de la fiche est mis en casse et échappé', async () => {
 
       /* Et la casse s'applique : première lettre, puis sigle et nombre
          intacts après le tiret. */
-      assert.match(releve.texte, /^Chargé d'études/,
+      assert.match(releve.texte, /^Chargé d'Études/,
         `le titre n'est pas mis en casse : « ${releve.texte} »`);
       assert.match(releve.texte, /IFRS 17/,
         `le sigle ou le nombre a été abîmé : « ${releve.texte} »`);

@@ -44,7 +44,16 @@
 
   const SEPARATEUR_FINAL = /[-/:&|·\u2013\u2014]\s*$/;
   const SEPARATEUR_INTERNE = /[-/&|·.]/;
-  const ELISION = /^(d|l|n|s|c|j|m|t|qu)['\u2019]/i;
+  /* Elision : « d'etudes », « l'entreprise », « qu'il ». L'article reste
+     en minuscules ; ce qui le suit prend une majuscule — c'est un nom. */
+  const ELISION = /^(d|l|n|s|c|j|m|t|qu)['\u2019](.+)$/i;
+
+  /* Ce qui suit une elision et reste bas : ce ne sont pas des noms, et
+     « qu'Il » ou « n'Est » seraient faux. */
+  const APRES_ELISION_BAS = new Set([
+    'il', 'elle', 'ils', 'elles', 'on', 'est', 'y', 'en', 'a', 'ont',
+    'etait', 'avait', 'aurait', 'un', 'une',
+  ]);
 
   /* Seule la PREMIERE lettre change : le reste du mot n'est jamais reecrit.
      « laMethode » devient « LaMethode », pas « Lamethode » ; un accent ne
@@ -65,12 +74,21 @@
      élision. Chaque segment prend une majuscule, sauf les sigles déjà
      corrects. */
   function casseComposee(mot, hurle) {
-    if (ELISION.test(mot)) {
-      // « d'Actifs » : l'élision reste en minuscules, le mot qui suit aussi
-      // (il est déjà capitalisé par la source ou par la règle générale).
-      return mot;
+    if (mot.includes("'") || mot.includes('\u2019')) {
+      const el = ELISION.exec(mot);
+      if (el) {
+        const article = el[1].toLocaleLowerCase('fr');
+        const ap = mot.charAt(el[1].length);
+        const suite = el[2];
+        const bas = suite.toLocaleLowerCase('fr');
+        const apres = APRES_ELISION_BAS.has(bas) ? bas : majusculeInitiale(hurle ? bas : suite);
+        return article + ap + apres;
+      }
+      /* Une apostrophe qui n'est pas une elision — « aujourd'hui » : le mot
+         reste un mot, on ne coupe pas apres l'apostrophe. */
+      return majusculeInitiale(hurle ? mot.toLocaleLowerCase('fr') : mot);
     }
-    return mot.split(/([-/&|·.'])/).map((segment) => {
+    return mot.split(/([-/&|·.])/).map((segment) => {
       if (!/\p{L}/u.test(segment)) return segment;
       if (!hurle && estSigle(segment)) return segment;
       return majusculeInitiale(hurle ? segment.toLocaleLowerCase('fr') : segment);
