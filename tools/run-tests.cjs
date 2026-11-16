@@ -60,6 +60,7 @@ const FAMILLES = {
     'tests/params_mesure.test.cjs',
     'tests/aide-parcours.cjs',
     'tests/captures-reference.cjs',
+    'tests/survol-a07-aide.cjs',
     'tests/audit-survol.cjs',
     'tests/defilement_fiche_conserve.test.cjs',
     'tests/detail_sans_entete.test.cjs',
@@ -70,6 +71,7 @@ const FAMILLES = {
     'tests/normalisation_offre.test.cjs',
     'tests/rail_fiche.test.cjs',
     'tests/familles_competences_alignees.test.cjs',
+    'tests/casse_titre.test.cjs',
   ],
   // Demandent un navigateur. Lents, mais locaux : ils ouvrent le serveur
   // de test et n'appellent que lui.
@@ -85,7 +87,10 @@ const FAMILLES = {
     'tests/pastille-a07.test.cjs',
     'tests/clarity-consentement.test.cjs',
     'tests/reseau-local.test.cjs',
-    'tests/survol-a07.test.cjs',
+    // Le fichier d'origine a ete coupe en deux : il pesait 140 s a lui seul
+    // et fixait le plancher du shard le plus lourd.
+    'tests/survol-a07-reaction.test.cjs',
+    'tests/survol-a07-lisibilite.test.cjs',
     'tests/theme.test.cjs',
     'tests/pied_arret_defilement.test.cjs',
     'tests/board_mobile_lisibilite.test.cjs',
@@ -126,7 +131,8 @@ const DELAI_DEFAUT = 720000;
    faux donne un shard desequilibre, jamais un test perdu. Un fichier absent
    de cette table compte pour POIDS_DEFAUT. */
 const POIDS = {
-  'tests/survol-a07.test.cjs': 140,
+  'tests/survol-a07-reaction.test.cjs': 80,
+  'tests/survol-a07-lisibilite.test.cjs': 60,
   'tests/affichage-a05.test.cjs': 71,
   'tests/parcours-p04-p06.test.cjs': 63,
   'tests/parcours-p01-p03.test.cjs': 56,
