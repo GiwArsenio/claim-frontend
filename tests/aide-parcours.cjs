@@ -396,7 +396,28 @@ function formatPourLargeur(largeur, hauteur = 900) {
 
 /* ── Exports ─────────────────────────────────────────────────────────────── */
 
+/**
+ * Choisit une valeur dans un filtre du board.
+ *
+ * Le board a remplace ses <select> par des listes a choix multiples : un
+ * bouton ouvre un panneau, chaque valeur est une case a cocher, et le champ
+ * cache porte le resultat. Un test qui appelle selectOption ne pilote plus
+ * rien — il pilote un <input type="hidden">, invisible et immuable.
+ */
+async function choisirFiltre(page, filtre, valeurs) {
+  const conteneur = `[data-filtre="${filtre}"]`;
+  const ouvert = await page.evaluate((sel) => {
+    const p = document.querySelector(`${sel} .msel-panneau`);
+    return p ? !p.hidden : false;
+  }, conteneur);
+  if (!ouvert) await page.click(`${conteneur} .msel-btn`);
+  for (const v of [].concat(valeurs)) {
+    await page.check(`${conteneur} input[value="${v}"]`);
+  }
+}
+
 module.exports = {
+  choisirFiltre,
   /* BASE et PORT changent quand le serveur demarre : ce sont des getters,
      pas des valeurs figees au moment de l'export. */
   get BASE() { return BASE; },

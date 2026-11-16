@@ -36,7 +36,11 @@ const aide = require('./aide-parcours.cjs');
 
 const PAGES = [
   { nom: 'accueil', url: '/index.html', selecteur: '#acc-contrat' },
-  { nom: 'board', url: '/job-board.html', selecteur: '#contract-filter' },
+  /* Le board a remplace « Type de contrat » et « Specialite » par des
+     listes a choix multiples : leur fleche est desormais un SVG, plus une
+     image de fond. La date reste un <select> et porte encore la fleche CSS —
+     c'est elle qu'on eprouve ici. */
+  { nom: 'board', url: '/job-board.html', selecteur: '#date-filter' },
 ];
 
 /** L'état de survol d'une pastille, mesuré par le style calculé. */

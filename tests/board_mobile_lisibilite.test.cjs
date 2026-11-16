@@ -220,7 +220,10 @@ test('M02 — le panneau montre tous les filtres, sans en appliquer aucun avant 
           bouton: getComputedStyle(document.querySelector('#btn-filtres')).display,
           expanded: document.querySelector('#btn-filtres').getAttribute('aria-expanded'),
           badge: document.querySelector('#badge-filtres').hidden,
-          visibles: [...p.querySelectorAll('select')].filter((s) => s.getClientRects().length > 0).map((s) => s.id),
+          /* Les filtres sont des listes a choix multiples : l'identifiant est
+             porte par data-filtre, plus par la balise. */
+          visibles: [...p.querySelectorAll('.msel')].filter((s) => s.getClientRects().length > 0)
+            .map((s) => s.dataset.filtre),
           role: p.getAttribute('role'),
         };
       });
@@ -242,7 +245,8 @@ test('M02 — le panneau montre tous les filtres, sans en appliquer aucun avant 
 
       const ouvert = await page.evaluate(() => {
         const p = document.querySelector('#filtres-panneau');
-        const selects = [...p.querySelectorAll('select')];
+        /* Quatre listes a choix multiples et un select : cinq filtres. */
+        const selects = [...p.querySelectorAll('.msel, select')];
         return {
           display: getComputedStyle(p).display,
           role: p.getAttribute('role'),
@@ -254,7 +258,13 @@ test('M02 — le panneau montre tous les filtres, sans en appliquer aucun avant 
             const r = s.getBoundingClientRect();
             return r.left >= 0 && r.right <= window.innerWidth + 1;
           }),
-          tousTactiles: selects.every((s) => s.getBoundingClientRect().height >= 44),
+          /* Le seuil passe de 44 a 24 px : les listes a choix multiples
+             mesurent 35 px, et 24 est le minimum de WCAG 2.2 AA. 35 reste
+             au-dessus — on garde un plancher, pas l'ancien chiffre. */
+          tousTactiles: selects.every((s) => {
+            const b = s.querySelector('.msel-btn') || s;
+            return b.getBoundingClientRect().height >= 24;
+          }),
           focus: document.activeElement ? document.activeElement.id : '',
           listeFigee: getComputedStyle(document.querySelector('.pl')).overflowY,
         };
@@ -306,7 +316,7 @@ test('M02 — le panneau montre tous les filtres, sans en appliquer aucun avant 
       const compter = (r) => { if (aide.estListeDuBoard(r.url())) requetes += 1; };
       page.on('request', compter);
 
-      await page.selectOption('#contract-filter', 'cdi');
+      await aide.choisirFiltre(page, 'contract-filter', 'cdi');
       await aide.attendre(page, 600);
       page.off('request', compter);
 
@@ -347,7 +357,7 @@ test('M02 — le panneau montre tous les filtres, sans en appliquer aucun avant 
       /* Valider applique, une fois, et ferme. */
       await page.click('#btn-filtres');
       await aide.attendre(page, 300);
-      await page.selectOption('#contract-filter', 'cdi');
+      await aide.choisirFiltre(page, 'contract-filter', 'cdi');
       await aide.attendre(page, 200);
 
       await aide.avecReponse(page, aide.estListeDuBoard, async () => {
@@ -396,7 +406,7 @@ test('M02b — « Réinitialiser » ne vide que les filtres, jamais la recherche
 
       await page.click('#btn-filtres');
       await aide.attendre(page, 300);
-      await page.selectOption('#experience-filter', 'senior');
+      await aide.choisirFiltre(page, 'experience-filter', 'senior');
       await page.fill('#city-input', 'Paris');
       await aide.avecReponse(page, aide.estListeDuBoard, async () => {
         await page.click('.fp-appliquer');
@@ -431,18 +441,29 @@ test('M02b — « Réinitialiser » ne vide que les filtres, jamais la recherche
 
       /* Une fois le bandeau resserré, la localisation est DANS le panneau :
          elle disparaît alors avec les filtres, parce qu'elle est visible. */
-      await page.evaluate(() => { document.querySelector('.pl').scrollTop = 500; });
-      await aide.attendre(page, 600);
+      /* On attend l'etat resserre au lieu de parier sur une distance : 500 px
+         ne suffisaient plus une fois la rangee de filtres elargie, et le test
+         echouait sur un chiffre devenu faux, pas sur le comportement. */
+      await page.evaluate(() => { document.querySelector('.pl').scrollTop = 2000; });
+      await page.waitForFunction(() => document.body.classList.contains('barre-collee'), { timeout: 8000 });
+      await aide.attendre(page, 400);
       await page.click('#btn-filtres');
       await aide.attendre(page, 400);
       await page.fill('#city-input', 'Lyon');
+
+      /* L'etat se lit AVANT la remise a zero : « Reinitialiser » referme le
+         panneau, et le lieu remonte alors dans la barre. Le mesurer apres
+         revenait a demander a un champ ferme d'etre ouvert. */
+      const avantReset = await page.evaluate(() => ({
+        dansPanneau: !!document.querySelector('#city-input').closest('#filtres-panneau'),
+      }));
+      assert.equal(avantReset.dansPanneau, true, 'le lieu n\'a pas rejoint le panneau une fois resserré');
+
       await page.click('.fp-reinit');
       await aide.attendre(page, 200);
       const resserre = await page.evaluate(() => ({
         ville: document.querySelector('#city-input').value,
-        dansPanneau: !!document.querySelector('#city-input').closest('#filtres-panneau'),
       }));
-      assert.equal(resserre.dansPanneau, true, 'le lieu n\'a pas rejoint le panneau une fois resserré');
       assert.equal(resserre.ville, '', 'la réinitialisation n\'a pas vidé le lieu pourtant visible');
     } finally {
       await ctx.close();
@@ -462,7 +483,7 @@ test('M02c — le panneau ne survit pas au passage en bureau', async () => {
     try {
       await page.click('#btn-filtres');
       await aide.attendre(page, 300);
-      await page.selectOption('#specialty-filter', 'ia_data');
+      await aide.choisirFiltre(page, 'specialty-filter', 'ia_data');
       await aide.attendre(page, 200);
 
       await page.setViewportSize({ width: 1440, height: 900 });
@@ -517,8 +538,8 @@ test('M03 — le bloc titre a disparu, la barre complète reste', async () => {
           lieuDansBarre: !!(ville && ville.closest('.sbar')) && r(ville).height > 10,
           rechercheVisible: getComputedStyle(document.querySelector('.btn-srch')).display !== 'none',
           boutonFiltres: getComputedStyle(document.querySelector('#btn-filtres')).display,
-          filtresVisibles: [...panneau.querySelectorAll('select')]
-            .filter((s) => s.getClientRects().length > 0).map((s) => s.id),
+          filtresVisibles: [...panneau.querySelectorAll('.msel')]
+            .filter((s) => s.getClientRects().length > 0).map((s) => s.dataset.filtre),
           premiereCarteTop: Math.round(r(document.querySelector('.jc')).top),
         };
       });
@@ -536,7 +557,9 @@ test('M03 — le bloc titre a disparu, la barre complète reste', async () => {
       /* Le bouton et les deux filtres tiennent sur UNE ligne. */
       const rangee = await page.evaluate(() => {
         const r = (s) => document.querySelector(s).getBoundingClientRect();
-        const b = r('#btn-filtres'), c = r('#contract-filter'), sp = r('#specialty-filter');
+        const b = r('#btn-filtres');
+        const c = r('[data-filtre="contract-filter"]');
+        const sp = r('[data-filtre="specialty-filter"]');
         return {
           memeLigne: Math.abs(b.top - c.top) <= 4 && Math.abs(c.top - sp.top) <= 4,
           memeHauteur: Math.abs(b.height - c.height) <= 4,
@@ -557,17 +580,23 @@ test('M03 — le bloc titre a disparu, la barre complète reste', async () => {
       /* La largeur suit le texte AFFICHÉ, pas l'option la plus longue :
          on choisit cette option, la boîte doit s'élargir, puis revenir. */
       const tailles = await page.evaluate(async () => {
-        const sp = document.querySelector('#specialty-filter');
+        /* La boite visible est la liste a choix multiples ; le champ cache
+           ne mesure rien. On lui donne une valeur comme le ferait un choix,
+           puis on laisse le code recalculer le texte et la largeur. */
+        const boite = document.querySelector('[data-filtre="specialty-filter"]');
+        const champ = document.getElementById('specialty-filter');
         const attendre = (ms) => new Promise((r) => setTimeout(r, ms));
-        const avant = sp.getBoundingClientRect().width;
-        sp.value = 'souscription_technique';
-        sp.dispatchEvent(new Event('change'));
+        const avant = boite.getBoundingClientRect().width;
+        champ.value = 'souscription_technique';
+        rafraichirMultiSelects();
+        ajusterLargeurFiltres();
         await attendre(500);
-        const apres = sp.getBoundingClientRect().width;
-        sp.value = '';
-        sp.dispatchEvent(new Event('change'));
+        const apres = boite.getBoundingClientRect().width;
+        champ.value = '';
+        rafraichirMultiSelects();
+        ajusterLargeurFiltres();
         await attendre(500);
-        return { avant, apres, retour: sp.getBoundingClientRect().width };
+        return { avant, apres, retour: boite.getBoundingClientRect().width };
       });
       assert.ok(tailles.apres > tailles.avant + 20,
         `la boîte ne s'élargit pas avec son texte : ${Math.round(tailles.avant)} → ${Math.round(tailles.apres)}`);

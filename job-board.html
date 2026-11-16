@@ -2044,6 +2044,8 @@ function ouvrirFiltres() {
   // L'etat applique est fige a l'ouverture : « Fermer » y revient, meme si
   // la liste a change entre-temps pour une autre raison.
   filtresAppliques = lireFiltres();
+  /* Meme raison a l'ouverture : le panneau montre l'etat applique. */
+  rafraichirMultiSelects();
   panneau.classList.add('ouvert');
   panneau.setAttribute('role', 'dialog');
   panneau.setAttribute('aria-modal', 'true');
@@ -2075,6 +2077,12 @@ function fermerFiltres(annuler) {
   if (!panneau || !panneau.classList.contains('ouvert')) return;
 
   if (annuler && filtresAppliques) ecrireFiltres(filtresAppliques);
+  /* Les cases doivent suivre ce que les champs disent. Sans ce
+     rafraichissement, annuler remettait la valeur a zero mais laissait les
+     cases cochees : le panneau rouvrait sur « CDI » selectionne alors que
+     rien n'etait applique, et recliquer dessus DECOCHAIT au lieu de choisir.
+     Le controle a choix multiples affichait donc un etat qui n'existait pas. */
+  rafraichirMultiSelects();
   panneau.classList.remove('ouvert');
   /* Le panneau redevient la rangee de filtres qu'il etait. Supprimer le
      role l'aurait laissee sans aucun role : « group » est son etat de
