@@ -1,5 +1,5 @@
 /* Même bouton d'entrée sur l'accueil et le board. */
-.filtres-entrees { display:flex !important; flex-wrap:wrap; align-items:center; justify-content:center; gap:.5rem; margin-top:.65rem; }
+.filtres-entrees { display:flex !important; flex-wrap:wrap; align-items:center; justify-content:center; gap:.5rem; margin-top:.35rem; }
 .filtre-entree { display:inline-flex; align-items:center; justify-content:center; gap:.375rem;
   flex:0 0 auto; box-sizing:border-box; min-height:44px; min-width:calc(7ch + 1.4rem);
   padding:.55rem .85rem; border:1px solid var(--bord-carte); border-radius:.5rem;
@@ -22,11 +22,16 @@
 @media(max-width:768px) {
   /* Seuls Filtres, Contrats et Spécialité restent visibles. Les autres
      critères vivent dans le panneau. */
-  .filtres-entrees { gap:.4rem; }
+  .filtres-entrees { gap:.4rem; margin-top:.2rem; }
   .filtres-entrees .filtre-entree { display:inline-flex; font-size:.8rem; }
   .filtres-entrees .filtre-entree:not(#btn-filtres):not([data-categorie="contract-filter"]):not([data-categorie="specialty-filter"]):not([data-categorie="specialty-filter-link"]) { display:none; }
   #filtres-panneau.ouvert { inset:0; width:100%; height:100dvh; max-height:100dvh; border:0; border-radius:0; }
 }
 @media(min-width:769px) {
   #filtres-panneau.ouvert { inset:0; margin:auto; width:min(680px,92vw); height:min(760px,84dvh); max-height:84dvh; border-radius:1rem; }
+}
+
+/* Un bouton de catégorie ouvre un panneau court : seulement ses valeurs. */
+@media(min-width:769px) {
+  #filtres-panneau.ouvert[data-mode="categorie"] { height:auto; max-height:min(560px,84dvh); }
 }

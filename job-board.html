@@ -107,7 +107,7 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
 /* Le bloc titre + promesse a ete retire : le board ouvre directement sur la
    recherche. Les deux regles qui le stylaient sont parties avec lui. */
 
-.sbar { display: flex; align-items: center; background: var(--surface); border: 1px solid var(--bord-carte); border-radius: .625rem; padding: .3rem; max-width: 50rem; box-shadow: 0 1px 4px rgba(0,0,0,.07); margin-bottom: .5rem; }
+.sbar { display: flex; align-items: center; background: var(--surface); border: 1px solid var(--bord-carte); border-radius: .625rem; padding: .3rem; max-width: 50rem; box-shadow: 0 1px 4px rgba(0,0,0,.07); margin-bottom: 0; }
 .sf { flex: 1; display: flex; align-items: center; padding: 0 1rem; gap: .4rem; }
 .sf input { width: 100%; border: none; outline: none; background: transparent; font-family: inherit; font-size: 0.925rem; color: var(--encre);
            border-radius: 4px; }
@@ -2126,10 +2126,14 @@ function ouvrirFiltres(categorie) {
      dialogue ; la premiere tabulation atteint le premier filtre. */
   panneau.focus();
   document.querySelectorAll('[data-categorie]').forEach(b => b.setAttribute('aria-expanded', 'true'));
-  requestAnimationFrame(() => {
-    const corps = panneau.querySelector('.fp-corps');
-    const groupe = [...panneau.querySelectorAll('.fp-groupe')].find(g => g.dataset.filtre === categorie);
-    if (corps) corps.scrollTop = groupe ? groupe.offsetTop - corps.offsetTop : 0;
+  // « Filtres » ouvre tous les critères. Un bouton de catégorie n'ouvre que
+  // les valeurs de sa catégorie : les autres groupes sont retirés du panneau.
+  const titre = document.getElementById('fp-titre');
+  const bouton_cat = categorie ? document.querySelector('[data-categorie="' + categorie + '"]') : null;
+  panneau.dataset.mode = categorie ? 'categorie' : 'tous';
+  if (titre) titre.textContent = bouton_cat ? bouton_cat.textContent.trim() : 'Filtres';
+  panneau.querySelectorAll('.fp-groupe').forEach(g => {
+    g.hidden = !!categorie && g.dataset.filtre !== categorie;
   });
   document.addEventListener('keydown', surTouchePanneau);
 }

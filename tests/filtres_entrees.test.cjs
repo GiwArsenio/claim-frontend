@@ -16,6 +16,7 @@ const {spawn}=require('node:child_process');
  for(const category of ['contract-filter','specialty-filter','experience-filter','date-filter','ats-filter']){
  if(width===390 && !['contract-filter','specialty-filter'].includes(category)) continue;
  await p.locator(`[data-categorie="${category}"]`).click();
+ assert.equal(await p.locator('.fp-groupe:visible').count(),1,'une catégorie n’ouvre que ses valeurs');
  assert(await p.locator('#filtres-panneau').isVisible());
  await p.waitForTimeout(150);
  const y=await p.locator(`.fp-groupe[data-filtre="${category}"]`).evaluate(e=>e.getBoundingClientRect().top);
