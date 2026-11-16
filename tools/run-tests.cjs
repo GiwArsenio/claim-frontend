@@ -88,8 +88,13 @@ const FAMILLES = {
     'tests/survol-a07.test.cjs',
     'tests/theme.test.cjs',
     'tests/pied_arret_defilement.test.cjs',
-    'tests/plan_premier_paint.test.cjs',
     'tests/board_mobile_lisibilite.test.cjs',
+  ],
+  // Un seul test, un seul moteur : `plan_premier_paint` simule iOS, donc il
+  // lui faut WebKit. L'isoler evite d'installer WebKit dans les cinq jobs qui
+  // n'en ont pas besoin — c'est une minute de telechargement par job.
+  webkit: [
+    'tests/plan_premier_paint.test.cjs',
   ],
   // Parlent à la production. Une régression en ligne doit se voir, mais
   // elle ne doit pas bloquer une fusion : la production peut tomber sans
@@ -119,6 +124,45 @@ const FAMILLES = {
 // il etait tue alors que ses assertions passaient.
 const DELAI_DEFAUT = 720000;
 
+/* Poids approximatifs, en secondes, releves sur une machine locale. Ils ne
+   servent qu'a repartir les fichiers entre les shards de la CI : un poids
+   faux donne un shard desequilibre, jamais un test perdu. Un fichier absent
+   de cette table compte pour POIDS_DEFAUT. */
+const POIDS = {
+  'tests/survol-a07.test.cjs': 140,
+  'tests/affichage-a05.test.cjs': 71,
+  'tests/parcours-p04-p06.test.cjs': 63,
+  'tests/parcours-p01-p03.test.cjs': 56,
+  'tests/captures-a06.test.cjs': 56,
+  'tests/chrome-a08.test.cjs': 54,
+  'tests/board_mobile_lisibilite.test.cjs': 39,
+  'tests/pastille-a07.test.cjs': 26,
+  'tests/accessibilite-a02.test.cjs': 22,
+  'tests/confort-a04.test.cjs': 20,
+  'tests/clarity-consentement.test.cjs': 8,
+  'tests/theme.test.cjs': 6,
+  'tests/pied_arret_defilement.test.cjs': 5,
+  'tests/migration-navigateur.test.cjs': 4,
+  'tests/reseau-local.test.cjs': 3,
+};
+const POIDS_DEFAUT = 15;
+
+/* Repartit une liste en `total` parts de poids voisin. Les fichiers les plus
+   lourds passent d'abord, chacun dans la part la plus legere du moment : le
+   desequilibre ne peut pas depasser la duree d'un seul fichier. */
+function repartir(liste, numero, total) {
+  const parts = Array.from({ length: total }, (_, i) => ({ id: i + 1, poids: 0, fichiers: [] }));
+  const tries = [...liste].sort(
+    (a, b) => (POIDS[b.chemin] || POIDS_DEFAUT) - (POIDS[a.chemin] || POIDS_DEFAUT),
+  );
+  for (const f of tries) {
+    const cible = parts.reduce((a, b) => (b.poids < a.poids ? b : a));
+    cible.fichiers.push(f);
+    cible.poids += POIDS[f.chemin] || POIDS_DEFAUT;
+  }
+  return parts.find((p) => p.id === numero).fichiers;
+}
+
 const args = process.argv.slice(2);
 const option = (nom) => args.includes(nom);
 const valeur = (nom, defaut) => {
@@ -132,6 +176,24 @@ const LIVE = option('--live');
 const FAMILLE = valeur('famille', null);
 const FICHIER = valeur('fichier', null);
 const DELAI = Number(valeur('delai', DELAI_DEFAUT));
+/* --shard=2/4 : deuxieme quart de la selection. Le decoupage se fait par
+   poids, pas par ordre alphabetique — sinon un shard heritait des cinq
+   fichiers les plus lents. */
+const SHARD = (() => {
+  const brut = valeur('shard', null);
+  if (!brut) return null;
+  const m = /^(\d+)\/(\d+)$/.exec(brut);
+  if (!m) {
+    console.error(`✘ --shard attend « numero/total », recu : ${brut}`);
+    process.exit(1);
+  }
+  const [numero, total] = [Number(m[1]), Number(m[2])];
+  if (numero < 1 || total < 1 || numero > total) {
+    console.error(`✘ --shard=${brut} : numero hors bornes (1..${total})`);
+    process.exit(1);
+  }
+  return { numero, total };
+})();
 
 // ── Découverte ───────────────────────────────────────────────────────────
 
@@ -183,6 +245,20 @@ if (FICHIER) {
   // la suite rouge sans qu'aucun code ne soit en cause.
   aExecuter = fichiers.filter((f) => f.famille !== 'production' && f.famille !== 'visuel');
   if (LIVE) aExecuter = fichiers;
+}
+
+if (SHARD) {
+  aExecuter = repartir(aExecuter, SHARD.numero, SHARD.total);
+  if (aExecuter.length === 0) {
+    console.log(`Shard ${SHARD.numero}/${SHARD.total} : aucun fichier a executer.`);
+    process.exit(0);
+  }
+}
+
+if (LISTE && SHARD) {
+  console.log(`Shard ${SHARD.numero}/${SHARD.total} — ${aExecuter.length} fichier(s) :\n`);
+  for (const f of aExecuter) console.log(`  ${f.chemin}`);
+  process.exit(0);
 }
 
 if (LISTE) {
