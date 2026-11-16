@@ -745,7 +745,10 @@ html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1)
   .rangee-filtres {
     display: flex;
     align-items: center;
-    justify-content: center;
+    /* Ancre a gauche : quand le panneau s'ouvre, les deux filtres le
+       rejoignent et le bouton restait seul — centre, il sautait au milieu de
+       la ligne. Aligne a gauche, il ne bouge plus d'un pixel. */
+    justify-content: flex-start;
     gap: .4rem;
   }
   /* Les trois boites partagent la meme echelle : c'est ce qui les fait tenir
@@ -756,7 +759,11 @@ html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1)
     align-items: center;
     margin: 0;
     padding: 0 .6rem;
-    min-height: 44px;
+    /* 35 px : vingt pour cent sous les 44 px d'avant, comme demande. La
+       hauteur est FIXE et non minimale, sinon la boite reprendrait la
+       hauteur de son contenu et la reduction ne se verrait pas. */
+    height: 35px;
+    min-height: 35px;
     gap: .3rem;
     font: inherit;
     font-size: .8rem;
@@ -785,7 +792,8 @@ html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1)
      celui du bureau : a trois boites, la taille d'origine depassait la
      largeur d'un telephone de 390 px. */
   .chips:not(.ouvert) > .chip {
-    min-height: 44px;
+    height: 35px;
+    min-height: 35px;
     font-size: .8rem;
     padding-left: .55rem;
     padding-right: 1.5rem;
@@ -815,7 +823,13 @@ html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1)
      le script l'y deplace pour de bon — un seul champ, jamais deux. */
   body.barre-collee .sbar .loc-field { display: none; }
   body.barre-collee .btn-srch { display: none; }
-  body.barre-collee .btn-filtres { margin: 0; flex: 0 0 auto; padding: .45rem .8rem; }
+  /* Resserre, le bouton n'est plus une pastille de la rangee : il epouse la
+     hauteur de la barre de recherche a cote de laquelle il se tient. Le
+     bouton est desormais dans la rangee, pas directement dans le bandeau :
+     c'est donc elle qu'il faut etirer. */
+  body.barre-collee .rangee-filtres { align-items: stretch; }
+  body.barre-collee .btn-filtres { margin: 0; flex: 0 0 auto; padding: .45rem .8rem;
+    height: auto; min-height: 44px; }
   body.barre-collee .chips:not(.ouvert) { display: none; }
   /* Le panneau ouvert garde la priorite sur la regle ci-dessus. */
   body.barre-collee .chips.ouvert { display: flex; }
@@ -830,6 +844,9 @@ html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1)
      candidat pouvait croire qu'il n'existait que deux filtres. Le bouton
      annonce combien sont actifs, le panneau les montre tous. */
   .btn-filtres[aria-expanded="true"] { border-color: var(--teal); background: var(--teal-clair); }
+  /* Le panneau recoit le focus a l'ouverture : il ne doit pas s'entourer
+     pour autant, il n'est pas une commande. */
+  .chips:focus, .chips:focus-visible { outline: none; }
 
   /* Ferme, le panneau sort de l'ordre de tabulation : un select en
      display:none n'est jamais atteint par Tab. Ouvert, il reprend tout. */
@@ -1405,7 +1422,10 @@ a.ctitle:focus-visible, button.ctitle:focus-visible { outline: 2px solid var(--t
         Filtres
         <span class="badge-filtres" id="badge-filtres" hidden aria-hidden="true">0</span>
       </button>
-      <div class="chips" id="filtres-panneau" role="group" aria-label="Filtres de recherche">
+      <!-- tabindex="-1" : le panneau peut recevoir le focus sans entrer dans
+           l'ordre de tabulation. C'est lui qui s'annonce a l'ouverture, pas
+           son premier champ. -->
+      <div class="chips" id="filtres-panneau" role="group" aria-label="Filtres de recherche" tabindex="-1">
       <div class="fp-tete">
         <h2 id="fp-titre">Recherche et filtres</h2>
         <button class="fp-fermer" type="button" onclick="fermerFiltres(true)"
@@ -1933,8 +1953,11 @@ function ouvrirFiltres() {
   // lieu d'etre tant qu'il est ouvert.
   ajusterLargeurFiltres();
 
-  const premier = document.getElementById(IDS_FILTRES[0]) || elementsFocusables(panneau)[0];
-  if (premier) premier.focus();
+  /* Le focus va au panneau, pas a son premier champ. Le poser sur « Type de
+     contrat » allumait son contour : on croyait le filtre deja choisi, alors
+     que rien n'etait selectionne. Le focus sur le panneau annonce la boite de
+     dialogue ; la premiere tabulation atteint le premier filtre. */
+  panneau.focus();
   document.addEventListener('keydown', surTouchePanneau);
 }
 

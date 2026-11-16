@@ -256,7 +256,21 @@ test('M02 — le panneau montre tous les filtres, sans en appliquer aucun avant 
       assert.ok(ouvert.tousVisibles, 'un filtre reste masqué dans le panneau');
       assert.ok(ouvert.tousDansEcran, 'un filtre sort de l\'écran');
       assert.ok(ouvert.tousTactiles, 'un filtre est plus court que 44 px');
-      assert.equal(ouvert.focus, 'contract-filter', 'le focus n\'entre pas dans le panneau');
+      /* Le focus va au panneau, PAS a son premier champ : le poser sur
+         « Type de contrat » allumait son contour et laissait croire que ce
+         filtre etait deja choisi. */
+      assert.equal(ouvert.focus, 'filtres-panneau', 'le focus n\'entre pas dans le panneau');
+      const rienChoisi = await page.evaluate(() => {
+        const c = document.querySelector('#contract-filter');
+        return {
+          valeur: c.value,
+          enAvant: c === document.activeElement,
+          contour: getComputedStyle(c).outlineStyle,
+        };
+      });
+      assert.equal(rienChoisi.valeur, '', 'un filtre est présélectionné à l\'ouverture');
+      assert.equal(rienChoisi.enAvant, false, 'le premier filtre prend le focus à l\'ouverture');
+      assert.equal(rienChoisi.contour, 'none', 'le premier filtre s\'entoure comme s\'il était choisi');
       assert.equal(ouvert.listeFigee, 'hidden', 'la liste continue de défiler derrière le panneau');
 
       /* Un choix dans le panneau ne déclenche AUCUNE requête : la liste ne
@@ -499,11 +513,14 @@ test('M03 — le bloc titre a disparu, la barre complète reste', async () => {
         return {
           memeLigne: Math.abs(b.top - c.top) <= 4 && Math.abs(c.top - sp.top) <= 4,
           memeHauteur: Math.abs(b.height - c.height) <= 4,
+          hauteur: b.height,
           dansEcran: sp.right <= window.innerWidth + 1 && b.left >= -1,
         };
       });
       assert.ok(rangee.memeLigne, 'le bouton Filtres et les deux filtres ne sont pas sur la même ligne');
       assert.ok(rangee.memeHauteur, 'les trois boîtes n\'ont pas la même hauteur');
+      assert.ok(Math.abs(rangee.hauteur - 35) <= 1,
+        `la rangée mesure ${rangee.hauteur} px au lieu de 35 (44 px moins 20 %)`);
       assert.ok(rangee.dansEcran, 'la rangée sort de l\'écran');
 
       /* La largeur suit le texte AFFICHÉ, pas l'option la plus longue :

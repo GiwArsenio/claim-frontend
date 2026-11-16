@@ -143,8 +143,11 @@
 
   .chips { display: flex; gap: .5rem; overflow-x: auto; padding-bottom: .15rem; }
   .chips::-webkit-scrollbar { display: none; }
-  .chip { display: flex; align-items: center; gap: .3rem; padding: .38rem .85rem;
-          border-radius: .375rem; background: var(--surface); color: var(--gris); font-size: .925rem;
+  /* Meme hauteur et meme taille de texte que la rangee de filtres du board :
+     35 px. Demande explicite : les filtres de l'accueil doivent avoir la
+     dimension de ceux du board, pas une echelle a eux. */
+  .chip { display: flex; align-items: center; gap: .3rem; padding: 0 .85rem; height: 35px;
+          border-radius: .375rem; background: var(--surface); color: var(--gris); font-size: .8rem;
           font-weight: 500; border: 1px solid var(--bord-carte); cursor: pointer;
           white-space: nowrap; flex-shrink: 0; transition: background .15s; font-family: inherit; }
   /* Le survol d'un filtre doit se VOIR. Le fond de survol est un jeton
