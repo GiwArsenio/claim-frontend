@@ -134,8 +134,10 @@ test('M12 — « Filtres » ouvre le board, panneau déjà ouvert', async () => 
           chemin: location.pathname,
           ancre: location.hash,
           ouvert: panneau ? panneau.classList.contains('ouvert') : false,
+          /* Le board a remplace ses <select> par des filtres a choix
+             multiple (.msel) : on compte les filtres, pas la balise. */
           champs: panneau
-            ? [...panneau.querySelectorAll('select')].filter((s) => s.getClientRects().length > 0).length
+            ? [...panneau.querySelectorAll('.msel, select')].filter((s) => s.getClientRects().length > 0).length
             : 0,
         };
       });
