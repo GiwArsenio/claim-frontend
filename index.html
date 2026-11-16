@@ -534,6 +534,43 @@ html[data-theme="nuit"] select.chip {
   }
 
 
+
+  /* ── La carte de France ──────────────────────────────────────────────────
+     Une carte, pas une illustration : les points sont places aux coordonnees
+     reelles des villes, et leur taille suit le nombre d'offres. */
+  .france { background: var(--surface); border-bottom: 1px solid var(--bord);
+            padding: 2.1rem 0 2.3rem; }
+  .france .tete { margin-bottom: 1.1rem; }
+  .fr-corps { display: grid; grid-template-columns: minmax(0, 290px) minmax(0, 1fr);
+              gap: clamp(1.4rem, 4vw, 3.2rem); align-items: center; }
+  .fr-carte { margin: 0; display: flex; justify-content: center; }
+  .fr-carte svg { display: block; width: 100%; max-width: 290px; height: auto; }
+  .fr-contour { fill: var(--champ); stroke: var(--bord); stroke-width: 1;
+                stroke-linejoin: round; }
+  .fr-halo { fill: var(--teal); opacity: .13; }
+  .fr-point { fill: var(--teal); stroke: var(--surface); stroke-width: 1.4; }
+  .fr-etiquette { font-size: 8.5px; font-weight: 700; fill: var(--gris);
+                  letter-spacing: .01em; }
+  /* Deux colonnes : huit poles tiennent en quatre lignes, la ou quatre
+     colonnes laissaient un orphelin sur une seconde rangee. */
+  .fr-liste { list-style: none; margin: 0; padding: 0;
+              display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+              gap: 0 2rem; max-width: 560px; }
+  .fr-liste li { display: flex; align-items: baseline; justify-content: space-between;
+                 gap: .8rem; padding: .44rem 0; border-top: 1px solid var(--bord-doux);
+                 font-size: .88rem; }
+  .fr-liste li:first-child { border-top: 0; }
+  .fr-liste .fr-nom { color: var(--encre); font-weight: 600; }
+  .fr-liste .fr-n { color: var(--gris); font-weight: 800; font-variant-numeric: tabular-nums; }
+  .fr-liste li:first-child .fr-n { color: var(--teal); }
+  @media (max-width: 768px) {
+    .fr-corps { grid-template-columns: 1fr; gap: 1.1rem; }
+    .fr-carte svg { max-width: 250px; }
+    /* Une seule colonne : en deux colonnes, « Paris et proche couronne »
+       passait sur deux lignes et cassait le rythme de la liste. */
+    .fr-liste { grid-template-columns: 1fr; gap: 0; max-width: none; }
+    .fr-liste li { font-size: .84rem; }
+  }
 </style>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-SKQQXZW4LH"></script>
@@ -997,6 +1034,30 @@ html[data-theme="nuit"] body {
   </div>
 </div>
 
+
+<!-- Ou sont les offres. Les totaux sont demandes a l'API ville par ville ;
+     la section reste cachee si elle ne repond pas. Aucune position n'est
+     inventee : les points sont aux coordonnees des villes. -->
+<section class="france" id="carte-france" aria-labelledby="titre-france" hidden>
+  <div class="env">
+    <div class="tete">
+      <div>
+        <h2 id="titre-france">Partout en France</h2>
+        <p>Les pôles où nous relevons le plus d'offres, et le poids de chacun.</p>
+      </div>
+    </div>
+    <div class="fr-corps">
+      <figure class="fr-carte">
+        <svg viewBox="0 0 305 300" role="img" aria-labelledby="fr-desc">
+          <title id="fr-desc">Répartition des offres par ville, en France</title>
+          <path class="fr-contour" d="M302.8 256.1 L302.3 260.7 L303.8 263.9 L304.3 277.0 L301.1 283.3 L300.6 290.9 L296.6 300.0 L288.5 293.7 L290.2 290.2 L286.6 288.4 L287.1 283.3 L284.6 283.1 L286.3 278.0 L283.9 276.0 L283.4 274.2 L285.7 272.2 L283.4 270.0 L288.7 262.2 L295.6 258.4 L299.3 259.0 L300.3 249.6 L302.5 250.7 L302.8 256.1 ZM263.2 108.2 L257.4 113.2 L254.4 113.2 L253.0 111.4 L249.4 112.6 L248.0 114.4 L250.1 116.6 L243.0 125.7 L238.5 128.2 L237.6 134.1 L232.3 138.6 L230.3 143.3 L231.5 145.7 L230.9 148.8 L228.2 150.8 L229.0 153.0 L233.1 151.5 L234.6 149.7 L233.8 147.2 L238.0 144.1 L245.3 144.9 L246.2 148.9 L245.3 152.3 L250.5 159.7 L245.9 163.2 L245.7 165.4 L253.4 175.9 L251.8 180.9 L246.7 184.1 L243.6 183.9 L242.2 184.7 L242.3 186.2 L244.5 190.8 L249.9 193.7 L250.8 197.1 L246.8 203.4 L248.0 208.9 L256.9 215.0 L263.6 214.1 L264.5 216.7 L260.4 223.4 L260.6 226.4 L254.0 229.8 L244.1 238.6 L241.0 244.0 L231.3 247.9 L224.8 247.1 L216.2 243.1 L214.4 239.5 L209.1 238.8 L208.8 236.4 L201.5 238.6 L191.1 235.3 L187.4 231.8 L184.4 232.7 L170.6 244.1 L166.2 252.7 L167.0 262.7 L169.5 267.7 L162.7 266.9 L158.7 268.4 L157.6 270.5 L148.0 268.0 L144.5 270.1 L137.5 265.5 L137.6 262.3 L133.2 261.1 L131.6 262.6 L130.0 259.7 L117.5 255.1 L115.5 255.2 L114.7 259.7 L100.4 259.7 L94.9 255.5 L88.8 256.3 L85.0 252.0 L76.3 249.5 L73.6 247.0 L72.1 249.0 L70.2 248.5 L71.3 242.7 L64.8 240.6 L63.1 237.5 L66.6 236.6 L69.7 232.7 L74.8 201.9 L76.4 198.8 L78.4 197.9 L76.7 195.6 L74.8 198.6 L76.0 183.3 L78.3 171.9 L83.7 176.6 L86.6 185.4 L89.6 188.3 L87.6 185.5 L84.4 173.9 L75.8 166.3 L75.5 164.5 L79.3 165.4 L76.9 147.8 L71.7 146.6 L63.3 141.5 L57.5 132.4 L56.8 129.0 L58.3 125.4 L54.5 121.5 L56.4 118.4 L58.2 118.1 L64.2 119.9 L59.3 117.0 L48.0 116.9 L47.5 114.8 L49.6 112.0 L47.0 110.3 L42.4 110.7 L43.2 108.0 L42.0 107.2 L38.2 108.0 L34.1 105.1 L28.0 104.6 L18.3 100.7 L9.6 101.1 L7.1 96.6 L1.8 94.4 L9.2 90.4 L3.9 86.7 L11.1 86.3 L7.9 84.3 L0.9 84.4 L0.0 81.8 L0.9 79.0 L4.9 76.5 L22.3 73.7 L27.5 70.6 L32.6 69.7 L37.4 71.2 L44.0 79.1 L49.3 75.6 L57.0 75.7 L58.7 77.7 L60.7 74.1 L62.5 76.2 L72.0 75.5 L68.0 70.8 L67.6 58.5 L62.7 49.6 L61.8 43.7 L74.5 43.8 L75.1 49.5 L77.1 52.8 L97.8 55.6 L110.1 50.9 L104.0 49.1 L105.2 43.1 L114.4 38.1 L127.7 33.9 L135.1 26.1 L134.3 24.8 L134.8 11.1 L136.8 6.6 L141.9 3.3 L154.9 0.0 L156.5 6.8 L159.9 10.7 L161.6 11.9 L167.3 9.8 L170.0 13.4 L170.9 17.5 L177.7 19.1 L179.7 24.4 L185.2 23.5 L190.0 26.3 L189.2 29.4 L190.4 31.0 L189.2 33.9 L190.1 35.1 L197.9 35.1 L203.7 29.2 L204.6 29.7 L203.1 35.1 L204.8 40.4 L213.5 43.8 L218.4 49.0 L224.4 48.2 L229.1 51.0 L234.0 49.5 L240.2 52.6 L244.5 59.8 L247.8 58.4 L250.1 59.2 L250.9 61.3 L259.7 60.1 L263.1 62.9 L274.2 65.6 L274.3 68.3 L267.9 76.0 L263.2 90.8 L261.4 105.7 L263.2 108.2 ZM76.2 160.4 L75.5 163.1 L71.7 155.9 L76.2 160.4 Z"/>
+          <g id="fr-points"></g>
+        </svg>
+      </figure>
+      <ul class="fr-liste" id="fr-liste"></ul>
+    </div>
+  </div>
+</section>
 <section class="champ" id="dernieres-offres">
   <div class="env">
     <div class="tete">
@@ -1470,8 +1531,96 @@ function dessinerEmployeurs() {
   piste.style.setProperty('--duree', Math.max(18, Math.round(largeurMoitie / 42)) + 's');
 }
 
+
+/* ── La carte de France ─────────────────────────────────────────────────────
+   Combien d'offres, et où. Un total par ville, demandé à l'API : la requête
+   ne ramène qu'une offre, on ne lit que `pagination.total`. Treize requêtes
+   de 8 Ko, en parallèle, et le résultat est gardé dix minutes.
+
+   Paris est additionné à sa proche couronne. À l'échelle de cette carte,
+   Puteaux et Nanterre tombent à deux pixels de Paris : quatre points
+   confondus ne diraient rien. Le regroupement est un choix, il est écrit ici
+   et il est dit dans le libellé — jamais dans le nombre. */
+const VILLES_CARTE = [
+  { nom: 'Paris', libelle: 'Paris et proche couronne', x: 151.3, y: 69.2,
+    villes: ['Paris', 'Puteaux', 'Nanterre', 'Bois-Colombes', 'Saint-Ouen', 'Courbevoie'] },
+  { nom: 'Lyon', x: 204.1, y: 164.7 },
+  { nom: 'Marseille', x: 215.4, y: 241.0 },
+  { nom: 'Bordeaux', x: 88.9, y: 193.3 },
+  { nom: 'Nantes', x: 68.2, y: 119.8 },
+  { nom: 'Grenoble', x: 223.0, y: 182.5 },
+  { nom: 'Schiltigheim', x: 266.0, y: 77.0 },
+  { nom: 'Niort', x: 91.5, y: 147.4 },
+];
+
+const CLE_FRANCE = 'claim-france-v1';
+const VIE_FRANCE = 10 * 60 * 1000;
+
+/** Le nombre d'offres d'une ville. Une offre suffit : on lit le total. */
+async function compteVille(nom) {
+  const r = await fetch(`${API_BASE}/jobs?per_page=1&city=${encodeURIComponent(nom)}`);
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  const d = await r.json();
+  return (d.pagination && d.pagination.total) || 0;
+}
+
+async function dessinerFrance() {
+  const section = document.getElementById('carte-france');
+  if (!section) return;
+
+  let villes = null;
+  try {
+    const cache = JSON.parse(sessionStorage.getItem(CLE_FRANCE) || 'null');
+    if (cache && Date.now() - cache.quand < VIE_FRANCE) villes = cache.villes;
+  } catch (e) { /* cache illisible : on redemande */ }
+
+  if (!villes) {
+    try {
+      villes = await Promise.all(VILLES_CARTE.map(async (v) => {
+        const noms = v.villes || [v.nom];
+        const totaux = await Promise.all(noms.map(compteVille));
+        return Object.assign({}, v, { n: totaux.reduce((a, b) => a + b, 0) });
+      }));
+      sessionStorage.setItem(CLE_FRANCE, JSON.stringify({ quand: Date.now(), villes }));
+    } catch (e) {
+      /* L'API ne répond pas : pas de carte, et pas de trou non plus. */
+      return;
+    }
+  }
+
+  const actives = villes.filter((v) => v.n > 0).sort((a, b) => b.n - a.n);
+  if (actives.length < 3) return;
+
+  const max = actives[0].n;
+  const points = document.getElementById('fr-points');
+  points.innerHTML = actives.map((v) => {
+    const r = Math.min(15, 3 + 5.2 * Math.log10(1 + v.n));
+    const halo = v.n === max
+      ? `<circle class="fr-halo" cx="${v.x}" cy="${v.y}" r="${(r * 2.1).toFixed(1)}"></circle>`
+      : '';
+    const pluriel = v.n > 1 ? 's' : '';
+    return `${halo}<circle class="fr-point" cx="${v.x}" cy="${v.y}" r="${r.toFixed(1)}">`
+      + `<title>${v.libelle || v.nom} : ${v.n} offre${pluriel}</title></circle>`;
+  }).join('');
+
+  /* Les trois premiers portent leur nom sur la carte : au-delà, les
+     étiquettes se chevauchent et la carte devient un brouillamini. */
+  const decalage = { Paris: [13, 3.5], Lyon: [12, 3.5], Marseille: [12, 4.5] };
+  points.insertAdjacentHTML('beforeend', actives.slice(0, 3).map((v) => {
+    const [dx, dy] = decalage[v.nom] || [12, 3.5];
+    return `<text class="fr-etiquette" x="${(v.x + dx).toFixed(1)}" y="${(v.y + dy).toFixed(1)}">${v.nom}</text>`;
+  }).join(''));
+
+  document.getElementById('fr-liste').innerHTML = actives.map((v, i) => `
+    <li><span class="fr-nom">${v.libelle || v.nom}</span><span class="fr-n">${v.n}</span>
+    </li>`).join('');
+
+  section.hidden = false;
+}
+
 dessinerEmployeurs();
 chargerOffres();
+dessinerFrance();
 chargerChiffres();
 </script>
 <!-- ══ TIROIR DU MENU (téléphone) ══ -->
