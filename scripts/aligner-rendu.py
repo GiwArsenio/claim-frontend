@@ -94,6 +94,8 @@ ENTETE = """// src/pages/_offre-rendu.js — Construction du HTML d'une fiche d'
 //     process.env ;
 //   - l'annuaire des entreprises est importe en ESM (il est CommonJS
 //     pour rester partage avec le job board) ;
+//   - la casse de titre aussi : une seule regle pour le board, la fiche
+//     et le rendu Worker ;
 //   - `construire` est exporte : c'est src/pages/offre.js qui l'appelle.
 //
 // Toute evolution de api/offre.js doit etre reportee ici. Le script
@@ -119,6 +121,7 @@ export function configurerUrls(apiBase, siteUrl) {
 // n'y a pas de copie — une copie divergerait en silence, comme l'a fait
 // celle qui precedait ce portage.
 import ANNUAIRE_CJS from '../../assets/companies-data.js';
+import casseTitre from '../../assets/casse-titre.js';
 import { construireCorps, texteOriginal } from './_offre-normalise.js';
 import { SKILLS_FAMILIES } from './_competences-familles.js';
 const ANNUAIRE = ANNUAIRE_CJS;

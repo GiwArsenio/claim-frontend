@@ -23,6 +23,10 @@ try {
   console.error('[offre] annuaire des entreprises indisponible :', erreur.message);
 }
 
+// La casse de titre : une seule regle, partagee avec le board et le Worker.
+// Ce fichier fait partie du depot : pas de repli, il est toujours la.
+const casseTitre = require('../assets/casse-titre.js');
+
 const LABELS_CONTRAT = {
   cdi: 'CDI', cdd: 'CDD', alternance: 'Alternance', stage: 'Stage',
   freelance: 'Freelance', interim: 'Intérim', vie: 'V.I.E', autre: 'Non précisé',
@@ -133,10 +137,16 @@ async function construire(job, urlCanonique) {
   // l'annonce est vide, la page serait publiée sans aucune meta description :
   // invisible dans les résultats de Google, sans que rien ne se plaigne.
   // Le titre sert de repli — il existe toujours.
-  const resume = (premierParagraphe || job.title || '').slice(0, 155).trim();
+  /* Le titre affiché passe par la casse de titre : la fiche, la balise
+     <title>, l'og:title et les donnees structurees doivent dire la MEME
+     chose. Une page dont l'onglet affiche « D'ETUDES » et le corps
+     « d'Etudes » se lit comme deux documents differents. */
+  const titreAffiche = casseTitre(job.title || '');
+
+  const resume = (premierParagraphe || titreAffiche || '').slice(0, 155).trim();
   const titrePage = ville
-    ? `${job.title} — ${nomSociete} (${ville}) | Claim!`
-    : `${job.title} — ${nomSociete} | Claim!`;
+    ? `${titreAffiche} — ${nomSociete} (${ville}) | Claim!`
+    : `${titreAffiche} — ${nomSociete} | Claim!`;
 
   const pastilles = [`<span class="pastille pastille-ville">${echapper(ville || 'Lieu non précisé')}</span>`];
   if (contrat) pastilles.push(`<span class="pastille">${echapper(LABELS_CONTRAT[contrat] || contrat)}</span>`);
@@ -176,8 +186,8 @@ async function construire(job, urlCanonique) {
   const offre = {
     '@context': 'https://schema.org/',
     '@type': 'JobPosting',
-    title: job.title,
-    description: corps || `<p>${echapper(job.title)}</p>`,
+    title: titreAffiche,
+    description: corps || `<p>${echapper(titreAffiche)}</p>`,
     hiringOrganization: {
       '@type': 'Organization',
       name: nomSociete,
@@ -273,7 +283,7 @@ en documentation).
   const mesure = {
     items: [{
       item_id:   String(job.id == null ? '' : job.id),
-      item_name: job.title || '',
+      item_name: titreAffiche,
     }],
     company_name:     nomSociete,
     // Même règle que les pastilles : une valeur non publiable n'est jamais
@@ -321,7 +331,7 @@ ${resume ? `<meta name="description" content="${echapper(resume)}">` : ''}
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap">
 <style>.ms{font-family:'Material Symbols Outlined';font-weight:normal;font-style:normal;line-height:1;letter-spacing:normal;text-transform:none;display:inline-block;white-space:nowrap;font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;vertical-align:middle;}</style>
 <meta property="og:type" content="article">
-<meta property="og:title" content="${echapper(job.title + ' — ' + nomSociete)}">
+<meta property="og:title" content="${echapper(titreAffiche + ' — ' + nomSociete)}">
 <meta property="og:url" content="${echapper(urlCanonique)}">
 ${resume ? `<meta property="og:description" content="${echapper(resume)}">` : ''}
 ${societe.logo_url
@@ -541,7 +551,7 @@ ${BLOC_CONSENTEMENT}
 <div class="page">
 <main class="enveloppe">
   <a class="retour" id="retour-offre" href="/job-board.html">← Toutes les offres</a>
-  <h1>${echapper(job.title)}</h1>
+  <h1>${echapper(titreAffiche)}</h1>
   <div class="societe">${tuileSociete}<span>${echapper(nomSociete)}${ville ? ' · ' + echapper(ville) : ''}</span></div>
   <div class="pastilles">${pastilles.join('')}</div>
   ${corps || '<p>Description non disponible.</p>'}
