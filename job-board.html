@@ -188,6 +188,12 @@ select.chip, .msel.chip { min-width: calc(7ch + 3.2rem); }
    rien n'est jamais masque. */
 #filtres-panneau .msel-panneau { position: static; width: 100%; margin-top: .4rem;
   max-height: none; box-shadow: none; border-radius: .375rem; }
+/* La pastille est un .chip, donc un conteneur FLEX : la liste se posait a
+   cote du libelle, qui restait centre dans un grand vide. Dans le panneau,
+   le composant s'empile — libelle au-dessus, liste en dessous, pleine
+   largeur. */
+#filtres-panneau.ouvert .msel { display: block; }
+#filtres-panneau.ouvert .msel-btn { width: 100%; justify-content: space-between; }
 .msel-opt { display: flex; align-items: center; gap: .5rem; padding: .4rem .5rem;
   border-radius: .3rem; font-size: .9rem; white-space: nowrap; cursor: pointer; }
 .msel-opt:hover { background: var(--surface-survol); }
@@ -846,7 +852,10 @@ html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1)
   .chips:not(.ouvert) > select.chip,
   .chips:not(.ouvert) > .msel.chip { width: var(--largeur-texte, auto); }
   .chips:not(.ouvert) > .msel:not([data-filtre="contract-filter"]):not([data-filtre="specialty-filter"]),
-  .chips:not(.ouvert) > .chip:not(#contract-filter):not(#specialty-filter),
+  /* Le masquage vise les <select> : les listes a cases portent leur id
+     sur le champ cache, pas sur la pastille. Elles etaient donc
+     masquees, et la rangee ne montrait plus que « Filtres ». */
+  .chips:not(.ouvert) > select.chip:not(#contract-filter):not(#specialty-filter),
   .chips:not(.ouvert) > button.chip,
   .chips:not(.ouvert) > .fp-tete,
   .chips:not(.ouvert) > .fp-actions { display: none; }
