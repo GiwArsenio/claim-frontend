@@ -46,6 +46,26 @@ const CAS = [
     'IFRS reste un sigle, 17 reste un nombre',
   ],
   [
+    'STAGIAIRE',
+    'Stagiaire',
+    'un titre d\'un seul mot, tout en capitales, redescend — le cas Generali',
+  ],
+  [
+    'ACTUAIRE ALM ET MODELISATION',
+    'Actuaire ALM et Modelisation',
+    'un titre crié entier redescend, mais ALM reste un sigle',
+  ],
+  [
+    'DATA SCIENTIST',
+    'Data Scientist',
+    'deux mots en capitales suffisent à reconnaître un titre crié',
+  ],
+  [
+    'ASSISTANT(E)',
+    'Assistant(e)',
+    'les parenthèses collées ne cassent rien',
+  ],
+  [
     'Actuaire confirmé (H/F) — risques Non-Vie',
     'Actuaire Confirmé (H/F) — Risques Non-Vie',
     'un composé « Non-Vie » garde ses deux majuscules',

@@ -32,6 +32,11 @@
     'dans', 'avec', 'chez', 'sans', 'vers', 'd', 'y',
   ]);
 
+  /* Sigles du metier, preserves meme dans un titre crie. Sans cette liste,
+     « ACTUAIRE ALM » devenait « Actuaire Alm » : la regle qui redescend les
+     titres cries ne sait pas distinguer un sigle d'un mot crie. */
+  const SIGLES = new Set(['alm', 'ifrs', 'scr', 'orsa', 'ats', 'cdi', 'cdd', 'vie', 'rh', 'ia', 'bi', 'es', 'rgpd', 'cnil']);
+
   /* Unités qui suivent un nombre : « 3 mois », « 6 ans ». */
   const UNITES = new Set([
     'mois', 'an', 'ans', 'jour', 'jours', 'semaine', 'semaines', 'heure', 'heures',
@@ -78,7 +83,7 @@
      « DATA » et « MOIS ». */
   function hurle(texte) {
     const mots = texte.split(/\s+/).filter((m) => /\p{L}{2,}/u.test(m));
-    if (mots.length < 3) return false;
+    if (mots.length < 2) return false;
     const criards = mots.filter((m) => m === m.toLocaleUpperCase('fr') && /\p{L}/u.test(m));
     return criards.length / mots.length >= 0.7;
   }
@@ -116,8 +121,17 @@
           transforme = casseComposee(coeur, titreCrie);       // H/F, d'Actifs
         } else if (!titreCrie && estSigle(coeur)) {
           transforme = coeur;                                 // ALM, IFRS
+        } else if (SIGLES.has(bas) && coeur === coeur.toLocaleUpperCase('fr')) {
+          // Deja en capitales dans la source : c'est ALM, pas « alm ».
+          // « vie » ecrit en minuscules reste le mot vie, pas le contrat V.I.E.
+          transforme = coeur.toLocaleUpperCase('fr');
         } else {
-          transforme = majusculeInitiale(titreCrie ? bas : coeur);
+          /* Un mot seul tout en capitales est un titre crie comme un autre :
+             « STAGIAIRE » doit redescendre. On ne le reconnait qu'a sa
+             longueur — un sigle fait quatre lettres au plus, et il est deja
+             sorti par la branche precedente. */
+          const crie = coeur === coeur.toLocaleUpperCase('fr') && /\p{L}{2,}/u.test(coeur);
+          transforme = majusculeInitiale(titreCrie || crie ? bas : coeur);
         }
         precedeNombre = estNombre;
       }

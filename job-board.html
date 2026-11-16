@@ -745,10 +745,10 @@ html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1)
   .rangee-filtres {
     display: flex;
     align-items: center;
-    /* Ancre a gauche : quand le panneau s'ouvre, les deux filtres le
-       rejoignent et le bouton restait seul — centre, il sautait au milieu de
-       la ligne. Aligne a gauche, il ne bouge plus d'un pixel. */
-    justify-content: flex-start;
+    /* Centree sous la barre, comme demande. Le saut a l'ouverture est traite
+       plus bas : la rangee s'efface pendant que le panneau est ouvert, donc
+       le bouton ne se recentre jamais sous les yeux. */
+    justify-content: center;
     gap: .4rem;
   }
   /* Les trois boites partagent la meme echelle : c'est ce qui les fait tenir
@@ -833,6 +833,15 @@ html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1)
   body.barre-collee .chips:not(.ouvert) { display: none; }
   /* Le panneau ouvert garde la priorite sur la regle ci-dessus. */
   body.barre-collee .chips.ouvert { display: flex; }
+
+  /* Pendant que le panneau est ouvert, la rangee s'efface — sans perdre sa
+     place (visibility, pas display) : le contenu ne saute pas, et le bouton
+     ne se retrouve jamais seul et recentre. Le panneau porte de toute facon
+     les memes filtres, ils sont donc accessibles la ou on les manipule. */
+  /* Seul le BOUTON s'efface : `visibility` s'herite, et masquer le
+     conteneur effacait aussi le panneau — il devenait invisible alors qu'il
+     etait ouvert. Le bouton garde sa place, donc rien ne saute. */
+  .rangee-filtres:has(.chips.ouvert) > .btn-filtres { visibility: hidden; }
 
   /* L'en-tete s'efface des qu'on fait defiler les offres : la barre de
      recherche remonte au bord haut de l'ecran et le logo libere la place.
