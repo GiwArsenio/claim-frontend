@@ -1076,6 +1076,8 @@ html[data-theme="nuit"] body {
   </footer>
 
 <script src="/assets/companies-data.js"></script>
+<!-- La casse de titre : meme regle que le board et la fiche. -->
+<script src="/assets/casse-titre.js"></script>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -1105,6 +1107,11 @@ const API_BASE = (typeof CLAIM_API_BASE === 'string' && CLAIM_API_BASE)
 const CONTRATS = { cdi: 'CDI', cdd: 'CDD', alternance: 'Alternance', stage: 'Stage',
                    freelance: 'Freelance', interim: 'Intérim', vie: 'V.I.E', autre: 'Non précisé' };
 const annuaire = (typeof CLAIM_ENTREPRISES !== 'undefined') ? CLAIM_ENTREPRISES : null;
+/* La casse de titre vient d'un fichier partage. S'il manquait au
+   deploiement, le titre s'afficherait brut plutot que casse : une regle
+   absente ne doit pas vider la page. */
+const casseTitre = (t) => (typeof enCasseDeTitre === 'function' ? enCasseDeTitre(t) : t);
+
 const echapper = (v) => String(v == null ? '' : v).replace(/[&<>"']/g,
   (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
@@ -1352,7 +1359,7 @@ async function chargerOffres() {
           <div class="ct">
             ${tuileLogo(co)}
             <div class="ci">
-              <div class="ctitle">${echapper(j.title)}</div>
+              <div class="ctitle">${echapper(casseTitre(j.title))}</div>
               <div class="csub">${echapper(co.name || j.source || '')}</div>
             </div>
           </div>
