@@ -2108,6 +2108,7 @@ function ouvrirFiltres(categorie) {
   /* Meme raison a l'ouverture : le panneau montre l'etat applique. */
   rafraichirMultiSelects();
   panneau.hidden = false;
+  afficherCompteurs();
   panneau.classList.add('ouvert');
   panneau.setAttribute('role', 'dialog');
   panneau.setAttribute('aria-modal', 'true');
@@ -2332,6 +2333,50 @@ function majPuces() {
 /* Le pied annonce ce que la liste contiendra. On ne promet un nombre que
    lorsqu'il est connu : le total affiche correspond a l'etat APPLIQUE, pas
    au brouillon en cours de composition. */
+/* Nombre d'offres pour chaque valeur, lu sur l'API (pagination.total).
+   Une seule requête par valeur, en parallèle, mises en cache le temps de
+   la session : ouvrir et refermer le panneau ne refait pas les appels. */
+const cacheCompteurs = new Map();
+const CHAMP_API = {
+  'contract-filter': 'contract',
+  'specialty-filter': 'specialty',
+  'experience-filter': 'experience',
+  'ats-filter': 'ats',
+  'date-filter': 'days',
+};
+async function compterValeur(filtre, valeur) {
+  const cle = filtre + '=' + valeur;
+  if (cacheCompteurs.has(cle)) return cacheCompteurs.get(cle);
+  const params = new URLSearchParams({ per_page: 1, limit: 1, page: 1, order: 'desc' });
+  params.set(CHAMP_API[filtre], valeur);
+  try {
+    const r = await fetch(`${API_BASE}/jobs?${params.toString()}`);
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const d = await r.json();
+    const n = d.pagination?.total ?? 0;
+    cacheCompteurs.set(cle, n);
+    return n;
+  } catch (e) {
+    return null; // Pas de chiffre plutôt qu'un faux chiffre.
+  }
+}
+async function afficherCompteurs() {
+  const jobs = [];
+  document.querySelectorAll('.fp-groupe').forEach((g) => {
+    if (!CHAMP_API[g.dataset.filtre]) return;
+    g.querySelectorAll('.fp-puce').forEach((b) => {
+      const v = b.dataset.valeur;
+      if (!v) return;
+      jobs.push(compterValeur(g.dataset.filtre, v).then((n) => {
+        let c = b.querySelector('.fp-compte');
+        if (!c) { c = document.createElement('span'); c.className = 'fp-compte'; b.appendChild(c); }
+        c.textContent = n === null ? '' : n.toLocaleString('fr-FR');
+      }));
+    });
+  });
+  await Promise.all(jobs);
+}
+
 function majPiedFiltres() {
   const bouton = document.querySelector('.fp-afficher');
   if (!bouton) return;

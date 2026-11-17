@@ -42,3 +42,7 @@
 @media(max-width:768px) {
   #filtres-panneau.ouvert[data-mode="categorie"] { inset:auto 0 0 0; width:100%; height:auto; max-height:min(70dvh, 520px); border-radius:1rem 1rem 0 0; }
 }
+
+/* Compteur d'offres par valeur : discret, après le libellé. */
+.fp-compte { margin-left:.45rem; font-size:.78rem; font-weight:500; opacity:.7; font-variant-numeric:tabular-nums; }
+.fp-puce[aria-pressed="true"] .fp-compte { opacity:.85; }
