@@ -50,5 +50,10 @@
 /* Bureau : la rangée occupe la même largeur que la barre de recherche et
    reste centrée dessous. Sans cela, elle s'étirait sur toute l'enveloppe. */
 @media(min-width:769px) {
-  .filtres-entrees { width:100%; max-width:50rem; margin-left:auto; margin-right:auto; }
+  /* Même largeur que la barre de recherche (50 rem), centrée sur l'accueil
+     comme sur le board. */
+  .filtres-entrees { box-sizing:border-box; width:min(100%, 50rem); max-width:50rem; margin-left:auto; margin-right:auto; }
+  /* Sur l'accueil, la barre est alignée à gauche de l'enveloppe : la rangée
+     la suit, sans marges automatiques qui la décalaient vers le centre. */
+  .hero .filtres-entrees, .env .filtres-entrees { margin-left:0; margin-right:auto; justify-content:flex-start; }
 }
