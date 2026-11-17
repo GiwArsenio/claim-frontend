@@ -924,6 +924,10 @@ html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1)
   body.barre-collee .btn-filtres { margin: 0; flex: 0 0 auto; padding: .45rem .8rem;
     height: auto; min-height: 44px; }
   body.barre-collee .chips:not(.ouvert) { display: none; }
+  /* Barre collée : seuls la recherche et « Filtres » restent. Les entrées
+     Contrats, Spécialité, etc. disparaissent : elles sont dans le panneau. */
+  body.barre-collee .filtres-entrees .filtre-entree:not(#btn-filtres) { display: none; }
+  body.barre-collee .filtres-entrees.zone-ouverte .filtre-entree:not(#btn-filtres) { display: none; }
   /* Le panneau ouvert garde la priorite sur la regle ci-dessus. */
   body.barre-collee .chips.ouvert { display: flex; }
 

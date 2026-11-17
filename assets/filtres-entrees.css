@@ -35,3 +35,10 @@
 @media(min-width:769px) {
   #filtres-panneau.ouvert[data-mode="categorie"] { height:auto; max-height:min(560px,84dvh); }
 }
+
+/* Panneau de catégorie : hauteur du contenu, pas plein écran, quand c'est
+   possible. Sur téléphone, il s'arrête à la hauteur de ses valeurs ; le
+   plein écran reste réservé à « Filtres » (tous les critères). */
+@media(max-width:768px) {
+  #filtres-panneau.ouvert[data-mode="categorie"] { inset:auto 0 0 0; width:100%; height:auto; max-height:min(70dvh, 520px); border-radius:1rem 1rem 0 0; }
+}
