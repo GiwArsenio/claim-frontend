@@ -1,8 +1,8 @@
 /* Même bouton d'entrée sur l'accueil et le board. */
 .filtres-entrees { display:flex !important; flex-wrap:wrap; align-items:center; justify-content:center; gap:.5rem; margin-top:.35rem; }
 .filtre-entree { display:inline-flex; align-items:center; justify-content:center; gap:.375rem;
-  flex:0 0 auto; box-sizing:border-box; min-height:44px; min-width:calc(7ch + 1.4rem);
-  padding:.55rem .85rem; border:1px solid var(--bord-carte); border-radius:.5rem;
+  flex:0 0 auto; box-sizing:border-box; min-height:37px; min-width:calc(7ch + 1.4rem);
+  padding:.4rem .85rem; border:1px solid var(--bord-carte); border-radius:.5rem; height:37px;
   background:var(--surface); color:var(--encre); font:inherit; font-size:.825rem;
   font-weight:600; line-height:1.2; text-decoration:none; cursor:pointer; }
 .filtre-entree .ic { color:var(--teal); flex:none; }
@@ -18,7 +18,7 @@
 #filtres-panneau .fp-fermer { display:grid; place-items:center; width:44px; height:44px; border:0; background:transparent; color:var(--encre); cursor:pointer; }
 #filtres-panneau .fp-corps { min-height:0; flex:1 1 auto; overflow-y:auto; padding:0 1.25rem; }
 #filtres-panneau .fp-pied { flex:none; }
-#filtres-panneau .fp-puce { min-height:44px; }
+#filtres-panneau .fp-puce { min-height:37px; }
 @media(max-width:768px) {
   /* Seuls Filtres, Contrats et Spécialité restent visibles. Les autres
      critères vivent dans le panneau. */
@@ -46,3 +46,9 @@
 /* Compteur d'offres par valeur : discret, après le libellé. */
 .fp-compte { margin-left:.45rem; font-size:.78rem; font-weight:500; opacity:.7; font-variant-numeric:tabular-nums; }
 .fp-puce[aria-pressed="true"] .fp-compte { opacity:.85; }
+
+/* Bureau : la rangée occupe la même largeur que la barre de recherche et
+   reste centrée dessous. Sans cela, elle s'étirait sur toute l'enveloppe. */
+@media(min-width:769px) {
+  .filtres-entrees { width:100%; max-width:50rem; margin-left:auto; margin-right:auto; }
+}

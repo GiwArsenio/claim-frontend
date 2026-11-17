@@ -54,7 +54,7 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; c
      une enveloppe de 1728. Le board, lui, applique sa marge en padding
      directement sur #split — sans ce decalage, son contenu commencait
      32 px plus a gauche que celui de l'accueil. */
-  --marge-page: max(2rem, calc((100vw - var(--enveloppe-produit)) / 2 + 2rem));
+  --marge-page: max(2.4rem, calc((100vw - var(--enveloppe-produit)) / 2 + 2.4rem));
 }
 
 /* Header */
@@ -847,10 +847,10 @@ html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1)
     align-items: center;
     margin: 0;
     padding: 0 .6rem;
-    /* 35 px : vingt pour cent sous les 44 px d'avant, comme demande. La
-       hauteur est FIXE et non minimale, sinon la boite reprendrait la
-       hauteur de son contenu et la reduction ne se verrait pas. */
-    height: 35px;
+    /* 37 px : quinze pour cent sous les 44 px d'avant, comme les autres
+       filtres. La hauteur est FIXE et non minimale, sinon la boite
+       reprendrait la hauteur de son contenu. */
+    height: 37px;
     min-height: 35px;
     gap: .3rem;
     font: inherit;
@@ -921,8 +921,8 @@ html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1)
      bouton est desormais dans la rangee, pas directement dans le bandeau :
      c'est donc elle qu'il faut etirer. */
   body.barre-collee .rangee-filtres { align-items: stretch; }
-  body.barre-collee .btn-filtres { margin: 0; flex: 0 0 auto; padding: .45rem .8rem;
-    height: auto; min-height: 44px; }
+  body.barre-collee .btn-filtres { margin: 0; flex: 0 0 auto; padding: .4rem .8rem;
+    height: 37px; min-height: 37px; }
   body.barre-collee .chips:not(.ouvert) { display: none; }
   /* Barre collée : seuls la recherche et « Filtres » restent. Les entrées
      Contrats, Spécialité, etc. disparaissent : elles sont dans le panneau. */
