@@ -31,7 +31,7 @@ async function ouvrirAccueil(page) {
   });
 }
 
-test('M10 — la rangée de filtres de l\'accueil montre trois boîtes, et tient', async () => {
+test('M10 — la rangée d\'entrées de l\'accueil tient sur l\'écran', async () => {
   await aide.demarrerServeur();
   await aide.demarrerNavigateur();
 
@@ -41,31 +41,35 @@ test('M10 — la rangée de filtres de l\'accueil montre trois boîtes, et tient
       await ouvrirAccueil(page);
 
       const releve = await page.evaluate(() => {
-        const chips = document.querySelector('.chips');
-        const visibles = [...chips.children].filter((e) => e.getClientRects().length > 0);
-        const noms = visibles.map((e) => (e.textContent || '').trim().slice(0, 20));
-        const b = document.querySelector('.btn-filtres-accueil').getBoundingClientRect();
-        const sp = document.querySelector('#acc-specialite').getBoundingClientRect();
-        const c = document.querySelector('#acc-contrat').getBoundingClientRect();
+        const rangee = document.querySelector('.filtres-entrees');
+        if (!rangee) return null;
+        const liens = [...rangee.querySelectorAll('.filtre-entree')]
+          .filter((e) => e.getClientRects().length > 0);
+        const rects = liens.map((e) => e.getBoundingClientRect());
         return {
-          noms,
-          nombre: visibles.length,
-          memeLigne: Math.abs(b.top - sp.top) <= 3 && Math.abs(sp.top - c.top) <= 3,
-          deborde: chips.scrollWidth > chips.clientWidth + 1,
-          gauche: Math.round(b.left),
-          droite: Math.round(c.right),
+          noms: liens.map((e) => e.textContent.trim()),
+          nombre: liens.length,
+          hauteurMini: Math.min(...rects.map((r) => Math.round(r.height))),
+          gauche: Math.round(Math.min(...rects.map((r) => r.left))),
+          droite: Math.round(Math.max(...rects.map((r) => r.right))),
           ecran: window.innerWidth,
+          deborde: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
         };
       });
 
-      assert.equal(releve.nombre, 3,
-        `l'accueil montre ${releve.nombre} boîtes de filtre : ${JSON.stringify(releve.noms)}`);
-      assert.ok(releve.noms.some((n) => /Filtres/.test(n)), 'le bouton « Filtres » manque');
-      assert.ok(releve.memeLigne, 'les trois boîtes ne sont pas sur une seule ligne');
-      assert.equal(releve.deborde, false,
-        'la rangée déborde de l\'écran — une boîte est coupée');
+      /* L'accueil n'affiche plus trois boites de filtre mais une rangee
+         d'entrees : « Filtres », puis un raccourci par critere. */
+      assert.ok(releve, 'la rangée d\'entrées de l\'accueil est introuvable');
+      /* Trois entrées tiennent à l'écran ; les autres sont dans le
+         défilement de la rangée. */
+      assert.ok(releve.nombre >= 3,
+        `l'accueil montre ${releve.nombre} entrée(s) : ${JSON.stringify(releve.noms)}`);
+      assert.ok(releve.noms.some((n) => /Filtres/.test(n)), 'l\'entrée « Filtres » manque');
+      assert.equal(releve.deborde, false, 'la page déborde horizontalement');
       assert.ok(releve.gauche >= 0 && releve.droite <= releve.ecran + 1,
         `la rangée sort de l'écran : ${releve.gauche} → ${releve.droite} sur ${releve.ecran}`);
+      assert.ok(releve.hauteurMini >= 24,
+        `une entrée mesure ${releve.hauteurMini} px de haut — trop court au doigt`);
     } finally {
       await ctx.close();
     }
@@ -125,7 +129,8 @@ test('M12 — « Filtres » ouvre le board, panneau déjà ouvert', async () => 
     try {
       await ouvrirAccueil(page);
 
-      await page.click('.btn-filtres-accueil');
+      /* L'entrée « Filtres » est un lien vers le board, pas un bouton. */
+      await page.click('.filtre-entree#btn-filtres, #btn-filtres');
       await aide.attendre(page, 2200);
 
       const releve = await page.evaluate(() => {

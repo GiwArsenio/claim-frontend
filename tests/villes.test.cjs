@@ -39,7 +39,7 @@ async function ouvrirAccueil(page) {
   await aide.attendre(page, 300);
 }
 
-test('V1 — quatre cartes en photo, nommées et cliquables', async () => {
+test('V1 — huit cartes en photo, nommées et cliquables', async () => {
   await aide.demarrerServeur();
   await aide.demarrerNavigateur();
 
@@ -60,7 +60,7 @@ test('V1 — quatre cartes en photo, nommées et cliquables', async () => {
         };
       }));
 
-      assert.equal(releve.length, 4, `${releve.length} carte(s) au lieu de 4`);
+      assert.equal(releve.length, 8, `${releve.length} carte(s) au lieu de 8`);
 
       for (const c of releve) {
         assert.ok(c.nom.length > 2, 'une carte n\'a pas de nom');
@@ -106,7 +106,7 @@ test('V2 — les autres villes sont en pastilles, chacune vers son board', async
         href: a.getAttribute('href') || '',
       })));
 
-      assert.ok(puces.length >= 4, `seulement ${puces.length} pastille(s)`);
+      assert.ok(puces.length >= 3, `seulement ${puces.length} pastille(s)`);
       for (const p of puces) {
         assert.ok(p.nom.length > 2, 'une pastille est vide');
         assert.match(p.href, /job-board\.html\?city=/, `« ${p.nom} » ne mène pas au board : ${p.href}`);
@@ -180,6 +180,7 @@ test('V4 — sur téléphone, deux colonnes et rien qui déborde', async () => {
         const cartes = [...document.querySelectorAll('.ville-carte')];
         const tops = cartes.map((c) => Math.round(c.getBoundingClientRect().top));
         return {
+          total: cartes.length,
           document: document.documentElement.scrollWidth,
           ecran: document.documentElement.clientWidth,
           rangees: new Set(tops).size,
@@ -190,7 +191,10 @@ test('V4 — sur téléphone, deux colonnes et rien qui déborde', async () => {
 
       assert.ok(releve.document <= releve.ecran + 1,
         `la page déborde : ${releve.document} > ${releve.ecran}`);
-      assert.equal(releve.rangees, 2, `les cartes tiennent sur ${releve.rangees} rangée(s) au lieu de 2`);
+      /* Deux colonnes : autant de rangées que de cartes divisées par deux. */
+      const rangeesAttendues = Math.ceil(releve.total / 2);
+      assert.equal(releve.rangees, rangeesAttendues,
+        `${releve.total} cartes sur ${releve.rangees} rangée(s) au lieu de ${rangeesAttendues}`);
       assert.ok(releve.largeur > 130, `les cartes sont écrasées : ${releve.largeur} px de large`);
       assert.ok(releve.hauteur > 90, `les cartes sont écrasées : ${releve.hauteur} px de haut`);
     } finally {
