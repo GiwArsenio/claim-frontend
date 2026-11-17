@@ -57,3 +57,15 @@
      la suit, sans marges automatiques qui la décalaient vers le centre. */
   .hero .filtres-entrees, .env .filtres-entrees { margin-left:0; margin-right:auto; justify-content:flex-start; }
 }
+
+/* Flèche descendante sur les filtres à valeurs (Contrats, Spécialité, …).
+   « Filtres » n'en a pas : il ouvre tout le panneau. */
+.filtre-entree:not(#btn-filtres) {
+  padding-right: 1.6rem;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23515f78' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right .6rem center;
+}
+html[data-theme="nuit"] .filtre-entree:not(#btn-filtres) {
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b9aa0' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+}
