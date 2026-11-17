@@ -1,8 +1,8 @@
 /* Même bouton d'entrée sur l'accueil et le board. */
 .filtres-entrees { display:flex !important; flex-wrap:wrap; align-items:center; justify-content:center; gap:.5rem; margin-top:.35rem; }
 .filtre-entree { display:inline-flex; align-items:center; justify-content:center; gap:.375rem;
-  flex:0 0 auto; box-sizing:border-box; min-height:37px; min-width:calc(7ch + 1.4rem);
-  padding:.4rem .85rem; border:1px solid var(--bord-carte); border-radius:.5rem; height:37px;
+  flex:0 0 auto; box-sizing:border-box; min-height:30px; min-width:calc(7ch + 1.4rem);
+  padding:.4rem .85rem; border:1px solid var(--bord-carte); border-radius:.5rem; height:30px;
   background:var(--surface); color:var(--encre); font:inherit; font-size:.825rem;
   font-weight:600; line-height:1.2; text-decoration:none; cursor:pointer; }
 .filtre-entree .ic { color:var(--teal); flex:none; }
@@ -18,7 +18,7 @@
 #filtres-panneau .fp-fermer { display:grid; place-items:center; width:44px; height:44px; border:0; background:transparent; color:var(--encre); cursor:pointer; }
 #filtres-panneau .fp-corps { min-height:0; flex:1 1 auto; overflow-y:auto; padding:0 1.25rem; }
 #filtres-panneau .fp-pied { flex:none; }
-#filtres-panneau .fp-puce { min-height:37px; }
+#filtres-panneau .fp-puce { min-height:30px; }
 @media(max-width:768px) {
   /* Seuls Filtres, Contrats et Spécialité restent visibles. Les autres
      critères vivent dans le panneau. */
