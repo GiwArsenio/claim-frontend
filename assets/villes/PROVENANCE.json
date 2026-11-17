@@ -1,22 +1,30 @@
 {
  "paris": {
-  "fichier": "File:Paris skyline view (Unsplash).jpg",
-  "licence": "CC0",
-  "page": "https://commons.wikimedia.org/wiki/File:Paris_skyline_view_(Unsplash).jpg"
+  "fichier": "Unsplash — O2KDQ2KKjlU",
+  "auteur": "Jacob Diehl",
+  "page": "https://unsplash.com/photos/the-eiffel-tower-towering-over-the-city-of-paris-O2KDQ2KKjlU",
+  "licence": "Unsplash License : usage libre, sans attribution obligatoire",
+  "source": "api.unsplash.com"
  },
  "lyon": {
-  "fichier": "File:Skyline de la Part Dieu en novembre 2025.jpg",
-  "licence": "CC0",
-  "page": "https://commons.wikimedia.org/wiki/File:Skyline_de_la_Part_Dieu_en_novembre_2025.jpg"
+  "fichier": "Unsplash — 6iRECCTVv4g",
+  "auteur": "Thomas K",
+  "page": "https://unsplash.com/photos/cityscape-with-river-and-buildings-at-sunset-6iRECCTVv4g",
+  "licence": "Unsplash License : usage libre, sans attribution obligatoire",
+  "source": "api.unsplash.com"
  },
  "marseille": {
-  "fichier": "File:Marseille Vieux-port 1.jpg",
-  "licence": "CC0",
-  "page": "https://commons.wikimedia.org/wiki/File:Marseille_Vieux-port_1.jpg"
+  "fichier": "Unsplash — gGjuKdMWZjQ",
+  "auteur": "Margit Knobloch",
+  "page": "https://unsplash.com/photos/boats-in-a-harbor-with-historic-buildings-and-blue-sky-gGjuKdMWZjQ",
+  "licence": "Unsplash License : usage libre, sans attribution obligatoire",
+  "source": "api.unsplash.com"
  },
  "nantes": {
-  "fichier": "File:Château des Ducs de Bretagne, Pont d'accès au château-01.jpg",
-  "licence": "CC0",
-  "page": "https://commons.wikimedia.org/wiki/File:Ch%C3%A2teau_des_Ducs_de_Bretagne,_Pont_d%27acc%C3%A8s_au_ch%C3%A2teau-01.jpg"
+  "fichier": "Unsplash — PKH0VVIDXT8",
+  "auteur": "Thanh Ly",
+  "page": "https://unsplash.com/photos/buildings-reflected-in-the-water-with-boats-docked-PKH0VVIDXT8",
+  "licence": "Unsplash License : usage libre, sans attribution obligatoire",
+  "source": "api.unsplash.com"
  }
 }
