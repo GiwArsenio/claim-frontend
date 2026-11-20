@@ -6,7 +6,7 @@
   background:var(--surface); color:var(--encre); font:inherit; font-size:.825rem;
   font-weight:600; line-height:1.2; text-decoration:none; cursor:pointer; }
 .filtre-entree .ic { color:var(--teal); flex:none; }
-.filtre-entree:hover { background:var(--surface-survol); border-color:var(--teal-bord); }
+.filtre-entree:hover { background:var(--surface-survol); border-color:var(--teal-bord); box-shadow:var(--ombre); }
 .filtre-entree:focus-visible { outline:2px solid var(--teal); outline-offset:3px; }
 /* Aucun contenu du panneau ne doit apparaître dans la page au repos. */
 #filtres-panneau[hidden], #voile-filtres[hidden] { display:none !important; }

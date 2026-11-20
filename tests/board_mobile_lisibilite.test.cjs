@@ -216,7 +216,10 @@ test('M02 — le panneau montre tous les filtres, sans en appliquer aucun avant 
       const ferme = await page.evaluate(() => {
         const p = document.querySelector('#filtres-panneau');
         return {
-          range: getComputedStyle(p).display,
+          /* Le panneau est une feuille du bas : fermé, il n'occupe rien.
+             La rangée visible en haut de page est `.filtres-entrees`. */
+          range: getComputedStyle(document.querySelector('.filtres-entrees')).display,
+          panneau: getComputedStyle(p).display,
           bouton: getComputedStyle(document.querySelector('#btn-filtres')).display,
           expanded: document.querySelector('#btn-filtres').getAttribute('aria-expanded'),
           badge: document.querySelector('#badge-filtres').hidden,
@@ -229,6 +232,7 @@ test('M02 — le panneau montre tous les filtres, sans en appliquer aucun avant 
       });
       /* En haut de page, la rangée montre deux filtres — pas le panneau. */
       assert.equal(ferme.range, 'flex', 'la rangée de filtres n\'est pas affichée en haut de page');
+      assert.equal(ferme.panneau, 'none', 'le panneau de filtres est ouvert alors qu\'on n\'a rien demandé');
       /* Le board a unifie ses filtres : la rangee ne montre plus que le
          bouton, les cinq filtres vivent dans le panneau. */
       assert.deepEqual(ferme.visibles, [],
@@ -343,7 +347,9 @@ test('M02 — le panneau montre tous les filtres, sans en appliquer aucun avant 
         valeur: document.querySelector('#contract-filter').value,
         cartes: document.querySelectorAll('.jc').length,
         focus: document.activeElement ? document.activeElement.id : '',
-        panneau: getComputedStyle(document.querySelector('#filtres-panneau')).display,
+        /* La rangée inline est `.filtres-entrees` : le panneau, lui, est une
+           feuille qui reste masquée une fois fermée. */
+        panneau: getComputedStyle(document.querySelector('.filtres-entrees')).display,
         ouvert: document.querySelector('#filtres-panneau').classList.contains('ouvert'),
         role: document.querySelector('#filtres-panneau').getAttribute('role'),
         defilement: getComputedStyle(document.querySelector('.pl')).overflowY,
@@ -375,7 +381,9 @@ test('M02 — le panneau montre tous les filtres, sans en appliquer aucun avant 
         valeur: document.querySelector('#contract-filter').value,
         badge: document.querySelector('#badge-filtres').textContent,
         badgeCache: document.querySelector('#badge-filtres').hidden,
-        panneau: getComputedStyle(document.querySelector('#filtres-panneau')).display,
+        /* La rangée inline est `.filtres-entrees` : le panneau, lui, est une
+           feuille qui reste masquée une fois fermée. */
+        panneau: getComputedStyle(document.querySelector('.filtres-entrees')).display,
         ouvert: document.querySelector('#filtres-panneau').classList.contains('ouvert'),
         cartes: document.querySelectorAll('.jc').length,
       }));
@@ -571,8 +579,11 @@ test('M03 — le bloc titre a disparu, la barre complète reste', async () => {
         };
       });
       assert.ok(rangee.dansEcran, 'le bouton Filtres sort de l\'écran');
-      assert.ok(Math.abs(rangee.hauteur - 35) <= 1,
-        `la rangée mesure ${rangee.hauteur} px au lieu de 35 (44 px moins 20 %)`);
+      /* 30 px : la hauteur commune des entrées de filtre, posée par
+         `.filtre-entree`, `.btn-filtres` et `body.barre-collee .btn-filtres`.
+         Elle reste au-dessus du minimum de cible de WCAG 2.2 AA (24 px). */
+      assert.ok(Math.abs(rangee.hauteur - 30) <= 1,
+        `la rangée mesure ${rangee.hauteur} px au lieu de 30`);
 
       /* La mesure de largeur a disparu avec son sujet : les filtres ne sont
          plus des boites de la rangee qui s'elargissent avec le texte, mais

@@ -228,6 +228,11 @@ test('aucune surface ne reste claire en mode nuit', async () => {
           for (const el of document.querySelectorAll('body *')) {
             const st = getComputedStyle(el);
             if (st.display === 'none' || st.visibility === 'hidden' || st.opacity === '0') continue;
+            /* « Voir les offres » sur les cartes de villes : bouton blanc
+               fixe, posé sur une photo (index.html, .ville-btn). Choix de
+               design assumé, identique en jour et en nuit — le fond de la
+               photo, pas le thème, décide de sa lisibilité. */
+            if (el.classList.contains('ville-btn')) continue;
             const r = el.getBoundingClientRect();
             if (r.width < 4 || r.height < 4) continue;
             const aFond = parse(st.backgroundColor);
