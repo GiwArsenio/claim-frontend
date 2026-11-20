@@ -938,7 +938,11 @@ html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1)
   /* Seul le BOUTON s'efface : `visibility` s'herite, et masquer le
      conteneur effacait aussi le panneau — il devenait invisible alors qu'il
      etait ouvert. Le bouton garde sa place, donc rien ne saute. */
-  .rangee-filtres:has(.chips.ouvert) > .btn-filtres { visibility: hidden; }
+  /* Le bouton porte la classe .filtre-entree et l'id #btn-filtres — plus
+     .btn-filtres — et le panneau n'est plus dans la rangée : l'ancien
+     sélecteur ne visait plus rien, le bouton restait visible. */
+  .rangee-filtres:has(~ .chips.ouvert) > #btn-filtres,
+  body:has(#filtres-panneau.ouvert) #btn-filtres { visibility: hidden; }
 
   /* L'en-tete s'efface des qu'on fait defiler les offres : la barre de
      recherche remonte au bord haut de l'ecran et le logo libere la place.
