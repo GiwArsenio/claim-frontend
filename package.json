@@ -11,6 +11,7 @@
     "test:theme": "node --test tests/theme.test.cjs",
     "captures": "node tools/captures.cjs captures",
     "audit:theme": "node tools/audit-theme.cjs",
+    "audit:design": "node tools/audit-design.cjs",
     "dev": "wrangler dev",
     "deploy": "bash scripts/prepare-assets.sh && wrangler deploy",
     "assets": "bash scripts/prepare-assets.sh",

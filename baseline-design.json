@@ -1,0 +1,2798 @@
+{
+ "schema": 1,
+ "outil": "tools/audit-design.cjs",
+ "conditions": {
+  "bureau": "1440x900",
+  "mobile": "390x844",
+  "reseau_tiers": "bloque",
+  "polices": "Inter locale en substitut",
+  "mouvement": "reduit",
+  "offre_detail": "actuaire-confirme-risques-non-vie"
+ },
+ "synthese": {
+  "contraste.min": 2.09,
+  "contraste.min_gabarit": 4.72,
+  "contraste.echecs": 5,
+  "texte.min_px": 9,
+  "texte.sous_11px": 7,
+  "texte.sous_12px_legal": 4,
+  "images.total": 24,
+  "images.sans_dimensions": 16,
+  "images.alt_vide_informatif": 0,
+  "a11y.lien_evitement": false,
+  "a11y.reperes_manquants": 0,
+  "a11y.pages_h1_invalides": 4,
+  "a11y.focus_sans_indicateur": 0,
+  "a11y.axe_violations": 38,
+  "tactile.principales_sous_44": 3,
+  "tactile.sous_44": 58,
+  "css.rayons_distincts": 10,
+  "css.ombres_distinctes": 5,
+  "reseau.requetes_polices_tierces": 2,
+  "reseau.poids_polices_octets": 0,
+  "reseau.poids_images_octets": 757405,
+  "erreur.texte_anglais_visible": true,
+  "erreur.chargement_et_erreur_simultanes": true
+ },
+ "scenarios": {
+  "accueil@bureau": {
+   "contraste": {
+    "min": 4.72,
+    "min_gabarit": 4.72,
+    "echecs": [],
+    "plus_bas": [
+     {
+      "el": "span.heart",
+      "txt": "♥",
+      "ratio": 4.72,
+      "px": 11.2
+     },
+     {
+      "el": "a",
+      "txt": "Offres d'emploi",
+      "ratio": 4.76,
+      "px": 14.8
+     },
+     {
+      "el": "span.sigle-repli",
+      "txt": "BP",
+      "ratio": 4.89,
+      "px": 17
+     },
+     {
+      "el": "span",
+      "txt": "© 2026 Claim your job",
+      "ratio": 5.58,
+      "px": 9.92
+     },
+     {
+      "el": "a",
+      "txt": "Hunter.io",
+      "ratio": 5.58,
+      "px": 9.92
+     }
+    ],
+    "ignores_degrade": 14
+   },
+   "texte": {
+    "min_px": 9,
+    "sous_11px": [
+     {
+      "el": "div.clogo",
+      "txt": "AC",
+      "px": 9.5
+     },
+     {
+      "el": "div.cdate",
+      "txt": "publiée il y a 1 mois",
+      "px": 9
+     },
+     {
+      "el": "span",
+      "txt": "BP",
+      "px": 9.5
+     },
+     {
+      "el": "span",
+      "txt": "© 2026 Claim your job",
+      "px": 9.92
+     },
+     {
+      "el": "a",
+      "txt": "Hunter.io",
+      "px": 9.92
+     },
+     {
+      "el": "a",
+      "txt": "À propos",
+      "px": 10.88
+     }
+    ],
+    "sous_12px_legal": [
+     {
+      "el": "span",
+      "txt": "© 2026 Claim your job",
+      "px": 9.92,
+      "legal": true
+     },
+     {
+      "el": "span.heart",
+      "txt": "♥",
+      "px": 11.2,
+      "legal": true
+     },
+     {
+      "el": "a",
+      "txt": "Hunter.io",
+      "px": 9.92,
+      "legal": true
+     },
+     {
+      "el": "a",
+      "txt": "À propos",
+      "px": 10.88,
+      "legal": true
+     }
+    ]
+   },
+   "images": {
+    "total": 20,
+    "sans_dimensions": 12,
+    "sans_alt": 0,
+    "alt_vide": 20,
+    "alt_vide_informatif": 0,
+    "lazy": 8,
+    "sans_dimensions_liste": [
+     "/logos/covea.png",
+     "/logos/malakoff-humanis.png",
+     "/logos/scor.svg",
+     "/logos/kpmg.svg",
+     "/logos/aon.png",
+     "/logos/alan.png",
+     "/logos/covea.png",
+     "/logos/malakoff-humanis.png",
+     "/logos/scor.svg",
+     "/logos/kpmg.svg",
+     "/logos/aon.png",
+     "/logos/alan.png"
+    ]
+   },
+   "a11y": {
+    "lien_evitement": false,
+    "reperes": {
+     "header": 1,
+     "nav": 2,
+     "main": 1,
+     "footer": 1
+    },
+    "h1_count": 1,
+    "focus_visible": {
+     "tabulations": 12,
+     "focalises": 12,
+     "avec_indicateur": 12,
+     "sans_indicateur": []
+    },
+    "axe_violations": 2,
+    "axe_regles": [
+     {
+      "id": "aria-allowed-role",
+      "impact": "minor",
+      "noeuds": 1
+     },
+     {
+      "id": "scrollable-region-focusable",
+      "impact": "serious",
+      "noeuds": 1
+     }
+    ]
+   },
+   "tactile": {
+    "sous_44": [],
+    "principales_sous_44": []
+   },
+   "css": {
+    "rayons_distincts": 10,
+    "ombres_distinctes": 5,
+    "rayons": [
+     "10.4px",
+     "10px",
+     "2px",
+     "4px",
+     "50%",
+     "6.4px",
+     "6px",
+     "8px",
+     "9999px",
+     "999px"
+    ],
+    "ombres": [
+     "rgba(0, 0, 0, 0.07) 0px 1px 4px 0px",
+     "rgba(25, 44, 52, 0.04) 0px 1px 2px 0px",
+     "rgba(25, 44, 52, 0.06) 0px 1px 2px 0px, rgba(25, 44, 52, 0.05) 0px 4px 14px 0px",
+     "rgba(25, 44, 52, 0.08) 0px 2px 6px 0px, rgba(25, 44, 52, 0.04) 0px 5px 14px 0px",
+     "rgba(25, 44, 52, 0.1) 0px -10px 30px 0px"
+    ]
+   },
+   "reseau": {
+    "requetes_polices_tierces": 2,
+    "polices_tierces": [
+     "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+    ],
+    "poids_polices_octets": 0,
+    "poids_images_octets": 757405
+   }
+  },
+  "accueil@mobile": {
+   "contraste": {
+    "min": 3.38,
+    "min_gabarit": 4.72,
+    "echecs": [
+     {
+      "el": "a",
+      "txt": "À propos",
+      "ratio": 3.38,
+      "seuil": 4.5,
+      "px": 12
+     }
+    ],
+    "plus_bas": [
+     {
+      "el": "a",
+      "txt": "À propos",
+      "ratio": 3.38,
+      "px": 12
+     },
+     {
+      "el": "span.heart",
+      "txt": "♥",
+      "ratio": 4.72,
+      "px": 11.2
+     },
+     {
+      "el": "span.sigle-repli",
+      "txt": "BP",
+      "ratio": 4.89,
+      "px": 17
+     },
+     {
+      "el": "a.on",
+      "txt": "Accueil",
+      "ratio": 5.01,
+      "px": 15.2
+     },
+     {
+      "el": "a",
+      "txt": "Offres d'emploi",
+      "ratio": 5.16,
+      "px": 15.2
+     }
+    ],
+    "ignores_degrade": 11
+   },
+   "texte": {
+    "min_px": 9,
+    "sous_11px": [
+     {
+      "el": "div.clogo",
+      "txt": "AC",
+      "px": 9.5
+     },
+     {
+      "el": "div.cdate",
+      "txt": "publiée il y a 1 mois",
+      "px": 9
+     },
+     {
+      "el": "span",
+      "txt": "BP",
+      "px": 9.5
+     },
+     {
+      "el": "span",
+      "txt": "© 2026 Claim your job",
+      "px": 9.92
+     },
+     {
+      "el": "a",
+      "txt": "Hunter.io",
+      "px": 9.92
+     },
+     {
+      "el": "a",
+      "txt": "À propos",
+      "px": 10.88
+     }
+    ],
+    "sous_12px_legal": [
+     {
+      "el": "span",
+      "txt": "© 2026 Claim your job",
+      "px": 9.92,
+      "legal": true
+     },
+     {
+      "el": "span.heart",
+      "txt": "♥",
+      "px": 11.2,
+      "legal": true
+     },
+     {
+      "el": "a",
+      "txt": "Hunter.io",
+      "px": 9.92,
+      "legal": true
+     },
+     {
+      "el": "a",
+      "txt": "À propos",
+      "px": 10.88,
+      "legal": true
+     }
+    ]
+   },
+   "images": {
+    "total": 20,
+    "sans_dimensions": 12,
+    "sans_alt": 0,
+    "alt_vide": 20,
+    "alt_vide_informatif": 0,
+    "lazy": 8,
+    "sans_dimensions_liste": [
+     "/logos/covea.png",
+     "/logos/malakoff-humanis.png",
+     "/logos/scor.svg",
+     "/logos/kpmg.svg",
+     "/logos/aon.png",
+     "/logos/alan.png",
+     "/logos/covea.png",
+     "/logos/malakoff-humanis.png",
+     "/logos/scor.svg",
+     "/logos/kpmg.svg",
+     "/logos/aon.png",
+     "/logos/alan.png"
+    ]
+   },
+   "a11y": {
+    "lien_evitement": false,
+    "reperes": {
+     "header": 1,
+     "nav": 2,
+     "main": 1,
+     "footer": 1
+    },
+    "h1_count": 1,
+    "focus_visible": {
+     "tabulations": 12,
+     "focalises": 12,
+     "avec_indicateur": 12,
+     "sans_indicateur": []
+    },
+    "axe_violations": 5,
+    "axe_regles": [
+     {
+      "id": "aria-allowed-role",
+      "impact": "minor",
+      "noeuds": 1
+     },
+     {
+      "id": "landmark-unique",
+      "impact": "moderate",
+      "noeuds": 1
+     },
+     {
+      "id": "region",
+      "impact": "moderate",
+      "noeuds": 2
+     },
+     {
+      "id": "scrollable-region-focusable",
+      "impact": "serious",
+      "noeuds": 1
+     }
+    ]
+   },
+   "tactile": {
+    "sous_44": [
+     {
+      "el": "button.consent-accepter",
+      "nom": "Tout accepter",
+      "w": 173,
+      "h": 42
+     },
+     {
+      "el": "button.consent-refuser",
+      "nom": "Refuser",
+      "w": 173,
+      "h": 42
+     },
+     {
+      "el": "a.logo",
+      "nom": "Claim!",
+      "w": 68,
+      "h": 40
+     },
+     {
+      "el": "button.bascule-theme",
+      "nom": "Passer en version nuit",
+      "w": 34,
+      "h": 34
+     },
+     {
+      "el": "button.btn-burger",
+      "nom": "Menu",
+      "w": 36,
+      "h": 36
+     },
+     {
+      "el": "input",
+      "nom": "Mots-clés",
+      "w": 293,
+      "h": 20
+     },
+     {
+      "el": "input",
+      "nom": "Localisation",
+      "w": 293,
+      "h": 20
+     },
+     {
+      "el": "button.btn-srch",
+      "nom": "Rechercher",
+      "w": 337,
+      "h": 32
+     },
+     {
+      "el": "a.filtre-entree",
+      "nom": "Filtres",
+      "w": 90,
+      "h": 30
+     },
+     {
+      "el": "a.filtre-entree",
+      "nom": "Contrats",
+      "w": 95,
+      "h": 30
+     },
+     {
+      "el": "a.filtre-entree",
+      "nom": "Spécialité",
+      "w": 102,
+      "h": 30
+     },
+     {
+      "el": "a.ville-puce",
+      "nom": "Grenoble",
+      "w": 88,
+      "h": 38
+     },
+     {
+      "el": "a.ville-puce",
+      "nom": "Niort",
+      "w": 61,
+      "h": 38
+     },
+     {
+      "el": "a.ville-puce",
+      "nom": "Schiltigheim",
+      "w": 108,
+      "h": 38
+     },
+     {
+      "el": "a.bteal",
+      "nom": "Écrivez-nous",
+      "w": 141,
+      "h": 44
+     },
+     {
+      "el": "a.ft-logo",
+      "nom": "Claim!",
+      "w": 45,
+      "h": 25
+     },
+     {
+      "el": "a",
+      "nom": "Hunter.io",
+      "w": 42,
+      "h": 12
+     },
+     {
+      "el": "a",
+      "nom": "À propos",
+      "w": 65,
+      "h": 26
+     },
+     {
+      "el": "a",
+      "nom": "CGU",
+      "w": 42,
+      "h": 26
+     },
+     {
+      "el": "a",
+      "nom": "Confidentialité",
+      "w": 94,
+      "h": 26
+     },
+     {
+      "el": "a",
+      "nom": "Contact",
+      "w": 59,
+      "h": 26
+     },
+     {
+      "el": "a.bm-logo",
+      "nom": "Claim!",
+      "w": 60,
+      "h": 34
+     },
+     {
+      "el": "button.bm-close",
+      "nom": "Fermer",
+      "w": 32,
+      "h": 32
+     },
+     {
+      "el": "button.btn-cta",
+      "nom": "Contactez-nous",
+      "w": 260,
+      "h": 39
+     },
+     {
+      "el": "a",
+      "nom": "À propos",
+      "w": 51,
+      "h": 20
+     },
+     {
+      "el": "a",
+      "nom": "CGU",
+      "w": 27,
+      "h": 20
+     },
+     {
+      "el": "a",
+      "nom": "Confidentialité",
+      "w": 82,
+      "h": 20
+     }
+    ],
+    "principales_sous_44": [
+     {
+      "el": "button.bascule-theme",
+      "nom": "Passer en version nuit",
+      "w": 34,
+      "h": 34
+     },
+     {
+      "el": "button.btn-burger",
+      "nom": "Menu",
+      "w": 36,
+      "h": 36
+     },
+     {
+      "el": "button.btn-srch",
+      "nom": "Rechercher",
+      "w": 337,
+      "h": 32
+     }
+    ]
+   },
+   "css": {
+    "rayons_distincts": 10,
+    "ombres_distinctes": 6,
+    "rayons": [
+     "10.4px",
+     "10px",
+     "2px",
+     "4px",
+     "50%",
+     "6.4px",
+     "6px",
+     "8px",
+     "9999px",
+     "999px"
+    ],
+    "ombres": [
+     "rgba(0, 0, 0, 0.07) 0px 1px 4px 0px",
+     "rgba(0, 0, 0, 0.18) -4px 0px 24px 0px",
+     "rgba(25, 44, 52, 0.04) 0px 1px 2px 0px",
+     "rgba(25, 44, 52, 0.06) 0px 1px 2px 0px, rgba(25, 44, 52, 0.05) 0px 4px 14px 0px",
+     "rgba(25, 44, 52, 0.08) 0px 2px 6px 0px, rgba(25, 44, 52, 0.04) 0px 5px 14px 0px",
+     "rgba(25, 44, 52, 0.1) 0px -10px 30px 0px"
+    ]
+   },
+   "reseau": {
+    "requetes_polices_tierces": 2,
+    "polices_tierces": [
+     "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+    ],
+    "poids_polices_octets": 0,
+    "poids_images_octets": 757405
+   }
+  },
+  "board-liste@bureau": {
+   "contraste": {
+    "min": 4.72,
+    "min_gabarit": 4.72,
+    "echecs": [],
+    "plus_bas": [
+     {
+      "el": "span.heart",
+      "txt": "♥",
+      "ratio": 4.72,
+      "px": 11.2
+     },
+     {
+      "el": "a",
+      "txt": "Entreprises",
+      "ratio": 4.76,
+      "px": 14.8
+     },
+     {
+      "el": "div.pl-hd",
+      "txt": "51 offres disponibles",
+      "ratio": 4.9,
+      "px": 11.2
+     },
+     {
+      "el": "span",
+      "txt": "© 2026 Claim your job",
+      "ratio": 5.58,
+      "px": 9.92
+     },
+     {
+      "el": "a",
+      "txt": "Hunter.io",
+      "ratio": 5.58,
+      "px": 9.92
+     }
+    ],
+    "ignores_degrade": 6
+   },
+   "texte": {
+    "min_px": 9,
+    "sous_11px": [
+     {
+      "el": "div.clogo",
+      "txt": "AC",
+      "px": 9.5
+     },
+     {
+      "el": "div.cdate",
+      "txt": "Il y a 1 mois",
+      "px": 9
+     },
+     {
+      "el": "span",
+      "txt": "CA",
+      "px": 9.5
+     },
+     {
+      "el": "span",
+      "txt": "(31 restantes)",
+      "px": 9.9
+     },
+     {
+      "el": "span",
+      "txt": "© 2026 Claim your job",
+      "px": 9.92
+     },
+     {
+      "el": "a",
+      "txt": "Hunter.io",
+      "px": 9.92
+     },
+     {
+      "el": "a",
+      "txt": "À propos",
+      "px": 10.88
+     }
+    ],
+    "sous_12px_legal": [
+     {
+      "el": "span",
+      "txt": "© 2026 Claim your job",
+      "px": 9.92,
+      "legal": true
+     },
+     {
+      "el": "span.heart",
+      "txt": "♥",
+      "px": 11.2,
+      "legal": true
+     },
+     {
+      "el": "a",
+      "txt": "Hunter.io",
+      "px": 9.92,
+      "legal": true
+     },
+     {
+      "el": "a",
+      "txt": "À propos",
+      "px": 10.88,
+      "legal": true
+     }
+    ]
+   },
+   "images": {
+    "total": 2,
+    "sans_dimensions": 2,
+    "sans_alt": 0,
+    "alt_vide": 0,
+    "alt_vide_informatif": 0,
+    "lazy": 0,
+    "sans_dimensions_liste": [
+     "/logos/kpmg.svg",
+     "/logos/kpmg.svg"
+    ]
+   },
+   "a11y": {
+    "lien_evitement": false,
+    "reperes": {
+     "header": 1,
+     "nav": 3,
+     "main": 1,
+     "footer": 1
+    },
+    "h1_count": 2,
+    "focus_visible": {
+     "tabulations": 12,
+     "focalises": 12,
+     "avec_indicateur": 12,
+     "sans_indicateur": []
+    },
+    "axe_violations": 1,
+    "axe_regles": [
+     {
+      "id": "aria-allowed-role",
+      "impact": "minor",
+      "noeuds": 1
+     }
+    ]
+   },
+   "tactile": {
+    "sous_44": [],
+    "principales_sous_44": []
+   },
+   "css": {
+    "rayons_distincts": 10,
+    "ombres_distinctes": 6,
+    "rayons": [
+     "10px",
+     "10px 10px 0px 0px",
+     "2px",
+     "4px",
+     "50%",
+     "6.4px",
+     "6px",
+     "8px",
+     "9999px",
+     "999px"
+    ],
+    "ombres": [
+     "rgba(0, 0, 0, 0.07) 0px 1px 4px 0px",
+     "rgba(0, 104, 118, 0.1) 0px 0px 0px 3px, rgba(25, 44, 52, 0.1) 0px 4px 12px 0px",
+     "rgba(25, 44, 52, 0.06) 0px 1px 2px 0px, rgba(25, 44, 52, 0.05) 0px 4px 14px 0px",
+     "rgba(25, 44, 52, 0.08) 0px 2px 6px 0px, rgba(25, 44, 52, 0.04) 0px 5px 14px 0px",
+     "rgba(25, 44, 52, 0.1) 0px -10px 30px 0px",
+     "rgba(9, 26, 33, 0.32) 0px 24px 70px 0px"
+    ]
+   },
+   "reseau": {
+    "requetes_polices_tierces": 2,
+    "polices_tierces": [
+     "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+    ],
+    "poids_polices_octets": 0,
+    "poids_images_octets": 5780
+   }
+  },
+  "board-liste@mobile": {
+   "contraste": {
+    "min": 4.72,
+    "min_gabarit": 4.72,
+    "echecs": [],
+    "plus_bas": [
+     {
+      "el": "span.heart",
+      "txt": "♥",
+      "ratio": 4.72,
+      "px": 11.2
+     },
+     {
+      "el": "div.pl-hd",
+      "txt": "51 offres disponibles",
+      "ratio": 4.9,
+      "px": 11.2
+     },
+     {
+      "el": "a.on",
+      "txt": "Offres d'emploi",
+      "ratio": 5.01,
+      "px": 15.2
+     },
+     {
+      "el": "a",
+      "txt": "Entreprises",
+      "ratio": 5.16,
+      "px": 15.2
+     },
+     {
+      "el": "span",
+      "txt": "© 2026 Claim your job",
+      "ratio": 5.58,
+      "px": 9.92
+     }
+    ],
+    "ignores_degrade": 3
+   },
+   "texte": {
+    "min_px": 9,
+    "sous_11px": [
+     {
+      "el": "div.clogo",
+      "txt": "AC",
+      "px": 9.5
+     },
+     {
+      "el": "div.cdate",
+      "txt": "Il y a 1 mois",
+      "px": 9
+     },
+     {
+      "el": "span",
+      "txt": "CA",
+      "px": 9.5
+     },
+     {
+      "el": "span",
+      "txt": "(31 restantes)",
+      "px": 9.9
+     },
+     {
+      "el": "span",
+      "txt": "© 2026 Claim your job",
+      "px": 9.92
+     },
+     {
+      "el": "a",
+      "txt": "Hunter.io",
+      "px": 9.92
+     },
+     {
+      "el": "a",
+      "txt": "À propos",
+      "px": 10.88
+     }
+    ],
+    "sous_12px_legal": [
+     {
+      "el": "span",
+      "txt": "© 2026 Claim your job",
+      "px": 9.92,
+      "legal": true
+     },
+     {
+      "el": "span.heart",
+      "txt": "♥",
+      "px": 11.2,
+      "legal": true
+     },
+     {
+      "el": "a",
+      "txt": "Hunter.io",
+      "px": 9.92,
+      "legal": true
+     },
+     {
+      "el": "a",
+      "txt": "À propos",
+      "px": 10.88,
+      "legal": true
+     }
+    ]
+   },
+   "images": {
+    "total": 2,
+    "sans_dimensions": 2,
+    "sans_alt": 0,
+    "alt_vide": 0,
+    "alt_vide_informatif": 0,
+    "lazy": 0,
+    "sans_dimensions_liste": [
+     "/logos/kpmg.svg",
+     "/logos/kpmg.svg"
+    ]
+   },
+   "a11y": {
+    "lien_evitement": false,
+    "reperes": {
+     "header": 1,
+     "nav": 3,
+     "main": 1,
+     "footer": 1
+    },
+    "h1_count": 2,
+    "focus_visible": {
+     "tabulations": 12,
+     "focalises": 12,
+     "avec_indicateur": 12,
+     "sans_indicateur": []
+    },
+    "axe_violations": 4,
+    "axe_regles": [
+     {
+      "id": "aria-allowed-role",
+      "impact": "minor",
+      "noeuds": 1
+     },
+     {
+      "id": "button-name",
+      "impact": "critical",
+      "noeuds": 1
+     },
+     {
+      "id": "landmark-unique",
+      "impact": "moderate",
+      "noeuds": 1
+     },
+     {
+      "id": "region",
+      "impact": "moderate",
+      "noeuds": 1
+     }
+    ]
+   },
+   "tactile": {
+    "sous_44": [
+     {
+      "el": "button.consent-accepter",
+      "nom": "Tout accepter",
+      "w": 173,
+      "h": 42
+     },
+     {
+      "el": "button.consent-refuser",
+      "nom": "Refuser",
+      "w": 173,
+      "h": 42
+     },
+     {
+      "el": "a.logo",
+      "nom": "Claim!",
+      "w": 68,
+      "h": 40
+     },
+     {
+      "el": "button.bascule-theme",
+      "nom": "Passer en version nuit",
+      "w": 34,
+      "h": 34
+     },
+     {
+      "el": "button.btn-burger",
+      "nom": "Menu",
+      "w": 36,
+      "h": 36
+     },
+     {
+      "el": "input",
+      "nom": "Mots-clés",
+      "w": 309,
+      "h": 19
+     },
+     {
+      "el": "input",
+      "nom": "Localisation",
+      "w": 309,
+      "h": 19
+     },
+     {
+      "el": "button.btn-srch",
+      "nom": "Rechercher",
+      "w": 353,
+      "h": 32
+     },
+     {
+      "el": "button.filtre-entree",
+      "nom": "Filtres",
+      "w": 90,
+      "h": 30
+     },
+     {
+      "el": "button.filtre-entree",
+      "nom": "Contrats",
+      "w": 95,
+      "h": 30
+     },
+     {
+      "el": "button.filtre-entree",
+      "nom": "Spécialité",
+      "w": 102,
+      "h": 30
+     },
+     {
+      "el": "a.ctitle",
+      "nom": "Actuaire Confirmé (H/F) — Ri",
+      "w": 241,
+      "h": 36
+     },
+     {
+      "el": "a.ctitle",
+      "nom": "Actuaire (H/F) — Vie",
+      "w": 241,
+      "h": 18
+     },
+     {
+      "el": "a.ctitle",
+      "nom": "Actuaire Généraliste (H/F) —",
+      "w": 241,
+      "h": 36
+     },
+     {
+      "el": "a.ctitle",
+      "nom": "Actuaire (H/F) Direction des",
+      "w": 241,
+      "h": 36
+     },
+     {
+      "el": "a.ctitle",
+      "nom": "Actuaire <Script>alert(\"xss\"",
+      "w": 241,
+      "h": 36
+     },
+     {
+      "el": "a.ctitle",
+      "nom": "Actuaire Confirme (H/F) — Ré",
+      "w": 241,
+      "h": 36
+     },
+     {
+      "el": "a.ctitle",
+      "nom": "Actuaire Junior (H/F) — Star",
+      "w": 241,
+      "h": 18
+     },
+     {
+      "el": "a.ctitle",
+      "nom": "Actuaire Manager (H/F) — Cou",
+      "w": 241,
+      "h": 18
+     },
+     {
+      "el": "a.ctitle",
+      "nom": "Actuaire Senior (H/F) — Mutu",
+      "w": 241,
+      "h": 18
+     },
+     {
+      "el": "a.ctitle",
+      "nom": "Actuaire Junior (H/F) — Banq",
+      "w": 241,
+      "h": 18
+     },
+     {
+      "el": "a.ctitle",
+      "nom": "Actuaire Manager (H/F) — Ass",
+      "w": 241,
+      "h": 36
+     },
+     {
+      "el": "a.ctitle",
+      "nom": "Actuaire Senior (H/F) — Réas",
+      "w": 241,
+      "h": 36
+     },
+     {
+      "el": "a.ctitle",
+      "nom": "Actuaire Confirme (H/F) — St",
+      "w": 241,
+      "h": 36
+     },
+     {
+      "el": "a.ctitle",
+      "nom": "Actuaire Manager (H/F) — Mut",
+      "w": 241,
+      "h": 18
+     },
+     {
+      "el": "a.ctitle",
+      "nom": "Actuaire Senior (H/F) — Cons",
+      "w": 241,
+      "h": 36
+     },
+     {
+      "el": "a.ctitle",
+      "nom": "Actuaire Confirme (H/F) — Ba",
+      "w": 241,
+      "h": 18
+     },
+     {
+      "el": "a.ctitle",
+      "nom": "Actuaire Junior (H/F) — Assu",
+      "w": 241,
+      "h": 18
+     },
+     {
+      "el": "a.ctitle",
+      "nom": "Chargé d’Études Actuarielles",
+      "w": 241,
+      "h": 18
+     },
+     {
+      "el": "a.ctitle",
+      "nom": "Actuaire Junior (H/F) — Cour",
+      "w": 241,
+      "h": 18
+     },
+     {
+      "el": "a.ctitle",
+      "nom": "Actuaire Confirme (H/F) — Co",
+      "w": 241,
+      "h": 36
+     },
+     {
+      "el": "button",
+      "nom": "Voir plus d'offres (31 resta",
+      "w": 333,
+      "h": 40
+     },
+     {
+      "el": "a.ft-logo",
+      "nom": "Claim!",
+      "w": 45,
+      "h": 25
+     },
+     {
+      "el": "a",
+      "nom": "Hunter.io",
+      "w": 42,
+      "h": 12
+     },
+     {
+      "el": "a",
+      "nom": "À propos",
+      "w": 62,
+      "h": 23
+     },
+     {
+      "el": "a",
+      "nom": "CGU",
+      "w": 39,
+      "h": 23
+     },
+     {
+      "el": "a",
+      "nom": "Confidentialité",
+      "w": 91,
+      "h": 23
+     },
+     {
+      "el": "a",
+      "nom": "Contact",
+      "w": 56,
+      "h": 23
+     },
+     {
+      "el": "button.btn-back",
+      "nom": "← Toutes les offres",
+      "w": 133,
+      "h": 17
+     },
+     {
+      "el": "a.bap",
+      "nom": "Postuler",
+      "w": 95,
+      "h": 36
+     },
+     {
+      "el": "button.bsh.bal",
+      "nom": "Alerte",
+      "w": 101,
+      "h": 38
+     },
+     {
+      "el": "button.bsh",
+      "nom": "Partager",
+      "w": 97,
+      "h": 36
+     },
+     {
+      "el": "a.bm-logo",
+      "nom": "Claim!",
+      "w": 60,
+      "h": 34
+     },
+     {
+      "el": "button.bm-close",
+      "nom": "",
+      "w": 32,
+      "h": 32
+     },
+     {
+      "el": "button.btn-cta",
+      "nom": "Contactez-nous",
+      "w": 260,
+      "h": 39
+     },
+     {
+      "el": "a",
+      "nom": "Page 1",
+      "w": 38,
+      "h": 15
+     },
+     {
+      "el": "a",
+      "nom": "Page 2",
+      "w": 41,
+      "h": 15
+     },
+     {
+      "el": "a",
+      "nom": "Page 3",
+      "w": 41,
+      "h": 15
+     }
+    ],
+    "principales_sous_44": [
+     {
+      "el": "button.bascule-theme",
+      "nom": "Passer en version nuit",
+      "w": 34,
+      "h": 34
+     },
+     {
+      "el": "button.btn-burger",
+      "nom": "Menu",
+      "w": 36,
+      "h": 36
+     },
+     {
+      "el": "button.btn-srch",
+      "nom": "Rechercher",
+      "w": 353,
+      "h": 32
+     }
+    ]
+   },
+   "css": {
+    "rayons_distincts": 9,
+    "ombres_distinctes": 6,
+    "rayons": [
+     "10px",
+     "2px",
+     "4px",
+     "50%",
+     "6.4px",
+     "6px",
+     "8px",
+     "9999px",
+     "999px"
+    ],
+    "ombres": [
+     "rgba(0, 0, 0, 0.07) 0px 1px 4px 0px",
+     "rgba(0, 0, 0, 0.18) -4px 0px 24px 0px",
+     "rgba(0, 104, 118, 0.1) 0px 0px 0px 3px, rgba(25, 44, 52, 0.1) 0px 4px 12px 0px",
+     "rgba(25, 44, 52, 0.08) 0px 2px 6px 0px, rgba(25, 44, 52, 0.04) 0px 5px 14px 0px",
+     "rgba(25, 44, 52, 0.1) 0px -10px 30px 0px",
+     "rgba(9, 26, 33, 0.32) 0px 24px 70px 0px"
+    ]
+   },
+   "reseau": {
+    "requetes_polices_tierces": 2,
+    "polices_tierces": [
+     "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+    ],
+    "poids_polices_octets": 0,
+    "poids_images_octets": 5780
+   }
+  },
+  "board-detail@bureau": {
+   "contraste": {
+    "min": 4.72,
+    "min_gabarit": 4.72,
+    "echecs": [],
+    "plus_bas": [
+     {
+      "el": "span.heart",
+      "txt": "♥",
+      "ratio": 4.72,
+      "px": 11.2
+     },
+     {
+      "el": "a",
+      "txt": "Entreprises",
+      "ratio": 4.76,
+      "px": 14.8
+     },
+     {
+      "el": "div.pl-hd",
+      "txt": "51 offres disponibles",
+      "ratio": 4.9,
+      "px": 11.2
+     },
+     {
+      "el": "span",
+      "txt": "© 2026 Claim your job",
+      "ratio": 5.58,
+      "px": 9.92
+     },
+     {
+      "el": "a",
+      "txt": "Hunter.io",
+      "ratio": 5.58,
+      "px": 9.92
+     }
+    ],
+    "ignores_degrade": 6
+   },
+   "texte": {
+    "min_px": 9,
+    "sous_11px": [
+     {
+      "el": "div.clogo",
+      "txt": "AC",
+      "px": 9.5
+     },
+     {
+      "el": "div.cdate",
+      "txt": "Il y a 1 mois",
+      "px": 9
+     },
+     {
+      "el": "span",
+      "txt": "CA",
+      "px": 9.5
+     },
+     {
+      "el": "span",
+      "txt": "(31 restantes)",
+      "px": 9.9
+     },
+     {
+      "el": "span",
+      "txt": "© 2026 Claim your job",
+      "px": 9.92
+     },
+     {
+      "el": "a",
+      "txt": "Hunter.io",
+      "px": 9.92
+     },
+     {
+      "el": "a",
+      "txt": "À propos",
+      "px": 10.88
+     }
+    ],
+    "sous_12px_legal": [
+     {
+      "el": "span",
+      "txt": "© 2026 Claim your job",
+      "px": 9.92,
+      "legal": true
+     },
+     {
+      "el": "span.heart",
+      "txt": "♥",
+      "px": 11.2,
+      "legal": true
+     },
+     {
+      "el": "a",
+      "txt": "Hunter.io",
+      "px": 9.92,
+      "legal": true
+     },
+     {
+      "el": "a",
+      "txt": "À propos",
+      "px": 10.88,
+      "legal": true
+     }
+    ]
+   },
+   "images": {
+    "total": 2,
+    "sans_dimensions": 2,
+    "sans_alt": 0,
+    "alt_vide": 0,
+    "alt_vide_informatif": 0,
+    "lazy": 0,
+    "sans_dimensions_liste": [
+     "/logos/kpmg.svg",
+     "/logos/kpmg.svg"
+    ]
+   },
+   "a11y": {
+    "lien_evitement": false,
+    "reperes": {
+     "header": 1,
+     "nav": 3,
+     "main": 1,
+     "footer": 1
+    },
+    "h1_count": 2,
+    "focus_visible": {
+     "tabulations": 12,
+     "focalises": 12,
+     "avec_indicateur": 12,
+     "sans_indicateur": []
+    },
+    "axe_violations": 1,
+    "axe_regles": [
+     {
+      "id": "aria-allowed-role",
+      "impact": "minor",
+      "noeuds": 1
+     }
+    ]
+   },
+   "tactile": {
+    "sous_44": [],
+    "principales_sous_44": []
+   },
+   "css": {
+    "rayons_distincts": 10,
+    "ombres_distinctes": 6,
+    "rayons": [
+     "10px",
+     "10px 10px 0px 0px",
+     "2px",
+     "4px",
+     "50%",
+     "6.4px",
+     "6px",
+     "8px",
+     "9999px",
+     "999px"
+    ],
+    "ombres": [
+     "rgba(0, 0, 0, 0.07) 0px 1px 4px 0px",
+     "rgba(0, 104, 118, 0.16) 0px 0px 0px 3px, rgba(25, 44, 52, 0.14) 0px 5px 16px 0px",
+     "rgba(25, 44, 52, 0.06) 0px 1px 2px 0px, rgba(25, 44, 52, 0.05) 0px 4px 14px 0px",
+     "rgba(25, 44, 52, 0.08) 0px 2px 6px 0px, rgba(25, 44, 52, 0.04) 0px 5px 14px 0px",
+     "rgba(25, 44, 52, 0.1) 0px -10px 30px 0px",
+     "rgba(9, 26, 33, 0.32) 0px 24px 70px 0px"
+    ]
+   },
+   "reseau": {
+    "requetes_polices_tierces": 2,
+    "polices_tierces": [
+     "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+    ],
+    "poids_polices_octets": 0,
+    "poids_images_octets": 5780
+   }
+  },
+  "board-detail@mobile": {
+   "contraste": {
+    "min": 4.72,
+    "min_gabarit": 4.72,
+    "echecs": [],
+    "plus_bas": [
+     {
+      "el": "span.heart",
+      "txt": "♥",
+      "ratio": 4.72,
+      "px": 11.2
+     },
+     {
+      "el": "div.pl-hd",
+      "txt": "51 offres disponibles",
+      "ratio": 4.9,
+      "px": 11.2
+     },
+     {
+      "el": "a.on",
+      "txt": "Offres d'emploi",
+      "ratio": 5.01,
+      "px": 15.2
+     },
+     {
+      "el": "a",
+      "txt": "Entreprises",
+      "ratio": 5.16,
+      "px": 15.2
+     },
+     {
+      "el": "span",
+      "txt": "© 2026 Claim your job",
+      "ratio": 5.58,
+      "px": 9.92
+     }
+    ],
+    "ignores_degrade": 0
+   },
+   "texte": {
+    "min_px": 9,
+    "sous_11px": [
+     {
+      "el": "div.clogo",
+      "txt": "AC",
+      "px": 9.5
+     },
+     {
+      "el": "div.cdate",
+      "txt": "Il y a 1 mois",
+      "px": 9
+     },
+     {
+      "el": "span",
+      "txt": "CA",
+      "px": 9.5
+     },
+     {
+      "el": "span",
+      "txt": "(31 restantes)",
+      "px": 9.9
+     },
+     {
+      "el": "span",
+      "txt": "© 2026 Claim your job",
+      "px": 9.92
+     },
+     {
+      "el": "a",
+      "txt": "Hunter.io",
+      "px": 9.92
+     },
+     {
+      "el": "a",
+      "txt": "À propos",
+      "px": 10.88
+     }
+    ],
+    "sous_12px_legal": [
+     {
+      "el": "span",
+      "txt": "© 2026 Claim your job",
+      "px": 9.92,
+      "legal": true
+     },
+     {
+      "el": "span.heart",
+      "txt": "♥",
+      "px": 11.2,
+      "legal": true
+     },
+     {
+      "el": "a",
+      "txt": "Hunter.io",
+      "px": 9.92,
+      "legal": true
+     },
+     {
+      "el": "a",
+      "txt": "À propos",
+      "px": 10.88,
+      "legal": true
+     }
+    ]
+   },
+   "images": {
+    "total": 2,
+    "sans_dimensions": 2,
+    "sans_alt": 0,
+    "alt_vide": 0,
+    "alt_vide_informatif": 0,
+    "lazy": 0,
+    "sans_dimensions_liste": [
+     "/logos/kpmg.svg",
+     "/logos/kpmg.svg"
+    ]
+   },
+   "a11y": {
+    "lien_evitement": false,
+    "reperes": {
+     "header": 1,
+     "nav": 3,
+     "main": 1,
+     "footer": 1
+    },
+    "h1_count": 1,
+    "focus_visible": {
+     "tabulations": 12,
+     "focalises": 12,
+     "avec_indicateur": 12,
+     "sans_indicateur": []
+    },
+    "axe_violations": 4,
+    "axe_regles": [
+     {
+      "id": "aria-allowed-role",
+      "impact": "minor",
+      "noeuds": 1
+     },
+     {
+      "id": "button-name",
+      "impact": "critical",
+      "noeuds": 1
+     },
+     {
+      "id": "landmark-unique",
+      "impact": "moderate",
+      "noeuds": 1
+     },
+     {
+      "id": "region",
+      "impact": "moderate",
+      "noeuds": 1
+     }
+    ]
+   },
+   "tactile": {
+    "sous_44": [
+     {
+      "el": "button.consent-accepter",
+      "nom": "Tout accepter",
+      "w": 173,
+      "h": 42
+     },
+     {
+      "el": "button.consent-refuser",
+      "nom": "Refuser",
+      "w": 173,
+      "h": 42
+     },
+     {
+      "el": "a.logo",
+      "nom": "Claim!",
+      "w": 68,
+      "h": 40
+     },
+     {
+      "el": "button.bascule-theme",
+      "nom": "Passer en version nuit",
+      "w": 34,
+      "h": 34
+     },
+     {
+      "el": "button.btn-burger",
+      "nom": "Menu",
+      "w": 36,
+      "h": 36
+     },
+     {
+      "el": "a.ctitle",
+      "nom": "Actuaire Confirmé (H/F) — Ri",
+      "w": 241,
+      "h": 36
+     },
+     {
+      "el": "a.ctitle",
+      "nom": "Actuaire (H/F) — Vie",
+      "w": 241,
+      "h": 18
+     },
+     {
+      "el": "a.ctitle",
+      "nom": "Actuaire Généraliste (H/F) —",
+      "w": 241,
+      "h": 36
+     },
+     {
+      "el": "a.ctitle",
+      "nom": "Actuaire (H/F) Direction des",
+      "w": 241,
+      "h": 36
+     },
+     {
+      "el": "a.ctitle",
+      "nom": "Actuaire <Script>alert(\"xss\"",
+      "w": 241,
+      "h": 36
+     },
+     {
+      "el": "a.ctitle",
+      "nom": "Actuaire Confirme (H/F) — Ré",
+      "w": 241,
+      "h": 36
+     },
+     {
+      "el": "a.ctitle",
+      "nom": "Actuaire Junior (H/F) — Star",
+      "w": 241,
+      "h": 18
+     },
+     {
+      "el": "a.ctitle",
+      "nom": "Actuaire Manager (H/F) — Cou",
+      "w": 241,
+      "h": 18
+     },
+     {
+      "el": "a.ctitle",
+      "nom": "Actuaire Senior (H/F) — Mutu",
+      "w": 241,
+      "h": 18
+     },
+     {
+      "el": "a.ctitle",
+      "nom": "Actuaire Junior (H/F) — Banq",
+      "w": 241,
+      "h": 18
+     },
+     {
+      "el": "a.ctitle",
+      "nom": "Actuaire Manager (H/F) — Ass",
+      "w": 241,
+      "h": 36
+     },
+     {
+      "el": "a.ctitle",
+      "nom": "Actuaire Senior (H/F) — Réas",
+      "w": 241,
+      "h": 36
+     },
+     {
+      "el": "a.ctitle",
+      "nom": "Actuaire Confirme (H/F) — St",
+      "w": 241,
+      "h": 36
+     },
+     {
+      "el": "a.ctitle",
+      "nom": "Actuaire Manager (H/F) — Mut",
+      "w": 241,
+      "h": 18
+     },
+     {
+      "el": "a.ctitle",
+      "nom": "Actuaire Senior (H/F) — Cons",
+      "w": 241,
+      "h": 36
+     },
+     {
+      "el": "a.ctitle",
+      "nom": "Actuaire Confirme (H/F) — Ba",
+      "w": 241,
+      "h": 18
+     },
+     {
+      "el": "a.ctitle",
+      "nom": "Actuaire Junior (H/F) — Assu",
+      "w": 241,
+      "h": 18
+     },
+     {
+      "el": "a.ctitle",
+      "nom": "Chargé d’Études Actuarielles",
+      "w": 241,
+      "h": 18
+     },
+     {
+      "el": "a.ctitle",
+      "nom": "Actuaire Junior (H/F) — Cour",
+      "w": 241,
+      "h": 18
+     },
+     {
+      "el": "a.ctitle",
+      "nom": "Actuaire Confirme (H/F) — Co",
+      "w": 241,
+      "h": 36
+     },
+     {
+      "el": "button",
+      "nom": "Voir plus d'offres (31 resta",
+      "w": 333,
+      "h": 40
+     },
+     {
+      "el": "a.ft-logo",
+      "nom": "Claim!",
+      "w": 45,
+      "h": 25
+     },
+     {
+      "el": "a",
+      "nom": "Hunter.io",
+      "w": 42,
+      "h": 12
+     },
+     {
+      "el": "a",
+      "nom": "À propos",
+      "w": 62,
+      "h": 23
+     },
+     {
+      "el": "a",
+      "nom": "CGU",
+      "w": 39,
+      "h": 23
+     },
+     {
+      "el": "a",
+      "nom": "Confidentialité",
+      "w": 91,
+      "h": 23
+     },
+     {
+      "el": "a",
+      "nom": "Contact",
+      "w": 56,
+      "h": 23
+     },
+     {
+      "el": "button.btn-back",
+      "nom": "← Toutes les offres",
+      "w": 133,
+      "h": 17
+     },
+     {
+      "el": "a.bap",
+      "nom": "Postuler",
+      "w": 95,
+      "h": 36
+     },
+     {
+      "el": "button.bsh.bal",
+      "nom": "Alerte",
+      "w": 101,
+      "h": 38
+     },
+     {
+      "el": "button.bsh",
+      "nom": "Partager",
+      "w": 97,
+      "h": 36
+     },
+     {
+      "el": "a.bm-logo",
+      "nom": "Claim!",
+      "w": 60,
+      "h": 34
+     },
+     {
+      "el": "button.bm-close",
+      "nom": "",
+      "w": 32,
+      "h": 32
+     },
+     {
+      "el": "button.btn-cta",
+      "nom": "Contactez-nous",
+      "w": 260,
+      "h": 39
+     },
+     {
+      "el": "a",
+      "nom": "Page 1",
+      "w": 38,
+      "h": 15
+     },
+     {
+      "el": "a",
+      "nom": "Page 2",
+      "w": 41,
+      "h": 15
+     },
+     {
+      "el": "a",
+      "nom": "Page 3",
+      "w": 41,
+      "h": 15
+     }
+    ],
+    "principales_sous_44": [
+     {
+      "el": "button.bascule-theme",
+      "nom": "Passer en version nuit",
+      "w": 34,
+      "h": 34
+     },
+     {
+      "el": "button.btn-burger",
+      "nom": "Menu",
+      "w": 36,
+      "h": 36
+     }
+    ]
+   },
+   "css": {
+    "rayons_distincts": 9,
+    "ombres_distinctes": 6,
+    "rayons": [
+     "10px",
+     "2px",
+     "4px",
+     "50%",
+     "6.4px",
+     "6px",
+     "8px",
+     "9999px",
+     "999px"
+    ],
+    "ombres": [
+     "rgba(0, 0, 0, 0.07) 0px 1px 4px 0px",
+     "rgba(0, 0, 0, 0.18) -4px 0px 24px 0px",
+     "rgba(0, 104, 118, 0.1) 0px 0px 0px 3px, rgba(25, 44, 52, 0.1) 0px 4px 12px 0px",
+     "rgba(25, 44, 52, 0.08) 0px 2px 6px 0px, rgba(25, 44, 52, 0.04) 0px 5px 14px 0px",
+     "rgba(25, 44, 52, 0.1) 0px -10px 30px 0px",
+     "rgba(9, 26, 33, 0.32) 0px 24px 70px 0px"
+    ]
+   },
+   "reseau": {
+    "requetes_polices_tierces": 2,
+    "polices_tierces": [
+     "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+    ],
+    "poids_polices_octets": 0,
+    "poids_images_octets": 5780
+   }
+  },
+  "a-propos@bureau": {
+   "contraste": {
+    "min": 2.09,
+    "min_gabarit": 4.72,
+    "echecs": [
+     {
+      "el": "span",
+      "txt": "© 2026 Claim your job",
+      "ratio": 2.09,
+      "seuil": 4.5,
+      "px": 9.92
+     },
+     {
+      "el": "a",
+      "txt": "Hunter.io",
+      "ratio": 3.38,
+      "seuil": 4.5,
+      "px": 9.92
+     }
+    ],
+    "plus_bas": [
+     {
+      "el": "span",
+      "txt": "© 2026 Claim your job",
+      "ratio": 2.09,
+      "px": 9.92
+     },
+     {
+      "el": "a",
+      "txt": "Hunter.io",
+      "ratio": 3.38,
+      "px": 9.92
+     },
+     {
+      "el": "span.heart",
+      "txt": "♥",
+      "ratio": 4.72,
+      "px": 11.2
+     },
+     {
+      "el": "a",
+      "txt": "Offres d'emploi",
+      "ratio": 4.76,
+      "px": 14.8
+     },
+     {
+      "el": "nav.fil",
+      "txt": "Accueil › À propos",
+      "ratio": 6.45,
+      "px": 12.8
+     }
+    ],
+    "ignores_degrade": 0
+   },
+   "texte": {
+    "min_px": 9.92,
+    "sous_11px": [
+     {
+      "el": "span",
+      "txt": "© 2026 Claim your job",
+      "px": 9.92
+     },
+     {
+      "el": "a",
+      "txt": "Hunter.io",
+      "px": 9.92
+     },
+     {
+      "el": "a",
+      "txt": "À propos",
+      "px": 10.88
+     }
+    ],
+    "sous_12px_legal": [
+     {
+      "el": "span",
+      "txt": "© 2026 Claim your job",
+      "px": 9.92,
+      "legal": true
+     },
+     {
+      "el": "span.heart",
+      "txt": "♥",
+      "px": 11.2,
+      "legal": true
+     },
+     {
+      "el": "a",
+      "txt": "Hunter.io",
+      "px": 9.92,
+      "legal": true
+     },
+     {
+      "el": "a",
+      "txt": "À propos",
+      "px": 10.88,
+      "legal": true
+     }
+    ]
+   },
+   "images": {
+    "total": 0,
+    "sans_dimensions": 0,
+    "sans_alt": 0,
+    "alt_vide": 0,
+    "alt_vide_informatif": 0,
+    "lazy": 0,
+    "sans_dimensions_liste": []
+   },
+   "a11y": {
+    "lien_evitement": false,
+    "reperes": {
+     "header": 1,
+     "nav": 3,
+     "main": 1,
+     "footer": 1
+    },
+    "h1_count": 1,
+    "focus_visible": {
+     "tabulations": 12,
+     "focalises": 12,
+     "avec_indicateur": 12,
+     "sans_indicateur": []
+    },
+    "axe_violations": 8,
+    "axe_regles": [
+     {
+      "id": "color-contrast",
+      "impact": "serious",
+      "noeuds": 8
+     }
+    ]
+   },
+   "tactile": {
+    "sous_44": [],
+    "principales_sous_44": []
+   },
+   "css": {
+    "rayons_distincts": 6,
+    "ombres_distinctes": 0,
+    "rayons": [
+     "10px",
+     "2px",
+     "4px",
+     "6.4px",
+     "8px",
+     "9999px"
+    ],
+    "ombres": []
+   },
+   "reseau": {
+    "requetes_polices_tierces": 2,
+    "polices_tierces": [
+     "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+    ],
+    "poids_polices_octets": 0,
+    "poids_images_octets": 0
+   }
+  },
+  "a-propos@mobile": {
+   "contraste": {
+    "min": 2.09,
+    "min_gabarit": 4.72,
+    "echecs": [
+     {
+      "el": "span",
+      "txt": "© 2026 Claim your job",
+      "ratio": 2.09,
+      "seuil": 4.5,
+      "px": 9.92
+     },
+     {
+      "el": "a",
+      "txt": "Hunter.io",
+      "ratio": 3.38,
+      "seuil": 4.5,
+      "px": 9.92
+     }
+    ],
+    "plus_bas": [
+     {
+      "el": "span",
+      "txt": "© 2026 Claim your job",
+      "ratio": 2.09,
+      "px": 9.92
+     },
+     {
+      "el": "a",
+      "txt": "Hunter.io",
+      "ratio": 3.38,
+      "px": 9.92
+     },
+     {
+      "el": "span.heart",
+      "txt": "♥",
+      "ratio": 4.72,
+      "px": 11.2
+     },
+     {
+      "el": "a",
+      "txt": "Accueil",
+      "ratio": 5.16,
+      "px": 16
+     },
+     {
+      "el": "nav.fil",
+      "txt": "Accueil › À propos",
+      "ratio": 6.45,
+      "px": 12.8
+     }
+    ],
+    "ignores_degrade": 0
+   },
+   "texte": {
+    "min_px": 9.92,
+    "sous_11px": [
+     {
+      "el": "span",
+      "txt": "© 2026 Claim your job",
+      "px": 9.92
+     },
+     {
+      "el": "a",
+      "txt": "Hunter.io",
+      "px": 9.92
+     },
+     {
+      "el": "a",
+      "txt": "À propos",
+      "px": 10.88
+     }
+    ],
+    "sous_12px_legal": [
+     {
+      "el": "span",
+      "txt": "© 2026 Claim your job",
+      "px": 9.92,
+      "legal": true
+     },
+     {
+      "el": "span.heart",
+      "txt": "♥",
+      "px": 11.2,
+      "legal": true
+     },
+     {
+      "el": "a",
+      "txt": "Hunter.io",
+      "px": 9.92,
+      "legal": true
+     },
+     {
+      "el": "a",
+      "txt": "À propos",
+      "px": 10.88,
+      "legal": true
+     }
+    ]
+   },
+   "images": {
+    "total": 0,
+    "sans_dimensions": 0,
+    "sans_alt": 0,
+    "alt_vide": 0,
+    "alt_vide_informatif": 0,
+    "lazy": 0,
+    "sans_dimensions_liste": []
+   },
+   "a11y": {
+    "lien_evitement": false,
+    "reperes": {
+     "header": 1,
+     "nav": 3,
+     "main": 1,
+     "footer": 1
+    },
+    "h1_count": 1,
+    "focus_visible": {
+     "tabulations": 12,
+     "focalises": 12,
+     "avec_indicateur": 12,
+     "sans_indicateur": []
+    },
+    "axe_violations": 10,
+    "axe_regles": [
+     {
+      "id": "color-contrast",
+      "impact": "serious",
+      "noeuds": 8
+     },
+     {
+      "id": "region",
+      "impact": "moderate",
+      "noeuds": 2
+     }
+    ]
+   },
+   "tactile": {
+    "sous_44": [
+     {
+      "el": "a.logo",
+      "nom": "Claim!",
+      "w": 68,
+      "h": 40
+     },
+     {
+      "el": "button.bascule-theme",
+      "nom": "Passer en version nuit",
+      "w": 34,
+      "h": 34
+     },
+     {
+      "el": "button.btn-burger",
+      "nom": "Menu",
+      "w": 36,
+      "h": 36
+     },
+     {
+      "el": "a",
+      "nom": "Accueil",
+      "w": 45,
+      "h": 15
+     },
+     {
+      "el": "a.ft-logo",
+      "nom": "Claim!",
+      "w": 45,
+      "h": 25
+     },
+     {
+      "el": "a",
+      "nom": "Hunter.io",
+      "w": 42,
+      "h": 12
+     },
+     {
+      "el": "a",
+      "nom": "À propos",
+      "w": 65,
+      "h": 26
+     },
+     {
+      "el": "a",
+      "nom": "CGU",
+      "w": 42,
+      "h": 26
+     },
+     {
+      "el": "a",
+      "nom": "Confidentialité",
+      "w": 94,
+      "h": 26
+     },
+     {
+      "el": "a",
+      "nom": "Contact",
+      "w": 59,
+      "h": 26
+     },
+     {
+      "el": "a.bm-logo",
+      "nom": "Claim!",
+      "w": 60,
+      "h": 34
+     },
+     {
+      "el": "button.bm-close",
+      "nom": "Fermer le menu",
+      "w": 22,
+      "h": 32
+     },
+     {
+      "el": "a",
+      "nom": "À propos",
+      "w": 51,
+      "h": 20
+     },
+     {
+      "el": "a",
+      "nom": "CGU",
+      "w": 27,
+      "h": 20
+     },
+     {
+      "el": "a",
+      "nom": "Confidentialité",
+      "w": 82,
+      "h": 20
+     }
+    ],
+    "principales_sous_44": [
+     {
+      "el": "button.bascule-theme",
+      "nom": "Passer en version nuit",
+      "w": 34,
+      "h": 34
+     },
+     {
+      "el": "button.btn-burger",
+      "nom": "Menu",
+      "w": 36,
+      "h": 36
+     }
+    ]
+   },
+   "css": {
+    "rayons_distincts": 6,
+    "ombres_distinctes": 0,
+    "rayons": [
+     "10px",
+     "2px",
+     "4px",
+     "6.4px",
+     "8px",
+     "9999px"
+    ],
+    "ombres": []
+   },
+   "reseau": {
+    "requetes_polices_tierces": 2,
+    "polices_tierces": [
+     "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+    ],
+    "poids_polices_octets": 0,
+    "poids_images_octets": 0
+   }
+  },
+  "accueil@bureau-nuit": {
+   "contraste": {
+    "min": 4.89,
+    "min_gabarit": 4.89,
+    "echecs": [],
+    "plus_bas": [
+     {
+      "el": "span.sigle-repli",
+      "txt": "BP",
+      "ratio": 4.89,
+      "px": 17
+     },
+     {
+      "el": "dd",
+      "txt": "OFFRES EN LIGNE",
+      "ratio": 5.86,
+      "px": 11.04
+     },
+     {
+      "el": "span",
+      "txt": "RELEVÉ DU 22 OCTOBRE",
+      "ratio": 5.86,
+      "px": 11.04
+     },
+     {
+      "el": "div.cdate",
+      "txt": "publiée il y a 1 mois",
+      "ratio": 5.86,
+      "px": 9
+     },
+     {
+      "el": "span.sigle-repli",
+      "txt": "GF",
+      "ratio": 5.88,
+      "px": 17
+     }
+    ],
+    "ignores_degrade": 14
+   },
+   "texte": {
+    "min_px": 9,
+    "sous_11px": [
+     {
+      "el": "div.clogo",
+      "txt": "AC",
+      "px": 9.5
+     },
+     {
+      "el": "div.cdate",
+      "txt": "publiée il y a 1 mois",
+      "px": 9
+     },
+     {
+      "el": "span",
+      "txt": "BP",
+      "px": 9.5
+     },
+     {
+      "el": "span",
+      "txt": "© 2026 Claim your job",
+      "px": 9.92
+     },
+     {
+      "el": "a",
+      "txt": "Hunter.io",
+      "px": 9.92
+     },
+     {
+      "el": "a",
+      "txt": "À propos",
+      "px": 10.88
+     }
+    ],
+    "sous_12px_legal": [
+     {
+      "el": "span",
+      "txt": "© 2026 Claim your job",
+      "px": 9.92,
+      "legal": true
+     },
+     {
+      "el": "span.heart",
+      "txt": "♥",
+      "px": 11.2,
+      "legal": true
+     },
+     {
+      "el": "a",
+      "txt": "Hunter.io",
+      "px": 9.92,
+      "legal": true
+     },
+     {
+      "el": "a",
+      "txt": "À propos",
+      "px": 10.88,
+      "legal": true
+     }
+    ]
+   },
+   "images": {
+    "total": 20,
+    "sans_dimensions": 12,
+    "sans_alt": 0,
+    "alt_vide": 20,
+    "alt_vide_informatif": 0,
+    "lazy": 8,
+    "sans_dimensions_liste": [
+     "/logos/covea.png",
+     "/logos/malakoff-humanis.png",
+     "/logos/scor.svg",
+     "/logos/kpmg.svg",
+     "/logos/aon.png",
+     "/logos/alan.png",
+     "/logos/covea.png",
+     "/logos/malakoff-humanis.png",
+     "/logos/scor.svg",
+     "/logos/kpmg.svg",
+     "/logos/aon.png",
+     "/logos/alan.png"
+    ]
+   },
+   "a11y": {
+    "lien_evitement": false,
+    "reperes": {
+     "header": 1,
+     "nav": 2,
+     "main": 1,
+     "footer": 1
+    },
+    "h1_count": 1,
+    "focus_visible": {
+     "tabulations": 12,
+     "focalises": 12,
+     "avec_indicateur": 12,
+     "sans_indicateur": []
+    },
+    "axe_violations": 2,
+    "axe_regles": [
+     {
+      "id": "aria-allowed-role",
+      "impact": "minor",
+      "noeuds": 1
+     },
+     {
+      "id": "scrollable-region-focusable",
+      "impact": "serious",
+      "noeuds": 1
+     }
+    ]
+   },
+   "tactile": {
+    "sous_44": [],
+    "principales_sous_44": []
+   },
+   "css": {
+    "rayons_distincts": 10,
+    "ombres_distinctes": 5,
+    "rayons": [
+     "10.4px",
+     "10px",
+     "2px",
+     "4px",
+     "50%",
+     "6.4px",
+     "6px",
+     "8px",
+     "9999px",
+     "999px"
+    ],
+    "ombres": [
+     "rgba(0, 0, 0, 0.07) 0px 1px 4px 0px",
+     "rgba(0, 0, 0, 0.4) 0px 1px 2px 0px, rgba(0, 0, 0, 0.35) 0px 4px 14px 0px",
+     "rgba(25, 44, 52, 0.04) 0px 1px 2px 0px",
+     "rgba(25, 44, 52, 0.08) 0px 2px 6px 0px, rgba(25, 44, 52, 0.04) 0px 5px 14px 0px",
+     "rgba(25, 44, 52, 0.1) 0px -10px 30px 0px"
+    ]
+   },
+   "reseau": {
+    "requetes_polices_tierces": 2,
+    "polices_tierces": [
+     "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+    ],
+    "poids_polices_octets": 0,
+    "poids_images_octets": 757405
+   }
+  },
+  "board-liste@bureau-nuit": {
+   "contraste": {
+    "min": 5.86,
+    "min_gabarit": 5.86,
+    "echecs": [],
+    "plus_bas": [
+     {
+      "el": "div.cdate",
+      "txt": "Il y a 1 mois",
+      "ratio": 5.86,
+      "px": 9
+     },
+     {
+      "el": "span",
+      "txt": "(31 restantes)",
+      "ratio": 5.86,
+      "px": 9.9
+     },
+     {
+      "el": "div.pl-hd",
+      "txt": "51 offres disponibles",
+      "ratio": 6.17,
+      "px": 11.2
+     },
+     {
+      "el": "div.clogo",
+      "txt": "AC",
+      "ratio": 6.48,
+      "px": 9.5
+     },
+     {
+      "el": "span.heart",
+      "txt": "♥",
+      "ratio": 6.61,
+      "px": 11.2
+     }
+    ],
+    "ignores_degrade": 6
+   },
+   "texte": {
+    "min_px": 9,
+    "sous_11px": [
+     {
+      "el": "div.clogo",
+      "txt": "AC",
+      "px": 9.5
+     },
+     {
+      "el": "div.cdate",
+      "txt": "Il y a 1 mois",
+      "px": 9
+     },
+     {
+      "el": "span",
+      "txt": "CA",
+      "px": 9.5
+     },
+     {
+      "el": "span",
+      "txt": "(31 restantes)",
+      "px": 9.9
+     },
+     {
+      "el": "span",
+      "txt": "© 2026 Claim your job",
+      "px": 9.92
+     },
+     {
+      "el": "a",
+      "txt": "Hunter.io",
+      "px": 9.92
+     },
+     {
+      "el": "a",
+      "txt": "À propos",
+      "px": 10.88
+     }
+    ],
+    "sous_12px_legal": [
+     {
+      "el": "span",
+      "txt": "© 2026 Claim your job",
+      "px": 9.92,
+      "legal": true
+     },
+     {
+      "el": "span.heart",
+      "txt": "♥",
+      "px": 11.2,
+      "legal": true
+     },
+     {
+      "el": "a",
+      "txt": "Hunter.io",
+      "px": 9.92,
+      "legal": true
+     },
+     {
+      "el": "a",
+      "txt": "À propos",
+      "px": 10.88,
+      "legal": true
+     }
+    ]
+   },
+   "images": {
+    "total": 2,
+    "sans_dimensions": 2,
+    "sans_alt": 0,
+    "alt_vide": 0,
+    "alt_vide_informatif": 0,
+    "lazy": 0,
+    "sans_dimensions_liste": [
+     "/logos/kpmg.svg",
+     "/logos/kpmg.svg"
+    ]
+   },
+   "a11y": {
+    "lien_evitement": false,
+    "reperes": {
+     "header": 1,
+     "nav": 3,
+     "main": 1,
+     "footer": 1
+    },
+    "h1_count": 2,
+    "focus_visible": {
+     "tabulations": 12,
+     "focalises": 12,
+     "avec_indicateur": 12,
+     "sans_indicateur": []
+    },
+    "axe_violations": 1,
+    "axe_regles": [
+     {
+      "id": "aria-allowed-role",
+      "impact": "minor",
+      "noeuds": 1
+     }
+    ]
+   },
+   "tactile": {
+    "sous_44": [],
+    "principales_sous_44": []
+   },
+   "css": {
+    "rayons_distincts": 10,
+    "ombres_distinctes": 6,
+    "rayons": [
+     "10px",
+     "10px 10px 0px 0px",
+     "2px",
+     "4px",
+     "50%",
+     "6.4px",
+     "6px",
+     "8px",
+     "9999px",
+     "999px"
+    ],
+    "ombres": [
+     "rgba(0, 0, 0, 0.07) 0px 1px 4px 0px",
+     "rgba(0, 104, 118, 0.1) 0px 0px 0px 3px, rgba(25, 44, 52, 0.1) 0px 4px 12px 0px",
+     "rgba(25, 44, 52, 0.06) 0px 1px 2px 0px, rgba(25, 44, 52, 0.05) 0px 4px 14px 0px",
+     "rgba(25, 44, 52, 0.08) 0px 2px 6px 0px, rgba(25, 44, 52, 0.04) 0px 5px 14px 0px",
+     "rgba(25, 44, 52, 0.1) 0px -10px 30px 0px",
+     "rgba(9, 26, 33, 0.32) 0px 24px 70px 0px"
+    ]
+   },
+   "reseau": {
+    "requetes_polices_tierces": 2,
+    "polices_tierces": [
+     "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+    ],
+    "poids_polices_octets": 0,
+    "poids_images_octets": 5780
+   }
+  }
+ },
+ "erreurs": {
+  "accueil": {
+   "panne": {
+    "texte_anglais_visible": false,
+    "chargement_et_erreur_simultanes": true,
+    "extraits_anglais": [],
+    "extraits_chargement": [
+     "Chargement…"
+    ],
+    "extraits_erreur": [
+     "Les offres ne se chargent pas pour l'instant. ."
+    ]
+   },
+   "reseau": {
+    "texte_anglais_visible": false,
+    "chargement_et_erreur_simultanes": true,
+    "extraits_anglais": [],
+    "extraits_chargement": [
+     "Chargement…"
+    ],
+    "extraits_erreur": [
+     "Les offres ne se chargent pas pour l'instant. ."
+    ]
+   }
+  },
+  "board-liste": {
+   "panne": {
+    "texte_anglais_visible": true,
+    "chargement_et_erreur_simultanes": true,
+    "extraits_anglais": [
+     "Erreur : HTTP 500"
+    ],
+    "extraits_chargement": [
+     "Chargement…"
+    ],
+    "extraits_erreur": [
+     "Erreur : HTTP 500"
+    ]
+   },
+   "reseau": {
+    "texte_anglais_visible": true,
+    "chargement_et_erreur_simultanes": true,
+    "extraits_anglais": [
+     "Erreur : Failed to fetch"
+    ],
+    "extraits_chargement": [
+     "Chargement…"
+    ],
+    "extraits_erreur": [
+     "Erreur : Failed to fetch"
+    ]
+   }
+  },
+  "board-detail": {
+   "panne": {
+    "texte_anglais_visible": true,
+    "chargement_et_erreur_simultanes": false,
+    "extraits_anglais": [
+     "Erreur : HTTP 500"
+    ],
+    "extraits_chargement": [],
+    "extraits_erreur": [
+     "Erreur : HTTP 500"
+    ]
+   },
+   "reseau": {
+    "texte_anglais_visible": true,
+    "chargement_et_erreur_simultanes": false,
+    "extraits_anglais": [
+     "Erreur : Failed to fetch"
+    ],
+    "extraits_chargement": [],
+    "extraits_erreur": [
+     "Erreur : Failed to fetch"
+    ]
+   }
+  }
+ }
+}

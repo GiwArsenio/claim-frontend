@@ -74,6 +74,7 @@ const FAMILLES = {
     'tests/casse_titre.test.cjs',
     'tests/images_dimensions.test.cjs',
     'tests/lieu_format.test.cjs',
+    'tests/audit_design_outil.test.cjs',
   ],
   // Demandent un navigateur. Lents, mais locaux : ils ouvrent le serveur
   // de test et n'appellent que lui.
@@ -108,6 +109,7 @@ const FAMILLES = {
     'tests/plan_premier_paint.test.cjs',
     'tests/detail_hierarchie.test.cjs',
     'tests/lien_evitement.test.cjs',
+    'tests/audit_design_outil_mesure.test.cjs',
   ],
   // Parlent à la production. Une régression en ligne doit se voir, mais
   // elle ne doit pas bloquer une fusion : la production peut tomber sans
