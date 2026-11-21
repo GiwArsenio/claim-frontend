@@ -429,3 +429,24 @@ a.skip-link:active {
    autour de toute la zone principale. */
 main[tabindex="-1"]:focus,
 section.chantier[tabindex="-1"]:focus { outline: none; }
+/* ── Cibles tactiles des boutons de l'en-tête, au téléphone ──────────────────
+   À 768 px et moins, la bascule de thème (34 px) et le burger (36 px) étaient
+   plus petits que le pouce : on les porte à 44 px, la cible recommandée sur
+   écran tactile. Le bureau garde ses 34 px.
+
+   La règle vit ici, dans la feuille partagée, parce que la bascule et le
+   burger sont les mêmes sur toutes les pages : une seule source, au lieu d'une
+   copie par page. `#hd nav .btn-burger` pèse plus lourd que la règle propre à
+   chaque page (`#hd .btn-burger`), donc l'ordre de chargement n'a pas
+   d'importance.
+
+   Une barre de 44 px aurait grandi de plus de 4 px (le logo mesure 39,6 px).
+   On rogne donc le padding vertical de la barre, de .6rem à .5rem : la barre
+   passe de 58,8 à 60 px, soit +1,2 px. Les deux boutons restent séparés de
+   .75rem (12 px), au-dessus des 8 px demandés entre deux cibles. */
+@media (max-width: 768px) {
+  .bascule-theme { width: 44px; height: 44px; }
+  .bascule-theme .ic { width: 20px; height: 20px; }
+  #hd nav .btn-burger { width: 44px; height: 44px; }
+  header#hd nav { padding-top: .5rem; padding-bottom: .5rem; }
+}

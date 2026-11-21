@@ -821,11 +821,14 @@ html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1)
   .sf input { font-size: .95rem; }
   .sf.loc-field { border-top: 1px solid var(--bord-doux); }
   .sdiv { display: none; }
+  /* Cible tactile : 44 px de haut au minimum, et 8 px (.5rem) d'air au-dessus
+     pour ne pas toucher le champ voisin. */
   .btn-srch {
     border-radius: .375rem;
     padding: .5rem 1rem;
     font-size: .9rem;
-    margin: .2rem .1rem .1rem;
+    min-height: 44px;
+    margin: .5rem .1rem .1rem;
     width: calc(100% - .2rem);
     text-align: center;
   }
