@@ -111,7 +111,6 @@
   .hero h1 { font-size: clamp(1.9rem, 3.4vw, 2.9rem); font-weight: 900; letter-spacing: -.03em;
              line-height: 1.1; margin: 0 0 .9rem; max-width: 20ch;
              }
-  .hero h1 em { color: var(--teal); font-style: normal; }
   .hero .sub { color: var(--gris); font-size: 1.05rem; max-width: 62ch; margin: 0 0 1.75rem; }
   .hero .sub strong { color: var(--encre); font-weight: 700; }
 
@@ -186,39 +185,9 @@ html[data-theme="nuit"] select.chip {
   --fleche-pastille: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b9aa0' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
 }
 
-  /* ── CHIFFRES ── */
   /* ── CHIFFRES ──
-     Quatre nombres qui portent la preuve, posés sur une seule ligne. Les
-     chiffres prennent l'échelle et l'interlettrage des titres ; les libellés
-     se réduisent à un rôle d'étiquette. La séparation entre colonnes est un
-     filet qui s'efface à ses extrémités — elle sépare sans découper. */
-  .chiffres { border-bottom: 1px solid var(--bord); background: var(--surface); }
-  .chiffres dl { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
-                 margin: 0; padding: .55rem 0 .65rem; }
-  .chiffres dl > div { position: relative; padding: 0 1.6rem; }
-  .chiffres dl > div:first-child { padding-left: 0; }
-  .chiffres dl > div + div::before {
-    content: ''; position: absolute; left: 0; top: .1rem; bottom: .1rem; width: 1px;
-    background: linear-gradient(180deg, transparent, var(--bord) 24%, var(--bord) 76%, transparent);
-  }
-  .chiffres dt { font-size: clamp(1.32rem, 1.75vw, 1.55rem); font-weight: 900; line-height: 1;
-                 letter-spacing: -.04em; color: var(--encre);
-                 font-variant-numeric: tabular-nums; }
-  /* Avant l'arrivée des chiffres, le tiret cadratin prenait la graisse et la
-     taille d'un nombre : quatre barres noires en travers de la page. Il
-     attend désormais dans la couleur du filet, à la même place. */
-  .chiffres dt.attente { color: var(--bord); }
-  .chiffres dd { display: flex; align-items: center; gap: .4rem; margin: .38rem 0 0;
-                 font-size: .69rem; font-weight: 700; letter-spacing: .085em;
-                 color: var(--gris-doux); text-transform: uppercase;
-                 /* Sans cela, la colonne ne peut pas descendre sous la largeur
-                    de son libelle : sur un telephone de 360 px, la grille des
-                    chiffres forcait le document a 376 px, et une barre de
-                    defilement horizontale apparait. `min-width: 0` autorise le
-                    retrait ; le libelle passe alors a la ligne. */
-                 min-width: 0; flex-wrap: wrap; }
-  .chiffres dd .ic { width: 15px; height: 15px; color: var(--teal); opacity: .9;
-                     font-variation-settings: 'wght' 300; flex-shrink: 0; }
+     Le bandeau de quatre chiffres a laissé la place au panneau « Relevé du
+     jour » : ses styles vivent dans assets/accueil-releve.css. */
 
   /* ── PANNEAUX DE SECTION ──
      Deux sections portaient leur contenu à même le fond blanc : elles se
@@ -435,12 +404,6 @@ html[data-theme="nuit"] select.chip {
 
   @media (max-width: 900px) {
     .env { padding: 0 1.25rem; }
-    /* Deux colonnes : le filet de gauche ne vaut que pour la seconde, et
-       les chiffres du premier rang gardent leur accolade. */
-    .chiffres dl { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem 0; }
-    .chiffres dl > div { padding: 0 1.1rem; }
-    .chiffres dl > div:nth-child(odd) { padding-left: 0; }
-    .chiffres dl > div:nth-child(odd)::before { display: none; }
     .grille { grid-template-columns: 1fr; }
     .pied .haut { grid-template-columns: 1fr; gap: 1.5rem; }
     .barre { grid-template-columns: 9rem 1fr 2.5rem; }
@@ -931,6 +894,7 @@ html[data-theme="nuit"] body {
 <link rel="stylesheet" href="/assets/theme.css">
 <script>(function(){try{var t=localStorage.getItem('claim-theme-v2');if(t==='nuit'){document.documentElement.setAttribute('data-theme','nuit');}}catch(e){}})();</script>
 <script src="/assets/theme.js" defer></script>
+<link rel="stylesheet" href="/assets/accueil-releve.css">
 <link rel="stylesheet" href="/assets/filtres-entrees.css">
 <link rel="stylesheet" href="/assets/accueil-pourquoi.css">
 </head>
@@ -958,8 +922,9 @@ html[data-theme="nuit"] body {
 
 <main id="contenu" tabindex="-1">
 <div class="hero">
-  <div class="env">
-    <h1>Toutes les offres en <em>actuariat</em>, <em>data</em> et <em>IA</em> en assurance.</h1>
+  <div class="env hero-grille">
+   <div class="hero-texte">
+    <h1>Toutes les offres en actuariat, data et IA en assurance.</h1>
     <p class="sub">
       <strong id="chiffre-hero">Les offres</strong> en ligne, relevées chaque matin sur
       <strong id="chiffre-sources">les sites carrières</strong> des employeurs — assureurs, mutuelles,
@@ -989,22 +954,37 @@ html[data-theme="nuit"] body {
 <a class="filtre-entree" href="/job-board.html#filtres-date-filter" onclick="location.href=prefMarche()+'/job-board.html#filtres-date-filter';return false;">Date de publication</a>
 <a class="filtre-entree" href="/job-board.html#filtres-ats-filter" onclick="location.href=prefMarche()+'/job-board.html#filtres-ats-filter';return false;">Source ATS</a>
     </div>
-  </div>
-</div>
+   </div>
 
-<div class="chiffres">
-  <div class="env">
-    <dl>
-      <div><dt id="f-offres" class="attente">—</dt>
-           <dd><svg class="ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect width="20" height="14" x="2" y="6" rx="2"/><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>OFFRES EN LIGNE</dd></div>
-      <div><dt id="f-sources" class="attente">—</dt>
-           <dd><svg class="ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>SOURCES RELEVÉES</dd></div>
-      <div><dt id="f-employeurs" class="attente">—</dt>
-           <dd><svg class="ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>EMPLOYEURS QUI RECRUTENT</dd></div>
-      <div><dt id="f-releve" class="attente">—</dt>
-           <dd id="f-releve-libelle"><svg class="ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span
-             id="f-releve-texte">DERNIER RELEVÉ</span></dd></div>
-    </dl>
+   <!-- Le relevé du jour : il remplace le bandeau de quatre chiffres (D7).
+        Les `id` f-offres, f-employeurs, f-sources, f-releve et f-releve-libelle
+        sont ceux du bandeau : le script et les tests les lisent. La classe
+        `chiffres` est gardée pour la même raison. Dans chaque ligne la valeur
+        (dt) précède son libellé (dd) ; la feuille accueil-releve.css les remet
+        dans l'ordre de lecture visuel. -->
+   <aside class="releve chiffres" aria-labelledby="releve-titre">
+    <div class="releve-tete">
+      <h2 id="releve-titre">Relevé du jour</h2>
+      <p class="releve-etat" id="releve-etat" role="status">Mis à jour chaque matin</p>
+    </div>
+    <div class="releve-corps">
+      <dl class="releve-lignes">
+        <div class="releve-ligne releve-ligne--vedette"><dt id="f-offres" class="attente">—</dt><dd>offres en ligne</dd></div>
+        <div class="releve-ligne"><dt id="f-employeurs" class="attente">—</dt><dd>employeurs qui recrutent</dd></div>
+        <div class="releve-ligne"><dt id="f-sources" class="attente">—</dt><dd>sources relevées</dd></div>
+        <div class="releve-ligne"><dt id="f-releve" class="attente">—</dt><dd id="f-releve-libelle"><span id="f-releve-texte">Dernier relevé</span></dd></div>
+      </dl>
+      <h3 class="releve-sous-titre" id="releve-repart-titre">Répartition des offres</h3>
+      <table class="releve-repart" aria-labelledby="releve-repart-titre">
+        <tbody>
+          <tr><th scope="row">Actuariat</th><td class="barre-cel" aria-hidden="true"><span class="releve-piste"><span class="releve-barre" data-barre="actuariat"></span></span></td><td class="n attente" data-nombre="actuariat">—</td></tr>
+          <tr><th scope="row">IA / Data</th><td class="barre-cel" aria-hidden="true"><span class="releve-piste"><span class="releve-barre" data-barre="ia_data"></span></span></td><td class="n attente" data-nombre="ia_data">—</td></tr>
+          <tr><th scope="row">Souscription technique</th><td class="barre-cel" aria-hidden="true"><span class="releve-piste"><span class="releve-barre" data-barre="souscription_technique"></span></span></td><td class="n attente" data-nombre="souscription_technique">—</td></tr>
+          <tr><th scope="row">Pas encore classées</th><td class="barre-cel" aria-hidden="true"><span class="releve-piste"><span class="releve-barre releve-barre--autre" data-barre="autres"></span></span></td><td class="n attente" data-nombre="autres">—</td></tr>
+        </tbody>
+      </table>
+    </div>
+   </aside>
   </div>
 </div>
 
@@ -1379,6 +1359,10 @@ const initiales = (nom) => (annuaire ? annuaire.initiales(nom) : '');
 // Un appel : /stats/published. S'il tombe, la page reste lisible — les chiffres
 // s'effacent, rien ne casse.
 async function chargerChiffres() {
+  const etat = document.getElementById('releve-etat');
+  // Le texte de repos est fixe : un nouvel essai après une panne ne doit pas
+  // reprendre le message de panne pour son état normal.
+  const texteRepos = 'Mis à jour chaque matin';
   let stats;
   try {
     const r = await fetch(`${API_BASE}/stats/published`);
@@ -1393,33 +1377,66 @@ async function chargerChiffres() {
       const el = document.getElementById(id);
       if (el) el.textContent = '—';
     });
+    // Les « — » restent en place (la hauteur du panneau ne bouge pas) et une
+    // seule ligne, déjà réservée, dit pourquoi.
+    if (etat) etat.textContent = 'Chiffres momentanément indisponibles';
     return null;
   }
+  if (etat) etat.textContent = texteRepos;
 
-  document.getElementById('f-offres').textContent = stats.jobs_online;
-  document.getElementById('f-employeurs').textContent = stats.companies_hiring;
-  if (stats.sources_tracked) document.getElementById('f-sources').textContent = stats.sources_tracked;
+  // Un nombre se dit en français (« 1 234 ») ; une valeur absente reste « — ».
+  const nombre = (n) => (Number.isFinite(n) ? n.toLocaleString('fr-FR') : null);
+  const poser = (el, texte) => {
+    if (!el || texte === null) return;
+    el.textContent = texte;
+    // La valeur est posée : le tiret d'attente n'a plus lieu d'être.
+    el.classList.remove('attente');
+  };
 
-  // Le relevé se dit en français, dans l'heure de Paris.
+  poser(document.getElementById('f-offres'), nombre(stats.jobs_online));
+  poser(document.getElementById('f-employeurs'), nombre(stats.companies_hiring));
+  if (stats.sources_tracked) poser(document.getElementById('f-sources'), nombre(stats.sources_tracked));
+
+  // Le relevé se dit en français, dans l'heure de Paris : « 03 h 04 ».
   if (stats.last_collection_at) {
     const quand = new Date(stats.last_collection_at);
-    const heure = quand.toLocaleTimeString('fr-FR', { timeZone: 'Europe/Paris',
-      hour: '2-digit', minute: '2-digit' });
-    const jour = quand.toLocaleDateString('fr-FR', { timeZone: 'Europe/Paris',
-      day: 'numeric', month: 'long' });
-    document.getElementById('f-releve').textContent = heure;
-    // Le texte seul : son frère est l'icône, qu'un textContent sur le parent
-    // effacerait à chaque chargement.
-    document.getElementById('f-releve-texte').textContent = `RELEVÉ DU ${jour.toUpperCase()}`;
+    if (!Number.isNaN(quand.getTime())) {
+      const [hh, mm] = quand.toLocaleTimeString('fr-FR', { timeZone: 'Europe/Paris',
+        hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).split(':');
+      const jour = quand.toLocaleDateString('fr-FR', { timeZone: 'Europe/Paris',
+        day: 'numeric', month: 'long' });
+      poser(document.getElementById('f-releve'), `${hh} h ${mm}`);
+      // Le texte seul : le libellé n'a pas d'autre enfant, mais l'id du texte
+      // reste celui que lisent les tests.
+      document.getElementById('f-releve-texte').textContent = `Dernier relevé le ${jour}`;
+    }
+  }
+
+  // Répartition par spécialité. Les barres se mesurent sur le TOTAL des offres
+  // en ligne : la somme des trois spécialités peut lui être inférieure (offres
+  // pas encore classées), et ne doit jamais passer pour le total. La dernière
+  // ligne rend cet écart lisible.
+  const total = Number(stats.jobs_online);
+  const repart = stats.by_specialty && typeof stats.by_specialty === 'object' ? stats.by_specialty : null;
+  if (repart && Number.isFinite(total)) {
+    let somme = 0;
+    const valeurs = {};
+    for (const code of ['actuariat', 'ia_data', 'souscription_technique']) {
+      const n = Number(repart[code]);
+      if (Number.isFinite(n) && n >= 0) { valeurs[code] = n; somme += n; }
+    }
+    valeurs.autres = Math.max(0, total - somme);
+    for (const [code, n] of Object.entries(valeurs)) {
+      poser(document.querySelector(`[data-nombre="${code}"]`), nombre(n));
+      const barre = document.querySelector(`[data-barre="${code}"]`);
+      if (barre) barre.style.setProperty('--part', total > 0 ? Math.min(1, n / total).toFixed(4) : '0');
+    }
   }
 
   document.getElementById('chiffre-hero').textContent = `${stats.jobs_online} offres`;
   if (stats.sources_tracked) {
     document.getElementById('chiffre-sources').textContent = `${stats.sources_tracked} sources`;
   }
-  // Les valeurs sont posées : le tiret d'attente n'a plus lieu d'être.
-  document.querySelectorAll('.chiffres dt.attente')
-    .forEach((el) => el.classList.remove('attente'));
 
   const compte = document.getElementById('compte-employeurs');
   if (compte) {

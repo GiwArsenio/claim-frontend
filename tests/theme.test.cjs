@@ -233,6 +233,12 @@ test('aucune surface ne reste claire en mode nuit', async () => {
                design assumé, identique en jour et en nuit — le fond de la
                photo, pas le thème, décide de sa lisibilité. */
             if (el.classList.contains('ville-btn')) continue;
+            /* Les barres du panneau « Relevé du jour » (assets/accueil-releve.css)
+               sont des marques de données, pas des surfaces : en nuit elles
+               prennent le teal clair du texte de marque, seul moyen de
+               ressortir (3:1 au moins, vérifié par tests/accueil_releve.test.cjs)
+               sur la piste sombre qui les porte. */
+            if (el.classList.contains('releve-barre')) continue;
             const r = el.getBoundingClientRect();
             if (r.width < 4 || r.height < 4) continue;
             const aFond = parse(st.backgroundColor);
