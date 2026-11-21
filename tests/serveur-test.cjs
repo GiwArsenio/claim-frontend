@@ -103,6 +103,7 @@ const Types = {
   '.svg': 'image/svg+xml',
   '.xml': 'application/xml; charset=utf-8',
   '.txt': 'text/plain; charset=utf-8',
+  '.woff2': 'font/woff2',
 };
 
 function servirStatique(res, chemin) {

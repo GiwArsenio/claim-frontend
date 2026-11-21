@@ -1,0 +1,59 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   POLICES — Inter, hébergée sur le site
+
+   Avant : Inter venait des serveurs de polices de Google, sur toutes
+   les pages. Le navigateur du visiteur contactait Google avant tout
+   consentement, alors que la page Confidentialité promet l'absence de tiers
+   publicitaires. Maintenant : le fichier est servi par le site lui-même.
+
+   Le fichier (assets/polices/Inter-latin-variable.woff2) est Inter 4.001 en
+   police variable, réduite à ce que le site affiche :
+     - latin (français, accents, ponctuation, flèches, €), pas de cyrillique ni
+       de grec ; un caractère absent du fichier s'affiche dans la police du
+       système, comme avant ;
+     - axe de graisse 300 à 900 (les graisses demandées par le site) ;
+     - axe « taille optique » figé à 14, comme le fait Google : le rendu est le
+       même qu'avant (mêmes largeurs de lettres), et le fichier est plus léger.
+   Licence : assets/polices/Inter-LICENSE.txt (SIL Open Font License 1.1).
+
+   Ne pas modifier à la main les balises <link> qui chargent cette feuille dans
+   les pages : elles sont posées par tools/codemod-polices.cjs.
+   ───────────────────────────────────────────────────────────────────────────── */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 300 900;
+  font-display: swap;
+  src: url('/assets/polices/Inter-latin-variable.woff2') format('woff2');
+}
+
+/* Police de repli aux mêmes proportions qu'Inter.
+   Pendant les quelques dizaines de millisecondes où Inter n'est pas encore
+   arrivée (font-display: swap), le texte s'affiche dans Arial. Arial est un
+   peu plus étroite qu'Inter : sans correction, tout le texte « grossit » d'un
+   coup à l'arrivée d'Inter et la page saute. Ces deux déclarations règlent la
+   taille et la hauteur de ligne d'Arial pour qu'elle occupe la même place.
+   Valeurs mesurées sur un texte français courant : Inter 400 est 6,4 % plus
+   large qu'Arial 400 ; Inter 600-700 est 1 à 2 % plus large qu'Arial gras.
+   Elle n'est utilisée que si 'Inter Fallback' figure dans la pile de polices
+   (posé par le codemod, juste après 'Inter'). */
+@font-face {
+  font-family: 'Inter Fallback';
+  font-style: normal;
+  font-weight: 300 500;
+  src: local('Arial'), local('ArialMT'), local('Liberation Sans');
+  size-adjust: 106.4%;
+  ascent-override: 91.05%;
+  descent-override: 22.67%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Inter Fallback';
+  font-style: normal;
+  font-weight: 600 900;
+  src: local('Arial Bold'), local('Arial-BoldMT'), local('Liberation Sans Bold');
+  size-adjust: 102%;
+  ascent-override: 94.98%;
+  descent-override: 23.65%;
+  line-gap-override: 0%;
+}

@@ -22,9 +22,8 @@
 
 <!-- Même typographie et mêmes icônes que le board : le lecteur doit
      retrouver la même page, qu'il arrive par l'accueil ou par la liste. -->
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<link rel="preload" href="/assets/polices/Inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin/>
+<link rel="stylesheet" href="/assets/polices.css"/>
 <style>
   :root {
 
@@ -51,7 +50,7 @@
   }
   body {
     margin: 0;
-    font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-family: 'Inter', 'Inter Fallback', system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     color: var(--encre);
     line-height: 1.65;
     /* La teinte des sections, pas le blanc pur. Le body n'est visible
