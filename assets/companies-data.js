@@ -49,15 +49,22 @@
     retraite: 'Retraite supp.'
   };
 
-  /* ── Types d'employeur ─────────────────────────────────────────────────── */
+  /* ── Types d'employeur (9 codes canoniques API + alias historiques) ────── */
   var TYPES = {
-    assureur: 'Assureur',
+    assureur: "Compagnie d'assurance",
+    bancassureur: 'Bancassureur',
     mutuelle: 'Mutuelle',
-    reassurance: 'Réassureur',
-    bancassurance: 'Bancassurance',
-    conseil: 'Conseil / Audit',
+    groupe_protection_sociale: 'Institution de prévoyance',
+    reassureur: 'Réassureur',
     courtier: 'Courtier',
-    institution: 'Institution',
+    cabinet_conseil: 'Conseil / Audit',
+    insurtech: 'InsurTech',
+    cabinet_rh: 'Cabinet RH',
+    // Alias historiques conservés en lecture seule :
+    reassurance: 'Réassureur',
+    bancassurance: 'Bancassureur',
+    conseil: 'Conseil / Audit',
+    institution: 'Institution de prévoyance',
     autre: 'Entreprise'
   };
 
@@ -97,7 +104,7 @@
       slug: 'bnp-paribas-cardif',
       alias: ['bnp_cardif', 'bnp-cardif', 'cardif'],
       nom: 'BNP Paribas Cardif',
-      type: 'assureur',
+      type: 'bancassureur',
       secteur: 'Assurance Vie & Épargne',
       taille: '2 300+ collaborateurs',
       siege: 'Paris 8e',
@@ -125,7 +132,7 @@
       slug: 'mazars',
       alias: ['forvis-mazars'],
       nom: 'Mazars Actuariat',
-      type: 'conseil',
+      type: 'cabinet_conseil',
       secteur: 'Conseil & Audit actuariel',
       taille: '500+ actuaires',
       siege: 'Paris 8e',
@@ -152,7 +159,7 @@
     {
       slug: 'malakoff-humanis',
       nom: 'Malakoff Humanis',
-      type: 'mutuelle',
+      type: 'groupe_protection_sociale',
       secteur: 'Protection sociale complémentaire',
       taille: '10 000+ collaborateurs',
       siege: 'Paris 13e',
@@ -166,7 +173,7 @@
       slug: 'scor',
       alias: ['scor-se', 'scor-se-'],
       nom: 'SCOR SE',
-      type: 'reassurance',
+      type: 'reassureur',
       secteur: 'Réassurance mondiale',
       taille: '3 000+ collaborateurs',
       siege: 'Paris 1er',
@@ -180,7 +187,7 @@
       slug: 'societe-generale-assurances',
       alias: ['sg_assurances', 'sg-assurances', 'sogecap'],
       nom: 'Société Générale Assurances',
-      type: 'bancassurance',
+      type: 'bancassureur',
       secteur: 'Assurance Vie & Prévoyance',
       taille: '1 800+ collaborateurs',
       siege: 'Paris 17e',
@@ -193,7 +200,7 @@
     {
       slug: 'milliman',
       nom: 'Milliman',
-      type: 'conseil',
+      type: 'cabinet_conseil',
       secteur: 'Conseil actuariel international',
       taille: '4 000+ actuaires (monde)',
       siege: 'Paris 2e',
@@ -235,7 +242,7 @@
       slug: 'kpmg',
       alias: ['kpmg-france'],
       nom: 'KPMG France',
-      type: 'conseil',
+      type: 'cabinet_conseil',
       secteur: 'Audit & Conseil',
       taille: '10 000+ collaborateurs',
       siege: 'La Défense',
@@ -249,7 +256,7 @@
       slug: 'ey',
       alias: ['ernst-young'],
       nom: 'EY',
-      type: 'conseil',
+      type: 'cabinet_conseil',
       secteur: 'Audit & Conseil',
       taille: '8 000+ collaborateurs (France)',
       siege: 'Paris La Défense',
@@ -263,7 +270,7 @@
       slug: 'deloitte',
       alias: ['deloitte-france'],
       nom: 'Deloitte France',
-      type: 'conseil',
+      type: 'cabinet_conseil',
       secteur: 'Audit & Conseil',
       taille: '7 000+ collaborateurs',
       siege: 'Paris La Défense',
@@ -304,7 +311,7 @@
     {
       slug: 'alan',
       nom: 'Alan',
-      type: 'assureur',
+      type: 'insurtech',
       secteur: 'Assurance santé digitale',
       taille: '600+ collaborateurs',
       siege: 'Paris',
@@ -332,7 +339,7 @@
       slug: 'cnp-assurances',
       alias: ['cnp'],
       nom: 'CNP Assurances',
-      type: 'bancassurance',
+      type: 'bancassureur',
       secteur: 'Assurance Vie & Prévoyance',
       taille: '5 000+ collaborateurs',
       siege: 'Paris 15e',

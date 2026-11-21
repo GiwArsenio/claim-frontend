@@ -83,6 +83,14 @@ const LABELS_SPECIALITE = {
 
 const LABELS_EXPERIENCE = { junior: 'Junior', confirmed: 'Confirmé', senior: 'Senior', lead: 'Lead' };
 
+const LABELS_BRANCHES = {
+  epargne_retraite: 'Épargne-Retraite',
+  prevoyance_sante: 'Prévoyance-Santé',
+  iard: 'IARD',
+  emprunteur: 'Emprunteur',
+  reassurance: 'Réassurance',
+};
+
 // La source ne publie pas de date d'expiration : ne pas en fabriquer.
 //
 // La source ne publie pas de date d'expiration. Ne pas fabriquer de
@@ -173,6 +181,12 @@ export async function construire(job, urlCanonique) {
   }
   if (job.jev_publishable && job.jev_publishable.specialty && job.jev_specialty) {
     pastilles.push(`<span class="pastille pastille-specialite">${echapper(LABELS_SPECIALITE[job.jev_specialty] || job.jev_specialty)}</span>`);
+  }
+  if (Array.isArray(job.risk_branches)) {
+    job.risk_branches.forEach((code) => {
+      const lib = LABELS_BRANCHES[code];
+      if (lib) pastilles.push(`<span class="pastille">${echapper(lib)}</span>`);
+    });
   }
 
   // Priorité à la structure éditoriale de la source quand elle a été
@@ -557,7 +571,7 @@ ${societe.logo_url
 </script>
 <script>window.__claimMesure = ${JSON.stringify(mesure).replace(/</g, '\\u003c')};</script>
 <script src="/assets/icones.js"></script>
-<style id="plan-critique">\n/* CSS CRITIQUE DU PLAN — injecte, ne pas modifier ici */\n/* ══ CSS CRITIQUE DU PLAN — doit precede la feuille de theme ══\n *\n * Le symptome : sur iPad, au chargement d'une page, le defilement\n * semble depasser le pied de page. Le fond sous le pied, d'une couleur\n * qui n'appartient pas au site, s'affiche pendant quelques instants,\n * puis tout se stabilise.\n *\n * La cause : les regles qui posent le fond du plan vivent dans\n * assets/theme.css — une feuille EXTERNE. Avant qu'elle n'arrive, le\n * navigateur ne sait rien : --plan, --fond et --champ sont indefinis,\n * \`background: var(--plan)\` ne s'applique pas, le fond est transparent,\n * et \`overscroll-behavior-y\` reste a \`auto\`.\n *\n * CE FICHIER EST UN GABARIT. Les marqueurs #f3f4f5 et\n * #12181b sont remplaces par scripts/injecter-plan-critique.cjs\n * avec la couleur de la page : toutes les pages n'ont pas le meme plan.\n *\n *   accueil, entreprises, observatoire, offer, 404\n *       --plan: var(--champ)   jour #f3f4f5   nuit #12181b\n *   a-propos, cgu, confidentialite, contact\n *       --plan: var(--fond)    jour #fff      nuit #0f1416\n *\n * Mettre le meme repli partout etait l'erreur de la version\n * precedente : les quatre pages du pied affichaient du gris la ou\n * elles doivent etre blanches — un fond qui n'appartient pas a la page.\n *\n * Les fallbacks de var() gardent la main des que la feuille de theme\n * arrive : --plan est alors defini, et c'est lui qui s'applique.\n */\n\nhtml {\n  background: var(--plan, #f3f4f5);\n  /* Le rebond du geste est desactive des le premier octet : sans\n     cela, le canvas deborde du body pendant que la feuille arrive. */\n  overscroll-behavior-y: none;\n  min-height: 100%;\n}\n\nbody {\n  background: var(--plan, #f3f4f5);\n  overscroll-behavior-y: none;\n  /* Le body doit couvrir la fenetre MEME quand le contenu est court.\n     Sans cela, quand la page est plus courte que l'ecran — ce qui\n     arrive au premier paint — le pied flotte au milieu et le fond\n     apparait dessous. C'est le « vide sous le pied ». */\n  min-height: 100dvh;\n  margin: 0;\n}\n\n/* Le mode nuit, des le premier paint. Le script qui pose data-theme\n   est inline dans le <head> : il s'execute avant le premier rendu.\n   Sans ces deux regles, un lecteur en mode nuit voyait un flash clair. */\nhtml[data-theme="nuit"] {\n  background: var(--plan, #12181b);\n}\nhtml[data-theme="nuit"] body {\n  background: var(--plan, #12181b);\n}\n\n/* ══ LE PIED EST TENU AU BAS ══\n *\n * Sans cela, quand le contenu est plus court que la fenetre, le pied\n * flotte au milieu de l'ecran et le fond du body occupe le bas : c'est\n * la bande grise sous le pied. Elle apparait des que la page ne\n * remplit pas l'ecran — au premier paint, et sur les pages courtes.\n *\n * #app porte min-height: 100% dans son propre CSS. Un pourcentage se\n * resout contre la hauteur du parent ; le body n'en a pas, donc il vaut\n * auto, et l'etirement ne se fait pas. On donne ici une valeur absolue\n * au viewport, qui ne depend de rien.\n *\n * Les selecteurs sont volontairement nus : ils doivent gagner sur le\n * CSS de chaque page, qui arrive apres. A specificite egale, le dernier\n * declare l'emporte — theme.css ne redefinit ni le display du body ni\n * la marge du pied.\n *\n * Le board est exclu (bloc retire a l'injection) : c'est une\n * application a hauteur fixe, son document ne defile pas.\n */\n/* __DEBUT_PIED_COLLE__ */\nbody {\n  display: flex;\n  flex-direction: column;\n  min-height: 100dvh;\n}\n#app {\n  min-height: 100dvh;\n}\n#ft {\n  margin-top: auto;\n}\n/* __FIN_PIED_COLLE__ */\n\n</style>\n<link rel="stylesheet" href="/assets/theme.css">
+<link rel="stylesheet" href="/assets/theme.css">
 <script>(function(){try{var t=localStorage.getItem('claim-theme');if(t==='nuit'||(!t&&window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.setAttribute('data-theme','nuit');}}catch(e){}})();</script>
 <script src="/assets/theme.js" defer></script>
 </head>

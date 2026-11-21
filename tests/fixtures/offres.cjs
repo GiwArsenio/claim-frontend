@@ -19,6 +19,7 @@ const OFFRE_COMPLETE = {
   contract_type: 'cdi',
   specialty: 'actuariat_iard',
   specialty_tags: ['actuariat', 'modelisation'],
+  risk_branches: ['iard'],
   experience_level: 'senior',
   description_raw: '<p>Vous rejoignez une direction actuarie de dix personnes.</p><p>Vous pilotez la refonte de la provision pour tail premium.</p>',
   description_html: '<div class="content-intro"><p>Vous rejoignez une direction actuarie de dix personnes.</p></div>',
@@ -32,7 +33,8 @@ const OFFRE_COMPLETE = {
     name: 'Actuaires Conseils',
     slug: 'actuaires-conseils',
     logo_url: null,
-    type: 'conseil',
+    type: 'cabinet_conseil',
+    company_type: 'cabinet_conseil',
     sector: 'Conseil actuariel',
   },
 };
@@ -44,6 +46,7 @@ const OFFRE_MINIMALE = {
   slug: 'charge-etudes-actuarielles',
   contract_type: '',
   specialty: '',
+  risk_branches: [],
   experience_level: '',
   description_raw: '',
   source: 'Source inconnue',
@@ -60,6 +63,7 @@ const OFFRE_SANS_SALAIRE = {
   id: 'offre-sans-salaire-1',
   slug: 'actuaire-sans-salaire',
   title: 'Actuaire (H/F) — vie',
+  risk_branches: ['epargne_retraite'],
   salary_min: null,
   salary_max: null,
 };
@@ -95,13 +99,13 @@ const OFFRE_MALVEILLANTE = {
 
 /* Employeurs de référence, pour l'annuaire. */
 const EMPLOYEURS = [
-  { name: 'Actuaires Conseils', slug: 'actuaires-conseils', type: 'conseil', sector: 'Conseil actuariel' },
-  { name: 'AXA Assurances', slug: 'axa-assurances', type: 'assureur', sector: 'Assurance' },
-  { name: 'BNP Paribas Cardif', slug: 'bnp-paribas-cardif', type: 'assureur', sector: 'Assurance vie' },
-  { name: 'Groupe MAIF', slug: 'groupe-maif', type: 'mutuelle', sector: 'Mutuelle' },
-  { name: 'Société Générale', slug: 'societe-generale', type: 'banque', sector: 'Banque' },
-  { name: 'KPMG', slug: 'kpmg', type: 'conseil', sector: 'Audit' },
-  { name: 'CNP Assurances', slug: 'cnp-assurances', type: 'assureur', sector: 'Assurance' },
+  { name: 'Actuaires Conseils', slug: 'actuaires-conseils', type: 'cabinet_conseil', company_type: 'cabinet_conseil', sector: 'Conseil actuariel' },
+  { name: 'AXA Assurances', slug: 'axa-assurances', type: 'assureur', company_type: 'assureur', sector: 'Assurance' },
+  { name: 'BNP Paribas Cardif', slug: 'bnp-paribas-cardif', type: 'bancassureur', company_type: 'bancassureur', sector: 'Assurance vie' },
+  { name: 'Groupe MAIF', slug: 'groupe-maif', type: 'mutuelle', company_type: 'mutuelle', sector: 'Mutuelle' },
+  { name: 'SCOR SE', slug: 'scor', type: 'reassureur', company_type: 'reassureur', sector: 'Réassurance' },
+  { name: 'Alan', slug: 'alan', type: 'insurtech', company_type: 'insurtech', sector: 'InsurTech' },
+  { name: 'Aon France', slug: 'aon', type: 'courtier', company_type: 'courtier', sector: 'Courtage' },
 ];
 
 /* Générateur d'un catalogue diversifié : le board doit avoir assez de matière
@@ -111,6 +115,14 @@ const CONTRATS = ['cdi', 'cdd', 'alternance', 'stage', 'freelance'];
 const SPECIALITES = ['actuariat_iard', 'actuariat_vie', 'data', 'ia', 'risk', 'actuariat_finance'];
 const EXPERIENCES = ['junior', 'confirme', 'senior', 'manager'];
 const SECTEURS = ['Assurance', 'Banque', 'Conseil actuariel', 'Mutuelle', 'Courtier', 'Start-up', 'Réassurance'];
+const JEUX_BRANCHES = [
+  ['iard'],
+  ['epargne_retraite'],
+  ['prevoyance_sante'],
+  ['emprunteur'],
+  ['reassurance', 'iard'],
+  [],
+];
 
 function offreAleatoire(index) {
   const emp = EMPLOYEURS[index % EMPLOYEURS.length];
@@ -131,6 +143,7 @@ function offreAleatoire(index) {
     contract_type: contrat,
     specialty: specialite,
     specialty_tags: [specialite],
+    risk_branches: JEUX_BRANCHES[index % JEUX_BRANCHES.length],
     experience_level: experience,
     description_raw: `<p>Poste ${index + 1} au sein de ${emp.name} à ${ville}.</p><p>Vous rejoignez une équipe de risques de dix personnes.</p>`,
     description_html: `<div class="content-intro"><p>Poste ${index + 1} au sein de ${emp.name} à ${ville}.</p></div>`,
@@ -145,6 +158,7 @@ function offreAleatoire(index) {
       slug: emp.slug,
       logo_url: null,
       type: emp.type,
+      company_type: emp.company_type || emp.type,
       sector: emp.sector,
     },
   };

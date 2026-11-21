@@ -74,12 +74,35 @@ function filtrer(q) {
   }
   const ville = (q.get('city') || '').toLowerCase();
   if (ville) offres = offres.filter((o) => (o.city || '').toLowerCase().includes(ville));
+  const listeValeurs = (brut) => String(brut || '').split(',').map((s) => s.trim()).filter(Boolean);
   const contrat = q.get('contract');
-  if (contrat) offres = offres.filter((o) => o.contract_type === contrat);
+  if (contrat) {
+    const voulus = listeValeurs(contrat);
+    offres = offres.filter((o) => voulus.includes(o.contract_type));
+  }
   const specialite = q.get('specialty');
-  if (specialite) offres = offres.filter((o) => o.specialty === specialite);
+  if (specialite) {
+    const voulus = listeValeurs(specialite);
+    offres = offres.filter((o) => voulus.includes(o.jev_specialty || o.specialty));
+  }
   const experience = q.get('experience');
-  if (experience) offres = offres.filter((o) => o.experience_level === experience);
+  if (experience) {
+    const voulus = listeValeurs(experience);
+    offres = offres.filter((o) => voulus.includes(o.jev_experience || o.experience_level));
+  }
+  const typeEntreprise = q.get('company_type');
+  if (typeEntreprise) {
+    const voulus = listeValeurs(typeEntreprise);
+    offres = offres.filter((o) => {
+      const ct = (o.companies && (o.companies.company_type || o.companies.type)) || '';
+      return voulus.includes(ct);
+    });
+  }
+  const branche = q.get('branch');
+  if (branche) {
+    const voulues = listeValeurs(branche);
+    offres = offres.filter((o) => Array.isArray(o.risk_branches) && o.risk_branches.some((b) => voulues.includes(b)));
+  }
 
   return offres;
 }

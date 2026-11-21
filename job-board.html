@@ -1600,6 +1600,8 @@ a.ctitle:focus-visible, button.ctitle:focus-visible { outline: 2px solid var(--t
       </button>
 <button class="filtre-entree" type="button" data-categorie="contract-filter" aria-haspopup="dialog" aria-controls="filtres-panneau" aria-expanded="false" onclick="ouvrirFiltres('contract-filter')">Contrats</button>
 <button class="filtre-entree" type="button" data-categorie="specialty-filter" aria-haspopup="dialog" aria-controls="filtres-panneau" aria-expanded="false" onclick="ouvrirFiltres('specialty-filter')">Spécialité</button>
+<button class="filtre-entree" type="button" data-categorie="branch-filter" aria-haspopup="dialog" aria-controls="filtres-panneau" aria-expanded="false" onclick="ouvrirFiltres('branch-filter')">Branche</button>
+<button class="filtre-entree" type="button" data-categorie="company-type-filter" aria-haspopup="dialog" aria-controls="filtres-panneau" aria-expanded="false" onclick="ouvrirFiltres('company-type-filter')">Typologie d'entreprise</button>
 <button class="filtre-entree" type="button" data-categorie="experience-filter" aria-haspopup="dialog" aria-controls="filtres-panneau" aria-expanded="false" onclick="ouvrirFiltres('experience-filter')">Expérience</button>
 <button class="filtre-entree" type="button" data-categorie="date-filter" aria-haspopup="dialog" aria-controls="filtres-panneau" aria-expanded="false" onclick="ouvrirFiltres('date-filter')">Date de publication</button>
 <button class="filtre-entree" type="button" data-categorie="ats-filter" aria-haspopup="dialog" aria-controls="filtres-panneau" aria-expanded="false" onclick="ouvrirFiltres('ats-filter')">Source ATS</button>
@@ -1607,7 +1609,7 @@ a.ctitle:focus-visible, button.ctitle:focus-visible { outline: 2px solid var(--t
            l'ordre de tabulation. C'est lui qui s'annonce a l'ouverture, pas
            son premier champ. -->
       <div class="chips" id="filtres-panneau" hidden role="group" aria-label="Filtres de recherche" tabindex="-1">
-      <div class="fp-tete"><h2 id="fp-titre">Filtres</h2><button class="fp-fermer" type="button" onclick="fermerFiltres(true)" aria-label="Fermer les filtres"><svg class="ic" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div><div class="fp-corps"><section class="fp-groupe" data-filtre="contract-filter"><h3 class="fp-groupe-titre">Contrats</h3><div class="fp-choix"><button class="fp-puce" type="button" data-valeur="cdi" aria-pressed="false">CDI</button><button class="fp-puce" type="button" data-valeur="cdd" aria-pressed="false">CDD</button><button class="fp-puce" type="button" data-valeur="alternance" aria-pressed="false">Alternance</button><button class="fp-puce" type="button" data-valeur="stage" aria-pressed="false">Stage</button><button class="fp-puce" type="button" data-valeur="vie" aria-pressed="false">V.I.E</button><button class="fp-puce" type="button" data-valeur="freelance" aria-pressed="false">Freelance</button><button class="fp-puce" type="button" data-valeur="interim" aria-pressed="false">Intérim</button><button class="fp-puce" type="button" data-valeur="autre" aria-pressed="false">Autre</button></div></section><section class="fp-groupe" data-filtre="specialty-filter"><h3 class="fp-groupe-titre">Spécialité</h3><div class="fp-choix"><button class="fp-puce" type="button" data-valeur="actuariat" aria-pressed="false">Actuariat</button><button class="fp-puce" type="button" data-valeur="souscription_technique" aria-pressed="false">Souscription technique</button><button class="fp-puce" type="button" data-valeur="ia_data" aria-pressed="false">IA / Data</button></div></section><section class="fp-groupe" data-filtre="experience-filter"><h3 class="fp-groupe-titre">Expérience</h3><div class="fp-choix"><button class="fp-puce" type="button" data-valeur="junior" aria-pressed="false">Junior</button><button class="fp-puce" type="button" data-valeur="confirmed" aria-pressed="false">Confirmé</button><button class="fp-puce" type="button" data-valeur="senior" aria-pressed="false">Senior</button><button class="fp-puce" type="button" data-valeur="lead" aria-pressed="false">Lead</button></div></section><section class="fp-groupe" data-filtre="ats-filter"><h3 class="fp-groupe-titre">Source ATS</h3><div class="fp-choix"><button class="fp-puce" type="button" data-valeur="workday" aria-pressed="false">Workday</button><button class="fp-puce" type="button" data-valeur="smartrecruiters" aria-pressed="false">SmartRecruiters</button><button class="fp-puce" type="button" data-valeur="talentsoft" aria-pressed="false">TalentSoft</button><button class="fp-puce" type="button" data-valeur="custom" aria-pressed="false">Custom</button><button class="fp-puce" type="button" data-valeur="magnet" aria-pressed="false">Magnet</button><button class="fp-puce" type="button" data-valeur="greenhouse" aria-pressed="false">Greenhouse</button><button class="fp-puce" type="button" data-valeur="ashby" aria-pressed="false">Ashby</button><button class="fp-puce" type="button" data-valeur="successfactors" aria-pressed="false">SuccessFactors</button><button class="fp-puce" type="button" data-valeur="radancy" aria-pressed="false">Radancy</button><button class="fp-puce" type="button" data-valeur="groupama" aria-pressed="false">Groupama</button><button class="fp-puce" type="button" data-valeur="oracle_hcm" aria-pressed="false">Oracle HCM</button></div></section><section class="fp-groupe" data-filtre="date-filter" data-simple="true"><h3 class="fp-groupe-titre">Date de publication</h3><div class="fp-choix"><button class="fp-puce" type="button" data-valeur="1" aria-pressed="false">Moins de 24 h</button><button class="fp-puce" type="button" data-valeur="7" aria-pressed="false">7 derniers jours</button><button class="fp-puce" type="button" data-valeur="14" aria-pressed="false">14 derniers jours</button></div></section></div><div class="fp-pied"><button class="fp-tout-effacer" type="button" onclick="reinitialiserFiltresPanneau()">Tout effacer</button><button class="fp-afficher" type="button" onclick="appliquerFiltresPanneau()">Afficher les offres</button></div><input type="hidden" id="contract-filter" value=""><input type="hidden" id="specialty-filter" value=""><input type="hidden" id="experience-filter" value=""><input type="hidden" id="ats-filter" value=""><input type="hidden" id="date-filter" value="">
+      <div class="fp-tete"><h2 id="fp-titre">Filtres</h2><button class="fp-fermer" type="button" onclick="fermerFiltres(true)" aria-label="Fermer les filtres"><svg class="ic" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div><div class="fp-corps"><section class="fp-groupe" data-filtre="contract-filter"><h3 class="fp-groupe-titre">Contrats</h3><div class="fp-choix"><button class="fp-puce" type="button" data-valeur="cdi" aria-pressed="false">CDI</button><button class="fp-puce" type="button" data-valeur="cdd" aria-pressed="false">CDD</button><button class="fp-puce" type="button" data-valeur="alternance" aria-pressed="false">Alternance</button><button class="fp-puce" type="button" data-valeur="stage" aria-pressed="false">Stage</button><button class="fp-puce" type="button" data-valeur="vie" aria-pressed="false">V.I.E</button><button class="fp-puce" type="button" data-valeur="freelance" aria-pressed="false">Freelance</button><button class="fp-puce" type="button" data-valeur="interim" aria-pressed="false">Intérim</button><button class="fp-puce" type="button" data-valeur="autre" aria-pressed="false">Autre</button></div></section><section class="fp-groupe" data-filtre="specialty-filter"><h3 class="fp-groupe-titre">Spécialité</h3><div class="fp-choix"><button class="fp-puce" type="button" data-valeur="actuariat" aria-pressed="false">Actuariat</button><button class="fp-puce" type="button" data-valeur="souscription_technique" aria-pressed="false">Souscription technique</button><button class="fp-puce" type="button" data-valeur="ia_data" aria-pressed="false">IA / Data</button></div></section><section class="fp-groupe" data-filtre="branch-filter"><h3 class="fp-groupe-titre">Branche / Domaine</h3><div class="fp-choix"><button class="fp-puce" type="button" data-valeur="epargne_retraite" aria-pressed="false">Épargne-Retraite</button><button class="fp-puce" type="button" data-valeur="prevoyance_sante" aria-pressed="false">Prévoyance-Santé</button><button class="fp-puce" type="button" data-valeur="iard" aria-pressed="false">IARD</button><button class="fp-puce" type="button" data-valeur="emprunteur" aria-pressed="false">Emprunteur</button><button class="fp-puce" type="button" data-valeur="reassurance" aria-pressed="false">Réassurance</button></div></section><section class="fp-groupe" data-filtre="company-type-filter"><h3 class="fp-groupe-titre">Typologie d'entreprise</h3><div class="fp-choix"><button class="fp-puce" type="button" data-valeur="assureur" aria-pressed="false">Compagnie d'assurance</button><button class="fp-puce" type="button" data-valeur="bancassureur" aria-pressed="false">Bancassureur</button><button class="fp-puce" type="button" data-valeur="mutuelle" aria-pressed="false">Mutuelle</button><button class="fp-puce" type="button" data-valeur="groupe_protection_sociale" aria-pressed="false">Institution de prévoyance</button><button class="fp-puce" type="button" data-valeur="reassureur" aria-pressed="false">Réassureur</button><button class="fp-puce" type="button" data-valeur="courtier" aria-pressed="false">Courtier</button><button class="fp-puce" type="button" data-valeur="cabinet_conseil" aria-pressed="false">Conseil / Audit</button><button class="fp-puce" type="button" data-valeur="insurtech" aria-pressed="false">InsurTech</button><button class="fp-puce" type="button" data-valeur="cabinet_rh" aria-pressed="false">Cabinet RH</button></div></section><section class="fp-groupe" data-filtre="experience-filter"><h3 class="fp-groupe-titre">Expérience</h3><div class="fp-choix"><button class="fp-puce" type="button" data-valeur="junior" aria-pressed="false">Junior</button><button class="fp-puce" type="button" data-valeur="confirmed" aria-pressed="false">Confirmé</button><button class="fp-puce" type="button" data-valeur="senior" aria-pressed="false">Senior</button><button class="fp-puce" type="button" data-valeur="lead" aria-pressed="false">Lead</button></div></section><section class="fp-groupe" data-filtre="date-filter" data-simple="true"><h3 class="fp-groupe-titre">Date de publication</h3><div class="fp-choix"><button class="fp-puce" type="button" data-valeur="1" aria-pressed="false">Moins de 24 h</button><button class="fp-puce" type="button" data-valeur="7" aria-pressed="false">7 derniers jours</button><button class="fp-puce" type="button" data-valeur="14" aria-pressed="false">14 derniers jours</button></div></section><section class="fp-groupe" data-filtre="ats-filter"><h3 class="fp-groupe-titre">Source ATS</h3><div class="fp-choix"><button class="fp-puce" type="button" data-valeur="workday" aria-pressed="false">Workday</button><button class="fp-puce" type="button" data-valeur="smartrecruiters" aria-pressed="false">SmartRecruiters</button><button class="fp-puce" type="button" data-valeur="talentsoft" aria-pressed="false">TalentSoft</button><button class="fp-puce" type="button" data-valeur="custom" aria-pressed="false">Custom</button><button class="fp-puce" type="button" data-valeur="magnet" aria-pressed="false">Magnet</button><button class="fp-puce" type="button" data-valeur="greenhouse" aria-pressed="false">Greenhouse</button><button class="fp-puce" type="button" data-valeur="ashby" aria-pressed="false">Ashby</button><button class="fp-puce" type="button" data-valeur="successfactors" aria-pressed="false">SuccessFactors</button><button class="fp-puce" type="button" data-valeur="radancy" aria-pressed="false">Radancy</button><button class="fp-puce" type="button" data-valeur="groupama" aria-pressed="false">Groupama</button><button class="fp-puce" type="button" data-valeur="oracle_hcm" aria-pressed="false">Oracle HCM</button></div></section></div><div class="fp-pied"><button class="fp-tout-effacer" type="button" onclick="reinitialiserFiltresPanneau()">Tout effacer</button><button class="fp-afficher" type="button" onclick="appliquerFiltresPanneau()">Afficher les offres</button></div><input type="hidden" id="contract-filter" value=""><input type="hidden" id="specialty-filter" value=""><input type="hidden" id="branch-filter" value=""><input type="hidden" id="company-type-filter" value=""><input type="hidden" id="experience-filter" value=""><input type="hidden" id="date-filter" value=""><input type="hidden" id="ats-filter" value="">
       </div>
       </div>
     </div>
@@ -1684,6 +1686,13 @@ const JEV_SPECIALTY_LABELS = {
 const JEV_EXPERIENCE_LABELS = {
   junior: 'Junior', confirmed: 'Confirmé', senior: 'Senior', lead: 'Lead',
   not_specified: 'Non précisé'
+};
+const RISK_BRANCH_LABELS = {
+  epargne_retraite: 'Épargne-Retraite',
+  prevoyance_sante: 'Prévoyance-Santé',
+  iard: 'IARD',
+  emprunteur: 'Emprunteur',
+  reassurance: 'Réassurance'
 };
 const COMPANY_QUERY_ALIASES = {
   generali: 'generali',
@@ -1878,12 +1887,14 @@ function paramOffre(j, contexte) {
 function paramsFiltres(reinitialise) {
   const f = currentFilters();
   const p = {};
-  if (f.contract)   p.filtre_contrat    = f.contract;
-  if (f.specialty)  p.filtre_specialite = f.specialty;
-  if (f.experience) p.filtre_experience = f.experience;
-  if (f.ats)        p.filtre_source     = f.ats;
-  if (f.city)       p.filtre_ville      = f.city;
-  if (reinitialise) p.filtres_reinitialises = true;
+  if (f.contract)     p.filtre_contrat         = f.contract;
+  if (f.specialty)    p.filtre_specialite      = f.specialty;
+  if (f.branch)       p.filtre_branche         = f.branch;
+  if (f.company_type) p.filtre_type_entreprise = f.company_type;
+  if (f.experience)   p.filtre_experience      = f.experience;
+  if (f.ats)          p.filtre_source          = f.ats;
+  if (f.city)         p.filtre_ville           = f.city;
+  if (reinitialise)   p.filtres_reinitialises  = true;
   return p;
 }
 
@@ -1892,7 +1903,7 @@ function paramsFiltres(reinitialise) {
 // jamais la compter.
 function compteFiltres() {
   const f = currentFilters();
-  const actifs = [f.contract, f.specialty, f.experience, f.ats, f.city].filter(Boolean).length;
+  const actifs = [f.contract, f.specialty, f.branch, f.company_type, f.experience, f.ats, f.city].filter(Boolean).length;
   return { filters_count: actifs };
 }
 
@@ -1960,10 +1971,46 @@ const PARAMETRES_URL = {
   ville: 'city-input', city: 'city-input',
   contrat: 'contract-filter', contract: 'contract-filter',
   specialite: 'specialty-filter', specialty: 'specialty-filter',
+  branche: 'branch-filter', branch: 'branch-filter',
+  type_entreprise: 'company-type-filter', company_type: 'company-type-filter',
   experience: 'experience-filter',
   ats: 'ats-filter',
   days: 'date-filter', jours: 'date-filter',
 };
+
+const ALIAS_URL_FILTRES = {
+  'company-type-filter': {
+    compagnie: 'assureur',
+    bancassurance: 'bancassureur',
+    ip: 'groupe_protection_sociale',
+    institution: 'groupe_protection_sociale',
+    reassurance: 'reassureur',
+    conseil: 'cabinet_conseil',
+    recrutement: 'cabinet_rh',
+  },
+  'branch-filter': {
+    vie: 'epargne_retraite',
+    epargne: 'epargne_retraite',
+    retraite: 'epargne_retraite',
+    sante: 'prevoyance_sante',
+    prevoyance: 'prevoyance_sante',
+    non_vie: 'iard',
+    pc: 'iard',
+  },
+};
+
+function normaliserValeurUrlFiltre(id, brut) {
+  const table = ALIAS_URL_FILTRES[id];
+  if (!table) return brut;
+  return String(brut || '')
+    .split(',')
+    .map((v) => {
+      const cle = v.trim().toLowerCase().replace(/-/g, '_');
+      return table[cle] || cle;
+    })
+    .filter(Boolean)
+    .join(',');
+}
 
 function remplirDepuisAdresse() {
   const params = new URLSearchParams(window.location.search);
@@ -1971,7 +2018,7 @@ function remplirDepuisAdresse() {
     const valeur = params.get(cle);
     if (!valeur) return;
     const champ = document.getElementById(id);
-    if (champ) champ.value = valeur;
+    if (champ) champ.value = normaliserValeurUrlFiltre(id, valeur);
   });
 }
 
@@ -1982,6 +2029,8 @@ function currentFilters() {
     city: document.getElementById('city-input')?.value.trim() || '',
     contract: document.getElementById('contract-filter')?.value || '',
     specialty: document.getElementById('specialty-filter')?.value || '',
+    branch: document.getElementById('branch-filter')?.value || '',
+    company_type: document.getElementById('company-type-filter')?.value || '',
     experience: document.getElementById('experience-filter')?.value || '',
     ats: document.getElementById('ats-filter')?.value || '',
     days: document.getElementById('date-filter')?.value || '',
@@ -1998,6 +2047,8 @@ function buildJobsUrl(page) {
   if (normalizedCity) params.set('city', normalizedCity);
   if (f.contract) params.set('contract', f.contract);
   if (f.specialty) params.set('specialty', f.specialty);
+  if (f.branch) params.set('branch', f.branch);
+  if (f.company_type) params.set('company_type', f.company_type);
   if (f.experience) params.set('experience', f.experience);
   if (f.ats) params.set('ats', f.ats);
   if (f.days) params.set('days', f.days);
@@ -2027,7 +2078,7 @@ function applyFilters() {
 }
 function resetFilters() {
   mesureEnAttente = { nom: 'filter_apply', params: paramsFiltres(true) };
-  ['q-input','city-input','contract-filter','specialty-filter','experience-filter','ats-filter','date-filter'].forEach(id => { const el=document.getElementById(id); if (el) el.value=''; });
+  ['q-input','city-input','contract-filter','specialty-filter','branch-filter','company-type-filter','experience-filter','ats-filter','date-filter'].forEach(id => { const el=document.getElementById(id); if (el) el.value=''; });
   // Les listes a cases lisent leur etat sur le champ cache : sans ce
   // rafraichissement, elles gardaient leurs coches et affichaient un choix
   // que la liste ne filtrait plus.
@@ -2044,7 +2095,7 @@ function resetFilters() {
 // offres » : la liste ne doit pas bouger sous le doigt pendant qu'on
 // compose sa recherche. Sur bureau, rien ne change — chaque changement part
 // tout de suite, comme avant.
-const IDS_FILTRES = ['contract-filter', 'specialty-filter', 'experience-filter', 'ats-filter', 'date-filter'];
+const IDS_FILTRES = ['contract-filter', 'specialty-filter', 'branch-filter', 'company-type-filter', 'experience-filter', 'date-filter', 'ats-filter'];
 /* Sur telephone, le champ de localisation vit dans le panneau : il fait
    partie du brouillon qu'on annule, mais ce n'est pas un filtre — il ne
    compte pas dans le badge, et « Reinitialiser » ne le vide pas. */
@@ -3194,6 +3245,12 @@ function pastillesOffreHtml(j) {
   if (sal) p.push(`<span class="pastille pastille-salaire">${escapeHtml(sal)}</span>`);
   const sp = specialtyLabel(j);
   if (sp) p.push(`<span class="pastille pastille-specialite">${escapeHtml(sp)}</span>`);
+  if (Array.isArray(j.risk_branches)) {
+    j.risk_branches.forEach(code => {
+      const lib = RISK_BRANCH_LABELS[code];
+      if (lib) p.push(`<span class="pastille">${escapeHtml(lib)}</span>`);
+    });
+  }
   if (j.remote_policy && j.remote_policy !== 'not_specified') {
     p.push(`<span class="pastille">${escapeHtml(j.remote_policy)}</span>`);
   }
