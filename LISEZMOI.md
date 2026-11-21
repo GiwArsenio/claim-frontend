@@ -8,5 +8,5 @@ Noms : `<surface>-<largeur>-<jour|nuit>.png` (board = job-board.html, accueil = 
 
 - `comparaison.png` : board 1440 px, jour, trois colonnes AVANT (actuel) / OPTION 1 (PR #125 précédente) / PROPOSITION DU PROPRIÉTAIRE.
 - `comparaison-elements-manquants.png` : même comparaison sur des cartes à éléments manquants (sans salaire, sans compétences, sans spécialité, sans lieu).
-- `<surface>-<largeur>-<jour|nuit>.png` : quatre premières cartes complètes ; `...-suite.png` : cartes suivantes, dont celles à éléments manquants.
+- `<surface>-<largeur>-<jour|nuit>.png` : cartes complètes ; `...-suite.png` : cartes à éléments manquants (sans lieu, sans salaire, sans spécialité, sans compétences).
 - `sources/` : les captures « avant » et « option 1 » utilisées pour la comparaison (mêmes offres de test).
