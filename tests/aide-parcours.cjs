@@ -99,51 +99,30 @@ async function arreterNavigateur() {
 }
 
 /**
- * Sert la police Inter depuis le serveur de test local.
+ * Surveille les polices tierces (Google Fonts) : il ne doit plus y en avoir.
  *
- * Le site charge Inter depuis Google Fonts. Le reseau externe etant
- * coupe dans les suites locales, cette police n arrive jamais : le rendu
- * retombe sur la police systeme, qui n est pas la meme d une machine a
- * l autre. La hauteur de page change, et les captures de reference ne
- * sont plus comparables.
+ * Avant T09, le site chargeait Inter depuis Google Fonts, et cette fonction
+ * interceptait la requete pour la servir par le serveur local (une version
+ * de la police, differente de celle de la production). Depuis T09, Inter est
+ * hebergee par le site (assets/polices/), donc plus rien n'est a remplacer.
  *
- * On intercepte donc la requete vers Google Fonts et on la sert par le
- * serveur local. Le site n a pas a changer : seule la maniere de lui
- * fournir la police change. Le rendu devient identique partout, sur le
- * runner de GitHub comme en local.
+ * On ne laisse surtout pas la fonction repondre a la place de Google : une
+ * reponse silencieuse masquerait le retour d'un appel tiers, et la page
+ * promet « aucun tiers avant consentement ». Toute requete vers
+ * fonts.googleapis.com / fonts.gstatic.com est donc REFUSEE et NOTEE dans
+ * page.requetesPolicesTierces (tests/polices_locales.test.cjs s'en sert).
+ *
+ * Le parametre `base` est conserve pour ne pas changer la signature.
  */
 function servirPoliceInter(page, base) {
-  return page.route('**/fonts.googleapis.com/**', async (route) => {
-    /* Le site charge DEUX polices depuis Google Fonts : Inter pour le
-     * texte, Material Symbols pour les icones. Il faut servir les deux :
-     * les icones rendues avec une police de substitution n ont pas la
-     * meme largeur, et la page change de hauteur. */
-    const url = route.request().url();
-    const symboles = url.includes('Material+Symbols') || url.includes('Material%20Symbols');
-
-    const css = symboles
-      ? `@font-face {
-  font-family: 'Material Symbols Outlined';
-  font-style: normal;
-  font-weight: 100 700;
-  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-  font-display: block;
-  src: url('${base}/tests/polices/MaterialSymbolsOutlined.woff2') format('woff2');
-}`
-      : `@font-face {
-  font-family: 'Inter';
-  font-style: normal;
-  font-weight: 100 900;
-  font-display: block;
-  src: url('${base}/tests/polices/InterVariable.woff2') format('woff2');
-}`;
-
-    await route.fulfill({
-      status: 200,
-      contentType: 'text/css; charset=utf-8',
-      body: css,
-    });
+  const requetes = [];
+  page.requetesPolicesTierces = requetes;
+  /* page.on('request') voit la requete meme si une autre route la traite :
+     aucun autre garde ne peut la masquer. */
+  page.on('request', (r) => {
+    if (/fonts\.(googleapis|gstatic)\.com/.test(r.url())) requetes.push(r.url());
   });
+  return page.route(/fonts\.(googleapis|gstatic)\.com/, (route) => route.abort('blockedbyclient'));
 }
 
 /**

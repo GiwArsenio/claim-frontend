@@ -65,7 +65,7 @@
   --rail: 208px;
   --barre: 56px;
 
-  --police: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --police: 'Inter', 'Inter Fallback', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 
   /* Micro-typographie des étiquettes : la même partout, sinon la page
      ressemble à un assemblage de composants d'origines différentes. */

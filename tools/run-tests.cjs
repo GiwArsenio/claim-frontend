@@ -112,6 +112,8 @@ const FAMILLES = {
     'tests/detail_hierarchie.test.cjs',
     'tests/lien_evitement.test.cjs',
     'tests/audit_design_outil_mesure.test.cjs',
+    // Inter est servie par le site : zéro appel Google, poids <= 120 Ko (T09).
+    'tests/polices_locales.test.cjs',
   ],
   // Parlent à la production. Une régression en ligne doit se voir, mais
   // elle ne doit pas bloquer une fusion : la production peut tomber sans
