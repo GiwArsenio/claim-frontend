@@ -325,28 +325,6 @@ html[data-theme="nuit"] select.chip {
   .vide-reessayer:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
   #liste:focus { outline: none; }
 
-  /* ── RAISONS ── */
-  .raisons { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--gouttiere); }
-  /* ── RAISONS ──
-     Trois cartes de même poids. Le filet teal n'apparaît qu'au survol : il
-     signale la carte lue sans colorer la page au repos. */
-  .rc { position: relative; background: var(--surface); border: 1px solid var(--bord);
-        border-radius: .625rem; padding: 1.5rem 1.35rem 1.45rem;
-        box-shadow: 0 1px 2px rgba(25, 44, 52, .04);
-        transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
-  .rc::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 3px;
-                border-radius: .625rem .625rem 0 0;
-                background: linear-gradient(90deg, var(--teal), var(--teal-bord));
-                opacity: 0; transition: opacity .18s ease; }
-  .rc:hover { transform: translateY(-2px); border-color: var(--teal-bord);
-              box-shadow: 0 2px 4px rgba(25, 44, 52, .05), 0 12px 26px rgba(25, 44, 52, .08); }
-  .rc:hover::before { opacity: 1; }
-  .rc .ico { width: 40px; height: 40px; border-radius: .65rem; background: var(--teal-clair);
-             border: 1px solid var(--teal-bord);
-             display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; }
-  .rc h3 { font-size: 1.02rem; font-weight: 800; letter-spacing: -.015em; margin: 0 0 .45rem; }
-  .rc p { margin: 0; font-size: .885rem; line-height: 1.58; color: var(--gris); }
-
   /* ── EMPLOYEURS ── */
   /* Les logos défilent d'un seul tenant, sur une seule ligne. Le bandeau
      s'efface à ses deux bords pour qu'aucune marque ne soit coupée net, et
@@ -464,7 +442,7 @@ html[data-theme="nuit"] select.chip {
     .chiffres dl > div { padding: 0 1.1rem; }
     .chiffres dl > div:nth-child(odd) { padding-left: 0; }
     .chiffres dl > div:nth-child(odd)::before { display: none; }
-    .grille, .raisons { grid-template-columns: 1fr; }
+    .grille { grid-template-columns: 1fr; }
     .pied .haut { grid-template-columns: 1fr; gap: 1.5rem; }
     .barre { grid-template-columns: 9rem 1fr 2.5rem; }
     .hero { padding: 2.25rem 0 1.75rem; }
@@ -955,6 +933,7 @@ html[data-theme="nuit"] body {
 <script>(function(){try{var t=localStorage.getItem('claim-theme-v2');if(t==='nuit'){document.documentElement.setAttribute('data-theme','nuit');}}catch(e){}})();</script>
 <script src="/assets/theme.js" defer></script>
 <link rel="stylesheet" href="/assets/filtres-entrees.css">
+<link rel="stylesheet" href="/assets/accueil-pourquoi.css">
 </head>
 <body>
 <a class="skip-link" href="#contenu">Aller au contenu</a>
@@ -1147,47 +1126,42 @@ html[data-theme="nuit"] body {
   </div>
 </section>
 
-<section class="surface">
+<section class="surface pourquoi">
   <div class="env">
-    <div class="panneau">
     <div class="tete">
       <div>
         <h2>Pourquoi Claim!</h2>
         <p>Trois partis pris, et ils tiennent toute la page.</p>
       </div>
     </div>
-    <div class="raisons">
-      <div class="rc">
-        <div class="ico">
-          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2"
-               stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 5-9 5-9-5 9-5z"></path>
-               <path d="M3 13l9 5 9-5"></path></svg>
+    <div class="pourquoi-points">
+      <div class="pourquoi-point">
+        <div class="pourquoi-titre">
+          <svg class="pourquoi-ico" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3l9 5-9 5-9-5 9-5z"></path> <path d="M3 13l9 5 9-5"></path></svg>
+          <h3>Là où les autres ne vont pas</h3>
         </div>
-        <h3>Là où les autres ne vont pas</h3>
         <p>Les sources sont relevées une par une, y compris les sites carrières que les agrégateurs
            laissent de côté. Une offre publiée chez un assureur régional y est, comme celle d'un grand groupe.</p>
       </div>
-      <div class="rc">
-        <div class="ico">
-          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2"
-               stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"></circle>
-               <path d="M12 8v4.5l3 1.8"></path></svg>
+      <div class="pourquoi-point">
+        <div class="pourquoi-titre">
+          <svg class="pourquoi-ico" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8"></circle> <path d="M12 8v4.5l3 1.8"></path></svg>
+          <h3>Relevé chaque matin</h3>
         </div>
-        <h3>Relevé chaque matin</h3>
         <p>La collecte tourne tous les jours avant l'ouverture. Une offre retirée le lendemain quitte le
            board le lendemain — pas dans trois semaines.</p>
       </div>
-      <div class="rc">
-        <div class="ico">
-          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2"
-               stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7.5 3v6c0 4.3-3 7.6-7.5 9-4.5-1.4-7.5-4.7-7.5-9V6L12 3z"></path>
-               <path d="M9 12l2 2 4-4"></path></svg>
+      <div class="pourquoi-point">
+        <div class="pourquoi-titre">
+          <svg class="pourquoi-ico" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3l7.5 3v6c0 4.3-3 7.6-7.5 9-4.5-1.4-7.5-4.7-7.5-9V6L12 3z"></path> <path d="M9 12l2 2 4-4"></path></svg>
+          <h3>Le métier, et lui seul</h3>
         </div>
-        <h3>Le métier, et lui seul</h3>
         <p>Actuariat, data, IA, souscription : rien d'autre. Pas d'« informatique » noyée dans
            1 200 annonces — le tri est fait à la collecte, pas à la main par le candidat.</p>
       </div>
-    </div>
     </div>
   </div>
 </section>
