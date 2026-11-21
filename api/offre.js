@@ -27,6 +27,11 @@ try {
 // Ce fichier fait partie du depot : pas de repli, il est toujours la.
 const casseTitre = require('../assets/casse-titre.js');
 
+// Le lieu sans code pays brut : « Paris », « Casablanca (Maroc) ». Affichage
+// seulement : le titre de page et les donnees structurees gardent la valeur
+// de l'API.
+const formaterLieu = require('../assets/lieu.js');
+
 const LABELS_CONTRAT = {
   cdi: 'CDI', cdd: 'CDD', alternance: 'Alternance', stage: 'Stage',
   freelance: 'Freelance', interim: 'Intérim', vie: 'V.I.E', autre: 'Non précisé',
@@ -148,7 +153,7 @@ async function construire(job, urlCanonique) {
     ? `${titreAffiche} — ${nomSociete} (${ville}) | Claim!`
     : `${titreAffiche} — ${nomSociete} | Claim!`;
 
-  const pastilles = [`<span class="pastille pastille-ville">${echapper(ville || 'Lieu non précisé')}</span>`];
+  const pastilles = [`<span class="pastille pastille-ville">${echapper(formaterLieu(ville) || 'Lieu non précisé')}</span>`];
   if (contrat) pastilles.push(`<span class="pastille">${echapper(LABELS_CONTRAT[contrat] || contrat)}</span>`);
   if (job.jev_publishable && job.jev_publishable.experience && job.jev_experience) {
     pastilles.push(`<span class="pastille">${echapper(LABELS_EXPERIENCE[job.jev_experience] || job.jev_experience)}</span>`);
@@ -552,7 +557,7 @@ ${BLOC_CONSENTEMENT}
 <main class="enveloppe">
   <a class="retour" id="retour-offre" href="/job-board.html">← Toutes les offres</a>
   <h1>${echapper(titreAffiche)}</h1>
-  <div class="societe">${tuileSociete}<span>${echapper(nomSociete)}${ville ? ' · ' + echapper(ville) : ''}</span></div>
+  <div class="societe">${tuileSociete}<span>${echapper(nomSociete)}</span></div>
   <div class="pastilles">${pastilles.join('')}</div>
   ${corps || '<p>Description non disponible.</p>'}
   ${competences}

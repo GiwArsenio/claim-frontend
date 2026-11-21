@@ -1578,7 +1578,7 @@ a.ctitle:focus-visible, button.ctitle:focus-visible { outline: 2px solid var(--t
     <div class="sbar">
       <div class="sf">
         <svg class="ic" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="color:var(--gris-doux)"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-        <input id="q-input" type="text" data-clarity-mask="true" placeholder="Mots-clés (e.g. Actuaire, Data Scientist)" aria-label="Mots-clés"/>
+        <input id="q-input" type="text" data-clarity-mask="true" placeholder="Mots-clés (ex. Actuaire, Data Scientist)" aria-label="Mots-clés"/>
       </div>
       <div class="sdiv"></div>
       <div class="sf loc-field">
@@ -1653,6 +1653,8 @@ a.ctitle:focus-visible, button.ctitle:focus-visible { outline: 2px solid var(--t
 <script src="/assets/companies-data.js"></script>
 <!-- La casse de titre : une seule regle, deux endroits (carte et fiche). -->
 <script src="/assets/casse-titre.js"></script>
+<!-- Le lieu sans code pays brut : « Paris », « Casablanca (Maroc) ». -->
+<script src="/assets/lieu.js"></script>
 <script>
 // ── Configuration ──────────────────────────────────────────────────────────
 const API_BASE    = (typeof CLAIM_API_BASE === 'string' && CLAIM_API_BASE)
@@ -2562,14 +2564,14 @@ function placerChampVille() {
   const panneau = document.getElementById('filtres-panneau');
   if (!champ || !barre || !panneau) return;
 
-  // Sur une ligne etroite, « Mots-cles (e.g. Actuaire, Data Scientist) » se
+  // Sur une ligne etroite, « Mots-cles (ex. Actuaire, Data Scientist) » se
   // coupait au milieu d'un mot. Le champ garde son nom accessible ; seul le
   // texte d'invite s'adapte a la place disponible.
   const recherche = document.getElementById('q-input');
   if (recherche) {
     recherche.placeholder = isMobile()
       ? 'Rechercher un poste'
-      : 'Mots-clés (e.g. Actuaire, Data Scientist)';
+      : 'Mots-clés (ex. Actuaire, Data Scientist)';
   }
 
   /* Le lieu ne quitte la barre que dans l'etat resserre : en haut de page, la
@@ -3185,7 +3187,7 @@ function initialesSociete(nom) {
 }
 
 function pastillesOffreHtml(j) {
-  const p = [`<span class="pastille pastille-ville">${escapeHtml(j.ville || 'Lieu non précisé')}</span>`];
+  const p = [`<span class="pastille pastille-ville">${escapeHtml(formaterLieu(j.ville) || 'Lieu non précisé')}</span>`];
   const ct = j.contract_type ? (CONTRACT_LABELS[j.contract_type] || j.contract_type) : '';
   if (ct) p.push(`<span class="pastille">${escapeHtml(ct)}</span>`);
   const exp = experienceLabel(j);
@@ -3228,7 +3230,7 @@ function cardSalaryHtml(j) {
 function cardLocationHtml(j) {
   // Seule pastille avec une icône : la ville seule ne se lit pas comme une
   // localisation, alors que « CDI » ou « Senior » sont explicites.
-  const ville = j.ville;
+  const ville = formaterLieu(j.ville);
   if (!ville) return '';
   const accessibleLabel = escapeHtml(`Localisation : ${ville}`);
   return `<span class="card-fact card-fact--loc" title="${accessibleLabel}" aria-label="${accessibleLabel}">`
@@ -3569,7 +3571,7 @@ function dessinerDetail(j, sansCorps) {
       <div class="d-entete">
         <div class="d-entete-corps">
           <h1 class="dtitle">${escapeHtml(enCasseDeTitre(j.title))}</h1>
-          <div class="dco">${co.name || j.source}${j.ville ? ' · ' + escapeHtml(j.ville) : ''}</div>
+          <div class="dco">${co.name || j.source}</div>
           <div class="pastilles">${pastillesOffreHtml(j)}</div>
         </div>
         <div class="dact">

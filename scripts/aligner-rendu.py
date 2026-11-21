@@ -122,6 +122,7 @@ export function configurerUrls(apiBase, siteUrl) {
 // celle qui precedait ce portage.
 import ANNUAIRE_CJS from '../../assets/companies-data.js';
 import casseTitre from '../../assets/casse-titre.js';
+import formaterLieu from '../../assets/lieu.js';
 import { construireCorps, texteOriginal } from './_offre-normalise.js';
 import { SKILLS_FAMILIES } from './_competences-familles.js';
 const ANNUAIRE = ANNUAIRE_CJS;

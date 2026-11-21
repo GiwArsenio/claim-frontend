@@ -976,7 +976,7 @@ html[data-theme="nuit"] body {
         <form class="sbar" action="/job-board.html" method="get">
       <div class="sf">
         <svg class="ic" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="color:var(--gris-doux)"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-        <input id="q" name="q" type="text" data-clarity-mask="true" placeholder="Mots-clés (e.g. Actuaire, Data Scientist)" autocomplete="off" aria-label="Mots-clés"/>
+        <input id="q" name="q" type="text" data-clarity-mask="true" placeholder="Mots-clés (ex. Actuaire, Data Scientist)" autocomplete="off" aria-label="Mots-clés"/>
       </div>
       <div class="sdiv"></div>
       <div class="sf loc-field">
@@ -1229,6 +1229,8 @@ html[data-theme="nuit"] body {
 <script src="/assets/companies-data.js"></script>
 <!-- La casse de titre : meme regle que le board et la fiche. -->
 <script src="/assets/casse-titre.js"></script>
+<!-- Le lieu sans code pays brut : « Paris », « Casablanca (Maroc) ». -->
+<script src="/assets/lieu.js"></script>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -1308,7 +1310,8 @@ function badge(libelle, valeur) {
 }
 
 // Seule la localisation porte une icône : « CDI » ou « Senior » se lisent seuls.
-function badgeLieu(ville) {
+function badgeLieu(brut) {
+  const ville = formaterLieu(brut);
   if (!ville) return '';
   const titre = echapper('Localisation : ' + ville);
   return '<span class="card-fact card-fact--loc" title="' + titre + '" aria-label="' + titre + '">'

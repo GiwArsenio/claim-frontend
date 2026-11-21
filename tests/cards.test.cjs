@@ -11,6 +11,8 @@ const funcs = ['specialtyLabel', 'experienceLabel', 'cardExperienceHtml', 'cardF
 const context = vm.createContext({});
 // Le module d'icones : les gabarits appellent ICONES.icone(...).
 vm.runInContext(fs.readFileSync(require('node:path').join(__dirname, '../assets/icones.js'), 'utf8'), context);
+// Le formateur de lieu (T04) : la carte l'appelle, il est charge par la page.
+vm.runInContext(fs.readFileSync(require('node:path').join(__dirname, '../assets/lieu.js'), 'utf8'), context);
 vm.runInContext(`const JEV_SPECIALTY_LABELS = {"actuariat": "Actuariat", "ia_data": "IA / Data", "souscription_technique": "Souscription technique", "autre": "Autre"}; const JEV_EXPERIENCE_LABELS = {senior:"Senior"}; const CONTRACT_LABELS = {cdi:"CDI"}; const DESCRIPTION_PREVIEW_CHARS = 600; let descExpanded = {}; let descSections = []; const SECTION_ICONS = { "Le poste": "briefcase", "Missions": "list-checks", "Profil recherché": "person" }; function escapeHtml(x){return x;} const location={origin:"https://claimyourjob.com",href:"https://claimyourjob.com/fr/job-board.html",pathname:"/fr/job-board.html"}; ${funcs}`, context);
 
 function label(row){context.row = row;return vm.runInContext('specialtyLabel(row)', context);}
@@ -39,9 +41,9 @@ console.log('Cards Jev regression tests passed');
 // Le libellé de lieu vient de l'API (champ ville) : la carte ne doit plus
 // concaténer la région, qui n'est jamais renseignée en base.
 assert.ok(!html.includes('j.region'), 'la region ne doit plus etre affichee');
-// La carte ne colle pas la ville au nom de l entreprise. La fiche, elle,
-// suit la page d offre qui ecrit « Societe · Ville » : l assertion porte donc
-// sur le rendu de la carte et non sur tout le fichier.
+// La carte ne colle pas la ville au nom de l entreprise. L assertion porte sur
+// le rendu de la carte et non sur tout le fichier (T04 : la fiche n ecrit plus
+// « Societe · Ville » non plus, la ville n y figure que dans la pastille).
 const carte = html.match(/const el = document\.createElement\('div'\);[\s\S]*?feedEl\.appendChild\(el\);/)[0];
 assert.ok(!carte.includes('escapeHtml(j.ville)'), 'la carte ne doit pas coller la ville au nom');
 assert.ok(!html.includes('${j.city'), 'la carte ne doit plus utiliser city brut');
