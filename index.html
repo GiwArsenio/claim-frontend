@@ -367,8 +367,20 @@ html[data-theme="nuit"] select.chip {
      accessible au survol et aux lecteurs d'écran. */
   .firme { display: inline-flex; align-items: center; border-radius: .625rem;
            font-size: .82rem; font-weight: 600; text-decoration: none; color: inherit;
-           flex: 0 0 auto; }
+           flex: 0 0 auto; position: relative; }
   .firme .sigle { width: 64px; height: 64px; border-radius: .625rem; font-size: 17px; }
+  /* La liste garde son rôle de liste (une puce par employeur pour un lecteur
+     d'écran), sans puce ni retrait à l'écran. */
+  .employeurs-liste { list-style: none; margin: 0; padding: 0; }
+  /* Le monogramme — quand l'employeur n'a pas de logo, ou en attendant qu'il
+     arrive — a UN seul style, neutre, pour toutes les entreprises : aucune
+     teinte propre à une marque. Les vrais logos ne changent pas. */
+  .firme .sigle--mono,
+  .firme .sigle-repli { background: var(--surface-2); color: var(--encre);
+                        border: 1px solid var(--bord-carte); }
+  /* Le nom de l'employeur, pour les lecteurs d'écran seulement. */
+  .firme .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+                    overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 
   /* Sans animation, le bandeau reste utilisable : il se fait défiler à la main. */
   @media (prefers-reduced-motion: reduce) {
@@ -1186,7 +1198,7 @@ html[data-theme="nuit"] body {
         <p id="compte-employeurs">Les employeurs dont les annonces sont relevées chaque matin.</p>
       </div>
     </div>
-    <div class="employeurs" id="employeurs" aria-label="Employeurs qui recrutent"></div>
+    <div class="employeurs" id="employeurs"></div>
     </div>
   </div>
 </section>
@@ -1270,11 +1282,6 @@ const echapper = (v) => String(v == null ? '' : v).replace(/[&<>"']/g,
   (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
 const couleur = (slug) => (annuaire ? annuaire.couleurEntreprise(slug) : 'var(--teal)');
-// Le texte des initiales se lit sur la teinte de l'employeur : sur une teinte
-// claire, le blanc serait illisible.
-const couleurTexte = (teinte) => (annuaire && annuaire.couleurTexteSurTeinte
-  ? annuaire.couleurTexteSurTeinte(teinte) : 'var(--blanc)');
-
 // ── Cartes : le rendu du board ─────────────────────────────────────────────
 // La carte de l'accueil est celle du board, au paramètre de grille près. Les
 // règles de publication sont les mêmes : une valeur que la curation ne juge
@@ -1580,29 +1587,25 @@ async function chargerOffres(apresReessai) {
 // employeurs. Rien n'est recopié ici.
 function tuileEmployeur(p) {
     const nom = echapper(p.nom);
-    const fond = echapper(couleur(p.slug));
-    const encre = echapper(couleurTexte(fond));
-    const inits = echapper(initiales(p.nom));
+    const inits = echapper(annuaire.monogramme ? annuaire.monogramme(p.nom) : initiales(p.nom));
     const logo = annuaire.logoEntreprise ? annuaire.logoEntreprise(p.slug) : null;
-    // Sans logo, la tuile affiche ses initiales sur la teinte — c'est le
-    // repli de toutes les surfaces. Avec un logo, les initiales ne servent
-    // que d'attente et disparaissent dès que l'image est là.
-    // La teinte ne teint que le repli : avec un logo, elle dessinerait un
-    // carré coloré derrière la marque. Elle reste donc dans un span qui
-    // s'efface au chargement de l'image — et qui réapparaît si elle casse.
+    // Sans logo, la tuile affiche ses initiales : c'est le repli de toutes les
+    // surfaces. Avec un logo, les initiales ne servent que d'attente et
+    // disparaissent dès que l'image est là — et réapparaissent si elle casse.
+    // Un seul style de monogramme, neutre, pour toutes les entreprises : la
+    // couleur d'une marque ne vit que dans son vrai logo.
     const dedans = logo
-      ? '<span class="sigle-repli" style="background:' + fond + ';color:' + encre + '">' + inits + '</span>'
+      ? '<span class="sigle-repli">' + inits + '</span>'
         + '<img src="' + echapper(logo) + '" alt="" aria-hidden="true" '
         + 'width="64" height="64" onerror="this.remove()" onload="this.previousElementSibling.remove()"/>'
       : inits;
-    const teinte = logo ? '' : ' style="background:' + fond + ';color:' + encre + '"';
-    // Le nom n'est pas rendu : la bande ne montre que les logos. Il reste
-    // porté par le titre et par `aria-label`, donc lisible au survol et par
-    // un lecteur d'écran. La tuile n'est plus un lien : elle ne renvoie plus
-    // vers une page en chantier.
-    return '<span class="firme" role="img" aria-label="' + nom + '" title="' + nom + '">'
-      + '<span class="sigle"' + teinte + ' aria-hidden="true">' + dedans + '</span>'
-      + '</span>';
+    // Le nom est dit une fois, en texte réservé aux lecteurs d'écran : la
+    // bande ne montre que les logos, et les initiales sont décoratives. La
+    // tuile n'est pas un lien : elle ne renvoie plus vers une page en chantier.
+    return '<li class="firme" title="' + nom + '">'
+      + '<span class="sigle' + (logo ? '' : ' sigle--mono') + '" aria-hidden="true">' + dedans + '</span>'
+      + '<span class="sr-only">' + nom + '</span>'
+      + '</li>';
 }
 
 function dessinerEmployeurs() {
@@ -1610,10 +1613,17 @@ function dessinerEmployeurs() {
   if (!cible || !annuaire || !Array.isArray(annuaire.PROFILS)) return;
 
   const base = annuaire.PROFILS.map(tuileEmployeur).join('');
-  const piste = document.createElement('div');
-  piste.className = 'employeurs-piste';
+  // Une vraie liste, nommée : un lecteur d'écran annonce « liste, N éléments ».
+  // `role="list"` rend ce rôle explicite là où `list-style: none` le ferait
+  // perdre à Safari.
+  const piste = document.createElement('ul');
+  piste.className = 'employeurs-piste employeurs-liste';
+  piste.setAttribute('role', 'list');
+  piste.setAttribute('aria-label', 'Employeurs qui recrutent');
   piste.innerHTML = base;
   cible.replaceChildren(piste);
+  // Les employeurs, une seule fois : la liste lue est la première série.
+  const nombre = piste.children.length;
 
   // Le bandeau doit tenir sans trou sur les grands écrans : on répète la
   // liste jusqu'à couvrir la largeur visible, puis on la double. C'est ce
@@ -1626,8 +1636,11 @@ function dessinerEmployeurs() {
   }
   const moitie = piste.innerHTML;
   piste.insertAdjacentHTML('beforeend', moitie);
-  // La copie ne doit pas être annoncée deux fois aux lecteurs d'écran.
-  [...piste.children].slice(piste.children.length / 2)
+  // Tout ce qui suit la première série n'est que du remplissage visuel (on
+  // répète pour couvrir les grands écrans, puis on double pour boucler) : ni
+  // annoncé aux lecteurs d'écran, ni atteignable. Sans cela, sur un écran
+  // large, chaque employeur serait lu plusieurs fois.
+  [...piste.children].slice(nombre)
     .forEach((el) => el.setAttribute('aria-hidden', 'true'));
 
   // Vitesse constante (~42 px/s), quelle que soit la largeur de la piste.
