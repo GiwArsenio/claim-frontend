@@ -355,7 +355,7 @@ ${societe.logo_url
     de la page de lecture : elle situe l'entreprise sans concurrencer le titre. */
  .slogo { width:26px; height:26px; border-radius:.375rem; flex-shrink:0; position:relative; overflow:hidden;
    display:inline-flex; align-items:center; justify-content:center; color: var(--blanc); font-weight:900;
-   font-size:9px; letter-spacing:-.02em; }
+   font-size:11px; letter-spacing:-.02em; }
  .slogo img { position:absolute; inset:0; width:100%; height:100%; object-fit:contain;
    border-radius:inherit; padding:2px; }
  /* Fond clair pour un logo ; la couleur de la marque garde les initiales. */
@@ -498,11 +498,11 @@ ${societe.logo_url
                  letter-spacing: -.05em; text-decoration: none; }
   #ft .ft-logo:hover { color: var(--blanc-survol); }
   #ft .ft-links { display: flex; gap: .4rem; flex-wrap: wrap; }
-  #ft .ft-links a { color: rgba(255,255,255,0.9); text-decoration: none; font-size: .68rem;
+  #ft .ft-links a { color: rgba(255,255,255,0.9); text-decoration: none; font-size: .75rem;
                     font-weight: 500; padding: .2rem .5rem; border-radius: .25rem;
                     border: 1px solid rgba(255,255,255,.15); transition: background .15s, color .15s; }
   #ft .ft-links a:hover { background: var(--surbrillance); color: var(--blanc); }
-  #ft .ft-copy { font-size: .62rem; color: rgba(255,255,255,0.9); margin-top: .15rem; }
+  #ft .ft-copy { font-size: .75rem; color: rgba(255,255,255,0.9); margin-top: .15rem; }
 
 /* ── PIED SUR TELEPHONE ───────────────────────────────────────────────
    Le logo et les liens partagent une ligne ; la copie passe dessous.
@@ -530,8 +530,8 @@ ${societe.logo_url
    Au-dessus, elle tient deja en deux lignes : inutile de la reduire la
    ou elle n'a pas besoin de l'etre. */
   @media (max-width: 380px) {
-    #ft .ft-copy { font-size: .58rem; line-height: 1.3; }
-    #ft .ft-copy .heart { font-size: .66rem; }
+    #ft .ft-copy { font-size: .75rem; line-height: 1.3; }
+    #ft .ft-copy .heart { font-size: .75rem; }
   }
   @media (max-width: 768px) {
     #ft { padding: .625rem 1rem .5rem; }

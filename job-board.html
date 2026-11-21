@@ -327,7 +327,7 @@ html[data-theme="nuit"] select.chip {
 .jc.on:hover { transform: translateY(-1px); border-color: var(--teal-fonce);
                box-shadow: 0 0 0 3px rgba(0,104,118,.16), 0 5px 16px rgba(25,44,52,.14); }
 .ct { display: flex; align-items: flex-start; margin-bottom: .45rem; }
-.clogo { width: 38px; height: 38px; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: var(--blanc); font-weight: 900; font-size: 9.5px; flex-shrink: 0; position: relative; overflow: hidden; }
+.clogo { width: 38px; height: 38px; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: var(--blanc); font-weight: 900; font-size: 11px; flex-shrink: 0; position: relative; overflow: hidden; }
 .ci { flex: 1; min-width: 0; padding-left: .5rem; }
 /* Deux lignes, sur toutes les largeurs. Une seule coupait « Stage - Actuaire
    / Analyste ALM & Allocation Strategique d'Actifs (H/F) » avant le mot qui
@@ -355,12 +355,12 @@ a.ctitle:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; bo
 .card-fact--loc .card-fact-value { color: var(--teal-texte); }
 .card-fact--loc .ic { color: var(--teal); }
 .cmi { display: flex; align-items: center; gap: 3px; font-size: .725rem; color: var(--gris); font-weight: 600; }
-.ctags { display: flex; flex-wrap: wrap; gap: 3px; }
+.ctags { display: flex; flex-wrap: wrap; gap: 3px; padding-right: 6rem; }
 /* Hauteur relevée sans toucher au texte : les badges gagnent en présence sans
    concurrencer le titre. */
-.jc .ctags .tag { font-size: 9px; padding: 3px 6px; }
-.cdate { position: absolute; bottom: .5rem; right: .875rem; font-size: 9px; color: var(--gris-doux); font-weight: 500; }
-.tag { display: inline-block; padding: 1.5px 5px; border-radius: 3px; font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+.jc .ctags .tag { font-size: 11px; padding: 3px 6px; }
+.cdate { position: absolute; bottom: .5rem; right: .875rem; font-size: 11px; color: var(--gris-doux); font-weight: 500; }
+.tag { display: inline-block; padding: 1.5px 5px; border-radius: 3px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
 .tm { background: var(--cyan-clair); color: var(--cyan-texte); }
 .tp { background: var(--vert-pale); color: var(--vert-texte); border: 1px solid rgba(34,197,94,.2); }
 .tn { background: var(--orange-clair); color: var(--orange-texte); }
@@ -389,7 +389,7 @@ a.ctitle:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; bo
                  padding: .55rem .65rem; margin-bottom: 1.15rem; }
 .rappel-alerte .mono-alerte { width: 30px; height: 30px; border-radius: .375rem;
                  background: var(--teal-clair); color: var(--teal-texte); display: grid;
-                 place-items: center; font-weight: 900; font-size: .66rem; flex: 0 0 auto;
+                 place-items: center; font-weight: 900; font-size: .6875rem; flex: 0 0 auto;
                  overflow: hidden; }
 .rappel-alerte .t-alerte { font-size: .82rem; font-weight: 700; color: var(--encre-forte); line-height: 1.3; }
 .rappel-alerte .s-alerte { font-size: .74rem; color: var(--gris); }
@@ -405,7 +405,7 @@ a.ctitle:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; bo
                padding: .28rem .28rem .28rem .52rem; border-radius: .375rem; cursor: pointer; }
 .chip-alerte:hover { background: var(--teal-survol); }
 .chip-alerte .x-alerte { display: grid; place-items: center; width: 15px; height: 15px;
-               border-radius: .25rem; background: rgba(0, 104, 118, .14); font-size: .62rem; line-height: 1; }
+               border-radius: .25rem; background: rgba(0, 104, 118, .14); font-size: .6875rem; line-height: 1; }
 .chip-ajout-alerte { background: transparent; color: var(--gris); border: 1px dashed var(--bord);
                padding: .28rem .55rem; }
 .chip-ajout-alerte:hover { color: var(--teal-texte); border-color: var(--teal-bord); background: var(--surface-2); }
@@ -577,7 +577,7 @@ a.ctitle:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; bo
 
 /* Conservés pour les fonctions non affichées (proposition IA, copie). */
 .ki { display: flex; align-items: center; gap: .4rem; }
-.kl { font-size: 10px; font-weight: 700; color: var(--gris-doux); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 2px; }
+.kl { font-size: 11px; font-weight: 700; color: var(--gris-doux); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 2px; }
 .kv { font-size: 0.825rem; font-weight: 700; color: var(--encre); }
 .toast-claim { position: fixed; left: 50%; bottom: 1.5rem; transform: translate(-50%, 1rem);
   background: var(--encre); color: var(--blanc); padding: .55rem 1.1rem; border-radius: 9999px;
@@ -621,10 +621,10 @@ html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1)
 #ft .ft-top { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
 #ft .ft-logo { font-size: .95rem; font-weight: 900; color: var(--blanc); letter-spacing: -.05em; text-decoration: none; }
 #ft .ft-links { display: flex; gap: .4rem; flex-wrap: wrap; }
-#ft .ft-links a { color: rgba(255,255,255,0.9); text-decoration: none; font-size: .68rem; font-weight: 500; padding: .1rem .4rem; border-radius: .25rem; border: 1px solid rgba(255,255,255,.15); transition: background .15s, color .15s; }
+#ft .ft-links a { color: rgba(255,255,255,0.9); text-decoration: none; font-size: .75rem; font-weight: 500; padding: .1rem .4rem; border-radius: .25rem; border: 1px solid rgba(255,255,255,.15); transition: background .15s, color .15s; }
 #ft .ft-links a:hover { background: var(--surbrillance); color: var(--blanc); }
-#ft .ft-copy { font-size: .62rem; color: rgba(255,255,255,0.9); display: flex; align-items: center; gap: .3rem; flex-wrap: wrap; margin-top: .15rem; }
-#ft .ft-copy .heart { color: var(--coeur); font-size: .7rem; }
+#ft .ft-copy { font-size: .75rem; color: rgba(255,255,255,0.9); display: flex; align-items: center; gap: .3rem; flex-wrap: wrap; margin-top: .15rem; }
+#ft .ft-copy .heart { color: var(--coeur); font-size: .75rem; }
 #ft .ft-copy a { color: rgba(255,255,255,0.9); text-decoration: none; }
 #ft .ft-copy a:hover { color: var(--blanc); text-decoration: underline; }
 /* Sur le board, le footer est cantonne a la colonne de gauche (419 px) :
@@ -665,8 +665,8 @@ html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1)
    Au-dessus, elle tient deja en deux lignes : inutile de la reduire la
    ou elle n'a pas besoin de l'etre. */
 @media (max-width: 380px) {
-  #ft .ft-copy { font-size: .58rem; line-height: 1.3; }
-  #ft .ft-copy .heart { font-size: .66rem; }
+  #ft .ft-copy { font-size: .75rem; line-height: 1.3; }
+  #ft .ft-copy .heart { font-size: .75rem; }
 }
 
 /* ═══════════════════════════════════════════════════
@@ -3402,7 +3402,7 @@ function renderFeed() {
     const remaining = TOTAL_SERVER - ALL_JOBS.length;
     const btn = document.createElement('button');
     btn.id        = 'load-more-btn';
-    btn.innerHTML = `<svg class="ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="vertical-align:middle"><path d="m6 9 6 6 6-6"/></svg> Voir plus d'offres <span style="color:var(--gris-doux);font-size:.75em;">(${remaining} restantes)</span>`;
+    btn.innerHTML = `<svg class="ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="vertical-align:middle"><path d="m6 9 6 6 6-6"/></svg> Voir plus d'offres <span style="color:var(--gris-doux);font-size:12px;">(${remaining} restantes)</span>`;
     btn.style.cssText = `
       display:block; width:calc(100% - 1.75rem); margin:.5rem .875rem 1rem;
       padding:.65rem 1rem; border-radius:.625rem;
