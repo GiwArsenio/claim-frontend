@@ -38,6 +38,7 @@ export function configurerUrls(apiBase, siteUrl) {
 // celle qui precedait ce portage.
 import ANNUAIRE_CJS from '../../assets/companies-data.js';
 import casseTitre from '../../assets/casse-titre.js';
+import formaterLieu from '../../assets/lieu.js';
 import { construireCorps, texteOriginal } from './_offre-normalise.js';
 import { SKILLS_FAMILIES } from './_competences-familles.js';
 const ANNUAIRE = ANNUAIRE_CJS;
@@ -163,7 +164,7 @@ export async function construire(job, urlCanonique) {
     ? `${titreAffiche} — ${nomSociete} (${ville}) | Claim!`
     : `${titreAffiche} — ${nomSociete} | Claim!`;
 
-  const pastilles = [`<span class="pastille pastille-ville">${echapper(ville || 'Lieu non précisé')}</span>`];
+  const pastilles = [`<span class="pastille pastille-ville">${echapper(formaterLieu(ville) || 'Lieu non précisé')}</span>`];
   if (contrat) pastilles.push(`<span class="pastille">${echapper(LABELS_CONTRAT[contrat] || contrat)}</span>`);
   if (job.jev_publishable && job.jev_publishable.experience && job.jev_experience) {
     pastilles.push(`<span class="pastille">${echapper(LABELS_EXPERIENCE[job.jev_experience] || job.jev_experience)}</span>`);
@@ -567,7 +568,7 @@ ${BLOC_CONSENTEMENT}
 <main class="enveloppe">
   <a class="retour" id="retour-offre" href="/job-board.html">← Toutes les offres</a>
   <h1>${echapper(titreAffiche)}</h1>
-  <div class="societe">${tuileSociete}<span>${echapper(nomSociete)}${ville ? ' · ' + echapper(ville) : ''}</span></div>
+  <div class="societe">${tuileSociete}<span>${echapper(nomSociete)}</span></div>
   <div class="pastilles">${pastilles.join('')}</div>
   ${corps || '<p>Description non disponible.</p>'}
   ${competences}

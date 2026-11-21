@@ -73,6 +73,7 @@ const FAMILLES = {
     'tests/familles_competences_alignees.test.cjs',
     'tests/casse_titre.test.cjs',
     'tests/images_dimensions.test.cjs',
+    'tests/lieu_format.test.cjs',
   ],
   // Demandent un navigateur. Lents, mais locaux : ils ouvrent le serveur
   // de test et n'appellent que lui.
