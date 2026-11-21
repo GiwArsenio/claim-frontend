@@ -79,7 +79,7 @@
   .nav-links a { color: rgba(255, 255, 255, .8); text-decoration: none;
                  font-size: .925rem; font-weight: 600; }
   .nav-links a:hover { color: var(--blanc); }
-  .btn-cta { background: var(--surface); color: var(--teal); padding: .45rem 1.2rem; border-radius: .5rem;
+  .btn-cta { background: var(--surface); color: var(--teal); padding: .45rem 1.2rem; border-radius: var(--r-m);
              font-weight: 700; font-size: .925rem; border: none; cursor: pointer;
              font-family: inherit; white-space: nowrap; }
   /* Le bouton ne reagissait a rien. Pose sur le fond clair — en mode nuit
@@ -93,10 +93,10 @@
     flex-direction: column; justify-content: center; gap: 5px;
     width: 36px; height: 36px;
     background: rgba(255, 255, 255, .15);
-    border: none; border-radius: .4rem; cursor: pointer;
+    border: none; border-radius: var(--r-m); cursor: pointer;
     padding: 7px 8px; flex-shrink: 0;
   }
-  .btn-burger span { display: block; height: 2px; background: var(--surface); border-radius: 2px;
+  .btn-burger span { display: block; height: 2px; background: var(--surface); border-radius: var(--r-s);
                      transition: transform .25s, opacity .2s; }
   .btn-burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
   .btn-burger.open span:nth-child(2) { opacity: 0; }
@@ -119,13 +119,13 @@
      mêmes listes déroulantes. Seule la largeur s'adapte — l'accueil n'a pas de
      colonne d'offres à droite, la barre reste donc bornée à 50 rem. */
   .sbar { display: flex; align-items: center; background: var(--surface);
-          border: 1px solid var(--bord-carte); border-radius: .625rem;
-          padding: .3rem; max-width: 50rem; box-shadow: 0 1px 4px rgba(0, 0, 0, .07);
+          border: 1px solid var(--bord-carte); border-radius: var(--r-l);
+          padding: .3rem; max-width: 50rem; box-shadow: var(--ombre-1);
           margin-bottom: .5rem; }
   .sf { flex: 1; display: flex; align-items: center; padding: 0 1rem; gap: .4rem; min-width: 0; }
   .sf input { width: 100%; border: none; outline: none; background: transparent;
               font-family: inherit; font-size: .925rem; color: var(--encre);
-              border-radius: 4px; }
+              border-radius: var(--r-s); }
   /* Le champ disparaissait du parcours clavier : `outline: none` supprimait
      l'indicateur sans rien mettre a la place. Le focus se voit desormais sur
      le champ lui-meme. */
@@ -135,7 +135,7 @@
   .sf input::placeholder { color: rgba(var(--gris-doux-rgb), .9); }
   .sdiv { width: 1px; height: 1.4rem; background: var(--bord-doux); flex-shrink: 0; }
   .btn-srch { background: linear-gradient(135deg, var(--teal-fond), var(--teal-fonce)); color: var(--blanc); border: none;
-              cursor: pointer; padding: .5rem 1.5rem; border-radius: .375rem; font-weight: 700;
+              cursor: pointer; padding: .5rem 1.5rem; border-radius: var(--r-m); font-weight: 700;
               font-size: .925rem; font-family: inherit; white-space: nowrap; }
   .btn-srch:hover { filter: brightness(1.08); }
 
@@ -145,7 +145,7 @@
      35 px. Demande explicite : les filtres de l'accueil doivent avoir la
      dimension de ceux du board, pas une echelle a eux. */
   .chip { display: flex; align-items: center; gap: .3rem; padding: 0 .85rem; height: 35px;
-          border-radius: .375rem; background: var(--surface); color: var(--gris); font-size: .8rem;
+          border-radius: var(--r-m); background: var(--surface); color: var(--gris); font-size: .8rem;
           font-weight: 500; border: 1px solid var(--bord-carte); cursor: pointer;
           white-space: nowrap; flex-shrink: 0; transition: background .15s; font-family: inherit; }
   /* Le bouton « Filtres » n'apparait qu'en dessous de 768 px : sur bureau,
@@ -159,7 +159,7 @@
                 detache la pastille du bandeau. Un aplat de couleur sature se
                 lirait « allume » : ce n'est pas un survol, c'est un changement
                 de nature. */
-             box-shadow: 0 1px 6px rgba(0, 0, 0, .28);
+             box-shadow: var(--ombre-2);
              /* Le texte suit le fond : sinon il garde sa couleur d'origine
                 et le filtre devient illisible sur la surface eclaircie. */
              color: var(--encre); }
@@ -198,8 +198,8 @@ html[data-theme="nuit"] select.chip {
              border-bottom: 1px solid var(--bord); padding: 2.25rem 0; }
   /* Le rayon des panneaux suit celui de la barre de recherche : .625rem.
      A 1rem, l'accueil parlait une autre langue graphique que le board. */
-  .panneau { background: var(--surface); border: 1px solid var(--bord); border-radius: .625rem;
-             box-shadow: var(--ombre); padding: clamp(1.15rem, 2.6vw, 2rem); }
+  .panneau { background: var(--surface); border: 1px solid var(--bord); border-radius: var(--r-l);
+             box-shadow: var(--ombre-1); padding: clamp(1.15rem, 2.6vw, 2rem); }
 
   /* ── SECTIONS ── */
   section { padding: 3rem 0; }
@@ -219,18 +219,18 @@ html[data-theme="nuit"] select.chip {
      La réserve droite des étiquettes les empêche de passer sous la date, qui
      est posée en absolu comme sur le board. */
   .grille { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--gouttiere); }
-  .oc { background: var(--surface); border-radius: .625rem; padding: .875rem;
+  .oc { background: var(--surface); border-radius: var(--r-l); padding: .875rem;
         display: flex; flex-direction: column; text-decoration: none; color: inherit;
         cursor: pointer; transition: transform .15s, box-shadow .15s; position: relative;
         border: 1.5px solid var(--bord-carte);
-        box-shadow: 0 2px 6px rgba(25, 44, 52, .08), 0 5px 14px rgba(25, 44, 52, .04);
+        box-shadow: var(--ombre-1);
         min-width: 0; overflow: hidden; }
   .oc:hover { transform: translateY(-1px); border-color: var(--bord-carte-survol);
-              box-shadow: 0 5px 16px rgba(25, 44, 52, .14); }
+              box-shadow: var(--ombre-2); }
   .oc .ct { display: flex; align-items: flex-start; margin-bottom: .45rem; }
   /* Tuile de logo : la teinte de l'employeur dessous, le logo de la source
      dessus, les initiales entre les deux. Le repli n'a jamais de trou. */
-  .clogo { width: 38px; height: 38px; border-radius: 6px; display: flex; align-items: center;
+  .clogo { width: 38px; height: 38px; border-radius: var(--r-m); display: flex; align-items: center;
            justify-content: center; color: var(--blanc); font-weight: 900; font-size: 11px;
            flex-shrink: 0; position: relative; overflow: hidden; }
   .clogo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain;
@@ -256,7 +256,7 @@ html[data-theme="nuit"] select.chip {
   .oc:hover .ctitle { color: var(--teal); }
   .oc .cm { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin: 9px 0; }
   .card-fact { display: inline-flex; align-items: center; flex: 0 0 auto; max-width: 100%;
-               padding: 2px 8px; border: 1px solid var(--bord-carte); border-radius: 4px; background: var(--surface-2); }
+               padding: 2px 8px; border: 1px solid var(--bord-carte); border-radius: var(--r-s); background: var(--surface-2); }
   .card-fact-value { color: var(--encre-forte); font-size: 12px; font-weight: 600; line-height: 16px;
                      overflow-wrap: anywhere; }
   .card-fact .ic { width: 14px; height: 14px; color: var(--gris-icone); margin-right: 3px; }
@@ -265,14 +265,14 @@ html[data-theme="nuit"] select.chip {
   .card-fact--loc .ic { color: var(--teal); }
   .oc .ctags { display: flex; flex-wrap: wrap; gap: 3px; min-width: 0; padding-right: 7.5rem; }
   .oc .ctags .tag { font-size: 11px; padding: 3px 6px; }
-  .tag { display: inline-block; padding: 1.5px 5px; border-radius: 3px; font-size: 11px;
+  .tag { display: inline-block; padding: 1.5px 5px; border-radius: var(--r-s); font-size: 11px;
          font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
   .tm { background: var(--cyan-clair); color: var(--cyan-texte); }
   .tn { background: var(--orange-clair); color: var(--orange-texte); }
   .oc .cdate { position: absolute; bottom: .5rem; right: .875rem; font-size: 11px;
                color: var(--gris-doux); font-weight: 500; }
   /* La tuile des employeurs garde sa propre échelle : elle est plus petite. */
-  .sigle { width: 34px; height: 34px; border-radius: .5rem; flex-shrink: 0; display: flex;
+  .sigle { width: 34px; height: 34px; border-radius: var(--r-m); flex-shrink: 0; display: flex;
            align-items: center; justify-content: center; color: var(--blanc); font-weight: 900;
            font-size: 11px; letter-spacing: -.02em; position: relative; overflow: hidden; }
   /* Le logo est contenu dans le carré, comme sur le board. Sans cette règle,
@@ -282,12 +282,12 @@ html[data-theme="nuit"] select.chip {
                  justify-content: center; border-radius: inherit; }
   .sigle img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain;
                border-radius: inherit; padding: 4px; }
-  .vide { grid-column: 1 / -1; background: var(--surface); border-radius: .625rem; padding: 1.4rem 1.25rem;
-          color: var(--gris); font-size: .9rem; box-shadow: var(--ombre); }
+  .vide { grid-column: 1 / -1; background: var(--surface); border-radius: var(--r-l); padding: 1.4rem 1.25rem;
+          color: var(--gris); font-size: .9rem; box-shadow: var(--ombre-1); }
   .vide p { margin: 0; }
   .vide-actions { margin-top: .75rem !important; display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1.1rem; }
   .vide-reessayer { font: inherit; font-weight: 700; color: var(--encre); background: var(--surface);
-                    border: 1px solid var(--bord); border-radius: .5rem; padding: .5rem 1rem; min-height: 2.25rem;
+                    border: 1px solid var(--bord); border-radius: var(--r-m); padding: .5rem 1rem; min-height: 2.25rem;
                     cursor: pointer; }
   .vide-reessayer:hover { border-color: var(--teal); }
   .vide-reessayer:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
@@ -311,10 +311,10 @@ html[data-theme="nuit"] select.chip {
   /* Le logo seul : plus de cadre, de fond ni de marge autour de la marque.
      C'est un mur d'employeurs, pas une grille de vignettes. Le nom reste
      accessible au survol et aux lecteurs d'écran. */
-  .firme { display: inline-flex; align-items: center; border-radius: .625rem;
+  .firme { display: inline-flex; align-items: center; border-radius: var(--r-l);
            font-size: .82rem; font-weight: 600; text-decoration: none; color: inherit;
            flex: 0 0 auto; position: relative; }
-  .firme .sigle { width: 64px; height: 64px; border-radius: .625rem; font-size: 17px; }
+  .firme .sigle { width: 64px; height: 64px; border-radius: var(--r-l); font-size: 17px; }
   /* La liste garde son rôle de liste (une puce par employeur pour un lecteur
      d'écran), sans puce ni retrait à l'écran. */
   .employeurs-liste { list-style: none; margin: 0; padding: 0; }
@@ -357,7 +357,7 @@ html[data-theme="nuit"] select.chip {
      vire au turquoise clair (#4fb3c2), et le bouton devenait un aplat
      clair pose sur une page sombre. Le texte blanc passait encore, mais
      la surface ne suivait pas le theme. */
-  .bteal { background: var(--teal-fond); color: var(--blanc); padding: .6rem 1.4rem; border-radius: .5rem;
+  .bteal { background: var(--teal-fond); color: var(--blanc); padding: .6rem 1.4rem; border-radius: var(--r-m);
             font-weight: 700; font-size: .925rem; text-decoration: none; white-space: nowrap;
             display: inline-block;
             transition: background .15s, color .15s, transform .1s; }
@@ -394,7 +394,7 @@ html[data-theme="nuit"] select.chip {
   .pied a:hover { color: var(--teal); }
   .pied .nav2 a { position: relative; }
   .pied .nav2 a::after { content: ''; position: absolute; left: 0; right: 0; bottom: -3px;
-                         height: 1.5px; border-radius: 2px; background: var(--teal);
+                         height: 1.5px; border-radius: var(--r-s); background: var(--teal);
                          transform: scaleX(0); transform-origin: left;
                          transition: transform .18s ease; }
   .pied .nav2 a:hover::after { transform: scaleX(1); }
@@ -431,7 +431,7 @@ html[data-theme="nuit"] select.chip {
                 transform: translateX(100%);
                 transition: transform .3s cubic-bezier(.4, 0, .2, 1);
                 display: flex; flex-direction: column; padding: 0;
-                box-shadow: -4px 0 24px rgba(0, 0, 0, .18); }
+                box-shadow: var(--ombre-2); }
     #burger-menu.open { pointer-events: all; }
     #burger-menu.open .bm-overlay { opacity: 1; }
     #burger-menu.open .bm-panel { transform: translateX(0); }
@@ -441,7 +441,7 @@ html[data-theme="nuit"] select.chip {
     .bm-logo { font-size: 1.3rem; font-weight: 900; color: var(--blanc); letter-spacing: -.05em; text-decoration: none;
                text-decoration: none; }
     .bm-close { background: var(--surbrillance); border: none; color: var(--blanc);
-                width: 32px; height: 32px; border-radius: .375rem; cursor: pointer;
+                width: 32px; height: 32px; border-radius: var(--r-m); cursor: pointer;
                 display: flex; align-items: center; justify-content: center; }
 
     .bm-nav { flex: 1; display: flex; flex-direction: column; padding: .75rem 0; gap: .1rem; }
@@ -459,17 +459,17 @@ html[data-theme="nuit"] select.chip {
                  display: flex; flex-direction: column; }
     .bm-footer .btn-cta { display: flex; justify-content: center; align-self: stretch;
                           box-sizing: border-box; width: auto; margin: 0;
-                          padding: .65rem 1rem; font-size: .925rem; border-radius: .5rem; }
+                          padding: .65rem 1rem; font-size: .925rem; border-radius: var(--r-m); }
 
     .hero { padding: 1.5rem 0 1.25rem; }
-    .sbar { flex-direction: column; border-radius: .625rem; padding: .25rem;
+    .sbar { flex-direction: column; border-radius: var(--r-l); padding: .25rem;
             gap: 0; align-items: stretch; }
     .sf { padding: .3rem .75rem; }
     .sf.loc-field { border-top: 1px solid var(--bord-doux); }
     .sdiv { display: none; }
     /* Cible tactile : 44 px de haut au minimum, et 8 px (.5rem) d'air au-dessus
        pour ne pas toucher le champ voisin. */
-    .btn-srch { border-radius: .375rem; padding: .5rem 1rem; font-size: .85rem;
+    .btn-srch { border-radius: var(--r-m); padding: .5rem 1rem; font-size: .85rem;
                 min-height: 44px;
                 margin: .5rem .1rem .1rem; width: calc(100% - .2rem); text-align: center; }
     .chips { gap: .3rem; justify-content: center; }
@@ -513,7 +513,7 @@ html[data-theme="nuit"] select.chip {
 
   .villes { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; }
   .ville-carte { position: relative; display: block; aspect-ratio: 4 / 3;
-                 border-radius: 10px; overflow: hidden; text-decoration: none;
+                 border-radius: var(--r-l); overflow: hidden; text-decoration: none;
                  background: var(--champ); }
   .ville-carte img { position: absolute; inset: 0; width: 100%; height: 100%;
                      object-fit: cover; transition: transform .5s ease; }
@@ -531,7 +531,7 @@ html[data-theme="nuit"] select.chip {
   /* Le bouton garde ses couleurs fixes : en theme nuit, « encre » devient
      clair, et le texte blanc sur la pastille blanche disparaissait. */
   .ville-btn { background: #fff; color: #191c1d; font-size: .8rem; font-weight: 700;
-               padding: .48rem .9rem; border-radius: 999px; white-space: nowrap;
+               padding: .48rem .9rem; border-radius: 9999px; white-space: nowrap;
                transition: background .15s, color .15s; }
   .ville-carte:hover .ville-btn { background: var(--teal); color: #fff; }
   .ville-carte:focus-visible { outline: 2px solid var(--teal); outline-offset: 3px; }
@@ -539,7 +539,7 @@ html[data-theme="nuit"] select.chip {
   .villes-liste { display: flex; flex-wrap: wrap; gap: .5rem;
                   margin-top: 1.1rem; padding-top: 1.3rem;
                   border-top: 1px solid var(--bord-doux); }
-  .ville-puce { border: 1px solid var(--bord-carte); border-radius: 999px;
+  .ville-puce { border: 1px solid var(--bord-carte); border-radius: 9999px;
                 padding: .42rem .85rem; font-size: .84rem; font-weight: 500;
                 color: var(--encre); text-decoration: none; background: var(--surface); }
   .ville-puce:hover { background: var(--teal-clair); border-color: var(--teal-bord);
@@ -635,7 +635,7 @@ en documentation).
 
 .consent button {
   font: inherit; font-size: .845rem; font-weight: 600;
-  height: 40px; padding: 0 1.1rem; border-radius: .5rem;
+  height: 40px; padding: 0 1.1rem; border-radius: var(--r-m);
   cursor: pointer; white-space: nowrap;
   transition: background .15s ease, border-color .15s ease, color .15s ease;
 }
@@ -670,7 +670,7 @@ en documentation).
   #ft .ft-logo:hover { color: var(--blanc-survol); }
   #ft .ft-links { display: flex; gap: .4rem; flex-wrap: wrap; }
   #ft .ft-links a { color: rgba(255,255,255,0.9); text-decoration: none; font-size: .75rem; font-weight: 500;
-                    padding: .2rem .5rem; border-radius: .25rem; border: 1px solid rgba(255,255,255,.15);
+                    padding: .2rem .5rem; border-radius: var(--r-s); border: 1px solid rgba(255,255,255,.15);
                     transition: background .15s, color .15s; }
   #ft .ft-links a:hover { background: var(--surbrillance); color: var(--blanc); }
   #ft .ft-copy { font-size: .75rem; color: rgba(255,255,255,0.9); display: flex; align-items: center; gap: .3rem; flex-wrap: wrap; margin-top: .15rem; }
@@ -752,7 +752,7 @@ en documentation).
   #hd .nav-links a.on { color: var(--blanc); border-bottom: 2px solid #fff; padding-bottom: 2px; }
   #hd .nav-links a.on:hover { color: var(--blanc); border-bottom-color: var(--blanc-survol); }
   #hd .btn-cta { background: var(--surface); color: var(--teal); padding: .45rem 1.2rem;
-                 border-radius: .5rem; font-weight: 700; font-size: .925rem; border: none;
+                 border-radius: var(--r-m); font-weight: 700; font-size: .925rem; border: none;
                  cursor: pointer; font-family: inherit; white-space: nowrap;
                  text-decoration: none; display: inline-block;
                  transition: background .15s, border-color .15s, color .15s; }
@@ -760,10 +760,10 @@ en documentation).
                        color: var(--encre); }
   #hd .btn-burger { display: none; flex-direction: column; justify-content: center; gap: 5px;
                      width: 36px; height: 36px; background: rgba(255, 255, 255, .15);
-                     border: none; border-radius: .4rem; cursor: pointer;
+                     border: none; border-radius: var(--r-m); cursor: pointer;
                      padding: 7px 8px; flex-shrink: 0; }
   #hd .btn-burger span { display: block; height: 2px; background: var(--surface);
-                         border-radius: 2px; transition: transform .25s, opacity .2s; }
+                         border-radius: var(--r-s); transition: transform .25s, opacity .2s; }
   #hd .btn-burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
   #hd .btn-burger.open span:nth-child(2) { opacity: 0; }
   #hd .btn-burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }

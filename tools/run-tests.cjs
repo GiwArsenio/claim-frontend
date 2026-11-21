@@ -51,6 +51,8 @@ const FAMILLES = {
     // Dashboard de monitoring : contrôles statiques (aucun réseau).
     'tests/monitoring.test.cjs',
     'tests/cards.test.cjs',
+    // Échelle de rayons et d'ombres, rejouable par tools/codemod-jetons-design.cjs (T08).
+    'tests/jetons_design.test.cjs',
     'tests/texte_minuscule.test.cjs',
     'tests/date-publique.test.cjs',
     'tests/consentement.test.cjs',

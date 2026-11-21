@@ -414,8 +414,8 @@ ${societe.logo_url
   .page { padding: 1.25rem 1.25rem 3rem; }
   .enveloppe {
    background: var(--surface);
-   border-radius: .625rem;
-   box-shadow: 0 1px 2px rgba(25, 44, 52, .06), 0 4px 14px rgba(25, 44, 52, .05);
+   border-radius: var(--r-l);
+   box-shadow: var(--ombre-1);
   }
  }
 

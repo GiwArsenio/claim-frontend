@@ -36,8 +36,8 @@
 .releve {
   background: var(--surface);
   border: 1px solid var(--bord-carte, var(--bord));
-  border-radius: var(--r-l, .625rem);
-  box-shadow: var(--ombre-1, var(--ombre));
+  border-radius: var(--r-l);
+  box-shadow: var(--ombre-1);
   overflow: hidden;
   min-width: 0;
 }
