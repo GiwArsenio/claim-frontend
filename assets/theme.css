@@ -387,16 +387,18 @@ html[data-theme="nuit"] .bascule-theme:hover {
    tools/codemod-lien-evitement.cjs. Hors écran tant qu'il n'a pas le focus ;
    au focus il apparaît en haut à gauche, au premier plan. Jamais
    `display:none` : un lien masqué ainsi ne reçoit pas le focus.
-   Les couleurs « inverse » changent avec le thème : texte et fond restent
-   au contraste maximal en jour comme en nuit (≥ 15:1). */
+   Fond de marque et texte blanc, dans les deux thèmes : 6,2:1 en jour,
+   plus de 14:1 en nuit (le fond de marque y est foncé, jamais clair : le
+   test de thème interdit toute surface claire en mode nuit). */
 .skip-link {
   position: absolute;
   top: 0;
   left: 0;
   z-index: 10000;
   padding: .75rem 1.1rem;
-  background: var(--inverse-fond);
-  color: var(--inverse-texte);
+  background: var(--teal-fond);
+  color: var(--blanc);
+  border: 2px solid var(--blanc);
   font-family: inherit;
   font-size: .95rem;
   font-weight: 700;
@@ -413,8 +415,8 @@ a.skip-link:link,
 a.skip-link:visited,
 a.skip-link:hover,
 a.skip-link:active {
-  background: var(--inverse-fond);
-  color: var(--inverse-texte);
+  background: var(--teal-fond);
+  color: var(--blanc);
   text-decoration: none;
 }
 .skip-link:focus,
