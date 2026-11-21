@@ -552,9 +552,10 @@ ${societe.logo_url
 <script src="/assets/theme.js" defer></script>
 </head>
 <body>
+<a class="skip-link" href="#contenu">Aller au contenu</a>
 ${BLOC_CONSENTEMENT}
 <div class="page">
-<main class="enveloppe">
+<main id="contenu" class="enveloppe" tabindex="-1">
   <a class="retour" id="retour-offre" href="/job-board.html">← Toutes les offres</a>
   <h1>${echapper(titreAffiche)}</h1>
   <div class="societe">${tuileSociete}<span>${echapper(nomSociete)}</span></div>
