@@ -1051,7 +1051,7 @@ html[data-theme="nuit"] body {
     <div class="villes">
         <a class="ville-carte" href="/job-board.html?city=Paris">
           <img src="/assets/villes/paris.jpg" alt="" aria-hidden="true"
-               width="800" height="533" loading="lazy" decoding="async"/>
+               width="1000" height="667" loading="lazy" decoding="async"/>
           <span class="ville-texte">
             <span class="ville-nom">Paris</span>
             <span class="ville-btn">Voir les offres</span>
@@ -1059,7 +1059,7 @@ html[data-theme="nuit"] body {
         </a>
         <a class="ville-carte" href="/job-board.html?city=Lyon">
           <img src="/assets/villes/lyon.jpg" alt="" aria-hidden="true"
-               width="800" height="533" loading="lazy" decoding="async"/>
+               width="1000" height="667" loading="lazy" decoding="async"/>
           <span class="ville-texte">
             <span class="ville-nom">Lyon</span>
             <span class="ville-btn">Voir les offres</span>
@@ -1344,7 +1344,7 @@ function tuileLogo(co) {
     + (surFondSombre ? ' logo-fond-sombre' : '') + '">'
     + '<span>' + inits + '</span>'
     + '<img src="' + echapper(logo) + '" alt="Logo ' + echapper(co.name || '') + '" '
-    + 'onerror="this.remove()" onload="this.previousElementSibling.remove()"/>'
+    + 'width="38" height="38" onerror="this.remove()" onload="this.previousElementSibling.remove()"/>'
     + '</div>';
 }
 
@@ -1539,7 +1539,7 @@ function tuileEmployeur(p) {
     const dedans = logo
       ? '<span class="sigle-repli" style="background:' + fond + ';color:' + encre + '">' + inits + '</span>'
         + '<img src="' + echapper(logo) + '" alt="" aria-hidden="true" '
-        + 'onerror="this.remove()" onload="this.previousElementSibling.remove()"/>'
+        + 'width="64" height="64" onerror="this.remove()" onload="this.previousElementSibling.remove()"/>'
       : inits;
     const teinte = logo ? '' : ' style="background:' + fond + ';color:' + encre + '"';
     // Le nom n'est pas rendu : la bande ne montre que les logos. Il reste

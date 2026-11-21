@@ -315,7 +315,7 @@ en documentation).
       ? ANNUAIRE.logoSurFondSombre(societe.slug || '') : false;
     return `<span class="slogo fond-logo${inversable ? ' logo-inversable' : ''}${surFondSombre ? ' logo-fond-sombre' : ''}"><span>${inits}</span>`
       + `<img src="${echapper(logoSociete)}" alt="Logo ${echapper(nomSociete)}" `
-      + `onerror="this.remove()" onload="this.previousElementSibling.remove()"/></span>`;
+      + `width="26" height="26" onerror="this.remove()" onload="this.previousElementSibling.remove()"/></span>`;
   })();
 
   const html = `<!DOCTYPE html>

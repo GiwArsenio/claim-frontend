@@ -1756,7 +1756,7 @@ function renderCompanyLogo(company, cssClass) {
       + (inversable ? ' logo-inversable' : '')
       + (surFondSombre ? ' logo-fond-sombre' : '') + '">' +
       '<span>' + initials + '</span>' +
-      '<img src="' + logoUrl + '" alt="Logo ' + (company.name||'') + '" onerror="this.remove()" onload="this.previousElementSibling.remove()" />' +
+      '<img src="' + logoUrl + '" alt="Logo ' + (company.name||'') + '" width="38" height="38" onerror="this.remove()" onload="this.previousElementSibling.remove()" />' +
       '</div>';
   }
   return '<div class="' + cssClass + '" style="background:' + color + ';">' + initials + '</div>';
