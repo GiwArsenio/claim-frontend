@@ -381,3 +381,49 @@ html[data-theme="nuit"] .bascule-theme:hover {
 /* Barre d'en-tête absente ou masquée : le bouton se pose par-dessus la page. */
 .bascule-flottante { position: fixed; top: 1rem; right: 1rem; z-index: 400;
   box-shadow: 0 2px 10px rgba(0, 0, 0, .18); }
+
+/* ── LIEN D'ÉVITEMENT ────────────────────────────────────────────────────
+   « Aller au contenu » : premier élément tabulable de chaque page, posé par
+   tools/codemod-lien-evitement.cjs. Hors écran tant qu'il n'a pas le focus ;
+   au focus il apparaît en haut à gauche, au premier plan. Jamais
+   `display:none` : un lien masqué ainsi ne reçoit pas le focus.
+   Les couleurs « inverse » changent avec le thème : texte et fond restent
+   au contraste maximal en jour comme en nuit (≥ 15:1). */
+.skip-link {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10000;
+  padding: .75rem 1.1rem;
+  background: var(--inverse-fond);
+  color: var(--inverse-texte);
+  font-family: inherit;
+  font-size: .95rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-decoration: none;
+  border-radius: 0 0 .5rem 0;
+  transform: translateY(-120%);
+  /* Pas de fondu : le lien doit apparaître net au premier Tab. */
+  transition: none;
+}
+/* Les pages stylent `a:hover` et `a:visited` : on reprend la couleur avec
+   plus de poids, sinon un survol de souris sur le lien le rend peu lisible. */
+a.skip-link:link,
+a.skip-link:visited,
+a.skip-link:hover,
+a.skip-link:active {
+  background: var(--inverse-fond);
+  color: var(--inverse-texte);
+  text-decoration: none;
+}
+.skip-link:focus,
+.skip-link:focus-visible {
+  transform: translateY(0);
+  outline: 3px solid var(--teal-vif);
+  outline-offset: 2px;
+}
+/* La cible reçoit le focus par programme (tabindex="-1") : pas de cadre
+   autour de toute la zone principale. */
+main[tabindex="-1"]:focus,
+section.chantier[tabindex="-1"]:focus { outline: none; }

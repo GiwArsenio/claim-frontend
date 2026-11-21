@@ -105,6 +105,7 @@ const FAMILLES = {
     // les autres : l'import de WebKit qui trainait ici n'etait jamais lu.
     'tests/plan_premier_paint.test.cjs',
     'tests/detail_hierarchie.test.cjs',
+    'tests/lien_evitement.test.cjs',
   ],
   // Parlent à la production. Une régression en ligne doit se voir, mais
   // elle ne doit pas bloquer une fusion : la production peut tomber sans

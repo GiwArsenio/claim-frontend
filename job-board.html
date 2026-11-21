@@ -1547,6 +1547,7 @@ a.ctitle:focus-visible, button.ctitle:focus-visible { outline: 2px solid var(--t
 <link rel="stylesheet" href="/assets/filtres-entrees.css">
 </head>
 <body>
+<a class="skip-link" href="#split">Aller au contenu</a>
 <div id="app">
 
   <!-- ══ HEADER ══ -->
@@ -1614,7 +1615,7 @@ a.ctitle:focus-visible, button.ctitle:focus-visible { outline: 2px solid var(--t
   
 
   <!-- ══ SPLIT PANE ══ -->
-  <main id="split">
+  <main id="split" tabindex="-1">
     <div class="pl">
       <div class="pl-hd" role="status" aria-live="polite">Chargement…</div>
       <div class="feed" id="feed"></div>
