@@ -1291,7 +1291,7 @@ function renderEcLogo(c) {
   if (logoUrl) {
     return '<div class="ec-logo" style="background:' + c.color + ';">' +
       '<span>' + initials + '</span>' +
-      '<img src="' + logoUrl + '" alt="Logo ' + c.name + '" onerror="this.remove()" onload="this.previousElementSibling.remove()" />' +
+      '<img src="' + logoUrl + '" alt="Logo ' + c.name + '" width="52" height="52" onerror="this.remove()" onload="this.previousElementSibling.remove()" />' +
       '</div>';
   }
   return '<div class="ec-logo" style="background:' + c.color + ';">' + initials + '</div>';
