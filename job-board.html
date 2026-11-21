@@ -345,21 +345,30 @@ a.ctitle { width: 100%; text-align: left; font-family: inherit; color: inherit; 
   background: none; border: 0; padding: 0; cursor: pointer; }
 a.ctitle:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; border-radius: var(--r-s); }
 .csub { font-size: .75rem; color: var(--gris); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.cm { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin: 9px 0; }
-.card-fact { display: inline-flex; align-items: center; flex: 0 0 auto; max-width: 100%; padding: 2px 8px; border: 1px solid var(--bord-carte); border-radius: var(--r-s); background: var(--surface-2); }
+.cm { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 18px; margin: 9px 0; overflow: hidden; }
+/* Ligne 1 de la carte (T10) : lieu, contrat, expérience, salaire. Ni pastille,
+   ni fond, ni bordure : une icône de 14 px, puis le texte. Un trait fin sépare
+   deux éléments voisins. Il est dessiné AVANT chaque élément, dans l'espace
+   entre eux ; celui du premier élément de chaque ligne tombe hors de la boîte
+   (cachée par overflow) : jamais de trait au début, à la fin, ni orphelin quand
+   un élément manque ou que la ligne passe à la suivante. */
+.card-fact { position: relative; display: inline-flex; align-items: center; gap: 4px; flex: 0 1 auto; min-width: 0; max-width: 100%; }
+.card-fact::before { content: ""; position: absolute; left: -9px; top: 50%; width: 1px; height: 12px; margin-top: -6px; background: var(--bord-carte); }
 .card-fact-value { color: var(--encre-forte); font-size: 12px; font-weight: 600; line-height: 16px; overflow-wrap: anywhere; }
-.card-fact .ic { width: 14px; height: 14px; color: var(--gris-icone); margin-right: 3px; }
-/* Deux traitements seulement sur une carte (T10). Les pastilles teintées sont
-   les deux repères pour choisir : le lieu (avec son icône) et la spécialité,
-   celle qui sert au filtrage. Les conditions du poste (contrat, expérience,
-   salaire) restent neutres. Les compétences ne sont plus des pastilles : une
-   ligne de texte, sans fond. */
-.card-fact--loc, .card-fact--spec { background: var(--teal-clair); border-color: var(--teal-bord); }
-.card-fact--loc .card-fact-value, .card-fact--spec .card-fact-value { color: var(--teal-texte); }
-.card-fact--loc .ic { color: var(--teal); }
+.card-fact .ic { flex: none; width: 14px; height: 14px; color: var(--gris-icone); }
+/* Petit écran : pas de trait. L'icône et l'espace séparent, et aucun trait ne
+   peut se retrouver seul en début de ligne. */
+@media (max-width: 480px) {
+  .cm { column-gap: 14px; }
+  .card-fact::before { display: none; }
+}
+/* Ligne 2 : la spécialité (cyan) puis les compétences (gris), en pastilles. */
+.etq { display: inline-flex; align-items: center; max-width: 100%; padding: 2px 8px; border: 1px solid transparent; border-radius: var(--r-s);
+  font-size: 12px; font-weight: 600; line-height: 16px; overflow-wrap: anywhere; }
+.etq--spec { background: var(--cyan-clair); border-color: var(--cyan-clair); color: var(--cyan-texte); }
+.etq--comp { background: var(--surface-2); border-color: var(--bord-carte); color: var(--encre-forte); }
 .cmi { display: flex; align-items: center; gap: 3px; font-size: .725rem; color: var(--gris); font-weight: 600; }
-.ctags { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; padding-right: 6rem; }
-.ccomp { min-width: 0; font-size: 12px; line-height: 16px; font-weight: 500; color: var(--gris); overflow-wrap: anywhere; }
+.ctags { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; padding-right: 6rem; }
 .cdate { position: absolute; bottom: .5rem; right: .875rem; font-size: 11px; color: var(--gris-doux); font-weight: 500; }
 
 /* ── ALERTE — la modale ouverte par la cloche d'une carte ──
@@ -2934,24 +2943,24 @@ function skillLabels(j) {
   return Object.keys(SKILLS_FAMILIES).flatMap(f => (s[f] || []).map(l => ({ famille: f, label: l })));
 }
 
-// Les compétences se lisent en une ligne : « Python · SQL · Excel +2 ». Les
-// trois premières sont écrites, le reste est compté, et le titre les donne
-// toutes : rien n'est retiré, rien n'est une pastille de plus.
+// Ligne 2 de la carte : la spécialité (pastille cyan, celle qui sert au
+// filtrage), puis les compétences (pastilles grises). Trois compétences au
+// plus ; le reste tient dans une pastille « +N » dont le titre les liste :
+// aucune information n'est perdue en silence.
 function skillChips(j, max) {
   const toutes = skillLabels(j).map(x => x.label);
-  if (!toutes.length) return '';
-  const reste = toutes.length - Math.min(toutes.length, max);
-  const texte = toutes.slice(0, max).map((l) => escapeHtml(l)).join(' · ') + (reste ? ` +${reste}` : '');
-  const complet = escapeHtml('Compétences citées : ' + toutes.join(', '));
-  return `<span class="ccomp" title="${complet}" aria-label="${complet}">${texte}</span>`;
+  const visibles = toutes.slice(0, max)
+    .map(l => `<span class="etq etq--comp">${escapeHtml(l)}</span>`).join('');
+  const autres = toutes.slice(max);
+  if (!autres.length) return visibles;
+  const titre = escapeHtml('Autres compétences : ' + autres.join(', '));
+  return visibles + `<span class="etq etq--comp etq--plus" title="${titre}" aria-label="${titre}">+${autres.length}</span>`;
 }
 
-// La spécialité, seule étiquette de la carte qui sert au filtrage : même
-// teinte que le lieu, sans capitales.
 function cardSpecialtyHtml(sp) {
   if (!sp) return '';
   const accessibleLabel = escapeHtml(`Spécialité : ${sp}`);
-  return `<span class="card-fact card-fact--spec" title="${accessibleLabel}" aria-label="${accessibleLabel}"><span class="card-fact-value">${escapeHtml(sp)}</span></span>`;
+  return `<span class="etq etq--spec" title="${accessibleLabel}" aria-label="${accessibleLabel}">${escapeHtml(sp)}</span>`;
 }
 
 function skillsHtml(j) {
@@ -3267,14 +3276,17 @@ function pastillesOffreHtml(j) {
   return p.join('');
 }
 
-function cardFactHtml(label, value) {
+function cardFactHtml(label, value, icone) {
+  // Ligne 1 de la carte : une icône (décorative) puis le texte. Le nom
+  // accessible reste « Contrat : CDI » : l'icône ne dit rien de plus.
   const accessibleLabel = escapeHtml(`${label} : ${value}`);
-  return `<span class="card-fact" title="${accessibleLabel}" aria-label="${accessibleLabel}"><span class="card-fact-value">${escapeHtml(value)}</span></span>`;
+  const ic = icone ? ICONES.icone(icone, { taille: 14 }) : '';
+  return `<span class="card-fact" title="${accessibleLabel}" aria-label="${accessibleLabel}">${ic}<span class="card-fact-value">${escapeHtml(value)}</span></span>`;
 }
 
 function cardExperienceHtml(j) {
   const label = experienceLabel(j);
-  return label ? cardFactHtml('Expérience', label) : '';
+  return label ? cardFactHtml('Expérience', label, 'signal') : '';
 }
 
 function salaryLabel(j) {
@@ -3287,25 +3299,20 @@ function salaryLabel(j) {
 }
 
 function cardSalaryHtml(j) {
-  // Troisième pastille, à côté du contrat et de l'expérience.
+  // Quatrième élément de la ligne, à côté du contrat et de l'expérience.
   const libelle = salaryLabel(j);
-  return libelle ? cardFactHtml('Salaire', libelle) : '';
+  return libelle ? cardFactHtml('Salaire', libelle, 'euro') : '';
 }
 
 function cardLocationHtml(j) {
-  // Seule pastille avec une icône : la ville seule ne se lit pas comme une
-  // localisation, alors que « CDI » ou « Senior » sont explicites.
   const ville = formaterLieu(j.ville);
   if (!ville) return '';
-  const accessibleLabel = escapeHtml(`Localisation : ${ville}`);
-  return `<span class="card-fact card-fact--loc" title="${accessibleLabel}" aria-label="${accessibleLabel}">`
-    + `<svg class="ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>`
-    + `<span class="card-fact-value">${escapeHtml(ville)}</span></span>`;
+  return cardFactHtml('Localisation', ville, 'map-pin');
 }
 
 function cardMetadataHtml(j) {
   const contract = CONTRACT_LABELS[j.contract_type] || j.contract_type || 'Non précisé';
-  return `<div class="cm">${cardLocationHtml(j)}${cardFactHtml('Contrat', contract)}`
+  return `<div class="cm">${cardLocationHtml(j)}${cardFactHtml('Contrat', contract, 'briefcase')}`
     + `${cardExperienceHtml(j)}${cardSalaryHtml(j)}</div>`;
 }
 
