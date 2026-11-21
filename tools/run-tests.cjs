@@ -103,6 +103,7 @@ const FAMILLES = {
     'tests/accueil_etat_erreur.test.cjs',
     'tests/employeurs_accessibles.test.cjs',
     'tests/cibles_tactiles.test.cjs',
+    'tests/board_etat_erreur.test.cjs',
     'tests/villes.test.cjs',
     // Simule iOS par l'agent utilisateur, mais tourne sous Chromium comme
     // les autres : l'import de WebKit qui trainait ici n'etait jamais lu.
