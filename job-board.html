@@ -77,7 +77,7 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', 'Inter Fallba
    l'utilisateur qu'il est sur la page courante. Le survol ne l'efface
    pas, il le renforce. */
 .nav-links a.on:hover { color: var(--blanc); border-bottom-color: var(--blanc-survol); }
-.btn-cta { background: var(--surface); color: var(--teal); padding: .45rem 1.2rem; border-radius: .5rem; font-weight: 700; font-size: .925rem; border: none; cursor: pointer; font-family: inherit; white-space: nowrap; }
+.btn-cta { background: var(--surface); color: var(--teal); padding: .45rem 1.2rem; border-radius: var(--r-m); font-weight: 700; font-size: .925rem; border: none; cursor: pointer; font-family: inherit; white-space: nowrap; }
 /* Le bouton ne reagissait a rien. Pose sur le fond clair — en mode nuit
    aussi — son survol s'eclaire et sa bordure se marque. */
 .btn-cta:hover { background: var(--teal-survol-element); border-color: var(--teal);
@@ -108,10 +108,10 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', 'Inter Fallba
 /* Le bloc titre + promesse a ete retire : le board ouvre directement sur la
    recherche. Les deux regles qui le stylaient sont parties avec lui. */
 
-.sbar { display: flex; align-items: center; background: var(--surface); border: 1px solid var(--bord-carte); border-radius: .625rem; padding: .3rem; max-width: 50rem; box-shadow: 0 1px 4px rgba(0,0,0,.07); margin-bottom: 0; }
+.sbar { display: flex; align-items: center; background: var(--surface); border: 1px solid var(--bord-carte); border-radius: var(--r-l); padding: .3rem; max-width: 50rem; box-shadow: var(--ombre-1); margin-bottom: 0; }
 .sf { flex: 1; display: flex; align-items: center; padding: 0 1rem; gap: .4rem; }
 .sf input { width: 100%; border: none; outline: none; background: transparent; font-family: inherit; font-size: 0.925rem; color: var(--encre);
-           border-radius: 4px; }
+           border-radius: var(--r-s); }
 /* Le champ disparaissait du parcours clavier : `outline: none` supprimait
    l'indicateur sans rien mettre a la place. Le focus se voit desormais sur
    le champ lui-meme. */
@@ -121,9 +121,9 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', 'Inter Fallba
    passe a 4,6:1 le jour et 5,0:1 la nuit. */
 .sf input::placeholder { color: rgba(var(--gris-doux-rgb), .9); }
 .sdiv { width: 1px; height: 1.4rem; background: rgba(187,201,204,.35); flex-shrink: 0; }
-.btn-srch { background: linear-gradient(135deg,var(--teal-fond),var(--teal-fonce)); color: var(--blanc); border: none; cursor: pointer; padding: .5rem 1.5rem; border-radius: .375rem; font-weight: 700; font-size: 0.925rem; white-space: nowrap;
+.btn-srch { background: linear-gradient(135deg,var(--teal-fond),var(--teal-fonce)); color: var(--blanc); border: none; cursor: pointer; padding: .5rem 1.5rem; border-radius: var(--r-m); font-weight: 700; font-size: 0.925rem; white-space: nowrap;
   transition: background .15s, box-shadow .15s; }
-.btn-srch:hover { background: var(--teal-aplat-survol); box-shadow: 0 2px 10px rgba(0,0,0,.18); }
+.btn-srch:hover { background: var(--teal-aplat-survol); box-shadow: var(--ombre-2); }
 
 .chips { display: flex; gap: .5rem; overflow-x: auto; padding-bottom: .15rem; }
 .chips::-webkit-scrollbar { display: none; }
@@ -131,7 +131,7 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', 'Inter Fallba
    dans la rangee y serait coupe. Tant qu'une liste est ouverte, on laisse
    le debordement passer — le temps de choisir, pas plus. */
 .chips.msel-ouvert { overflow: visible; }
-.chip { display: flex; align-items: center; gap: .3rem; padding: .38rem .85rem; border-radius: .375rem; background: var(--surface); color: var(--gris); font-size: 0.925rem; font-weight: 500; border: 1px solid var(--bord-carte); cursor: pointer; white-space: nowrap; flex-shrink: 0; transition: background .15s; }
+.chip { display: flex; align-items: center; gap: .3rem; padding: .38rem .85rem; border-radius: var(--r-m); background: var(--surface); color: var(--gris); font-size: 0.925rem; font-weight: 500; border: 1px solid var(--bord-carte); cursor: pointer; white-space: nowrap; flex-shrink: 0; transition: background .15s; }
 /* Le survol d'un filtre doit se VOIR. Le fond de survol est un jeton
    dedie : --teal-survol reste le fond des badges, ou un fond clair le
    jour eclaircissait le badge au lieu de le lire. */
@@ -140,7 +140,7 @@ html, body { height: 100%; overflow: hidden; font-family: 'Inter', 'Inter Fallba
                 le detache du bandeau. Un aplat de couleur sature se lirait
                 « allume » : ce n'est pas un survol, c'est un changement de
                 nature. */
-             box-shadow: 0 1px 6px rgba(0, 0, 0, .28);
+             box-shadow: var(--ombre-2);
              /* La fleche suit le fond : sinon elle reste grise sur une
                 surface changee, et le signal parait incomplet. */
              /* Le texte suit le fond : sinon il garde sa couleur d'origine
@@ -184,7 +184,7 @@ select.chip, .msel.chip { min-width: calc(7ch + 3.2rem); }
 .msel-panneau { position: absolute; z-index: 70; top: calc(100% + .35rem); left: 0;
   min-width: 100%; max-height: 60vh; overflow-y: auto; padding: .3rem;
   background: var(--surface); border: 1px solid var(--bord-carte);
-  border-radius: .5rem; box-shadow: 0 10px 26px rgba(0,0,0,.22);
+  border-radius: var(--r-m); box-shadow: var(--ombre-2);
   display: flex; flex-direction: column; gap: .05rem; }
 .msel-panneau[hidden] { display: none; }
 /* Dans le panneau de filtres (telephone), la liste s'ouvre DANS LE FLUX.
@@ -205,8 +205,8 @@ select.chip, .msel.chip { min-width: calc(7ch + 3.2rem); }
 .msel-feuille { position: fixed; left: 0; right: 0; bottom: 0; z-index: 980;
   display: flex; flex-direction: column;
   max-height: 74dvh; background: var(--surface);
-  border-radius: 1.1rem 1.1rem 0 0;
-  box-shadow: 0 -14px 44px rgba(0, 0, 0, .34);
+  border-radius: var(--r-l) var(--r-l) 0 0;
+  box-shadow: var(--ombre-forte);
   animation: feuille-monte .18s ease-out; }
 @keyframes feuille-monte { from { transform: translateY(12%); opacity: .6; }
   to { transform: translateY(0); opacity: 1; } }
@@ -231,7 +231,7 @@ select.chip, .msel.chip { min-width: calc(7ch + 3.2rem); }
 .msel-feuille-pied { display: flex; gap: .6rem; padding: .7rem 1.1rem;
   padding-bottom: calc(.7rem + env(safe-area-inset-bottom, 0px));
   border-top: 1px solid var(--bord-carte); }
-.msel-feuille-pied button { flex: 1; height: 42px; border-radius: .5rem;
+.msel-feuille-pied button { flex: 1; height: 42px; border-radius: var(--r-m);
   font: inherit; font-weight: 600; font-size: .92rem; cursor: pointer; }
 .msel-feuille-effacer { background: var(--surface); color: var(--gris);
   border: 1px solid var(--bord-carte); }
@@ -239,7 +239,7 @@ select.chip, .msel.chip { min-width: calc(7ch + 3.2rem); }
 /* Le fond ne defile pas quand la feuille est ouverte. */
 body.feuille-ouverte { overflow: hidden; }
 .msel-opt { display: flex; align-items: center; gap: .5rem; padding: .4rem .5rem;
-  border-radius: .3rem; font-size: .9rem; white-space: nowrap; cursor: pointer; }
+  border-radius: var(--r-s); font-size: .9rem; white-space: nowrap; cursor: pointer; }
 .msel-opt:hover { background: var(--surface-survol); }
 .msel-opt input { accent-color: var(--teal); width: 15px; height: 15px; margin: 0; }
 
@@ -265,7 +265,7 @@ html[data-theme="nuit"] select.chip {
    le bouton est masque et la rangee se centre comme avant. Sur telephone,
    c'est lui qui met les trois sur une ligne. */
 .rangee-filtres { display: block; }
-.badge-filtres { min-width: 1.15rem; padding: 0 .3rem; border-radius: 999px;
+.badge-filtres { min-width: 1.15rem; padding: 0 .3rem; border-radius: 9999px;
   background: var(--teal); color: #fff; font-size: .7rem; font-weight: 700;
   line-height: 1.15rem; text-align: center; }
 .badge-filtres[hidden] { display: none; }
@@ -276,7 +276,7 @@ html[data-theme="nuit"] select.chip {
 /* Colonne gauche */
 .pl { width: var(--colonne-liste); flex-shrink: 0; display: flex; flex-direction: column; background: var(--surface-liste); border-right: 1px solid rgba(187,201,204,.25); overflow-y: auto; overflow-x: hidden; }
 .pl::-webkit-scrollbar { width: 3px; }
-.pl::-webkit-scrollbar-thumb { background: var(--gris-pale); border-radius: 10px; }
+.pl::-webkit-scrollbar-thumb { background: var(--gris-pale); border-radius: var(--r-l); }
 .pl-hd { flex-shrink: 0; padding: .625rem 1.375rem .35rem; font-size: 0.7rem; font-weight: 700; color: var(--gris-doux); text-transform: uppercase; letter-spacing: .1em; background: var(--surface-liste); }
 .feed { padding: .35rem .875rem .875rem; display: flex; flex-direction: column; gap: .65rem; }
 
@@ -300,7 +300,7 @@ html[data-theme="nuit"] select.chip {
      restante après la colonne, comme avant. */
   margin-right: max(0px, calc((100% - var(--colonne-liste) - var(--enveloppe-lecture) + 2.5rem) / 3)); }
 .pr::-webkit-scrollbar { width: 3px; }
-.pr::-webkit-scrollbar-thumb { background: var(--gris-pale); border-radius: 10px; }
+.pr::-webkit-scrollbar-thumb { background: var(--gris-pale); border-radius: var(--r-l); }
 
 /* ── DETAIL CARD ── */
 /* Enveloppe de lecture reprise du modèle : largeur tenue, marges
@@ -318,16 +318,16 @@ html[data-theme="nuit"] select.chip {
 
 /* ── EN-TÊTE STICKY DU DÉTAIL ── */
 /* ── CARDS ── */
-.jc { background: var(--surface); border-radius: .625rem; padding: .875rem; cursor: pointer; transition: transform .15s, box-shadow .15s; position: relative; border: 1.5px solid var(--bord-carte); box-shadow: 0 2px 6px rgba(25,44,52,.08), 0 5px 14px rgba(25,44,52,.04); flex-shrink: 0; }
-.jc:hover { transform: translateY(-1px); border-color: var(--bord-carte-survol); box-shadow: 0 5px 16px rgba(25,44,52,.14); }
-.jc.on { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(0,104,118,.10), 0 4px 12px rgba(25,44,52,.10); }
+.jc { background: var(--surface); border-radius: var(--r-l); padding: .875rem; cursor: pointer; transition: transform .15s, box-shadow .15s; position: relative; border: 1.5px solid var(--bord-carte); box-shadow: var(--ombre-1); flex-shrink: 0; }
+.jc:hover { transform: translateY(-1px); border-color: var(--bord-carte-survol); box-shadow: var(--ombre-2); }
+.jc.on { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(0, 104, 118, .10), var(--ombre-1); }
 /* La carte SELECTIONNEE ne reagissait plus au survol : sa regle .on
    venait apres .jc:hover, et l'ecrasait. Elle redevient vivante — le
    survol leve la carte et marque sa bordure, comme les autres. */
 .jc.on:hover { transform: translateY(-1px); border-color: var(--teal-fonce);
-               box-shadow: 0 0 0 3px rgba(0,104,118,.16), 0 5px 16px rgba(25,44,52,.14); }
+               box-shadow: 0 0 0 3px rgba(0, 104, 118, .16), var(--ombre-2); }
 .ct { display: flex; align-items: flex-start; margin-bottom: .45rem; }
-.clogo { width: 38px; height: 38px; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: var(--blanc); font-weight: 900; font-size: 11px; flex-shrink: 0; position: relative; overflow: hidden; }
+.clogo { width: 38px; height: 38px; border-radius: var(--r-m); display: flex; align-items: center; justify-content: center; color: var(--blanc); font-weight: 900; font-size: 11px; flex-shrink: 0; position: relative; overflow: hidden; }
 .ci { flex: 1; min-width: 0; padding-left: .5rem; }
 /* Deux lignes, sur toutes les largeurs. Une seule coupait « Stage - Actuaire
    / Analyste ALM & Allocation Strategique d'Actifs (H/F) » avant le mot qui
@@ -343,10 +343,10 @@ html[data-theme="nuit"] select.chip {
    d'interface. Le laisser tel quel aurait changé le rendu de chaque carte. */
 a.ctitle { width: 100%; text-align: left; font-family: inherit; color: inherit; text-decoration: none;
   background: none; border: 0; padding: 0; cursor: pointer; }
-a.ctitle:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; border-radius: 3px; }
+a.ctitle:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; border-radius: var(--r-s); }
 .csub { font-size: .75rem; color: var(--gris); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .cm { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin: 9px 0; }
-.card-fact { display: inline-flex; align-items: center; flex: 0 0 auto; max-width: 100%; padding: 2px 8px; border: 1px solid var(--bord-carte); border-radius: 4px; background: var(--surface-2); }
+.card-fact { display: inline-flex; align-items: center; flex: 0 0 auto; max-width: 100%; padding: 2px 8px; border: 1px solid var(--bord-carte); border-radius: var(--r-s); background: var(--surface-2); }
 .card-fact-value { color: var(--encre-forte); font-size: 12px; font-weight: 600; line-height: 16px; overflow-wrap: anywhere; }
 .card-fact .ic { width: 14px; height: 14px; color: var(--gris-icone); margin-right: 3px; }
 /* La localisation porte sa propre teinte : elle indique un lieu, pas une
@@ -360,7 +360,7 @@ a.ctitle:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; bo
    concurrencer le titre. */
 .jc .ctags .tag { font-size: 11px; padding: 3px 6px; }
 .cdate { position: absolute; bottom: .5rem; right: .875rem; font-size: 11px; color: var(--gris-doux); font-weight: 500; }
-.tag { display: inline-block; padding: 1.5px 5px; border-radius: 3px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+.tag { display: inline-block; padding: 1.5px 5px; border-radius: var(--r-s); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
 .tm { background: var(--cyan-clair); color: var(--cyan-texte); }
 .tp { background: var(--vert-pale); color: var(--vert-texte); border: 1px solid rgba(34,197,94,.2); }
 .tn { background: var(--orange-clair); color: var(--orange-texte); }
@@ -372,12 +372,12 @@ a.ctitle:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; bo
                 display: grid; place-items: center; padding: 1rem; }
 .voile-alerte[hidden] { display: none; }
 .modale-alerte { background: var(--surface); border: 1px solid var(--bord-carte);
-                 border-radius: .625rem; box-shadow: 0 24px 70px rgba(9, 26, 33, .32);
+                 border-radius: var(--r-l); box-shadow: var(--ombre-2);
                  width: min(29rem, 100%); max-height: 88vh; overflow: auto;
                  padding: 1.35rem 1.35rem 1.2rem; position: relative; text-align: left; }
 .fermer-alerte { position: absolute; top: .7rem; right: .7rem; width: 30px; height: 30px;
                  display: grid; place-items: center; background: transparent;
-                 border: 1px solid transparent; border-radius: .375rem; color: var(--gris);
+                 border: 1px solid transparent; border-radius: var(--r-m); color: var(--gris);
                  font: inherit; font-size: 1rem; cursor: pointer; }
 .fermer-alerte:hover { background: var(--surface-2); border-color: var(--bord-carte); color: var(--encre); }
 .modale-alerte h2 { font-size: 1.06rem; font-weight: 800; letter-spacing: -.015em;
@@ -385,9 +385,9 @@ a.ctitle:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; bo
 .modale-alerte .sous-alerte { font-size: .82rem; color: var(--gris); margin: 0 0 1rem; }
 
 .rappel-alerte { display: flex; align-items: center; gap: .55rem; background: var(--surface-2);
-                 border: 1px solid var(--bord-carte); border-radius: .5rem;
+                 border: 1px solid var(--bord-carte); border-radius: var(--r-m);
                  padding: .55rem .65rem; margin-bottom: 1.15rem; }
-.rappel-alerte .mono-alerte { width: 30px; height: 30px; border-radius: .375rem;
+.rappel-alerte .mono-alerte { width: 30px; height: 30px; border-radius: var(--r-m);
                  background: var(--teal-clair); color: var(--teal-texte); display: grid;
                  place-items: center; font-weight: 900; font-size: .6875rem; flex: 0 0 auto;
                  overflow: hidden; }
@@ -402,16 +402,16 @@ a.ctitle:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; bo
 .chip-alerte { display: inline-flex; align-items: center; gap: .3rem; font: inherit;
                font-size: .77rem; font-weight: 600; background: var(--teal-clair);
                color: var(--teal-texte); border: 1px solid var(--teal-bord);
-               padding: .28rem .28rem .28rem .52rem; border-radius: .375rem; cursor: pointer; }
+               padding: .28rem .28rem .28rem .52rem; border-radius: var(--r-m); cursor: pointer; }
 .chip-alerte:hover { background: var(--teal-survol); }
 .chip-alerte .x-alerte { display: grid; place-items: center; width: 15px; height: 15px;
-               border-radius: .25rem; background: rgba(0, 104, 118, .14); font-size: .6875rem; line-height: 1; }
+               border-radius: var(--r-s); background: rgba(0, 104, 118, .14); font-size: .6875rem; line-height: 1; }
 .chip-ajout-alerte { background: transparent; color: var(--gris); border: 1px dashed var(--bord);
                padding: .28rem .55rem; }
 .chip-ajout-alerte:hover { color: var(--teal-texte); border-color: var(--teal-bord); background: var(--surface-2); }
 
 .champ-alerte { width: 100%; font: inherit; font-size: .87rem; padding: .58rem .68rem;
-                border: 1px solid var(--bord); border-radius: .5rem;
+                border: 1px solid var(--bord); border-radius: var(--r-m);
                 background: var(--surface); color: var(--encre); }
 .champ-alerte:focus { outline: 2px solid var(--teal); outline-offset: 1px; border-color: var(--teal); }
 .champ-alerte.invalide { border-color: var(--alerte-rouge); outline: 2px solid var(--alerte-rouge-voile); outline-offset: 1px; }
@@ -420,7 +420,7 @@ a.ctitle:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; bo
 .freq-alerte { display: flex; gap: .4rem; }
 .freq-alerte label { flex: 1; display: flex; align-items: center; justify-content: center;
                      gap: .32rem; font-size: .79rem; font-weight: 600; color: var(--gris);
-                     border: 1px solid var(--bord); border-radius: .5rem; padding: .42rem;
+                     border: 1px solid var(--bord); border-radius: var(--r-m); padding: .42rem;
                      cursor: pointer; text-align: center; }
 .freq-alerte input { accent-color: var(--teal); }
 .freq-alerte label:has(input:checked) { border-color: var(--teal); color: var(--teal-texte); background: var(--teal-clair); }
@@ -428,7 +428,7 @@ a.ctitle:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; bo
 .note-alerte { font-size: .72rem; color: var(--gris-doux); margin: .95rem 0 .9rem; line-height: 1.5; }
 .btn-alerte { width: 100%; font: inherit; font-size: .89rem; font-weight: 700;
               background: var(--teal-fond); color: var(--blanc); border: 1px solid var(--teal-fond);
-              border-radius: .5rem; padding: .62rem; cursor: pointer; transition: background .15s; }
+              border-radius: var(--r-m); padding: .62rem; cursor: pointer; transition: background .15s; }
 .btn-alerte:hover { background: var(--teal-aplat-survol); }
 .btn-alerte:disabled { opacity: .5; cursor: not-allowed; }
 
@@ -447,7 +447,7 @@ a.ctitle:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; bo
    cloche d'alerte : l'une dit « garde cette offre », l'autre « previens-
    moi ». Deux gestes distincts, deux icones distinctes. */
 .bel { display: grid; place-items: center; width: 32px; height: 32px; flex: 0 0 auto;
-       background: transparent; border: 1px solid transparent; border-radius: .375rem;
+       background: transparent; border: 1px solid transparent; border-radius: var(--r-m);
        color: var(--gris-doux); cursor: pointer;
        transition: background .15s, color .15s, border-color .15s; }
 .bel:hover, .bel:focus-visible { background: var(--teal-clair); color: var(--teal-texte);
@@ -486,7 +486,7 @@ a.ctitle:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; bo
 .etat-actions .btn-back { margin-bottom: 0; }
 .btn-reessayer { font: inherit; font-size: .85rem; font-weight: 700; min-height: 2.25rem;
   padding: .45rem 1.1rem; background: var(--teal-fond); color: var(--blanc);
-  border: 1px solid var(--teal-fond); border-radius: .5rem; cursor: pointer;
+  border: 1px solid var(--teal-fond); border-radius: var(--r-m); cursor: pointer;
   transition: background .15s; }
 .btn-reessayer:hover { background: var(--teal-aplat-survol); }
 .btn-reessayer:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
@@ -500,7 +500,7 @@ a.ctitle:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; bo
 .dact { display: flex; align-items: center; gap: .5rem; margin-bottom: 1.6rem; }
 .bap, .bsh { display: inline-flex; align-items: center; font-family: inherit;
   font-size: .9rem; font-weight: 600; line-height: 1; padding: .62rem 1.1rem;
-  border-radius: .5rem; text-decoration: none; white-space: nowrap; cursor: pointer; }
+  border-radius: var(--r-m); text-decoration: none; white-space: nowrap; cursor: pointer; }
 /* Postuler : teal de la maison, plein — c'est l'action attendue. */
 .bap { background: var(--teal-fond); color: var(--blanc); border: 1px solid var(--teal); }
 /* Le survol eclaircit l'APLAT, il ne le remplace pas par la couleur du
@@ -550,7 +550,7 @@ a.ctitle:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; bo
    puis le remplacer par la structure d'origine faisait voir un texte sans
    mise en forme pendant la requete. */
 .desc-attente { display: flex; flex-direction: column; gap: .55rem; margin: .3rem 0 1.2rem; }
-.desc-attente span { display: block; height: .7rem; border-radius: .25rem;
+.desc-attente span { display: block; height: .7rem; border-radius: var(--r-s);
   background: linear-gradient(90deg, var(--surface-2), var(--bord), var(--surface-2));
   background-size: 200% 100%; animation: attente 1.2s linear infinite; }
 .desc-attente span:nth-child(2) { width: 92%; }
@@ -600,7 +600,7 @@ a.ctitle:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; bo
 .clogo.fond-logo span { color: var(--encre-forte); }
 .clogo.fond-logo img { padding: 3px; }
 html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1) hue-rotate(180deg); }
-.bcv { display: inline-flex; align-items: center; gap: .3rem; padding: .5rem .875rem; border-radius: .5rem; background: var(--encre); color: var(--blanc); font-weight: 700; font-size: 0.8rem; text-decoration: none; }
+.bcv { display: inline-flex; align-items: center; gap: .3rem; padding: .5rem .875rem; border-radius: var(--r-m); background: var(--encre); color: var(--blanc); font-weight: 700; font-size: 0.8rem; text-decoration: none; }
 
 /* ── FOOTER RICHE ── */
 #ft {
@@ -621,7 +621,7 @@ html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1)
 #ft .ft-top { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
 #ft .ft-logo { font-size: .95rem; font-weight: 900; color: var(--blanc); letter-spacing: -.05em; text-decoration: none; }
 #ft .ft-links { display: flex; gap: .4rem; flex-wrap: wrap; }
-#ft .ft-links a { color: rgba(255,255,255,0.9); text-decoration: none; font-size: .75rem; font-weight: 500; padding: .1rem .4rem; border-radius: .25rem; border: 1px solid rgba(255,255,255,.15); transition: background .15s, color .15s; }
+#ft .ft-links a { color: rgba(255,255,255,0.9); text-decoration: none; font-size: .75rem; font-weight: 500; padding: .1rem .4rem; border-radius: var(--r-s); border: 1px solid rgba(255,255,255,.15); transition: background .15s, color .15s; }
 #ft .ft-links a:hover { background: var(--surbrillance); color: var(--blanc); }
 #ft .ft-copy { font-size: .75rem; color: rgba(255,255,255,0.9); display: flex; align-items: center; gap: .3rem; flex-wrap: wrap; margin-top: .15rem; }
 #ft .ft-copy .heart { color: var(--coeur); font-size: .75rem; }
@@ -689,7 +689,7 @@ html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1)
     height: 36px;
     background: rgba(255,255,255,.15);
     border: none;
-    border-radius: .4rem;
+    border-radius: var(--r-m);
     cursor: pointer;
     padding: 7px 8px;
     flex-shrink: 0;
@@ -698,7 +698,7 @@ html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1)
     display: block;
     height: 2px;
     background: var(--surface);
-    border-radius: 2px;
+    border-radius: var(--r-s);
     transition: transform .25s, opacity .2s;
   }
   /* Croix quand ouvert */
@@ -734,7 +734,7 @@ html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1)
     display: flex;
     flex-direction: column;
     padding: 0;
-    box-shadow: -4px 0 24px rgba(0,0,0,.18);
+    box-shadow: var(--ombre-2);
   }
   #burger-menu.open { pointer-events: all; }
   #burger-menu.open .bm-overlay { opacity: 1; }
@@ -755,7 +755,7 @@ html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1)
     border: none;
     color: var(--blanc);
     width: 32px; height: 32px;
-    border-radius: .375rem;
+    border-radius: var(--r-m);
     cursor: pointer;
     display: flex; align-items: center; justify-content: center;
   }
@@ -796,7 +796,7 @@ html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1)
     justify-content: center;
     padding: .65rem 1rem;
     font-size: 0.925rem;
-    border-radius: .5rem;
+    border-radius: var(--r-m);
   }
 
   /* Hero compact — les deux lignes de texte restent, comme en bureau.
@@ -828,7 +828,7 @@ html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1)
 
   /* — Etat haut : la barre complete, empilee comme avant — */
   .sbar {
-    border-radius: .625rem;
+    border-radius: var(--r-l);
     padding: .25rem;
     margin-bottom: 0;
     flex-direction: column;
@@ -842,7 +842,7 @@ html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1)
   /* Cible tactile : 44 px de haut au minimum, et 8 px (.5rem) d'air au-dessus
      pour ne pas toucher le champ voisin. */
   .btn-srch {
-    border-radius: .375rem;
+    border-radius: var(--r-m);
     padding: .5rem 1rem;
     font-size: .9rem;
     min-height: 44px;
@@ -878,7 +878,7 @@ html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1)
     font-size: .8rem;
     font-weight: 600;
     white-space: nowrap;
-    border-radius: .5rem;
+    border-radius: var(--r-m);
     border: 1px solid var(--bord-carte);
     background: var(--surface);
     color: var(--encre);
@@ -999,8 +999,8 @@ html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1)
     padding: 1rem 1rem calc(1rem + env(safe-area-inset-bottom, 0px));
     background: var(--surface);
     border-top: 1px solid var(--bord-carte);
-    border-radius: 1rem 1rem 0 0;
-    box-shadow: 0 -18px 50px rgba(9, 26, 33, .28);
+    border-radius: var(--r-l) var(--r-l) 0 0;
+    box-shadow: var(--ombre-forte);
   }
   /* Chaque filtre prend la largeur : la fleche reste a droite, et la
      cible fait la hauteur d'un doigt. */
@@ -1019,7 +1019,7 @@ html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1)
     min-height: 44px;
     padding: .5rem .85rem;
     border: 1px solid var(--bord-carte);
-    border-radius: .375rem;
+    border-radius: var(--r-m);
     background: var(--surface);
   }
   .chips.ouvert .loc-field input { font-size: .925rem; }
@@ -1028,12 +1028,12 @@ html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1)
     gap: .75rem; margin-bottom: .15rem; }
   .fp-tete h2 { font-size: 1rem; font-weight: 800; color: var(--encre); margin: 0; }
   .fp-fermer { width: 44px; height: 44px; display: grid; place-items: center;
-    background: transparent; border: 0; border-radius: .375rem;
+    background: transparent; border: 0; border-radius: var(--r-m);
     color: var(--gris); cursor: pointer; }
   .fp-fermer:hover, .fp-fermer:focus-visible { background: var(--surface-survol); color: var(--encre); }
 
   .fp-actions { display: flex; gap: .5rem; margin-top: .35rem; }
-  .fp-actions > button { flex: 1; min-height: 44px; border-radius: .5rem;
+  .fp-actions > button { flex: 1; min-height: 44px; border-radius: var(--r-m);
     font: inherit; font-size: .92rem; font-weight: 700; cursor: pointer; }
   .fp-reinit { background: var(--surface); border: 1px solid var(--bord-carte); color: var(--encre); }
   .fp-appliquer { background: var(--teal); border: 1px solid var(--teal); color: #fff; }
@@ -1172,11 +1172,11 @@ html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1)
   .dc-wrap { display: block; padding: 1.25rem 1.25rem 3rem; }
   .dc {
     background: var(--surface);
-    border-radius: .625rem;
-    box-shadow: 0 1px 2px rgba(25, 44, 52, .06), 0 4px 14px rgba(25, 44, 52, .05);
+    border-radius: var(--r-l);
+    box-shadow: var(--ombre-1);
   }
   /* L'en-tête figé devient le haut de la carte : il en reprend les angles. */
-  .d-entete { border-radius: .625rem .625rem 0 0; }
+  .d-entete { border-radius: var(--r-l) var(--r-l) 0 0; }
 
   /* ── LES MARGES DE PAGE ──
      Le board ne colle plus aux bords : la page prend 100 px de marge de
@@ -1211,7 +1211,7 @@ html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1)
 
 .fp-choix { display: flex; flex-wrap: wrap; gap: .5rem; }
 .fp-puce { display: inline-flex; align-items: center; min-height: 40px;
-  padding: .45rem .9rem; border: 1px solid var(--bord-carte); border-radius: .5rem;
+  padding: .45rem .9rem; border: 1px solid var(--bord-carte); border-radius: var(--r-m);
   background: var(--surface); color: var(--encre);
   font: inherit; font-size: .92rem; font-weight: 500; line-height: 1.2;
   cursor: pointer; transition: background .12s, color .12s, border-color .12s; }
@@ -1250,7 +1250,7 @@ html[data-theme="nuit"] .clogo.fond-logo.logo-inversable img { filter: invert(1)
     position: fixed; inset: 0; margin: auto;
     width: min(680px, 92vw); height: fit-content; max-height: 84vh;
     z-index: 960; border: 1px solid var(--bord-carte);
-    border-radius: 1rem; box-shadow: 0 26px 70px rgba(9, 26, 33, .34);
+    border-radius: var(--r-l); box-shadow: var(--ombre-2);
     overflow: hidden;
   }
   .chips.ouvert > .fp-tete { padding: 1.1rem 1.35rem .4rem; }
@@ -1358,7 +1358,7 @@ en documentation).
 
 .consent button {
   font: inherit; font-size: .845rem; font-weight: 600;
-  height: 40px; padding: 0 1.1rem; border-radius: .5rem;
+  height: 40px; padding: 0 1.1rem; border-radius: var(--r-m);
   cursor: pointer; white-space: nowrap;
   transition: background .15s ease, border-color .15s ease, color .15s ease;
 }
@@ -1415,7 +1415,7 @@ en documentation).
   #hd .nav-links a.on { color: var(--blanc); border-bottom: 2px solid #fff; padding-bottom: 2px; }
   #hd .nav-links a.on:hover { color: var(--blanc); border-bottom-color: var(--blanc-survol); }
   #hd .btn-cta { background: var(--surface); color: var(--teal); padding: .45rem 1.2rem;
-                 border-radius: .5rem; font-weight: 700; font-size: .925rem; border: none;
+                 border-radius: var(--r-m); font-weight: 700; font-size: .925rem; border: none;
                  cursor: pointer; font-family: inherit; white-space: nowrap;
                  text-decoration: none; display: inline-block;
                  transition: background .15s, border-color .15s, color .15s; }
@@ -1423,10 +1423,10 @@ en documentation).
                        color: var(--encre); }
   #hd .btn-burger { display: none; flex-direction: column; justify-content: center; gap: 5px;
                      width: 36px; height: 36px; background: rgba(255, 255, 255, .15);
-                     border: none; border-radius: .4rem; cursor: pointer;
+                     border: none; border-radius: var(--r-m); cursor: pointer;
                      padding: 7px 8px; flex-shrink: 0; }
   #hd .btn-burger span { display: block; height: 2px; background: var(--surface);
-                         border-radius: 2px; transition: transform .25s, opacity .2s; }
+                         border-radius: var(--r-s); transition: transform .25s, opacity .2s; }
   #hd .btn-burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
   #hd .btn-burger.open span:nth-child(2) { opacity: 0; }
   #hd .btn-burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
@@ -2900,7 +2900,7 @@ function jevProposalHtml(j) {
   }
 
   if (!lignes.length) return '';
-  return `<div class="ki" style="background:var(--teal-pale);border-radius:.5rem;"><svg class="ic" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="color:var(--teal)"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/></svg>
+  return `<div class="ki" style="background:var(--teal-pale);border-radius:var(--r-m);"><svg class="ic" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="color:var(--teal)"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/></svg>
     <div><div class="kl">Proposition IA — à confirmer</div><div class="kv" style="font-size:.83rem;line-height:1.5;">${lignes.map(l => `<div>${l}</div>`).join('')}</div></div>
   </div>`;
 }
@@ -3405,7 +3405,7 @@ function renderFeed() {
     btn.innerHTML = `<svg class="ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="vertical-align:middle"><path d="m6 9 6 6 6-6"/></svg> Voir plus d'offres <span style="color:var(--gris-doux);font-size:12px;">(${remaining} restantes)</span>`;
     btn.style.cssText = `
       display:block; width:calc(100% - 1.75rem); margin:.5rem .875rem 1rem;
-      padding:.65rem 1rem; border-radius:.625rem;
+      padding:.65rem 1rem; border-radius:var(--r-l);
       background: var(--surface); border:1.5px solid rgba(0,104,118,.25);
       color:var(--teal); font-weight:700; font-size:.825rem;
       cursor:pointer; font-family:inherit;
