@@ -260,15 +260,14 @@ html[data-theme="nuit"] select.chip {
   .card-fact-value { color: var(--encre-forte); font-size: 12px; font-weight: 600; line-height: 16px;
                      overflow-wrap: anywhere; }
   .card-fact .ic { width: 14px; height: 14px; color: var(--gris-icone); margin-right: 3px; }
-  .card-fact--loc { background: var(--teal-clair); border-color: var(--teal-bord); }
-  .card-fact--loc .card-fact-value { color: var(--teal-texte); }
+  /* Deux traitements seulement sur une carte (T10) : pastilles teintées pour le
+     lieu et la spécialité, pastilles neutres pour les conditions du poste. Les
+     compétences sont une ligne de texte, sans fond. */
+  .card-fact--loc, .card-fact--spec { background: var(--teal-clair); border-color: var(--teal-bord); }
+  .card-fact--loc .card-fact-value, .card-fact--spec .card-fact-value { color: var(--teal-texte); }
   .card-fact--loc .ic { color: var(--teal); }
-  .oc .ctags { display: flex; flex-wrap: wrap; gap: 3px; min-width: 0; padding-right: 7.5rem; }
-  .oc .ctags .tag { font-size: 11px; padding: 3px 6px; }
-  .tag { display: inline-block; padding: 1.5px 5px; border-radius: var(--r-s); font-size: 11px;
-         font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
-  .tm { background: var(--cyan-clair); color: var(--cyan-texte); }
-  .tn { background: var(--orange-clair); color: var(--orange-texte); }
+  .oc .ctags { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; min-width: 0; padding-right: 7.5rem; }
+  .ccomp { min-width: 0; font-size: 12px; line-height: 16px; font-weight: 500; color: var(--gris); overflow-wrap: anywhere; }
   .oc .cdate { position: absolute; bottom: .5rem; right: .875rem; font-size: 11px;
                color: var(--gris-doux); font-weight: 500; }
   /* La tuile des employeurs garde sa propre échelle : elle est plus petite. */
@@ -1291,11 +1290,26 @@ function bandeauMetadonnees(j) {
     + (exp ? badge('Expérience', exp) : '') + (sal ? badge('Salaire', sal) : '') + '</div>';
 }
 
+// Les compétences se lisent en une ligne : « Python · SQL · Excel +2 ». Les
+// trois premières sont écrites, le reste est compté, et le titre les donne
+// toutes : rien n'est retiré, rien n'est une pastille de plus.
 function pucesCompetences(j, max) {
   const s = j.skills || {};
-  return Object.keys(FAMILLES_COMPETENCES)
-    .flatMap((f) => (s[f] || []).map((l) => '<span class="tag tm">' + echapper(l) + '</span>'))
-    .slice(0, max).join('');
+  const toutes = Object.keys(FAMILLES_COMPETENCES).flatMap((f) => s[f] || []);
+  if (!toutes.length) return '';
+  const reste = toutes.length - Math.min(toutes.length, max);
+  const texte = toutes.slice(0, max).map((l) => echapper(l)).join(' · ') + (reste ? ' +' + reste : '');
+  const complet = echapper('Compétences citées : ' + toutes.join(', '));
+  return '<span class="ccomp" title="' + complet + '" aria-label="' + complet + '">' + texte + '</span>';
+}
+
+// La spécialité, seule étiquette de la carte qui sert au filtrage : même
+// teinte que le lieu, sans capitales.
+function badgeSpecialite(specialite) {
+  if (!specialite) return '';
+  const titre = echapper('Spécialité : ' + specialite);
+  return '<span class="card-fact card-fact--spec" title="' + titre + '" aria-label="' + titre + '">'
+    + '<span class="card-fact-value">' + echapper(specialite) + '</span></span>';
 }
 
 // Tuile de logo : la même cascade que le board — le logo publié par la source,
@@ -1531,8 +1545,7 @@ async function chargerOffres(apresReessai) {
       const quand = (annuaire && annuaire.publicationLabel)
         ? annuaire.publicationLabel(j.published_at || j.source_published_at || j.first_seen_at) : '';
       const specialite = labelSpecialite(j);
-      const etiquettes = (specialite ? '<span class="tag tn">' + echapper(specialite) + '</span>' : '')
-        + pucesCompetences(j, 3);
+      const etiquettes = badgeSpecialite(specialite) + pucesCompetences(j, 3);
       return `
         <a class="oc" id="card-${echapper(j.slug || '')}" href="${prefMarche()}/offre/${encodeURIComponent(j.slug || '')}" data-slug="${echapper(j.slug || '')}">
           <div class="ct">

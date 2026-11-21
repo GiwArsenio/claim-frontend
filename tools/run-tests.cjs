@@ -82,6 +82,7 @@ const FAMILLES = {
   // Demandent un navigateur. Lents, mais locaux : ils ouvrent le serveur
   // de test et n'appellent que lui.
   navigateur: [
+    'tests/etiquettes_cartes.test.cjs',
     'tests/filtres_entrees.test.cjs',
     'tests/accessibilite-a02.test.cjs',
     'tests/migration-navigateur.test.cjs',

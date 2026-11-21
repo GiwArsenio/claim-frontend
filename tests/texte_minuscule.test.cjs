@@ -65,10 +65,12 @@ test('T05 — le pied de page (liens et copyright) fait au moins 12 px, sur tout
   }
 });
 
-test('T05 — les étiquettes et dates de cartes font au moins 11 px', () => {
+test('T05 — les étiquettes, compétences et dates de cartes font au moins 11 px', () => {
   for (const f of ['index.html', 'job-board.html']) {
     const src = lire(f);
-    for (const sel of ['\\.tag', '\\.(?:oc|jc) \\.ctags \\.tag', '(?:\\.oc )?\\.cdate']) {
+    // T10 : les capitales `.tag` ont disparu ; la valeur d'une pastille et la ligne des
+    // compétences prennent leur place, avec le même plancher de 11 px.
+    for (const sel of ['\\.card-fact-value', '\\.ccomp', '(?:\\.oc )?\\.cdate']) {
       const re = new RegExp('(?:^|\\n)\\s*' + sel + '\\s*\\{[^}]*?font-size\\s*:\\s*([0-9.]+)px', 'g');
       let m; let trouve = 0;
       while ((m = re.exec(src))) { trouve++; assert.ok(+m[1] >= 11, `${f} ${sel} : ${m[1]} px`); }

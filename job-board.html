@@ -349,21 +349,18 @@ a.ctitle:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; bo
 .card-fact { display: inline-flex; align-items: center; flex: 0 0 auto; max-width: 100%; padding: 2px 8px; border: 1px solid var(--bord-carte); border-radius: var(--r-s); background: var(--surface-2); }
 .card-fact-value { color: var(--encre-forte); font-size: 12px; font-weight: 600; line-height: 16px; overflow-wrap: anywhere; }
 .card-fact .ic { width: 14px; height: 14px; color: var(--gris-icone); margin-right: 3px; }
-/* La localisation porte sa propre teinte : elle indique un lieu, pas une
-   condition de poste, et doit se distinguer au premier regard. */
-.card-fact--loc { background: var(--teal-clair); border-color: var(--teal-bord); }
-.card-fact--loc .card-fact-value { color: var(--teal-texte); }
+/* Deux traitements seulement sur une carte (T10). Les pastilles teintées sont
+   les deux repères pour choisir : le lieu (avec son icône) et la spécialité,
+   celle qui sert au filtrage. Les conditions du poste (contrat, expérience,
+   salaire) restent neutres. Les compétences ne sont plus des pastilles : une
+   ligne de texte, sans fond. */
+.card-fact--loc, .card-fact--spec { background: var(--teal-clair); border-color: var(--teal-bord); }
+.card-fact--loc .card-fact-value, .card-fact--spec .card-fact-value { color: var(--teal-texte); }
 .card-fact--loc .ic { color: var(--teal); }
 .cmi { display: flex; align-items: center; gap: 3px; font-size: .725rem; color: var(--gris); font-weight: 600; }
-.ctags { display: flex; flex-wrap: wrap; gap: 3px; padding-right: 6rem; }
-/* Hauteur relevée sans toucher au texte : les badges gagnent en présence sans
-   concurrencer le titre. */
-.jc .ctags .tag { font-size: 11px; padding: 3px 6px; }
+.ctags { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; padding-right: 6rem; }
+.ccomp { min-width: 0; font-size: 12px; line-height: 16px; font-weight: 500; color: var(--gris); overflow-wrap: anywhere; }
 .cdate { position: absolute; bottom: .5rem; right: .875rem; font-size: 11px; color: var(--gris-doux); font-weight: 500; }
-.tag { display: inline-block; padding: 1.5px 5px; border-radius: var(--r-s); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
-.tm { background: var(--cyan-clair); color: var(--cyan-texte); }
-.tp { background: var(--vert-pale); color: var(--vert-texte); border: 1px solid rgba(34,197,94,.2); }
-.tn { background: var(--orange-clair); color: var(--orange-texte); }
 
 /* ── ALERTE — la modale ouverte par la cloche d'une carte ──
    Elle reprend la charte : rayon .625rem, teal, Inter. Le voile laisse
@@ -2937,9 +2934,24 @@ function skillLabels(j) {
   return Object.keys(SKILLS_FAMILIES).flatMap(f => (s[f] || []).map(l => ({ famille: f, label: l })));
 }
 
+// Les compétences se lisent en une ligne : « Python · SQL · Excel +2 ». Les
+// trois premières sont écrites, le reste est compté, et le titre les donne
+// toutes : rien n'est retiré, rien n'est une pastille de plus.
 function skillChips(j, max) {
-  return skillLabels(j).slice(0, max)
-    .map(x => `<span class="tag tm">${escapeHtml(x.label)}</span>`).join('');
+  const toutes = skillLabels(j).map(x => x.label);
+  if (!toutes.length) return '';
+  const reste = toutes.length - Math.min(toutes.length, max);
+  const texte = toutes.slice(0, max).map((l) => escapeHtml(l)).join(' · ') + (reste ? ` +${reste}` : '');
+  const complet = escapeHtml('Compétences citées : ' + toutes.join(', '));
+  return `<span class="ccomp" title="${complet}" aria-label="${complet}">${texte}</span>`;
+}
+
+// La spécialité, seule étiquette de la carte qui sert au filtrage : même
+// teinte que le lieu, sans capitales.
+function cardSpecialtyHtml(sp) {
+  if (!sp) return '';
+  const accessibleLabel = escapeHtml(`Spécialité : ${sp}`);
+  return `<span class="card-fact card-fact--spec" title="${accessibleLabel}" aria-label="${accessibleLabel}"><span class="card-fact-value">${escapeHtml(sp)}</span></span>`;
 }
 
 function skillsHtml(j) {
@@ -3305,7 +3317,6 @@ function renderFeed() {
     const co = j.companies || {};
     const ct      = j.contract_type || '';
     const sp = specialtyLabel(j);
-    const tags = sp ? [{ l: sp, t: 'tn' }] : [];
     const skillTagHtml = skillChips(j, 3);
 
 
@@ -3385,7 +3396,7 @@ function renderFeed() {
       </div>
       ${cardMetadataHtml(j)}
       <div class="ctags">
-        ${tags.map(t => `<span class="tag ${t.t}">${t.l}</span>`).join('')}
+        ${cardSpecialtyHtml(sp)}
         ${skillTagHtml}
       </div>
       <div class="cdate">${formatDate(j.published_at || j.source_published_at || j.first_seen_at)}</div>

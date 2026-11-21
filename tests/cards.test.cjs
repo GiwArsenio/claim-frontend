@@ -2,7 +2,7 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const assert = require('node:assert/strict');
 const html = fs.readFileSync(require('node:path').join(__dirname, '../job-board.html'), 'utf8');
-const funcs = ['specialtyLabel', 'experienceLabel', 'cardExperienceHtml', 'cardFactHtml', 'cardSalaryHtml', 'cardMetadataHtml', 'salaryLabel', 'cardLocationHtml', 'descriptionBlocks', 'descriptionHtml', 'decodeBasicEntities', 'descriptionSectionsHtml', 'prefMarche', 'urlOffre', 'skillLabels', 'skillChips', 'skillsHtml'].map(name => {
+const funcs = ['specialtyLabel', 'experienceLabel', 'cardExperienceHtml', 'cardFactHtml', 'cardSalaryHtml', 'cardMetadataHtml', 'salaryLabel', 'cardLocationHtml', 'descriptionBlocks', 'descriptionHtml', 'decodeBasicEntities', 'descriptionSectionsHtml', 'prefMarche', 'urlOffre', 'skillLabels', 'skillChips', 'cardSpecialtyHtml', 'skillsHtml'].map(name => {
  const start = html.indexOf('function ' + name + '(');
  const end = html.indexOf('\n}', start) + 2;
  assert.ok(start >= 0 && end > start);
@@ -127,12 +127,33 @@ context.row = {ville:'Nanterre', jev_publishable:{}};
 const loc = vm.runInContext('cardLocationHtml(row)', context);
 assert.ok(loc.includes('card-fact--loc'), 'la localisation doit porter sa propre classe');
 assert.ok(!vm.runInContext("cardFactHtml('Contrat','CDI')", context).includes('card-fact--loc'));
-// La localisation porte sa propre teinte : les valeurs viennent des jetons.
-assert.ok(html.includes('.card-fact--loc { background: var(--teal-clair); border-color: var(--teal-bord); }'));
+// T10 : le lieu et la spécialité partagent la même teinte (deux traitements par
+// carte au lieu de quatre). La règle verrouillée devient une règle à deux
+// sélecteurs ; les valeurs viennent toujours des jetons.
+assert.ok(html.includes('.card-fact--loc, .card-fact--spec { background: var(--teal-clair); border-color: var(--teal-bord); }'));
 assert.ok(html.includes('.card-fact--loc .ic { color: var(--teal); }'));
-// T05 : l'étiquette passe de 9 à 11 px — aucun texte lisible ne descend sous 11 px.
-// La valeur verrouillée est mise à jour avec la règle ; le remplissage reste inchangé.
-assert.ok(html.includes('.jc .ctags .tag { font-size: 11px; padding: 3px 6px; }'));
+// T05 : aucun texte lisible ne descend sous 11 px. T10 : l'étiquette `.tag` (capitales,
+// 11 px) disparaît ; la spécialité est une pastille (12 px) et les compétences une
+// ligne de texte (12 px, sans fond). Le plancher de 11 px reste verrouillé.
+assert.ok(html.includes('.ccomp { min-width: 0; font-size: 12px;'));
+assert.ok(!/\.tag\s*\{/.test(html) && !/\.tm\s*\{/.test(html) && !/\.tn\s*\{/.test(html),
+  'les anciennes etiquettes (.tag, .tm, .tn) ne reviennent pas');
+
+// T10 : la spécialité est une pastille teintée, les compétences une ligne de texte.
+const specialite = vm.runInContext("cardSpecialtyHtml('IA / Data')", context);
+assert.ok(specialite.includes('card-fact--spec') && specialite.includes('IA / Data'));
+assert.ok(specialite.includes('aria-label="Spécialité : IA / Data"'));
+assert.equal(vm.runInContext("cardSpecialtyHtml('')", context), '');
+vm.runInContext("const SKILLS_FAMILIES = {outils: 'Outils', data: 'Données et BI', reglementation: 'Réglementation'}", context);
+context.row = {skills: {outils: ['Python', 'SQL', 'Excel', 'VBA'], reglementation: ['IFRS 17']}};
+const competences = vm.runInContext('skillChips(row, 3)', context);
+assert.ok(competences.includes('Python · SQL · Excel +2'), 'trois competences ecrites, le reste compte : ' + competences);
+assert.ok(competences.startsWith('<span class="ccomp"') && !competences.includes('card-fact'), 'une ligne de texte, pas une pastille');
+assert.ok(competences.includes('Compétences citées : Python, SQL, Excel, VBA, IFRS 17'), 'le titre donne toutes les competences');
+context.row = {skills: {outils: ['Python']}};
+assert.ok(vm.runInContext('skillChips(row, 3)', context).includes('>Python</span>') && !vm.runInContext('skillChips(row, 3)', context).includes('+'));
+context.row = {skills: {}};
+assert.equal(vm.runInContext('skillChips(row, 3)', context), '');
 console.log('Location colour and badge height tests passed');
 
 // Description : aperçu dépliable, paragraphes conservés. Le texte long ne doit
