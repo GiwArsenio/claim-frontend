@@ -473,6 +473,23 @@ a.ctitle:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; bo
   font-family: inherit; }
 .btn-back:active { opacity: .7; }
 
+/* ── ÉTATS DE CHARGEMENT ET DE PANNE (liste et fiche) ──
+   Un seul bloc pour les deux : le message, puis les actions. Le bloc reçoit
+   le focus (tabindex -1) quand l'utilisateur vient de cliquer « Réessayer » :
+   sans cela, le bouton disparaît avec le message et le clavier est perdu. */
+.etat { padding: 1.5rem 1.25rem; color: var(--gris-doux); font-size: .85rem; line-height: 1.5; }
+.etat:focus { outline: none; }
+.dc.etat { padding: 2rem 1.25rem; }
+.etat-titre { margin: 0 0 .9rem; font-weight: 700; color: var(--rouge-texte); }
+.etat-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1.25rem; }
+.etat-actions .btn-back { margin-bottom: 0; }
+.btn-reessayer { font: inherit; font-size: .85rem; font-weight: 700; min-height: 2.25rem;
+  padding: .45rem 1.1rem; background: var(--teal-fond); color: var(--blanc);
+  border: 1px solid var(--teal-fond); border-radius: .5rem; cursor: pointer;
+  transition: background .15s; }
+.btn-reessayer:hover { background: var(--teal-aplat-survol); }
+.btn-reessayer:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+
 /* Pastilles : reprises trait pour trait de la page d'offre. */
 .pastilles { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: 1.6rem; }
 
@@ -2631,11 +2648,29 @@ function suivreDefilementListe() {
 }
 
 // ── Chargement initial ─────────────────────────────────────────────────────
+// « Réessayer » a été activé : le bouton va disparaître avec le message, donc
+// le focus doit être rendu quelque part (le bloc de chargement, puis le
+// résultat). Sans cela, un utilisateur au clavier repart du haut de la page.
+let reessaiEnCours = false;
+function placerFocus(el) {
+  if (el && typeof el.focus === 'function') { try { el.focus({ preventScroll: true }); } catch (e) { /* rien */ } }
+}
+function reessayerListe() {
+  reessaiEnCours = true;
+  loadJobs();
+}
 async function loadJobs(forcedPage) {
   // Le compteur du bouton suit l'etat applique, y compris quand il vient de
   // l'adresse (rechargement, lien partage) ou d'une remise a zero.
   majBadgeFiltres();
-  feedEl.innerHTML = '<div style="padding:1.5rem;color:var(--gris-doux);font-size:.8rem;">Chargement des offres…</div>';
+  const apresReessai = reessaiEnCours;
+  reessaiEnCours = false;
+  // Le statut de l'en-tete dit la verite a chaque instant : il ne garde ni
+  // l'ancien total pendant un chargement, ni « Chargement… » apres une panne.
+  document.querySelector('.pl-hd').textContent = 'Chargement…';
+  feedEl.setAttribute('aria-busy', 'true');
+  feedEl.innerHTML = '<div class="etat" tabindex="-1">Chargement des offres…</div>';
+  if (apresReessai) placerFocus(feedEl.firstElementChild);
   try {
     const urlPage = forcedPage || getUrlPage();
     const d = await fetchPage(urlPage);
@@ -2686,12 +2721,25 @@ async function loadJobs(forcedPage) {
       origineDetail = 'auto';
       renderFeed();
       await renderDetail(activeId);
+      if (apresReessai) placerFocus(feedEl.querySelector('a.ctitle'));
     } else {
-      feedEl.innerHTML = '<div style="padding:1.5rem;color:var(--gris-doux);font-size:.8rem;">Aucune offre disponible.</div>';
+      feedEl.innerHTML = '<div class="etat">Aucune offre disponible.</div>';
     }
   } catch (e) {
-    feedEl.innerHTML = `<div style="padding:1.5rem;color:var(--rouge);font-size:.8rem;">Erreur : ${e.message}</div>`;
+    // Le message est écrit pour le visiteur : jamais le texte de l'erreur
+    // technique (« Failed to fetch », « HTTP 500 »), qui reste dans la console.
+    document.querySelector('.pl-hd').textContent = 'Offres indisponibles';
+    feedEl.innerHTML = `
+      <div class="etat" role="alert">
+        <p class="etat-titre">Les offres ne se chargent pas pour l'instant.</p>
+        <div class="etat-actions">
+          <button class="btn-reessayer" type="button" onclick="reessayerListe()">Réessayer</button>
+        </div>
+      </div>`;
+    if (apresReessai) placerFocus(feedEl.querySelector('.btn-reessayer'));
     console.error('[CLAIM!] loadJobs error:', e);
+  } finally {
+    feedEl.removeAttribute('aria-busy');
   }
 }
 
@@ -3619,15 +3667,21 @@ async function renderDetail(id) {
   const enCache = detailCache[id];
   const depart = enCache || enListe;
 
+  const detailEl = document.getElementById('detail');
+  const apresReessai = reessaiEnCours;
+  reessaiEnCours = false;
+
+  if (!enCache) detailEl.setAttribute('aria-busy', 'true');
   if (depart) {
     dessinerDetail(depart, !enCache);
   } else {
-    document.getElementById('detail').innerHTML = `
+    detailEl.innerHTML = `
       <button class="btn-back" onclick="closeDetail()">
         ← Toutes les offres
       </button>
-      <div class="dc" style="padding:2rem;color:var(--gris-doux);font-size:.85rem;">Chargement du détail…</div>
+      <div class="dc etat" tabindex="-1">Chargement du détail…</div>
     `;
+    if (apresReessai) placerFocus(detailEl.querySelector('.etat'));
   }
 
   try {
@@ -3644,18 +3698,28 @@ async function renderDetail(id) {
     const lecture = prEl.scrollTop;
     dessinerDetail(j);
     if (!isMobile() && lecture > 0) prEl.scrollTop = lecture;
+    if (apresReessai) {
+      const titre = detailEl.querySelector('.dtitle');
+      if (titre) { titre.setAttribute('tabindex', '-1'); placerFocus(titre); }
+    }
   } catch (e) {
     // Si la liste a déjà fourni de quoi lire, on la garde : mieux vaut une
     // fiche sans structure qu'un écran d'erreur.
     if (!depart) {
-      document.getElementById('detail').innerHTML = `
-        <button class="btn-back" onclick="closeDetail()">
-          ← Toutes les offres
-        </button>
-        <div class="dc" style="padding:2rem;color:var(--rouge);font-size:.85rem;">
-          Erreur : ${e.message}
+      // Rien à montrer et rien à réessayer tout seul : on le dit, et on
+      // laisse le choix. Le texte technique reste dans la console.
+      detailEl.innerHTML = `
+        <div class="dc etat" role="alert" tabindex="-1">
+          <p class="etat-titre">Impossible d'ouvrir cette offre.</p>
+          <div class="etat-actions">
+            <button class="btn-reessayer" type="button">Réessayer</button>
+            <button class="btn-back" type="button" onclick="closeDetail()">← Retour aux offres</button>
+          </div>
         </div>
       `;
+      const bouton = detailEl.querySelector('.btn-reessayer');
+      bouton.onclick = () => { reessaiEnCours = true; renderDetail(id); };
+      if (apresReessai) placerFocus(bouton);
     } else if (!enCache) {
       // La requete a echoue : on peint le texte de la liste. Il n'a pas la
       // mise en forme du detail, mais c'est toujours mieux qu'un squelette
@@ -3663,6 +3727,9 @@ async function renderDetail(id) {
       dessinerDetail(depart);
     }
     console.error('[CLAIM!] renderDetail error:', e);
+  } finally {
+    // Une réponse tardive ne lève pas l'attente d'une offre plus récente.
+    if (activeId === id) detailEl.removeAttribute('aria-busy');
   }
 }
 
