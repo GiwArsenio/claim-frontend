@@ -7,8 +7,8 @@
      • le titre n'a plus de mots colorés (décision D5) ;
      • les valeurs viennent de /stats/published, au format français ;
      • la somme des spécialités n'est JAMAIS présentée comme le total : les
-       fixtures donnent 51 offres pour 38 classées, et une ligne « Pas encore
-       classées » porte les 13 restantes ;
+       fixtures donnent TOTAL offres pour 38 classées, et une ligne « Pas encore
+       classées » porte les restantes ;
      • les chiffres s'alignent (`tabular-nums`) ;
      • en panne : « — » et un message, sans que la page change de hauteur ;
      • bureau : le panneau est à droite du titre ; téléphone : sous la
@@ -23,6 +23,14 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 
 const aide = require('./aide-parcours.cjs');
+const { TOUTES } = require('./fixtures/offres.cjs');
+
+/* Le total vient des fixtures : le serveur de test répond jobs_online = TOUTES.length,
+   et d'autres tests y ajoutent des offres. La répartition par spécialité, elle, est fixe
+   (21 + 11 + 6 = 38 classées) : l'écart est donc TOTAL - 38. */
+const TOTAL = TOUTES.length;
+const CLASSEES = 21 + 11 + 6;
+const AUTRES = TOTAL - CLASSEES;
 
 async function ouvrirAccueil(page, attente = 1800) {
   await page.goto(aide.BASE + '/index.html', { waitUntil: 'domcontentloaded' });
@@ -100,7 +108,7 @@ test('T12 — le panneau montre les valeurs de /stats/published, sans prendre la
       await ouvrirAccueil(page);
       const p = await page.evaluate(lirePanneau);
 
-      assert.equal(p.offres, '51', 'offres en ligne');
+      assert.equal(p.offres, String(TOTAL), 'offres en ligne');
       assert.equal(p.employeurs, '7', 'employeurs qui recrutent');
       assert.equal(p.sources, '23', 'sources relevées');
       /* 05:00 UTC le 22 octobre 2026 : 07 h 00 à Paris (heure d'été). */
@@ -109,18 +117,17 @@ test('T12 — le panneau montre les valeurs de /stats/published, sans prendre la
       assert.equal(p.enAttente, 0, 'des chiffres sont restés en attente');
       assert.equal(p.etat, 'Mis à jour chaque matin', 'ligne d\'état au repos');
 
-      assert.deepEqual(p.nombres, { actuariat: '21', ia_data: '11', souscription_technique: '6', autres: '13' });
+      assert.deepEqual(p.nombres, { actuariat: '21', ia_data: '11', souscription_technique: '6', autres: String(AUTRES) });
 
-      /* La somme des spécialités (38) est inférieure au total (51) : le total
-         affiché reste 51 et l'écart a sa propre ligne. */
-      const somme = 21 + 11 + 6;
-      assert.ok(somme < 51, 'la fixture doit avoir un écart à montrer');
+      /* La somme des spécialités (38) est inférieure au total : le total affiché reste le total, l'écart a sa propre ligne. */
+      const somme = CLASSEES;
+      assert.ok(somme < TOTAL, 'la fixture doit avoir un écart à montrer');
       assert.notEqual(p.offres, String(somme), 'la somme des spécialités est présentée comme le total');
-      assert.equal(Number(p.nombres.autres), 51 - somme, 'la ligne « Pas encore classées » doit porter l\'écart');
+      assert.equal(Number(p.nombres.autres), TOTAL - somme, 'la ligne « Pas encore classées » doit porter l\'écart');
 
-      /* Les barres se mesurent sur le total (51), pas sur la somme (38). */
-      assert.ok(Math.abs(p.barres.actuariat - 21 / 51) < 0.001, `barre actuariat : ${p.barres.actuariat}`);
-      assert.ok(Math.abs(p.barres.autres - 13 / 51) < 0.001, `barre « autres » : ${p.barres.autres}`);
+      /* Les barres se mesurent sur le total, pas sur la somme des spécialités. */
+      assert.ok(Math.abs(p.barres.actuariat - 21 / TOTAL) < 0.001, `barre actuariat : ${p.barres.actuariat}`);
+      assert.ok(Math.abs(p.barres.autres - AUTRES / TOTAL) < 0.001, `barre « autres » : ${p.barres.autres}`);
 
       /* Les identifiants du bandeau d'origine existent toujours. */
       const ids = await page.evaluate(() => ['f-offres', 'f-employeurs', 'f-sources', 'f-releve',
@@ -128,7 +135,7 @@ test('T12 — le panneau montre les valeurs de /stats/published, sans prendre la
       assert.deepEqual(ids, [], 'des identifiants du bandeau ont disparu');
 
       /* Et le texte d'introduction reprend le total. */
-      assert.match(await page.locator('#chiffre-hero').innerText(), /^51 offres$/);
+      assert.equal(await page.locator('#chiffre-hero').innerText(), `${TOTAL} offres`);
     } finally {
       await ctx.close();
     }
@@ -321,7 +328,7 @@ test('T12 — au chargement normal, le hero ne bouge pas quand les chiffres arri
           decalages: window.__decalages,
           offres: document.getElementById('f-offres').textContent.trim(),
         }));
-        assert.equal(fin.offres, '51', 'les chiffres ne sont pas arrivés');
+        assert.equal(fin.offres, String(TOTAL), 'les chiffres ne sont pas arrivés');
         assert.ok(Math.abs(fin.hero - tot) <= 1, `le hero a changé de hauteur : ${tot} → ${fin.hero} px`);
         assert.ok(fin.decalages < 0.01, `décalage de mise en page dans le hero : ${fin.decalages}`);
       } finally {

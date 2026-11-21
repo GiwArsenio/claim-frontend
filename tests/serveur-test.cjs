@@ -146,7 +146,7 @@ async function traiterAPI(req, res, url) {
       last_collection_at: '2026-10-22T05:00:00Z',
       generated_at: '2026-10-22T07:30:00+00:00',
       /* Comme l'API reelle : la somme des specialites est INFERIEURE au total
-         (13 offres publiees n'ont pas encore de specialite curee). Un test
+         (les offres au-dela de 38 n ont pas encore de specialite curee). Un test
          qui presenterait la somme comme le total le verrait ici. */
       by_specialty: { actuariat: 21, souscription_technique: 6, ia_data: 11 },
       classified_jobs: 38,
