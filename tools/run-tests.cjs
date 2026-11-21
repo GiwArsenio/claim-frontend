@@ -101,6 +101,7 @@ const FAMILLES = {
     // Simule iOS par l'agent utilisateur, mais tourne sous Chromium comme
     // les autres : l'import de WebKit qui trainait ici n'etait jamais lu.
     'tests/plan_premier_paint.test.cjs',
+    'tests/detail_hierarchie.test.cjs',
   ],
   // Parlent à la production. Une régression en ligne doit se voir, mais
   // elle ne doit pas bloquer une fusion : la production peut tomber sans
