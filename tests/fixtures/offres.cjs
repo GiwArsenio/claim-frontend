@@ -74,6 +74,26 @@ const OFFRE_LONGUE = {
   description_html: '<div class="content-intro"><p>' + 'Paragraphe de test. '.repeat(120) + '</p></div>',
 };
 
+/* Une offre dont les sections sont des <h2> écrits en capitales : le profil
+   des annonces AXA, Generali et d'autres (T11). Sans règle de style, le
+   navigateur rend un <h2> à 1,5 fois le corps, donc plus gros que le titre de
+   l'offre. Le texte est assez long pour mesurer des lignes pleines. */
+const PARAGRAPHE_LONG = 'Au sein de la direction technique, vous participez au pilotage des provisions, à la revue des hypothèses de sinistralité et à la production des analyses destinées aux comités de souscription, en lien étroit avec les équipes de données, de réassurance et de gestion des risques du groupe.';
+const OFFRE_SECTIONS_CAPITALES = {
+  ...OFFRE_COMPLETE,
+  id: 'offre-sections-capitales-1',
+  slug: 'actuaire-sections-en-capitales',
+  title: 'Actuaire pricing (H/F) — sections en capitales',
+  description_raw: '<p>' + PARAGRAPHE_LONG + '</p>',
+  description_html:
+    '<h2>VOTRE RÔLE ET VOS MISSIONS</h2>' +
+    '<p>' + PARAGRAPHE_LONG + '</p>' +
+    '<h3>Ce que vous ferez</h3>' +
+    '<ul><li>' + PARAGRAPHE_LONG + '</li><li>Vous animez des ateliers ALM et R&amp;D avec les équipes métier.</li></ul>' +
+    '<h2>VOTRE PROFIL</h2>' +
+    '<p>' + PARAGRAPHE_LONG + '</p>',
+};
+
 /* Une offre dont le titre est volontairement très long : le texte long ne se
    limite pas à la description. */
 const OFFRE_TITRE_LONG = {
@@ -160,6 +180,8 @@ const TOUTES = [
   OFFRE_TITRE_LONG,
   OFFRE_MALVEILLANTE,
   ...Array.from({ length: 45 }, (_, i) => offreAleatoire(i)),
+  /* En dernier : l'ordre et le contenu des premières pages ne changent pas. */
+  OFFRE_SECTIONS_CAPITALES,
 ];
 
 module.exports = {
@@ -170,5 +192,6 @@ module.exports = {
   OFFRE_LONGUE,
   OFFRE_TITRE_LONG,
   OFFRE_MALVEILLANTE,
+  OFFRE_SECTIONS_CAPITALES,
   EMPLOYEURS,
 };
