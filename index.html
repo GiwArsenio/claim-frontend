@@ -316,6 +316,14 @@ html[data-theme="nuit"] select.chip {
                border-radius: inherit; padding: 4px; }
   .vide { grid-column: 1 / -1; background: var(--surface); border-radius: .625rem; padding: 1.4rem 1.25rem;
           color: var(--gris); font-size: .9rem; box-shadow: var(--ombre); }
+  .vide p { margin: 0; }
+  .vide-actions { margin-top: .75rem !important; display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1.1rem; }
+  .vide-reessayer { font: inherit; font-weight: 700; color: var(--encre); background: var(--surface);
+                    border: 1px solid var(--bord); border-radius: .5rem; padding: .5rem 1rem; min-height: 2.25rem;
+                    cursor: pointer; }
+  .vide-reessayer:hover { border-color: var(--teal); }
+  .vide-reessayer:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+  #liste:focus { outline: none; }
 
   /* ── RAISONS ── */
   .raisons { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--gouttiere); }
@@ -1027,7 +1035,7 @@ html[data-theme="nuit"] body {
       </div>
       <a class="lien" href="/job-board.html" id="lien-board">Toutes les offres →</a>
     </div>
-    <div class="grille" id="liste">
+    <div class="grille" id="liste" aria-busy="true" tabindex="-1">
       <div class="vide">Chargement des offres…</div>
     </div>
   </div>
@@ -1391,6 +1399,13 @@ async function chargerChiffres() {
     stats = await r.json();
   } catch (e) {
     console.error('[accueil] chiffres indisponibles :', e.message);
+    // Panne : le tiret d'attente reste, écrit explicitement. Ni vide, ni 0 —
+    // un zéro laisserait croire que le site est vide. Les cases gardent leur
+    // taille, la mise en page ne bouge pas quand les chiffres reviennent.
+    ['f-offres', 'f-sources', 'f-employeurs', 'f-releve'].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = '—';
+    });
     return null;
   }
 
@@ -1430,16 +1445,33 @@ async function chargerChiffres() {
 }
 
 // ── Les dernières offres ───────────────────────────────────────────────────
-async function chargerOffres() {
+async function chargerOffres(apresReessai) {
   const liste = document.getElementById('liste');
+  const compteEl = document.getElementById('compte-offres');
+  // La page est occupée tant que la réponse n'est pas là : retiré au succès
+  // comme à l'échec (bloc finally), pour qu'aucun état ne reste « en cours ».
+  liste.setAttribute('aria-busy', 'true');
+  if (apresReessai) {
+    compteEl.textContent = 'Chargement…';
+    liste.innerHTML = '<div class="vide">Chargement des offres…</div>';
+  }
   try {
     // Une sélection, pas les six dernières : le fil chronologique peut être
     // monopolisé par un seul employeur — cinq offres d'AXA sur six, observé.
     // `jobs/selection` rend une offre par employeur, la plus récente de
     // chacun, dans le périmètre que le board publie.
-    const r = await fetch(`${API_BASE}/jobs/selection?limite=6`);
-    if (!r.ok) throw new Error(`HTTP ${r.status}`);
-    const d = await r.json();
+    // Une réponse qui ne vient jamais ne doit pas laisser « Chargement… » :
+    // au bout de 20 s, on la tient pour perdue et on propose de réessayer.
+    const coupe = new AbortController();
+    const minuteur = setTimeout(() => coupe.abort(), 20000);
+    let d;
+    try {
+      const r = await fetch(`${API_BASE}/jobs/selection?limite=6`, { signal: coupe.signal });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      d = await r.json();
+    } finally {
+      clearTimeout(minuteur);
+    }
     const offres = d.data || [];
 
     // Le compte annonce ce qui est montré : le nombre d'offres et celui des
@@ -1447,7 +1479,7 @@ async function chargerOffres() {
     // s'il est vrai, un employeur pouvant manquer de fiches distinctes.
     const employeurs = new Set(offres.map((j) =>
       (j.companies || {}).slug || j.source || '')).size;
-    document.getElementById('compte-offres').textContent =
+    compteEl.textContent =
       offres.length > 1
         ? (employeurs === offres.length
             ? `${offres.length} offres récentes, ${employeurs} employeurs différents.`
@@ -1513,11 +1545,29 @@ async function chargerOffres() {
     }).join('');
   } catch (e) {
     console.error('[accueil] offres indisponibles :', e.message);
+    // Un seul message d'état : « Chargement… » disparaît, le compte du titre
+    // se vide, et l'explication (sans détail technique) vit dans le bloc
+    // ci-dessous, avec de quoi agir.
+    compteEl.textContent = '';
     liste.innerHTML = `
-      <div class="vide">
-        Les offres ne se chargent pas pour l'instant.
-        <a href="/job-board.html">Ouvrir le board</a>.
+      <div class="vide" role="alert">
+        <p>Les offres ne se chargent pas pour l'instant.</p>
+        <p class="vide-actions">
+          <button type="button" class="vide-reessayer" id="offres-reessayer">Réessayer</button>
+          <a href="/job-board.html">Ouvrir le board</a>
+        </p>
       </div>`;
+    const bouton = document.getElementById('offres-reessayer');
+    bouton.addEventListener('click', () => {
+      // Les chiffres ont pu tomber avec les offres : on les redemande aussi.
+      chargerChiffres();
+      chargerOffres(true);
+    });
+    // Après un réessai raté, le bouton qui avait le focus vient d'être
+    // remplacé : le focus le suit, le clavier ne se perd pas.
+    if (apresReessai) bouton.focus();
+  } finally {
+    liste.removeAttribute('aria-busy');
   }
 }
 
