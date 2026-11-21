@@ -50,7 +50,8 @@ assert.ok(!html.includes('${j.city'), 'la carte ne doit plus utiliser city brut'
 console.log('Ville display tests passed');
 
 // Typography aligned across page; resting cards have visible border and shadow.
-assert.ok(html.includes('.kl { font-size: 10px;'));
+// T05 : l'étiquette .kl passe de 10 à 11 px (plancher de lisibilité du site).
+assert.ok(html.includes('.kl { font-size: 11px;'));
 // Les couleurs viennent des jetons du theme : la carte et la colonne
 // doivent rester sur les memes roles de couleur (bordure de carte, fond de
 // colonne), quel que soit le theme actif.
@@ -129,7 +130,9 @@ assert.ok(!vm.runInContext("cardFactHtml('Contrat','CDI')", context).includes('c
 // La localisation porte sa propre teinte : les valeurs viennent des jetons.
 assert.ok(html.includes('.card-fact--loc { background: var(--teal-clair); border-color: var(--teal-bord); }'));
 assert.ok(html.includes('.card-fact--loc .ic { color: var(--teal); }'));
-assert.ok(html.includes('.jc .ctags .tag { font-size: 9px; padding: 3px 6px; }'));
+// T05 : l'étiquette passe de 9 à 11 px — aucun texte lisible ne descend sous 11 px.
+// La valeur verrouillée est mise à jour avec la règle ; le remplissage reste inchangé.
+assert.ok(html.includes('.jc .ctags .tag { font-size: 11px; padding: 3px 6px; }'));
 console.log('Location colour and badge height tests passed');
 
 // Description : aperçu dépliable, paragraphes conservés. Le texte long ne doit
