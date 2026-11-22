@@ -543,6 +543,15 @@ test('T12 — les pastilles des spécialités tiennent sur deux lignes, texte en
       const format = { viewport: { width: largeur, height: 900 }, isMobile: mobile, hasTouch: mobile };
       const { ctx, page } = await aide.ouvrirPage(format);
       try {
+        /* Des nombres réalistes (jusqu'à trois chiffres par spécialité) : avec les
+           petits nombres des fixtures, les pastilles tiendraient sur deux lignes
+           même sans la grille, et le test ne prouverait rien. */
+        await page.route('**/stats/published*', (r) => r.fulfill({
+          status: 200, contentType: 'application/json',
+          body: JSON.stringify({ jobs_online: 1243, companies_hiring: 58, sources_tracked: 61,
+            last_collection_at: '2026-11-22T03:04:00Z', generated_at: '2026-11-22T07:30:00+00:00',
+            by_specialty: { actuariat: 312, souscription_technique: 140, ia_data: 205 }, classified_jobs: 657 }),
+        }));
         await ouvrirAccueil(page);
         const r = await page.evaluate(() => {
           const li = [...document.querySelectorAll('.releve-pastilles li')];
