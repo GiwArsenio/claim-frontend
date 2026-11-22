@@ -1,0 +1,20 @@
+name: Diagnostic CLS (temporaire)
+on:
+  push:
+    branches: [design/diag-cls2]
+permissions:
+  contents: read
+jobs:
+  diag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: node tools/diag-cls-hero.cjs
+      - run: |
+          for i in 1 2 3; do node tools/run-tests.cjs --fichier=tests/accueil_releve.test.cjs 2>&1 | grep -E "accueil_releve.test.cjs \.\.\.|AssertionError|décalage"; done
