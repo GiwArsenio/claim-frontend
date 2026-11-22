@@ -1,74 +1,79 @@
-/* La règle des lignes des cartes d'offre (assets/cartes-lignes.js) :
-   4 éléments au plus par ligne, 2 au moins (sauf s'il n'y en a qu'un) ; « +N » ne
-   cache jamais plus de 2 éléments, et seulement s'il fait gagner une ligne ; sinon
-   tout s'affiche et le bloc prend une ligne de plus. */
+/* La règle des lignes des cartes d'offre (assets/cartes-lignes.js).
+   4 éléments au plus par ligne, 2 au moins ; 2 lignes au plus par bloc, 3 pour la carte ;
+   priorité aux faits : s'ils prennent 2 lignes, les étiquettes n'en ont qu'une ; tout ce
+   qui ne tient pas dans les étiquettes est dans « +N » (qui compte comme un élément). */
 'use strict';
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const L = require('../assets/cartes-lignes.js');
 
-const elements = (n) => Array.from({ length: n }, (_, i) => ({ html: `<i>${i + 1}</i>`, libelle: `L${i + 1}` }));
-const plus = (caches) => `<b>+${caches.length}:${caches.map((c) => c.libelle).join(',')}</b>`;
+const faits = (n) => Array.from({ length: n }, (_, i) => ({ html: `<i>${i + 1}</i>` }));
+const etiquettes = (n, fn) => Array.from({ length: n }, (_, i) => ({
+  html: `<span class="etq">T${i + 1}</span>`, libelle: fn ? fn(i) : `T${i + 1}`,
+}));
 
-test('places → lignes (4 au plus) : 1→1 … 4→4, 5→3+2, 6→3+3, 7→4+3, 8→4+4, 9→3+3+3, 10→4+3+3, 13→4+3+3+3', () => {
-  assert.deepEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map((n) => L.tailles(n)),
-    [[], [1], [2], [3], [4], [3, 2], [3, 3], [4, 3], [4, 4], [3, 3, 3], [4, 3, 3], [4, 4, 3], [4, 4, 4], [4, 3, 3, 3]]);
+test('découpage en lignes : 1→1 … 4→4, 5→3+2, 6→3+3, 7→4+3, 8→4+4 ; plafond de 3 ou 2 : 4→2+2', () => {
+  assert.deepEqual([0, 1, 2, 3, 4, 5, 6, 7, 8].map((n) => L.tailles(n)),
+    [[], [1], [2], [3], [4], [3, 2], [3, 3], [4, 3], [4, 4]]);
+  assert.deepEqual(L.tailles(4, 3), [2, 2]);
+  assert.deepEqual(L.tailles(4, 2), [2, 2]);
+  assert.deepEqual(L.tailles(7, 3), [3, 2, 2]);
+  assert.equal(L.valable(3, 2), false, '3 éléments à 2 par ligne laisseraient une ligne seule');
+  assert.equal(L.valable(4, 2), true);
 });
 
-test('places → lignes avec un plafond de 3 ou de 2 (quand 4 coupent un texte) : jamais une ligne seule', () => {
-  assert.deepEqual(L.tailles(4, 3), [2, 2]);
-  assert.deepEqual(L.tailles(7, 3), [3, 2, 2]);
-  assert.deepEqual(L.tailles(8, 3), [3, 3, 2]);
-  assert.deepEqual(L.tailles(4, 2), [2, 2]);
-  assert.deepEqual(L.tailles(6, 2), [2, 2, 2]);
-  // 5 éléments ne tiennent pas à 2 par ligne sans en laisser un seul : le découpage n'est pas valable.
-  assert.equal(L.valable(5, 2), false);
-  assert.equal(L.valable(3, 2), false);
-  assert.equal(L.valable(4, 2), true);
-  assert.equal(L.valable(5, 3), true);
+test('jamais une ligne de moins de 2 éléments (sauf s\'il n\'y en a qu\'un), jamais plus de 4', () => {
   for (let n = 2; n <= 24; n++) {
     for (const m of [4, 3, 2]) {
       if (!L.valable(n, m)) continue;
       const t = L.tailles(n, m);
-      assert.equal(t.reduce((a, b) => a + b, 0), n, `${n} éléments, ${m} au plus`);
+      assert.equal(t.reduce((a, b) => a + b, 0), n);
       assert.ok(t.every((x) => x >= 2 && x <= m), `${n} éléments, ${m} au plus : ${t}`);
     }
   }
+  assert.equal(L.html(L.repartir(faits(4)), 'x-l'), '<div class="x-l"><i>1</i><i>2</i><i>3</i><i>4</i></div>');
+  assert.equal(L.html([], 'x-l'), '');
 });
 
-test('éléments → « +N » : 1 à 8 tous ; 9 → « +2 » ; 10 à 12 tous ; 13 → « +2 » ; 17 → « +2 »', () => {
-  // « +2 » aux effectifs 9, 13, 17… : un de plus qu'un multiple de 4, dès 9.
-  for (let n = 0; n <= 40; n++) assert.equal(L.caches(n), n >= 9 && n % 4 === 1 ? 2 : 0, `${n} éléments`);
+test('budget : les étiquettes ont 2 lignes si les faits en prennent 1, une seule s\'ils en prennent 2', () => {
+  assert.deepEqual([0, 1, 2].map((r) => L.lignesEtiquettes(r)), [2, 2, 1]);
+  // Jamais plus de 3 lignes au total, jamais plus de 2 par bloc.
+  for (const r1 of [1, 2]) assert.ok(r1 + L.lignesEtiquettes(r1) <= L.MAX_LIGNES_CARTE);
 });
 
-test('invariants pour 0 à 40 éléments : lignes de 2 à 4 (1 si un seul), « +N » ≤ 2 et en dernier, rien de perdu', () => {
-  for (let n = 0; n <= 40; n++) {
-    const lignes = L.repartir(elements(n), plus);
-    const tout = lignes.flat();
-    for (const l of lignes) {
-      assert.ok(l.length <= 4, `${n} éléments : une ligne de ${l.length}`);
-      if (n > 1) assert.ok(l.length >= 2, `${n} éléments : une ligne de ${l.length}`);
+test('étiquettes montrées : 2 lignes → 8 tiennent, au-delà 7 + « +N » ; 1 ligne → 4 tiennent, au-delà 3 + « +N »', () => {
+  assert.deepEqual([1, 4, 5, 8, 9, 10, 30].map((n) => L.visibles(n, 2)), [1, 4, 5, 8, 7, 7, 7]);
+  assert.deepEqual([1, 4, 5, 8, 30].map((n) => L.visibles(n, 1)), [1, 4, 3, 3, 3]);
+});
+
+test('bloc des étiquettes avant mesure : 1 à 8 → toutes ; 9 ou plus → 7 + « +N » (N = tout le reste), sur 2 lignes au plus', () => {
+  assert.equal(L.etiquettesHtml([]), '');
+  for (let n = 1; n <= 40; n++) {
+    const h = L.etiquettesHtml(etiquettes(n));
+    const lignes = (h.match(/class="ctags-l"/g) || []).length;
+    const montrees = (h.match(/<span class="etq">/g) || []).length;
+    const cachees = (h.match(/<span hidden class="etq">/g) || []).length;
+    const plus = h.match(/etq--plus" title="([^"]*)" aria-label="[^"]*">\+(\d+)</);
+    assert.equal(montrees + cachees, n, `${n} étiquettes : toutes sont dans la page`);
+    assert.ok(lignes >= 1 && lignes <= 2, `${n} étiquettes : ${lignes} lignes`);
+    if (n <= 8) {
+      assert.ok(!plus && cachees === 0, `${n} étiquettes : toutes affichées`);
+    } else {
+      assert.equal(montrees, 7, `${n} étiquettes : 7 affichées`);
+      assert.equal(+plus[2], n - 7, `${n} étiquettes : « +${n - 7} » (tout le reste, sans plafond)`);
+      assert.equal(plus[1], 'Autres compétences : ' + Array.from({ length: n - 7 }, (_, i) => 'T' + (i + 8)).join(', '), `${n} étiquettes : le titre liste les cachées`);
     }
-    if (n <= 8) assert.ok(lignes.length <= 2, `${n} éléments : ${lignes.length} lignes (2 au plus jusqu'à 8)`);
-    const pastilles = tout.filter((h) => h.startsWith('<b>'));
-    assert.ok(pastilles.length <= 1, `${n} éléments : une seule pastille « +N »`);
-    if (pastilles.length) {
-      const m = /^<b>\+(\d+):(.*)<\/b>$/.exec(pastilles[0]);
-      assert.ok(+m[1] <= 2, `${n} éléments : « +${m[1]} » dépasse +2`);
-      assert.equal(tout[tout.length - 1], pastilles[0], `${n} éléments : « +N » en dernier`);
-      assert.equal(m[2], Array.from({ length: +m[1] }, (_, i) => 'L' + (n - +m[1] + i + 1)).join(','), `${n} éléments : les cachés sont les derniers`);
-      // « +N » n'existe que s'il fait gagner une ligne.
-      assert.ok(lignes.length < Math.ceil(n / 4), `${n} éléments : « +N » ne fait pas gagner de ligne`);
-    }
-    const visibles = tout.filter((h) => !h.startsWith('<b>'));
-    assert.deepEqual(visibles, elements(visibles.length).map((e) => e.html), `${n} éléments : les premiers, dans l'ordre`);
-    assert.equal(visibles.length + (pastilles.length ? +/\+(\d+)/.exec(pastilles[0])[1] : 0), n, `${n} éléments : rien de perdu`);
+    // Chaque ligne a de 2 à 4 éléments visibles (« +N » compris), sauf s'il n'y a qu'un élément.
+    h.split('<div class="ctags-l">').slice(1).forEach((l) => {
+      const v = (l.match(/<span class="etq[^"]*"/g) || []).length;
+      assert.ok(v <= 4 && (n === 1 || v >= 2), `${n} étiquettes : une ligne de ${v}`);
+    });
   }
 });
 
-test('html : un bloc par ligne, dans l\'ordre', () => {
-  assert.equal(L.html(L.repartir(elements(5)), 'x-l'),
-    '<div class="x-l"><i>1</i><i>2</i><i>3</i></div><div class="x-l"><i>4</i><i>5</i></div>');
-  assert.equal(L.html([], 'x-l'), '');
+test('un libellé qui contient du HTML est écrit, pas interprété, dans le titre de « +N »', () => {
+  const h = L.etiquettesHtml(etiquettes(9, (i) => (i === 8 ? '<img data-injecte>"' : 'T' + (i + 1))));
+  assert.ok(!h.includes('<img data-injecte>'), h);
+  assert.ok(h.includes('&lt;img data-injecte&gt;&quot;'), h);
 });

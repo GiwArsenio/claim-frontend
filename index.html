@@ -273,6 +273,7 @@ html[data-theme="nuit"] select.chip {
   /* Ligne 2 : la spécialité (teal, comme l'ancienne pastille du lieu) puis les compétences (gris), en pastilles. */
   .etq { display: block; flex: 0 1 auto; min-width: 0; max-width: 100%; padding: 2px 8px; border: 1px solid transparent; border-radius: var(--r-s);
     font-size: 12px; font-weight: 600; line-height: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .etq[hidden] { display: none; }
   .etq--plus { flex: none; }
   .etq--spec { background: var(--teal-clair); border-color: var(--teal-bord); color: var(--teal-texte); }
   .etq--comp { background: var(--surface-2); border-color: var(--bord-carte); color: var(--encre-forte); }
@@ -1306,8 +1307,8 @@ function badgeLieu(brut) {
 }
 
 function bandeauMetadonnees(j) {
-  // Les faits : 4 par ligne au plus, 2 au moins (assets/cartes-lignes.js).
-  // Quatre faits tiennent donc sur une ligne.
+  // Les faits : 4 par ligne au plus, 2 au moins, 2 lignes au plus
+  // (assets/cartes-lignes.js). Quatre faits tiennent sur une ligne, ou 2 + 2.
   const contrat = CONTRATS[j.contract_type] || j.contract_type || 'Non précisé';
   const exp = labelExperience(j);
   const sal = labelSalaire(j);
@@ -1318,15 +1319,9 @@ function bandeauMetadonnees(j) {
 }
 
 // Ligne 2 de la carte : la spécialité (pastille teal, celle qui sert au
-// filtrage), puis les compétences (pastilles grises). Même règle que la ligne 1
-// (assets/cartes-lignes.js) : 4 par ligne au plus, 2 au moins. « +N » ne cache
-// jamais plus de 2 éléments (le bloc prend une ligne de plus plutôt) ; son titre
-// les liste : aucune information n'est perdue en silence.
-function pastillePlus(caches) {
-  const titre = echapper('Autres compétences : ' + caches.map((c) => c.libelle).join(', '));
-  return '<span class="etq etq--comp etq--plus" title="' + titre + '" aria-label="' + titre + '">+' + caches.length + '</span>';
-}
-
+// filtrage), puis les compétences (pastilles grises). UNE seule ligne, 4
+// éléments au plus ; tout le reste est dans une pastille « +N » dont le titre le
+// liste (assets/cartes-lignes.js) : aucune information n'est perdue en silence.
 function etiquettesCarte(specialite, j) {
   const s = j.skills || {};
   const elements = [];
@@ -1334,8 +1329,7 @@ function etiquettesCarte(specialite, j) {
   Object.keys(FAMILLES_COMPETENCES).flatMap((f) => s[f] || []).forEach((l) => {
     elements.push({ html: '<span class="etq etq--comp" title="' + echapper(l) + '">' + echapper(l) + '</span>', libelle: l });
   });
-  if (!elements.length) return '';
-  return '<div class="ctags">' + CARTES_LIGNES.html(CARTES_LIGNES.repartir(elements, pastillePlus), 'ctags-l') + '</div>';
+  return CARTES_LIGNES.etiquettesHtml(elements);
 }
 
 function badgeSpecialite(specialite) {

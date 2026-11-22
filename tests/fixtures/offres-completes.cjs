@@ -21,11 +21,11 @@ const EXPERIENCES = ['junior', 'confirmed', 'senior', 'lead'];
 const SALAIRES = ['45–55 k€/an', '≥ 60 k€/an', '38–42 k€/an'];
 
 /* Compétences : toutes les familles que lisent le board et l'accueil. Les
-   listes sont de longueurs différentes pour exercer la règle des lignes (4 au plus) et le « +2 » sur le board ET sur l'accueil, qui ne lit que deux familles (spécialité comprise, board / accueil : 1re offre 8 / 6 éléments ; 2e, 10 / 9 (« +2 » à l'accueil) ; 4e, 9 / 6 (« +2 » sur le board)). */
+   listes sont de longueurs différentes pour exercer les règles de la ligne des étiquettes (4 au plus, « +N » compris) sur le board ET sur l'accueil, qui ne lit que deux familles : 1re offre 8 / 6 étiquettes (board / accueil) ; 2e 12 / 11 (« +5 » / « +4 ») ; 3e 5 / 5 ; 4e 9 / 6. */
 const COMPETENCES = [
   { outils: ['Python', 'SQL', 'Excel'], data: ['Tableau / BI', 'Power BI'], reglementation: ['Solvabilité II', 'IFRS 17'] },
-  { outils: ['R', 'SAS', 'Excel', 'VBA', 'Access', 'Qlik', 'Prophet'], data: ['Power BI'], reglementation: ['IFRS 17'] },
-  { outils: ['Python'], data: [], reglementation: [] },
+  { outils: ['R', 'SAS', 'Excel', 'VBA', 'Access', 'Qlik', 'Prophet'], data: ['Power BI'], reglementation: ['IFRS 17', 'Solvabilité II', 'SCR'] },
+  { outils: ['Python', 'SQL', 'Excel', 'VBA'], data: [], reglementation: [] },
   { outils: ['Python', 'SQL', 'VBA', 'Excel'], data: ['Tableau / BI'], actuariat: ['Prophet', 'Igloo'], reglementation: ['Solvabilité II'] },
 ];
 
@@ -48,6 +48,8 @@ function completer(offre, i, options = {}) {
   if (manque.includes('competences-exactement-deux')) skills = { outils: ['Python', 'SQL'] };
   // Cas hostile : la première compétence de la première offre est du HTML.
   if (options.hostile && i === 0) skills = { ...skills, outils: ['<img data-injecte>', ...skills.outils.slice(1)] };
+  // Cas des noms longs : l'offre d'indice `longues` porte des compétences qui ne tiennent pas côte à côte sur un téléphone.
+  if (options.longues !== undefined && options.longues === i) skills = { outils: ['Solvabilité II (modèle interne)', 'Calibrage actuariel avancé', 'Python'] };
   return {
     ...offre,
     experience_level: manque.includes('experience') ? '' : offre.experience_level,
