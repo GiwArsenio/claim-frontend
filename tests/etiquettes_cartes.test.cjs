@@ -1,16 +1,21 @@
 /* ─────────────────────────────────────────────────────────────────────────────
    LES ÉTIQUETTES DES CARTES (T10, décision D8 : cahier des charges du propriétaire)
 
-   Une carte (accueil `.oc`, board `.jc`) se lit en deux lignes :
+   Une carte (accueil `.oc`, board `.jc`) a deux blocs, soumis à la MÊME règle
+   (assets/cartes-lignes.js, demandée par le propriétaire) : 3 éléments au plus par
+   ligne, 2 au moins (sauf s'il n'y en a qu'un), 2 lignes au plus par bloc (4 au
+   plus par carte) ; ce qui dépasse devient « +N » (5 éléments + « +N » : 6 places).
 
-   LIGNE 1 — les faits : lieu, contrat, expérience, salaire (quand il est publié).
+   BLOC 1 — les faits : lieu, contrat, expérience, salaire (quand il est publié).
      • ni pastille, ni fond, ni bordure ;
      • UNE icône de 14 px (décorative) par élément, puis le texte (12 px, 600) ;
-     • un trait vertical de 1 px entre deux éléments voisins, visible à partir de
-       481 px, absent en dessous ; jamais au début, à la fin, ni orphelin.
-   LIGNE 2 — en pastilles : la spécialité (fond, bordure et texte teal, comme l'ancienne pastille du lieu) puis les compétences (fond
-     gris, bordure grise). Deux compétences au plus, puis « +N » dont le titre
-     liste les autres.
+     • un trait vertical de 1 px entre deux éléments voisins d'une même ligne, à
+       TOUTES les largeurs (téléphone compris) ; jamais au début ni à la fin.
+   BLOC 2 — en pastilles : la spécialité (fond, bordure et texte teal, comme l'ancienne
+     pastille du lieu) puis les compétences (fond gris, bordure grise), puis « +N »
+     dont le titre liste les compétences cachées.
+   La date ne recouvre jamais une pastille et ne la tronque pas : elle se range à
+   droite des pastilles quand elle y tient, sinon dessous.
    Partout : casse normale, texte ≥ 11 px, contraste ≥ 4,5:1, jour et nuit,
    1440 et 390 px, cartes à éléments manquants, aucun défilement horizontal.
 
@@ -77,9 +82,12 @@ function lireCartes(sel) {
   const cartes = [...document.querySelectorAll(sel)].map((carte) => {
     const cm = carte.querySelector('.cm');
     const cmR = cm.getBoundingClientRect();
-    const items = [...cm.children].map((e) => {
+    const lignesFaits = [...cm.querySelectorAll('.cm-l')].map((l) => l.querySelectorAll('.card-fact').length);
+    const items = [...cm.querySelectorAll('.card-fact')].map((e, k) => {
       const cs = getComputedStyle(e);
       const av = getComputedStyle(e, '::before');
+      const ligne = [...cm.querySelectorAll('.cm-l')].indexOf(e.parentElement);
+      const rang = [...e.parentElement.children].indexOf(e);
       const r = e.getBoundingClientRect();
       const svg = e.querySelectorAll('svg');
       const val = e.querySelector('.card-fact-value');
@@ -105,14 +113,22 @@ function lireCartes(sel) {
           affiche: av.content !== 'none' && av.display !== 'none',
           largeur: px(av.width), hauteur: px(av.height), fond: av.backgroundColor, gauche: px(av.left),
         },
-        gauche: r.left, haut: r.top, droite: r.right,
+        gauche: r.left, haut: r.top, droite: r.right, ligne, rang,
+        tronque: val.scrollWidth > val.clientWidth + 0.5,
         debutDeLigne: Math.abs(r.left - cmR.left) < 1,
         traitX: r.left + px(av.left),
       };
     });
-    const pastilles = [...carte.querySelectorAll('.ctags > *')].map((e) => {
+    const lignesPastilles = [...carte.querySelectorAll('.ctags-l')].map((l) => l.querySelectorAll('.etq').length);
+    const dateEl = carte.querySelector('.cdate');
+    const dateR = dateEl ? dateEl.getBoundingClientRect() : null;
+    const carteR = carte.getBoundingClientRect();
+    const pastilles = [...carte.querySelectorAll('.ctags .etq')].map((e) => {
       const cs = getComputedStyle(e);
+      const r = e.getBoundingClientRect();
       return {
+        tronque: e.scrollWidth > e.clientWidth + 0.5,
+        chevauchee: !!(dateR && dateR.width > 0 && r.left < dateR.right && r.right > dateR.left && r.top < dateR.bottom && r.bottom > dateR.top),
         classe: e.className,
         texte: e.textContent.trim(),
         titre: e.getAttribute('title') || '',
@@ -130,7 +146,9 @@ function lireCartes(sel) {
     });
     return {
       titre: (carte.querySelector('.ctitle') || {}).textContent || '',
-      cmOverflow: getComputedStyle(cm).overflow,
+      lignesFaits,
+      lignesPastilles,
+      dateDansCarte: !dateR || dateR.width === 0 || (dateR.left >= carteR.left && dateR.right <= carteR.right && dateR.bottom <= carteR.bottom),
       cmGauche: cmR.left,
       items,
       pastilles,
@@ -164,13 +182,35 @@ for (const surface of SURFACES) {
 function verifier(quoi, lecture, largeur) {
   const { ref, cartes } = lecture;
   assert.ok(cartes.length >= 4, `${quoi} : il faut des cartes (${cartes.length})`);
-  const vu = { sansSalaire: 0, sansCompetences: 0, sansSpecialite: 0, sansLieu: 0, complete: 0, plus: 0, lignesCassees: 0 };
+  const vu = { sansSalaire: 0, sansCompetences: 0, sansSpecialite: 0, sansLieu: 0, complete: 0, plus: 0, traits: 0 };
 
   for (const c of cartes) {
     const ou = `${quoi} « ${c.titre.slice(0, 28)} »`;
     assert.equal(c.anciennes, 0, `${ou} : les anciennes étiquettes ont disparu`);
     assert.equal(c.pastillesDansLigne1, 0, `${ou} : la ligne 1 n'a aucune pastille`);
-    assert.equal(c.cmOverflow, 'hidden', `${ou} : la ligne 1 cache le trait du premier élément de chaque ligne`);
+
+    // ── La règle des lignes, pour les deux blocs ──
+    const regle = (nom, lignes, total) => {
+      assert.ok(lignes.length <= 2, `${ou} : ${nom} sur ${lignes.length} lignes (2 au plus)`);
+      for (const n of lignes) {
+        assert.ok(n <= 3, `${ou} : ${nom} : une ligne de ${n} éléments (3 au plus)`);
+        if (total > 1) assert.ok(n >= 2, `${ou} : ${nom} : une ligne de ${n} élément (2 au moins)`);
+      }
+      assert.equal(lignes.reduce((a, b) => a + b, 0), total, `${ou} : ${nom} : tous les éléments sont dans une ligne`);
+    };
+    regle('les faits', c.lignesFaits, c.items.length);
+    regle('les pastilles', c.lignesPastilles, c.pastilles.length);
+    assert.ok(c.lignesFaits.length + c.lignesPastilles.length <= 4, `${ou} : 4 lignes au plus`);
+    // Quatre faits : 2 + 2 ; trois : 3.
+    if (c.items.length === 4) assert.deepEqual(c.lignesFaits, [2, 2], `${ou} : quatre faits font 2 + 2`);
+    if (c.items.length === 3) assert.deepEqual(c.lignesFaits, [3], `${ou} : trois faits font 3`);
+    // Rien ne recouvre ni ne coupe une pastille ; la date reste dans la carte.
+    assert.ok(c.dateDansCarte, `${ou} : la date sort de la carte`);
+    for (const p of c.pastilles) {
+      assert.equal(p.chevauchee, false, `${ou} « ${p.texte} » : recouverte par la date`);
+      assert.equal(p.tronque, false, `${ou} « ${p.texte} » : texte coupé`);
+    }
+    for (const i of c.items) assert.equal(i.tronque, false, `${ou} ${i.rubrique} : texte coupé`);
 
     // ── LIGNE 1 : ni fond, ni bordure, une icône par élément ──
     const rubriques = c.items.map((i) => i.rubrique);
@@ -191,29 +231,22 @@ function verifier(quoi, lecture, largeur) {
       assert.ok(i.contraste >= 4.5, `${t} : contraste ${i.contraste.toFixed(2)}:1`);
     }
 
-    // ── Séparateurs : ≥ 481 px seulement, jamais orphelins ──
-    const avecTrait = largeur >= 481;
+    // ── Séparateurs : à toutes les largeurs, entre deux voisins d'une même ligne seulement ──
     c.items.forEach((i, k) => {
       const t = `${ou} ${i.rubrique}`;
-      if (!avecTrait) {
-        assert.equal(i.trait.affiche, false, `${t} : pas de trait sous 481 px`);
+      if (i.rang === 0) {
+        // Premier de sa ligne : aucun trait (ni orphelin, ni au début).
+        assert.equal(i.trait.affiche, false, `${t} : trait au début d'une ligne`);
         return;
       }
-      assert.ok(i.trait.affiche && i.trait.largeur === 1 && i.trait.hauteur === 12, `${t} : trait fin de 1×12 px`);
+      assert.ok(i.trait.affiche && i.trait.largeur === 1 && i.trait.hauteur === 12, `${t} : trait fin de 1×12 px (${largeur} px)`);
       assert.equal(i.trait.fond, ref.trait, `${t} : trait en --bord-carte`);
-      // Le trait est dessiné avant l'élément. S'il est en début de ligne (premier de la
-      // carte ou renvoyé à la ligne), il tombe hors de la boîte cachée : invisible.
-      const premierDeLigne = k === 0 || i.haut > c.items[k - 1].haut + 1;
-      assert.equal(i.debutDeLigne, premierDeLigne, `${t} : début de ligne cohérent`);
-      if (premierDeLigne) {
-        assert.ok(i.traitX < c.cmGauche, `${t} : trait orphelin visible en début de ligne`);
-        if (k > 0) vu.lignesCassees++;
-      } else {
-        assert.ok(i.traitX >= c.items[k - 1].droite && i.traitX < i.gauche,
-          `${t} : le trait est entre l'élément précédent et celui-ci`);
-      }
+      const prec = c.items[k - 1];
+      assert.equal(prec.ligne, i.ligne, `${t} : le voisin est sur la même ligne`);
+      assert.ok(i.traitX >= prec.droite && i.traitX < i.gauche,
+        `${t} : le trait est entre l'élément précédent et celui-ci`);
+      vu.traits++;
     });
-    // Pas de trait après le dernier : rien ne le dessine (le trait appartient à l'élément suivant).
 
     // ── LIGNE 2 : spécialité teal, puis compétences grises ──
     const spec = c.pastilles.filter((p) => /etq--spec/.test(p.classe));
@@ -221,15 +254,17 @@ function verifier(quoi, lecture, largeur) {
     const plus = c.pastilles.filter((p) => /etq--plus/.test(p.classe));
     assert.ok(spec.length <= 1, `${ou} : une seule spécialité`);
     if (spec.length) assert.equal(c.pastilles[0], spec[0], `${ou} : la spécialité vient en premier`);
-    assert.ok(comp.length <= 2, `${ou} : deux compétences au plus (${comp.length})`);
     assert.ok(plus.length <= 1 && (!plus.length || c.pastilles[c.pastilles.length - 1] === plus[0]), `${ou} : « +N » en dernier`);
     if (plus.length) {
-      assert.equal(comp.length, 2, `${ou} : « +N » seulement après deux compétences`);
+      // « +N » : seulement au-delà de 6 éléments ; il prend la 6e place (5 affichés).
+      assert.equal(c.pastilles.length, 6, `${ou} : « +N » à la 6e place`);
       const n = +/^\+(\d+)$/.exec(plus[0].texte)[1];
       const liste = plus[0].titre.replace(/^Autres compétences : /, '').split(', ');
       assert.equal(liste.length, n, `${ou} : « ${plus[0].texte} » = ${liste.length} compétences dans le titre`);
       assert.equal(plus[0].aria, plus[0].titre, `${ou} : « +N » a le même nom accessible`);
       vu.plus++;
+    } else {
+      assert.ok(c.pastilles.length <= 6, `${ou} : ${c.pastilles.length} pastilles sans « +N »`);
     }
     for (const p of c.pastilles) {
       const t = `${ou} « ${p.texte} »`;
@@ -264,6 +299,7 @@ function verifier(quoi, lecture, largeur) {
   assert.ok(vu.sansCompetences >= 1 || cartes.length < 6, `${quoi} : cartes sans compétences présentes`);
   assert.ok(vu.sansSpecialite >= 1, `${quoi} : cartes sans spécialité présentes`);
   assert.ok(vu.plus >= 1, `${quoi} : au moins une carte avec « +N »`);
+  assert.ok(vu.traits >= 3, `${quoi} : des traits entre voisins (${vu.traits})`);
   assert.equal(lecture.debordePage, false, `${quoi} : défilement horizontal`);
   return vu;
 }
@@ -282,25 +318,23 @@ test('T10 — ligne 1 sans pastille avec icônes et traits, ligne 2 teal puis gr
   } finally { await aide.arreterNavigateur(); await aide.arreterServeur(); }
 });
 
-test('T10 — la frontière des 481 px : trait présent à 481, absent à 480, jamais orphelin quand la ligne passe à la suivante', async () => {
+test('T10 — la règle des lignes et les traits tiennent à toutes les largeurs, 360 à 1440 px', async () => {
   await aide.demarrerServeur();
   await aide.demarrerNavigateur();
   try {
     for (const surface of SURFACES) {
-      for (const largeur of [480, 481, 520]) {
+      for (const largeur of [360, 480, 481, 768, 1024]) {
         const { ctx, page } = await ouvrir(surface, FORMAT_481(largeur), 'jour');
         try {
           const vu = verifier(`${surface.nom} ${largeur} px`, await page.evaluate(lireCartes, surface.cartes), largeur);
-          if (surface.nom === 'board' && largeur === 481) {
-            assert.ok(vu.lignesCassees >= 1, 'à 481 px, au moins une carte renvoie un élément à la ligne : le cas orphelin est exercé');
-          }
+          assert.ok(vu.traits >= 3, `${surface.nom} ${largeur} px : les traits sont aussi là sous 481 px`);
         } finally { await ctx.close(); }
       }
     }
   } finally { await aide.arreterNavigateur(); await aide.arreterServeur(); }
 });
 
-test('T10 — aucune information retirée : les valeurs de la première carte, et tout ce qui est au-delà de 2 compétences', async () => {
+test('T10 — aucune information retirée : les valeurs de la première carte, et tout ce qui dépasse 6 éléments', async () => {
   await aide.demarrerServeur();
   await aide.demarrerNavigateur();
   try {
@@ -313,25 +347,27 @@ test('T10 — aucune information retirée : les valeurs de la première carte, e
         assert.deepEqual(c.items.map((i) => i.titre), [
           'Localisation : Paris', 'Contrat : CDI', 'Expérience : Junior', 'Salaire : 45–55 k€/an',
         ], `${surface.nom} : lieu, contrat, expérience, salaire`);
+        assert.deepEqual(c.lignesFaits, [2, 2], `${surface.nom} : quatre faits, 2 + 2`);
         assert.ok(c.items.every((i) => i.texte === i.titre.split(' : ')[1]), 'le texte affiché est la valeur');
-        assert.equal(c.pastilles[0].texte, 'Actuariat', `${surface.nom} : la spécialité`);
-        assert.deepEqual(c.pastilles.slice(1, 3).map((p) => p.texte), ['Python', 'SQL'], `${surface.nom} : deux compétences`);
-        const plus = c.pastilles[3];
         if (surface.nom === 'board') {
-          // Board : outils, données, méthodes, logiciels, réglementation.
-          assert.equal(plus.texte, '+5');
-          assert.equal(plus.titre, 'Autres compétences : Excel, Tableau / BI, Power BI, Solvabilité II, IFRS 17');
+          // Board : spécialité + 7 compétences (outils, données, réglementation) = 8 éléments :
+          // 5 affichés, « +3 » à la 6e place.
+          assert.deepEqual(c.pastilles.map((p) => p.texte), ['Actuariat', 'Python', 'SQL', 'Excel', 'Tableau / BI', '+3']);
+          assert.equal(c.pastilles[5].titre, 'Autres compétences : Power BI, Solvabilité II, IFRS 17');
+          assert.deepEqual(c.lignesPastilles, [3, 3]);
         } else {
-          // Accueil : outils et réglementation seulement.
-          assert.equal(plus.texte, '+3');
-          assert.equal(plus.titre, 'Autres compétences : Excel, Solvabilité II, IFRS 17');
+          // Accueil : outils et réglementation seulement = 6 éléments, tous affichés.
+          assert.deepEqual(c.pastilles.map((p) => p.texte), ['Actuariat', 'Python', 'SQL', 'Excel', 'Solvabilité II', 'IFRS 17']);
+          assert.deepEqual(c.lignesPastilles, [3, 3]);
         }
         // La carte sans lieu : le premier élément est le contrat, pas de vide.
         const sansLieu = cartes.find((x) => !x.items.some((i) => i.rubrique === 'Localisation'));
         assert.ok(sansLieu && sansLieu.items[0].rubrique === 'Contrat', `${surface.nom} : sans lieu, la ligne commence par le contrat`);
-        // Exactement deux compétences : pas de « +N ».
+        // Une carte à deux compétences : spécialité + 2 = 3 éléments sur une ligne, pas de « +N ».
         const deux = cartes.find((x) => x.pastilles.filter((p) => /etq--comp/.test(p.classe)).length === 2 && !x.pastilles.some((p) => /plus/.test(p.classe)));
-        assert.ok(deux || surface.nom === 'accueil', `${surface.nom} : une carte avec exactement deux compétences n'a pas de « +N »`);
+        assert.ok(deux, `${surface.nom} : une carte avec exactement deux compétences n'a pas de « +N »`);
+        // L'accueil exerce aussi le « +N » (la 4e offre de la fixture a 7 compétences lues).
+        assert.ok(cartes.some((x) => x.pastilles.some((p) => /etq--plus/.test(p.classe))), `${surface.nom} : une carte avec « +N »`);
       } finally { await ctx.close(); }
     }
   } finally { await aide.arreterNavigateur(); await aide.arreterServeur(); }
