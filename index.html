@@ -255,30 +255,35 @@ html[data-theme="nuit"] select.chip {
   .oc .csub { font-size: .75rem; color: var(--gris); font-weight: 500;
               white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .oc:hover .ctitle { color: var(--teal); }
-  .oc .cm { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 18px; margin: 9px 0; overflow: hidden; }
+  .oc .cm { display: flex; flex-direction: column; gap: 4px; margin: 9px 0; }
   /* Ligne 1 de la carte (T10) : lieu, contrat, expérience, salaire. Ni pastille,
-     ni fond, ni bordure : une icône de 14 px, puis le texte. Un trait fin sépare
-     deux éléments voisins. Il est dessiné AVANT chaque élément, dans l'espace
-     entre eux ; celui du premier élément de chaque ligne tombe hors de la boîte
-     (cachée par overflow) : jamais de trait au début, à la fin, ni orphelin quand
-     un élément manque ou que la ligne passe à la suivante. */
+     ni fond, ni bordure : une icône de 14 px, puis le texte. Règle des lignes
+     (assets/cartes-lignes.js) : 3 éléments au plus par ligne, 2 au moins, sur 2
+     lignes au plus ; chaque ligne est un bloc à part (.cm-l) qui ne passe jamais
+     à la ligne d'elle-même. Un trait fin sépare deux éléments voisins d'une même
+     ligne : il est dessiné avant le second, jamais au début ni à la fin. Sur
+     téléphone comme sur bureau. Un texte trop long est coupé par « … » (son titre
+     le dit en entier). */
+  .cm-l { display: flex; flex-wrap: nowrap; align-items: center; gap: 0 18px; min-width: 0; }
   .card-fact { position: relative; display: inline-flex; align-items: center; gap: 4px; flex: 0 1 auto; min-width: 0; max-width: 100%; }
-  .card-fact::before { content: ""; position: absolute; left: -9px; top: 50%; width: 1px; height: 12px; margin-top: -6px; background: var(--bord-carte); }
-  .card-fact-value { color: var(--encre-forte); font-size: 12px; font-weight: 600; line-height: 16px; overflow-wrap: anywhere; }
+  .card-fact + .card-fact::before { content: ""; position: absolute; left: -9px; top: 50%; width: 1px; height: 12px; margin-top: -6px; background: var(--bord-carte); }
+  .card-fact-value { color: var(--encre-forte); font-size: 12px; font-weight: 600; line-height: 16px; min-width: 0;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .card-fact .ic { flex: none; width: 14px; height: 14px; color: var(--gris-icone); }
-  /* Petit écran : pas de trait. L'icône et l'espace séparent, et aucun trait ne
-     peut se retrouver seul en début de ligne. */
-  @media (max-width: 480px) {
-    .oc .cm { column-gap: 14px; }
-    .card-fact::before { display: none; }
-  }
   /* Ligne 2 : la spécialité (teal, comme l'ancienne pastille du lieu) puis les compétences (gris), en pastilles. */
-  .etq { display: inline-flex; align-items: center; max-width: 100%; padding: 2px 8px; border: 1px solid transparent; border-radius: var(--r-s);
-    font-size: 12px; font-weight: 600; line-height: 16px; overflow-wrap: anywhere; }
+  .etq { display: block; flex: 0 1 auto; min-width: 0; max-width: 100%; padding: 2px 8px; border: 1px solid transparent; border-radius: var(--r-s);
+    font-size: 12px; font-weight: 600; line-height: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .etq--plus { flex: none; }
   .etq--spec { background: var(--teal-clair); border-color: var(--teal-bord); color: var(--teal-texte); }
   .etq--comp { background: var(--surface-2); border-color: var(--bord-carte); color: var(--encre-forte); }
-  .oc .ctags { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; min-width: 0; padding-right: 7.5rem; }
-  .oc .cdate { position: absolute; bottom: .5rem; right: .875rem; font-size: 11px;
+  .oc .ctags { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-width: 0; }
+  .ctags-l { display: flex; flex-wrap: nowrap; align-items: center; gap: 4px; min-width: 0; max-width: 100%; }
+  /* Le pied : les étiquettes et la date. La date se range à droite des étiquettes
+     quand elle y tient ; sinon elle passe dessous, à droite. Elle ne recouvre
+     jamais une étiquette et ne la tronque pas. */
+  .oc .cpied { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 2px 10px; min-width: 0; }
+  .oc .cpied .ctags { flex: 0 1 auto; max-width: 100%; }
+  .oc .cdate { margin-left: auto; flex: none; white-space: nowrap; font-size: 11px; line-height: 16px;
                color: var(--gris-doux); font-weight: 500; }
   /* La tuile des employeurs garde sa propre échelle : elle est plus petite. */
   .sigle { width: 34px; height: 34px; border-radius: var(--r-m); flex-shrink: 0; display: flex;
@@ -816,6 +821,7 @@ en documentation).
 <script src="/assets/clarity.js" defer></script><!-- Thème jour / nuit : la préférence est posée avant le rendu, pour qu'aucune
      page ne s'affiche en clair avant de basculer. -->
 <script src="/assets/icones.js"></script>
+<script src="/assets/cartes-lignes.js"></script>
 <style id="plan-critique">
 /* CSS CRITIQUE DU PLAN — injecte, ne pas modifier ici */
 /* ══ CSS CRITIQUE DU PLAN — doit precede la feuille de theme ══
@@ -1300,26 +1306,36 @@ function badgeLieu(brut) {
 }
 
 function bandeauMetadonnees(j) {
+  // Les faits : 3 par ligne au plus, 2 au moins, sur 2 lignes au plus
+  // (assets/cartes-lignes.js). Quatre faits font donc 2 + 2.
   const contrat = CONTRATS[j.contract_type] || j.contract_type || 'Non précisé';
   const exp = labelExperience(j);
   const sal = labelSalaire(j);
-  return '<div class="cm">' + badgeLieu(j.ville) + badge('Contrat', contrat, 'briefcase')
-    + (exp ? badge('Expérience', exp, 'signal') : '') + (sal ? badge('Salaire', sal, 'euro') : '') + '</div>';
+  const faits = [badgeLieu(j.ville), badge('Contrat', contrat, 'briefcase'),
+    exp ? badge('Expérience', exp, 'signal') : '', sal ? badge('Salaire', sal, 'euro') : '']
+    .filter(Boolean).map((html) => ({ html, libelle: '' }));
+  return '<div class="cm">' + CARTES_LIGNES.html(CARTES_LIGNES.repartir(faits), 'cm-l') + '</div>';
 }
 
 // Ligne 2 de la carte : la spécialité (pastille teal, celle qui sert au
-// filtrage), puis les compétences (pastilles grises). Deux compétences au
-// plus ; le reste tient dans une pastille « +N » dont le titre les liste :
+// filtrage), puis les compétences (pastilles grises). Même règle que la ligne 1
+// (assets/cartes-lignes.js) : 3 par ligne au plus, 2 au moins, 2 lignes au plus.
+// Ce qui ne tient pas devient une pastille « +N » dont le titre le liste :
 // aucune information n'est perdue en silence.
-function pucesCompetences(j, max) {
+function pastillePlus(caches) {
+  const titre = echapper('Autres compétences : ' + caches.map((c) => c.libelle).join(', '));
+  return '<span class="etq etq--comp etq--plus" title="' + titre + '" aria-label="' + titre + '">+' + caches.length + '</span>';
+}
+
+function etiquettesCarte(specialite, j) {
   const s = j.skills || {};
-  const toutes = Object.keys(FAMILLES_COMPETENCES).flatMap((f) => s[f] || []);
-  const visibles = toutes.slice(0, max)
-    .map((l) => '<span class="etq etq--comp">' + echapper(l) + '</span>').join('');
-  const autres = toutes.slice(max);
-  if (!autres.length) return visibles;
-  const titre = echapper('Autres compétences : ' + autres.join(', '));
-  return visibles + '<span class="etq etq--comp etq--plus" title="' + titre + '" aria-label="' + titre + '">+' + autres.length + '</span>';
+  const elements = [];
+  if (specialite) elements.push({ html: badgeSpecialite(specialite), libelle: specialite });
+  Object.keys(FAMILLES_COMPETENCES).flatMap((f) => s[f] || []).forEach((l) => {
+    elements.push({ html: '<span class="etq etq--comp" title="' + echapper(l) + '">' + echapper(l) + '</span>', libelle: l });
+  });
+  if (!elements.length) return '';
+  return '<div class="ctags">' + CARTES_LIGNES.html(CARTES_LIGNES.repartir(elements, pastillePlus), 'ctags-l') + '</div>';
 }
 
 function badgeSpecialite(specialite) {
@@ -1601,7 +1617,7 @@ async function chargerOffres(apresReessai) {
       const quand = (annuaire && annuaire.publicationLabel)
         ? annuaire.publicationLabel(j.published_at || j.source_published_at || j.first_seen_at) : '';
       const specialite = labelSpecialite(j);
-      const etiquettes = badgeSpecialite(specialite) + pucesCompetences(j, 2);
+      const etiquettes = etiquettesCarte(specialite, j);
       return `
         <a class="oc" id="card-${echapper(j.slug || '')}" href="${prefMarche()}/offre/${encodeURIComponent(j.slug || '')}" data-slug="${echapper(j.slug || '')}">
           <div class="ct">
@@ -1612,8 +1628,10 @@ async function chargerOffres(apresReessai) {
             </div>
           </div>
           ${bandeauMetadonnees(j)}
-          ${etiquettes ? '<div class="ctags">' + etiquettes + '</div>' : ''}
-          <div class="cdate">${echapper(quand)}</div>
+          <div class="cpied">
+            ${etiquettes}
+            <div class="cdate">${echapper(quand)}</div>
+          </div>
         </a>`;
     }).join('');
   } catch (e) {

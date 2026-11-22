@@ -2,7 +2,7 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const assert = require('node:assert/strict');
 const html = fs.readFileSync(require('node:path').join(__dirname, '../job-board.html'), 'utf8');
-const funcs = ['specialtyLabel', 'experienceLabel', 'cardExperienceHtml', 'cardFactHtml', 'cardSalaryHtml', 'cardMetadataHtml', 'salaryLabel', 'cardLocationHtml', 'descriptionBlocks', 'descriptionHtml', 'decodeBasicEntities', 'descriptionSectionsHtml', 'prefMarche', 'urlOffre', 'skillLabels', 'skillChips', 'cardSpecialtyHtml', 'skillsHtml'].map(name => {
+const funcs = ['specialtyLabel', 'experienceLabel', 'cardExperienceHtml', 'cardFactHtml', 'cardSalaryHtml', 'cardMetadataHtml', 'salaryLabel', 'cardLocationHtml', 'cardPlusHtml', 'cardTagsHtml', 'descriptionBlocks', 'descriptionHtml', 'decodeBasicEntities', 'descriptionSectionsHtml', 'prefMarche', 'urlOffre', 'skillLabels', 'cardSpecialtyHtml', 'skillsHtml'].map(name => {
  const start = html.indexOf('function ' + name + '(');
  const end = html.indexOf('\n}', start) + 2;
  assert.ok(start >= 0 && end > start);
@@ -13,6 +13,8 @@ const context = vm.createContext({});
 vm.runInContext(fs.readFileSync(require('node:path').join(__dirname, '../assets/icones.js'), 'utf8'), context);
 // Le formateur de lieu (T04) : la carte l'appelle, il est charge par la page.
 vm.runInContext(fs.readFileSync(require('node:path').join(__dirname, '../assets/lieu.js'), 'utf8'), context);
+// La règle des lignes (3 par ligne au plus, 2 au moins, 2 lignes) : la carte l'appelle.
+vm.runInContext(fs.readFileSync(require('node:path').join(__dirname, '../assets/cartes-lignes.js'), 'utf8'), context);
 vm.runInContext(`const JEV_SPECIALTY_LABELS = {"actuariat": "Actuariat", "ia_data": "IA / Data", "souscription_technique": "Souscription technique", "autre": "Autre"}; const JEV_EXPERIENCE_LABELS = {senior:"Senior"}; const CONTRACT_LABELS = {cdi:"CDI"}; const DESCRIPTION_PREVIEW_CHARS = 600; let descExpanded = {}; let descSections = []; const SECTION_ICONS = { "Le poste": "briefcase", "Missions": "list-checks", "Profil recherché": "person" }; function escapeHtml(x){return x;} const location={origin:"https://claimyourjob.com",href:"https://claimyourjob.com/fr/job-board.html",pathname:"/fr/job-board.html"}; ${funcs}`, context);
 
 function label(row){context.row = row;return vm.runInContext('specialtyLabel(row)', context);}
@@ -77,7 +79,8 @@ assert.ok(metadata.includes('title="Contrat : CDI"'));
 assert.ok(metadata.includes('aria-label="Expérience : Senior"'));
 assert.ok(html.includes('padding: 2px 8px;'));
 assert.ok(html.includes('line-height: 16px;'));
-assert.ok(!html.includes('.card-fact + .card-fact'));
+// Le sélecteur « .card-fact + .card-fact » ne sert qu'au trait (T10) : jamais d'espace ajouté entre voisins.
+assert.equal((html.match(/\.card-fact \+ \.card-fact/g) || []).length, 1);
 context.row = {contract_type:'cdi'};
 const single = vm.runInContext('cardMetadataHtml(row)', context);
 assert.equal((single.match(/class="card-fact"/g) || []).length, 1);
@@ -136,32 +139,62 @@ assert.ok(!vm.runInContext("cardFactHtml('Contrat','CDI')", context).includes('c
 // Ligne 1 : ni fond, ni bordure ; le trait entre deux éléments est un pseudo-élément.
 assert.ok(/\.card-fact \{[^}]*position: relative;[^}]*\}/.test(html) && !/\.card-fact \{[^}]*(background|border)[^}]*\}/.test(html),
   'la ligne 1 n\'a ni fond ni bordure');
-assert.ok(html.includes('.card-fact::before { content: ""; position: absolute; left: -9px;'), 'le trait separateur');
-assert.ok(html.includes('@media (max-width: 480px) {\n  .cm { column-gap: 14px; }\n  .card-fact::before { display: none; }'), 'pas de trait sous 481 px');
+assert.ok(html.includes('.card-fact + .card-fact::before { content: ""; position: absolute; left: -9px;'), 'le trait separateur : entre deux elements voisins d\'une meme ligne');
+assert.ok(!html.includes('.card-fact::before { display: none; }') && !html.includes('max-width: 480px) {\n  .cm {'), 'le trait n\'est plus cache sur telephone');
+assert.ok(html.includes('.cm-l { display: flex; flex-wrap: nowrap;') && html.includes('.ctags-l { display: flex; flex-wrap: nowrap;'), 'chaque ligne est un bloc qui ne passe jamais a la ligne d\'elle-meme');
 // T05 : aucun texte lisible ne descend sous 11 px ; T10 : les anciennes étiquettes ne reviennent pas.
-assert.ok(html.includes('.etq { display: inline-flex;') && html.includes('font-size: 12px; font-weight: 600; line-height: 16px;'));
+assert.ok(html.includes('.etq { display: block;') && html.includes('font-size: 12px; font-weight: 600; line-height: 16px;'));
 assert.ok(html.includes('.etq--spec { background: var(--teal-clair); border-color: var(--teal-bord); color: var(--teal-texte); }') && html.includes('.etq--comp { background: var(--surface-2); border-color: var(--bord-carte);'));
 assert.ok(!/\.tag\s*\{/.test(html) && !/\.tm\s*\{/.test(html) && !/\.tn\s*\{/.test(html) && !/\.ccomp\s*\{/.test(html),
   'les anciennes etiquettes (.tag, .tm, .tn, .ccomp) ne reviennent pas');
 
-// Ligne 2 : la spécialité est une pastille cyan, les compétences des pastilles grises (2 + « +N »).
+// Ligne 2 : la spécialité est une pastille cyan, les compétences des pastilles grises.
+// Règle des lignes (assets/cartes-lignes.js) : 3 par ligne au plus, 2 au moins, 2 lignes au plus ;
+// le reste devient « +N », qui prend la 6e place.
 const specialite = vm.runInContext("cardSpecialtyHtml('IA / Data')", context);
 assert.ok(specialite.includes('etq etq--spec') && specialite.includes('>IA / Data</span>'));
 assert.ok(specialite.includes('aria-label="Spécialité : IA / Data"'));
 assert.equal(vm.runInContext("cardSpecialtyHtml('')", context), '');
 vm.runInContext("const SKILLS_FAMILIES = {outils: 'Outils', data: 'Données et BI', reglementation: 'Réglementation'}", context);
-context.row = {skills: {outils: ['Python', 'SQL', 'Excel', 'VBA'], reglementation: ['IFRS 17']}};
-const competences = vm.runInContext('skillChips(row, 2)', context);
-assert.equal((competences.match(/etq--comp/g) || []).length, 3, 'deux competences et la pastille +N : ' + competences);
-assert.ok(competences.includes('>Python</span>') && competences.includes('>SQL</span>'));
-assert.ok(!competences.includes('>Excel</span>') && !competences.includes('>VBA</span>') && competences.includes('>+3</span>'), 'le reste est compte');
-assert.ok(competences.includes('title="Autres compétences : Excel, VBA, IFRS 17"'), 'le titre liste les autres');
-context.row = {skills: {outils: ['Python', 'SQL']}};
-assert.ok(!vm.runInContext('skillChips(row, 2)', context).includes('etq--plus'), 'deux competences : pas de +N');
-context.row = {skills: {outils: ['Python']}};
-assert.ok(vm.runInContext('skillChips(row, 2)', context).includes('>Python</span>') && !vm.runInContext('skillChips(row, 2)', context).includes('+'));
-context.row = {skills: {}};
-assert.equal(vm.runInContext('skillChips(row, 3)', context), '');
+// Lignes d'un bloc d'étiquettes : le nombre d'éléments de chacune.
+const lignes = (h) => h.split('<div class="ctags-l">').slice(1).map((l) => (l.match(/<span class="etq/g) || []).length);
+const etiquettes = (sp, skills) => { context.row = { skills }; context.sp = sp; return vm.runInContext('cardTagsHtml(sp, row)', context); };
+
+// Spécialité + 5 compétences = 6 éléments : 3 + 3, aucun « +N ».
+let h = etiquettes('IA / Data', {outils: ['Python', 'SQL', 'Excel', 'VBA'], reglementation: ['IFRS 17']});
+assert.deepEqual(lignes(h), [3, 3], 'six éléments : 3 + 3 : ' + h);
+assert.ok(!h.includes('etq--plus'), 'six éléments : pas de +N');
+assert.ok(h.includes('>VBA</span>') && h.includes('>IFRS 17</span>'), 'tout est affiché');
+// Spécialité + 7 compétences = 8 éléments : 5 affichés + « +3 » en 6e place.
+h = etiquettes('IA / Data', {outils: ['A', 'B', 'C', 'D', 'E', 'F', 'G']});
+assert.deepEqual(lignes(h), [3, 3], 'huit éléments : 5 affichés + « +N » : 3 + 3');
+assert.ok(h.includes('>+3</span>') && h.includes('title="Autres compétences : E, F, G"'), 'le reste est compté et listé : ' + h);
+assert.ok(h.includes('>D</span>') && !h.includes('>E</span>'), 'les 5 premiers sont affichés, pas les suivants');
+// Sept éléments : « +2 » (et non « +1 » : la pastille prend une place).
+h = etiquettes('IA / Data', {outils: ['A', 'B', 'C', 'D', 'E', 'F']});
+assert.ok(h.includes('>+2</span>'), 'sept éléments : 5 affichés + « +2 »');
+// Sans spécialité : 6 compétences tiennent, 7 donnent « +2 ».
+assert.ok(!etiquettes('', {outils: ['A', 'B', 'C', 'D', 'E', 'F']}).includes('etq--plus'));
+assert.ok(etiquettes('', {outils: ['A', 'B', 'C', 'D', 'E', 'F', 'G']}).includes('>+2</span>'));
+// Petits nombres : 1 → 1 ; 2 → 2 ; 3 → 3 ; 4 → 2 + 2 ; 5 → 3 + 2 (jamais une ligne d'un seul élément à partir de 2).
+for (const [n, attendu] of [[1, [1]], [2, [2]], [3, [3]], [4, [2, 2]], [5, [3, 2]]]) {
+  const comps = ['A', 'B', 'C', 'D', 'E'].slice(0, n - 1);
+  assert.deepEqual(lignes(etiquettes('IA / Data', {outils: comps})), attendu, n + ' éléments');
+}
+assert.ok(!etiquettes('IA / Data', {outils: ['Python']}).includes('+'), 'deux éléments : pas de +N');
+// Rien à afficher : pas de bloc vide.
+assert.equal(etiquettes('', {}), '');
+// Une compétence longue porte son titre en entier (le texte peut être coupé par « … »).
+assert.ok(etiquettes('', {outils: ['Solvabilité II']}).includes('title="Solvabilité II"'));
+
+// Ligne 1 : 1 → 1, 2 → 2, 3 → 3, 4 → 2 + 2.
+const faits = (row) => { context.row = row; const m = vm.runInContext('cardMetadataHtml(row)', context);
+  return m.split('<div class="cm-l">').slice(1).map((l) => (l.match(/class="card-fact"/g) || []).length); };
+const SAL = { jev_salaire_libelle: '45 k€', jev_publishable: { salaire: true, experience: true }, jev_curation_status: 'done', jev_experience: 'senior' };
+assert.deepEqual(faits({ contract_type: 'cdi' }), [1]);
+assert.deepEqual(faits({ contract_type: 'cdi', ville: 'Paris' }), [2]);
+assert.deepEqual(faits({ contract_type: 'cdi', ville: 'Paris', ...SAL, jev_salaire_libelle: '' }), [3]);
+assert.deepEqual(faits({ contract_type: 'cdi', ville: 'Paris', ...SAL }), [2, 2], 'quatre faits : 2 + 2');
 console.log('Card line 1 and line 2 tests passed');
 
 // Description : aperçu dépliable, paragraphes conservés. Le texte long ne doit
