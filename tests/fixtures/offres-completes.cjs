@@ -21,12 +21,12 @@ const EXPERIENCES = ['junior', 'confirmed', 'senior', 'lead'];
 const SALAIRES = ['45–55 k€/an', '≥ 60 k€/an', '38–42 k€/an'];
 
 /* Compétences : toutes les familles que lisent le board et l'accueil. Les
-   listes sont de longueurs différentes pour exercer la règle des lignes et le « +N » (au-delà de 6 éléments avec la spécialité) sur le board ET sur l'accueil, qui ne lit que deux familles. */
+   listes sont de longueurs différentes pour exercer la règle des lignes et le « +2 » sur le board ET sur l'accueil, qui ne lit que deux familles (spécialité comprise : la 1re offre a 8 éléments sur le board, 6 sur l'accueil ; la 2e, 9 et 8 ; la 4e, 10 et 7). */
 const COMPETENCES = [
   { outils: ['Python', 'SQL', 'Excel'], data: ['Tableau / BI', 'Power BI'], reglementation: ['Solvabilité II', 'IFRS 17'] },
-  { outils: ['R', 'SAS'], data: ['Power BI'], reglementation: [] },
+  { outils: ['R', 'SAS', 'Excel', 'VBA', 'Access', 'Qlik'], data: ['Power BI'], reglementation: ['IFRS 17'] },
   { outils: ['Python'], data: [], reglementation: [] },
-  { outils: ['Python', 'SQL', 'VBA', 'Excel', 'Access', 'Qlik'], data: ['Tableau / BI'], actuariat: ['Prophet', 'Igloo'], reglementation: ['Solvabilité II'] },
+  { outils: ['Python', 'SQL', 'VBA', 'Excel', 'Access'], data: ['Tableau / BI'], actuariat: ['Prophet', 'Igloo'], reglementation: ['Solvabilité II'] },
 ];
 
 /* Éléments manquants : l'indice de l'offre modulo 8 retire une partie des

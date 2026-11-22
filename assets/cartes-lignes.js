@@ -5,13 +5,18 @@
    étiquettes (spécialité, compétences). Dans chaque bloc :
 
      • 3 éléments au plus par ligne, 2 au moins (sauf s'il n'y en a qu'un seul) ;
-     • 2 lignes au plus par bloc, donc 4 lignes au plus par carte ;
-     • ce qui ne tient pas dans ces 2 lignes devient une pastille « +N », qui
-       prend la dernière place (6e) et dont le titre liste ce qu'elle remplace.
+     • les faits (4 au plus) tiennent sur 2 lignes au plus ;
+     • les étiquettes tiennent sur 2 lignes au plus tant qu'il y en a 6 ou moins ;
+     • au-delà, la pastille « +N » ne cache JAMAIS plus de 2 éléments : le reste
+       est affiché, et le bloc prend alors une ligne de plus (3 lignes ou plus).
+       « +2 » n'est utilisé que s'il fait gagner une ligne ; sinon tout s'affiche.
 
-   Répartition (nombre d'éléments → éléments par ligne) :
-     1 → 1        2 → 2        3 → 3        4 → 2 + 2        5 → 3 + 2        6 → 3 + 3
-     7 ou plus → les 5 premiers, puis « +N » (N = total − 5) : 3 + 3
+   Répartition (nombre de places → éléments par ligne) : 1→1, 2→2, 3→3, 4→2+2,
+   5→3+2, 6→3+3, 7→3+2+2, 8→3+3+2, 9→3+3+3, 10→3+3+2+2… (des lignes de 3, la
+   dernière ou les deux dernières complétées pour ne jamais en laisser une seule).
+
+   Éléments → affichage : 1 à 6 → tous ; 7 → 5 + « +2 » ; 8 ou 9 → tous ;
+   10 → 8 + « +2 » ; 11 ou 12 → tous ; 13 → 11 + « +2 »…
 
    La règle est ici, une seule fois : l'accueil et le board l'appellent tous deux,
    pour que leurs cartes ne divergent pas.
@@ -21,17 +26,37 @@
 
   var MAX_PAR_LIGNE = 3;
   var MIN_PAR_LIGNE = 2;
-  var MAX_LIGNES = 2;
-  var PLACES = MAX_PAR_LIGNE * MAX_LIGNES;
+  var MAX_CACHES = 2;
+  var SEUIL_PLUS = 6; // jusqu'à 6 éléments (2 lignes pleines), on affiche tout
 
-  /** Éléments par ligne pour `n` éléments affichés (n ≤ PLACES). */
+  function nbLignes(places) { return Math.ceil(places / MAX_PAR_LIGNE); }
+
+  /** Éléments par ligne pour `n` places : des lignes de 3, sans jamais en laisser une seule. */
   function tailles(n) {
     if (n <= 0) return [];
     if (n <= MAX_PAR_LIGNE) return [n];
-    // 4 → 2 + 2 ; 5 → 3 + 2 ; 6 → 3 + 3 : la première ligne prend le plus, sans
-    // jamais laisser moins de MIN_PAR_LIGNE à la seconde.
-    var premiere = Math.min(MAX_PAR_LIGNE, n - MIN_PAR_LIGNE);
-    return [premiere, n - premiere];
+    var k = nbLignes(n);
+    var reste = n % MAX_PAR_LIGNE;
+    var lignes = [];
+    var pleines = reste === 0 ? k : (reste === 1 ? k - 2 : k - 1);
+    for (var i = 0; i < pleines; i++) lignes.push(MAX_PAR_LIGNE);
+    if (reste === 2) lignes.push(2);
+    if (reste === 1) lignes.push(2, 2);
+    return lignes;
+  }
+
+  /**
+   * Combien d'éléments passent dans « +N » (0, 1 ou 2, jamais plus) : seulement
+   * ce qui fait gagner une ligne. La pastille « +N » occupe elle-même une place.
+   */
+  function caches(n) {
+    if (n <= SEUIL_PLUS) return 0;
+    var meilleur = 0;
+    var lignes = nbLignes(n);
+    for (var h = 1; h <= MAX_CACHES; h++) {
+      if (nbLignes(n - h + 1) < lignes) { meilleur = h; lignes = nbLignes(n - h + 1); }
+    }
+    return meilleur;
   }
 
   /**
@@ -42,10 +67,11 @@
    */
   function repartir(elements, plus) {
     var n = elements.length;
+    var h = caches(n);
     var affiches = elements.map(function (e) { return e.html; });
-    if (n > PLACES) {
-      affiches = affiches.slice(0, PLACES - 1);
-      affiches.push(plus(elements.slice(PLACES - 1)));
+    if (h > 0) {
+      affiches = affiches.slice(0, n - h);
+      affiches.push(plus(elements.slice(n - h)));
     }
     var lignes = [];
     var debut = 0;
@@ -64,8 +90,8 @@
   }
 
   var api = {
-    MAX_PAR_LIGNE: MAX_PAR_LIGNE, MIN_PAR_LIGNE: MIN_PAR_LIGNE, MAX_LIGNES: MAX_LIGNES, PLACES: PLACES,
-    tailles: tailles, repartir: repartir, html: html,
+    MAX_PAR_LIGNE: MAX_PAR_LIGNE, MIN_PAR_LIGNE: MIN_PAR_LIGNE, MAX_CACHES: MAX_CACHES,
+    tailles: tailles, caches: caches, repartir: repartir, html: html,
   };
   racine.CARTES_LIGNES = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;

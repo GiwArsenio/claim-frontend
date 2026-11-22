@@ -13,7 +13,7 @@ const context = vm.createContext({});
 vm.runInContext(fs.readFileSync(require('node:path').join(__dirname, '../assets/icones.js'), 'utf8'), context);
 // Le formateur de lieu (T04) : la carte l'appelle, il est charge par la page.
 vm.runInContext(fs.readFileSync(require('node:path').join(__dirname, '../assets/lieu.js'), 'utf8'), context);
-// La règle des lignes (3 par ligne au plus, 2 au moins, 2 lignes) : la carte l'appelle.
+// La règle des lignes (3 par ligne au plus, 2 au moins, « +N » de 2 au plus) : la carte l'appelle.
 vm.runInContext(fs.readFileSync(require('node:path').join(__dirname, '../assets/cartes-lignes.js'), 'utf8'), context);
 vm.runInContext(`const JEV_SPECIALTY_LABELS = {"actuariat": "Actuariat", "ia_data": "IA / Data", "souscription_technique": "Souscription technique", "autre": "Autre"}; const JEV_EXPERIENCE_LABELS = {senior:"Senior"}; const CONTRACT_LABELS = {cdi:"CDI"}; const DESCRIPTION_PREVIEW_CHARS = 600; let descExpanded = {}; let descSections = []; const SECTION_ICONS = { "Le poste": "briefcase", "Missions": "list-checks", "Profil recherché": "person" }; function escapeHtml(x){return x;} const location={origin:"https://claimyourjob.com",href:"https://claimyourjob.com/fr/job-board.html",pathname:"/fr/job-board.html"}; ${funcs}`, context);
 
@@ -149,8 +149,8 @@ assert.ok(!/\.tag\s*\{/.test(html) && !/\.tm\s*\{/.test(html) && !/\.tn\s*\{/.te
   'les anciennes etiquettes (.tag, .tm, .tn, .ccomp) ne reviennent pas');
 
 // Ligne 2 : la spécialité est une pastille cyan, les compétences des pastilles grises.
-// Règle des lignes (assets/cartes-lignes.js) : 3 par ligne au plus, 2 au moins, 2 lignes au plus ;
-// le reste devient « +N », qui prend la 6e place.
+// Règle des lignes (assets/cartes-lignes.js) : 3 par ligne au plus, 2 au moins ; « +N » ne cache jamais
+// plus de 2 éléments, et seulement s'il fait gagner une ligne ; sinon tout s'affiche (3 lignes ou plus).
 const specialite = vm.runInContext("cardSpecialtyHtml('IA / Data')", context);
 assert.ok(specialite.includes('etq etq--spec') && specialite.includes('>IA / Data</span>'));
 assert.ok(specialite.includes('aria-label="Spécialité : IA / Data"'));
@@ -165,14 +165,24 @@ let h = etiquettes('IA / Data', {outils: ['Python', 'SQL', 'Excel', 'VBA'], regl
 assert.deepEqual(lignes(h), [3, 3], 'six éléments : 3 + 3 : ' + h);
 assert.ok(!h.includes('etq--plus'), 'six éléments : pas de +N');
 assert.ok(h.includes('>VBA</span>') && h.includes('>IFRS 17</span>'), 'tout est affiché');
-// Spécialité + 7 compétences = 8 éléments : 5 affichés + « +3 » en 6e place.
-h = etiquettes('IA / Data', {outils: ['A', 'B', 'C', 'D', 'E', 'F', 'G']});
-assert.deepEqual(lignes(h), [3, 3], 'huit éléments : 5 affichés + « +N » : 3 + 3');
-assert.ok(h.includes('>+3</span>') && h.includes('title="Autres compétences : E, F, G"'), 'le reste est compté et listé : ' + h);
-assert.ok(h.includes('>D</span>') && !h.includes('>E</span>'), 'les 5 premiers sont affichés, pas les suivants');
-// Sept éléments : « +2 » (et non « +1 » : la pastille prend une place).
+// Spécialité + 6 compétences = 7 éléments : 5 affichés + « +2 » (2 lignes).
 h = etiquettes('IA / Data', {outils: ['A', 'B', 'C', 'D', 'E', 'F']});
-assert.ok(h.includes('>+2</span>'), 'sept éléments : 5 affichés + « +2 »');
+assert.deepEqual(lignes(h), [3, 3], 'sept éléments : 5 + « +2 » : 3 + 3');
+assert.ok(h.includes('>+2</span>') && h.includes('title="Autres compétences : E, F"'), 'le reste est compté et listé : ' + h);
+assert.ok(h.includes('>D</span>') && !h.includes('>E</span>'), 'les 5 premiers sont affichés, pas les suivants');
+// Huit éléments : tout s'affiche, sur 3 lignes (3 + 3 + 2) ; un « +N » ne ferait pas gagner de ligne.
+h = etiquettes('IA / Data', {outils: ['A', 'B', 'C', 'D', 'E', 'F', 'G']});
+assert.deepEqual(lignes(h), [3, 3, 2], 'huit éléments : tous affichés, 3 + 3 + 2 : ' + h);
+assert.ok(!h.includes('etq--plus') && h.includes('>G</span>'), 'huit éléments : pas de +N');
+// Neuf : 3 + 3 + 3. Dix : 8 affichés + « +2 » (3 + 3 + 3). Jamais « +3 » ni plus.
+assert.deepEqual(lignes(etiquettes('IA / Data', {outils: 'ABCDEFGH'.split('')})), [3, 3, 3]);
+h = etiquettes('IA / Data', {outils: 'ABCDEFGHI'.split('')});
+assert.deepEqual(lignes(h), [3, 3, 3], 'dix éléments : 8 + « +2 »');
+assert.ok(h.includes('>+2</span>') && h.includes('title="Autres compétences : H, I"'));
+for (let n = 1; n <= 30; n++) {
+  const m = etiquettes('', {outils: Array.from({length: n}, (_, i) => 'C' + i)}).match(/>\+(\d+)<\/span>/);
+  assert.ok(!m || +m[1] <= 2, n + ' compétences : « +' + (m && m[1]) + ' » dépasse +2');
+}
 // Sans spécialité : 6 compétences tiennent, 7 donnent « +2 ».
 assert.ok(!etiquettes('', {outils: ['A', 'B', 'C', 'D', 'E', 'F']}).includes('etq--plus'));
 assert.ok(etiquettes('', {outils: ['A', 'B', 'C', 'D', 'E', 'F', 'G']}).includes('>+2</span>'));

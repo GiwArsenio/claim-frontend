@@ -348,7 +348,7 @@ a.ctitle:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; bo
 .cm { display: flex; flex-direction: column; gap: 4px; margin: 9px 0; }
 /* Ligne 1 de la carte (T10) : lieu, contrat, expérience, salaire. Ni pastille,
    ni fond, ni bordure : une icône de 14 px, puis le texte. Règle des lignes
-   (assets/cartes-lignes.js) : 3 éléments au plus par ligne, 2 au moins, sur 2
+   (assets/cartes-lignes.js) : 3 éléments au plus par ligne, 2 au moins, faits sur 2
    lignes au plus ; chaque ligne est un bloc à part (.cm-l) qui ne passe jamais
    à la ligne d'elle-même. Un trait fin sépare deux éléments voisins d'une même
    ligne : il est dessiné avant le second, jamais au début ni à la fin. Sur
@@ -2951,9 +2951,9 @@ function skillLabels(j) {
 
 // Ligne 2 de la carte : la spécialité (pastille teal, celle qui sert au
 // filtrage), puis les compétences (pastilles grises). Même règle que la ligne 1
-// (assets/cartes-lignes.js) : 3 par ligne au plus, 2 au moins, 2 lignes au plus.
-// Ce qui ne tient pas devient une pastille « +N » dont le titre le liste :
-// aucune information n'est perdue en silence.
+// (assets/cartes-lignes.js) : 3 par ligne au plus, 2 au moins. « +N » ne cache
+// jamais plus de 2 éléments (le bloc prend une ligne de plus plutôt) ; son titre
+// les liste : aucune information n'est perdue en silence.
 function cardPlusHtml(caches) {
   const titre = escapeHtml('Autres compétences : ' + caches.map(c => c.libelle).join(', '));
   return `<span class="etq etq--comp etq--plus" title="${titre}" aria-label="${titre}">+${caches.length}</span>`;

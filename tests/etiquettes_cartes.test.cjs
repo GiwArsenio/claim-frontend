@@ -3,8 +3,10 @@
 
    Une carte (accueil `.oc`, board `.jc`) a deux blocs, soumis à la MÊME règle
    (assets/cartes-lignes.js, demandée par le propriétaire) : 3 éléments au plus par
-   ligne, 2 au moins (sauf s'il n'y en a qu'un), 2 lignes au plus par bloc (4 au
-   plus par carte) ; ce qui dépasse devient « +N » (5 éléments + « +N » : 6 places).
+   ligne, 2 au moins (sauf s'il n'y en a qu'un) ; les faits (4 au plus) font 2 lignes
+   au plus ; « +N » ne cache jamais plus de 2 éléments et n'existe que s'il fait
+   gagner une ligne : sinon tout s'affiche et le bloc des étiquettes prend 3 lignes
+   ou plus (7 éléments → 5 + « +2 » ; 8 ou 9 → tous ; 10 → 8 + « +2 »…).
 
    BLOC 1 — les faits : lieu, contrat, expérience, salaire (quand il est publié).
      • ni pastille, ni fond, ni bordure ;
@@ -28,6 +30,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 
 const aide = require('./aide-parcours.cjs');
+const REGLE = require('../assets/cartes-lignes.js');
 const { installerOffresCompletes } = require('./fixtures/offres-completes.cjs');
 
 const SURFACES = [
@@ -182,7 +185,7 @@ for (const surface of SURFACES) {
 function verifier(quoi, lecture, largeur) {
   const { ref, cartes } = lecture;
   assert.ok(cartes.length >= 4, `${quoi} : il faut des cartes (${cartes.length})`);
-  const vu = { sansSalaire: 0, sansCompetences: 0, sansSpecialite: 0, sansLieu: 0, complete: 0, plus: 0, traits: 0 };
+  const vu = { sansSalaire: 0, sansCompetences: 0, sansSpecialite: 0, sansLieu: 0, complete: 0, plus: 0, traits: 0, troisLignes: 0 };
 
   for (const c of cartes) {
     const ou = `${quoi} « ${c.titre.slice(0, 28)} »`;
@@ -191,7 +194,6 @@ function verifier(quoi, lecture, largeur) {
 
     // ── La règle des lignes, pour les deux blocs ──
     const regle = (nom, lignes, total) => {
-      assert.ok(lignes.length <= 2, `${ou} : ${nom} sur ${lignes.length} lignes (2 au plus)`);
       for (const n of lignes) {
         assert.ok(n <= 3, `${ou} : ${nom} : une ligne de ${n} éléments (3 au plus)`);
         if (total > 1) assert.ok(n >= 2, `${ou} : ${nom} : une ligne de ${n} élément (2 au moins)`);
@@ -199,8 +201,10 @@ function verifier(quoi, lecture, largeur) {
       assert.equal(lignes.reduce((a, b) => a + b, 0), total, `${ou} : ${nom} : tous les éléments sont dans une ligne`);
     };
     regle('les faits', c.lignesFaits, c.items.length);
+    assert.ok(c.lignesFaits.length <= 2, `${ou} : les faits sur ${c.lignesFaits.length} lignes (2 au plus)`);
     regle('les pastilles', c.lignesPastilles, c.pastilles.length);
-    assert.ok(c.lignesFaits.length + c.lignesPastilles.length <= 4, `${ou} : 4 lignes au plus`);
+    // Les pastilles suivent la règle partagée : mêmes lignes que celles qu'elle calcule.
+    assert.deepEqual(c.lignesPastilles, REGLE.tailles(c.pastilles.length), `${ou} : répartition des pastilles`);
     // Quatre faits : 2 + 2 ; trois : 3.
     if (c.items.length === 4) assert.deepEqual(c.lignesFaits, [2, 2], `${ou} : quatre faits font 2 + 2`);
     if (c.items.length === 3) assert.deepEqual(c.lignesFaits, [3], `${ou} : trois faits font 3`);
@@ -255,17 +259,18 @@ function verifier(quoi, lecture, largeur) {
     assert.ok(spec.length <= 1, `${ou} : une seule spécialité`);
     if (spec.length) assert.equal(c.pastilles[0], spec[0], `${ou} : la spécialité vient en premier`);
     assert.ok(plus.length <= 1 && (!plus.length || c.pastilles[c.pastilles.length - 1] === plus[0]), `${ou} : « +N » en dernier`);
+    const total = c.pastilles.length - plus.length + (plus.length ? +/^\+(\d+)$/.exec(plus[0].texte)[1] : 0);
+    assert.equal(plus.length ? +/^\+(\d+)$/.exec(plus[0].texte)[1] : 0, REGLE.caches(total),
+      `${ou} : « +N » n'existe que s'il fait gagner une ligne, et jamais plus de +2 (${total} éléments)`);
     if (plus.length) {
-      // « +N » : seulement au-delà de 6 éléments ; il prend la 6e place (5 affichés).
-      assert.equal(c.pastilles.length, 6, `${ou} : « +N » à la 6e place`);
       const n = +/^\+(\d+)$/.exec(plus[0].texte)[1];
+      assert.ok(n <= 2, `${ou} : « +${n} » dépasse +2`);
       const liste = plus[0].titre.replace(/^Autres compétences : /, '').split(', ');
       assert.equal(liste.length, n, `${ou} : « ${plus[0].texte} » = ${liste.length} compétences dans le titre`);
       assert.equal(plus[0].aria, plus[0].titre, `${ou} : « +N » a le même nom accessible`);
       vu.plus++;
-    } else {
-      assert.ok(c.pastilles.length <= 6, `${ou} : ${c.pastilles.length} pastilles sans « +N »`);
     }
+    if (c.lignesPastilles.length > 2) vu.troisLignes++;
     for (const p of c.pastilles) {
       const t = `${ou} « ${p.texte} »`;
       assert.equal(p.casse, 'none', `${t} : casse normale`);
@@ -299,6 +304,7 @@ function verifier(quoi, lecture, largeur) {
   assert.ok(vu.sansCompetences >= 1 || cartes.length < 6, `${quoi} : cartes sans compétences présentes`);
   assert.ok(vu.sansSpecialite >= 1, `${quoi} : cartes sans spécialité présentes`);
   assert.ok(vu.plus >= 1, `${quoi} : au moins une carte avec « +N »`);
+  assert.ok(vu.troisLignes >= 1, `${quoi} : au moins une carte avec 3 lignes d'étiquettes`);
   assert.ok(vu.traits >= 3, `${quoi} : des traits entre voisins (${vu.traits})`);
   assert.equal(lecture.debordePage, false, `${quoi} : défilement horizontal`);
   return vu;
@@ -351,23 +357,24 @@ test('T10 — aucune information retirée : les valeurs de la première carte, e
         assert.ok(c.items.every((i) => i.texte === i.titre.split(' : ')[1]), 'le texte affiché est la valeur');
         if (surface.nom === 'board') {
           // Board : spécialité + 7 compétences (outils, données, réglementation) = 8 éléments :
-          // 5 affichés, « +3 » à la 6e place.
-          assert.deepEqual(c.pastilles.map((p) => p.texte), ['Actuariat', 'Python', 'SQL', 'Excel', 'Tableau / BI', '+3']);
-          assert.equal(c.pastilles[5].titre, 'Autres compétences : Power BI, Solvabilité II, IFRS 17');
-          assert.deepEqual(c.lignesPastilles, [3, 3]);
+          // tous affichés, sur 3 lignes (3 + 3 + 2), pas de « +N ».
+          assert.deepEqual(c.pastilles.map((p) => p.texte), ['Actuariat', 'Python', 'SQL', 'Excel', 'Tableau / BI', 'Power BI', 'Solvabilité II', 'IFRS 17']);
+          assert.deepEqual(c.lignesPastilles, [3, 3, 2]);
         } else {
           // Accueil : outils et réglementation seulement = 6 éléments, tous affichés.
           assert.deepEqual(c.pastilles.map((p) => p.texte), ['Actuariat', 'Python', 'SQL', 'Excel', 'Solvabilité II', 'IFRS 17']);
           assert.deepEqual(c.lignesPastilles, [3, 3]);
         }
+        // La 4e offre (7 compétences lues sur l'accueil, 9 sur le board) : « +2 », jamais davantage.
+        const avecPlus = cartes.find((x) => x.pastilles.some((p) => /etq--plus/.test(p.classe)));
+        assert.ok(avecPlus, `${surface.nom} : une carte avec « +2 »`);
+        assert.equal(avecPlus.pastilles[avecPlus.pastilles.length - 1].texte, '+2', `${surface.nom} : « +2 »`);
         // La carte sans lieu : le premier élément est le contrat, pas de vide.
         const sansLieu = cartes.find((x) => !x.items.some((i) => i.rubrique === 'Localisation'));
         assert.ok(sansLieu && sansLieu.items[0].rubrique === 'Contrat', `${surface.nom} : sans lieu, la ligne commence par le contrat`);
         // Une carte à deux compétences : spécialité + 2 = 3 éléments sur une ligne, pas de « +N ».
         const deux = cartes.find((x) => x.pastilles.filter((p) => /etq--comp/.test(p.classe)).length === 2 && !x.pastilles.some((p) => /plus/.test(p.classe)));
-        assert.ok(deux, `${surface.nom} : une carte avec exactement deux compétences n'a pas de « +N »`);
-        // L'accueil exerce aussi le « +N » (la 4e offre de la fixture a 7 compétences lues).
-        assert.ok(cartes.some((x) => x.pastilles.some((p) => /etq--plus/.test(p.classe))), `${surface.nom} : une carte avec « +N »`);
+        assert.ok(deux || surface.nom === 'accueil', `${surface.nom} : une carte avec exactement deux compétences n'a pas de « +N »`);
       } finally { await ctx.close(); }
     }
   } finally { await aide.arreterNavigateur(); await aide.arreterServeur(); }
