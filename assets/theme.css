@@ -62,6 +62,18 @@
   --enveloppe-lecture: 46rem;
   --duree: .15s;
 
+  /* ── Rayons de bordure : une échelle de trois crans ──
+     --r-s   4 px   étiquettes, repères, petites barres.
+     --r-m   8 px   boutons, champs, vignettes, listes déroulantes.
+     --r-l  12 px   cartes, panneaux, fiches, fenêtres.
+     Hors échelle, deux formes seulement : 50 % (un cercle) et 9999 px (une
+     pastille). Une valeur en dur dans une page est une erreur de revue :
+     tools/codemod-jetons-design.cjs la ramène à l'échelle, et
+     tests/jetons_design.test.cjs la refuse. */
+  --r-s: 4px;
+  --r-m: 8px;
+  --r-l: 12px;
+
   /* ── Surfaces ── */
   --fond: #fff;              /* le plan de la page */
   /* Le fond reel du plan. Par defaut, c'est le fond de la page ; les
@@ -174,9 +186,18 @@
   --degrade-4: #003d4a;
   --degrade-5: #008fa3;
 
-  /* ── Ombres ── */
-  --ombre: 0 1px 2px rgba(25, 44, 52, .06), 0 4px 14px rgba(25, 44, 52, .05);
+  /* ── Ombres : trois niveaux, pas un de plus ──
+     --ombre-1      une surface posée : carte, panneau, barre de recherche.
+     --ombre-2      une surface qui se soulève ou flotte : survol d'une carte,
+                    liste déroulante, tiroir, fenêtre modale.
+     --ombre-forte  un volet collé au bas de l'écran (ombre vers le haut).
+     `--ombre` reste un alias de `--ombre-1` pour les pages qui l'utilisent
+     encore (claim-entreprises, claim-observatoire). Rejouable :
+     tools/codemod-jetons-design.cjs. */
+  --ombre-1: 0 1px 2px rgba(25, 44, 52, .06), 0 4px 14px rgba(25, 44, 52, .05);
+  --ombre-2: 0 6px 20px rgba(25, 44, 52, .18);
   --ombre-forte: 0 -10px 30px rgba(25, 44, 52, .10);
+  --ombre: var(--ombre-1);
 }
 
 /* ── ICÔNES ──────────────────────────────────────────────────────────────
@@ -331,7 +352,8 @@ html[data-theme="nuit"] {
   --degrade-5: #0d3f49;
 
   /* ── Ombres ── */
-  --ombre: 0 1px 2px rgba(0, 0, 0, .4), 0 4px 14px rgba(0, 0, 0, .35);
+  --ombre-1: 0 1px 2px rgba(0, 0, 0, .4), 0 4px 14px rgba(0, 0, 0, .35);
+  --ombre-2: 0 6px 20px rgba(0, 0, 0, .55);
   --ombre-forte: 0 -10px 30px rgba(0, 0, 0, .5);
 }
 
@@ -380,4 +402,73 @@ html[data-theme="nuit"] .bascule-theme:hover {
 
 /* Barre d'en-tête absente ou masquée : le bouton se pose par-dessus la page. */
 .bascule-flottante { position: fixed; top: 1rem; right: 1rem; z-index: 400;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, .18); }
+  box-shadow: var(--ombre-2); }
+
+/* ── LIEN D'ÉVITEMENT ────────────────────────────────────────────────────
+   « Aller au contenu » : premier élément tabulable de chaque page, posé par
+   tools/codemod-lien-evitement.cjs. Hors écran tant qu'il n'a pas le focus ;
+   au focus il apparaît en haut à gauche, au premier plan. Jamais
+   `display:none` : un lien masqué ainsi ne reçoit pas le focus.
+   Fond de marque et texte blanc, dans les deux thèmes : 6,2:1 en jour,
+   plus de 14:1 en nuit (le fond de marque y est foncé, jamais clair : le
+   test de thème interdit toute surface claire en mode nuit). */
+.skip-link {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10000;
+  padding: .75rem 1.1rem;
+  background: var(--teal-fond);
+  color: var(--blanc);
+  border: 2px solid var(--blanc);
+  font-family: inherit;
+  font-size: .95rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-decoration: none;
+  border-radius: 0 0 var(--r-m) 0;
+  transform: translateY(-120%);
+  /* Pas de fondu : le lien doit apparaître net au premier Tab. */
+  transition: none;
+}
+/* Les pages stylent `a:hover` et `a:visited` : on reprend la couleur avec
+   plus de poids, sinon un survol de souris sur le lien le rend peu lisible. */
+a.skip-link:link,
+a.skip-link:visited,
+a.skip-link:hover,
+a.skip-link:active {
+  background: var(--teal-fond);
+  color: var(--blanc);
+  text-decoration: none;
+}
+.skip-link:focus,
+.skip-link:focus-visible {
+  transform: translateY(0);
+  outline: 3px solid var(--teal-vif);
+  outline-offset: 2px;
+}
+/* La cible reçoit le focus par programme (tabindex="-1") : pas de cadre
+   autour de toute la zone principale. */
+main[tabindex="-1"]:focus,
+section.chantier[tabindex="-1"]:focus { outline: none; }
+/* ── Cibles tactiles des boutons de l'en-tête, au téléphone ──────────────────
+   À 768 px et moins, la bascule de thème (34 px) et le burger (36 px) étaient
+   plus petits que le pouce : on les porte à 44 px, la cible recommandée sur
+   écran tactile. Le bureau garde ses 34 px.
+
+   La règle vit ici, dans la feuille partagée, parce que la bascule et le
+   burger sont les mêmes sur toutes les pages : une seule source, au lieu d'une
+   copie par page. `#hd nav .btn-burger` pèse plus lourd que la règle propre à
+   chaque page (`#hd .btn-burger`), donc l'ordre de chargement n'a pas
+   d'importance.
+
+   Une barre de 44 px aurait grandi de plus de 4 px (le logo mesure 39,6 px).
+   On rogne donc le padding vertical de la barre, de .6rem à .5rem : la barre
+   passe de 58,8 à 60 px, soit +1,2 px. Les deux boutons restent séparés de
+   .75rem (12 px), au-dessus des 8 px demandés entre deux cibles. */
+@media (max-width: 768px) {
+  .bascule-theme { width: 44px; height: 44px; }
+  .bascule-theme .ic { width: 20px; height: 20px; }
+  #hd nav .btn-burger { width: 44px; height: 44px; }
+  header#hd nav { padding-top: .5rem; padding-bottom: .5rem; }
+}

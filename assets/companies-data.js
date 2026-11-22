@@ -439,6 +439,31 @@
       .join('').toUpperCase();
   }
 
+  /* Le monogramme du bandeau des employeurs. `initiales` donne « A » pour Aon,
+     Alan et April, « W » pour WTW et Wakam, « AF » pour AXA France comme pour
+     Allianz France : sur une tuile neutre, rien d'autre ne les distingue. Ici,
+     un sigle déjà court reste entier (AXA, WTW, KPMG, EY) ; un nom d'une seule
+     marque donne ses deux premières lettres ; un nom composé donne l'initiale
+     de ses deux premiers mots. Les mots d'état civil d'une entreprise — France,
+     SE, Assurances… — ne comptent pas : ils ne la distinguent pas. */
+  var MOTS_GENERIQUES = { france: 1, se: 1, sa: 1, sas: 1, groupe: 1, group: 1,
+                          assurances: 1, assurance: 1, actuariat: 1, international: 1 };
+  function monogramme(nom) {
+    var mots = String(nom == null ? '' : nom)
+      .split(/[\s/|,–—-]+/)
+      .map(function (mot) { return mot.replace(/[^0-9A-Za-zÀ-ÿ]/g, ''); })
+      .filter(function (mot) { return mot.length > 0; });
+    var utiles = mots.filter(function (mot) { return !MOTS_GENERIQUES[mot.toLowerCase()]; });
+    if (utiles.length) mots = utiles;
+    if (!mots.length) return '?';
+    if (mots.length === 1) {
+      var seul = mots[0];
+      var sigle = seul.length <= 4 && seul === seul.toUpperCase();
+      return (sigle ? seul : seul.slice(0, 2)).toUpperCase();
+    }
+    return (mots[0].charAt(0) + mots[1].charAt(0)).toUpperCase();
+  }
+
   /* ── Lecture d'une annonce ──────────────────────────────────────────────── */
 
   // Ramène un texte d'annonce à du texte nu : les balises sautent, les
@@ -862,6 +887,7 @@
     couleurEntreprise: couleurEntreprise,
     couleurTexteSurTeinte: couleurTexteSurTeinte,
     initiales: initiales,
+    monogramme: monogramme,
     accrocheEntreprise: accrocheEntreprise,
     avantagesDe: avantagesDe,
     texteNu: texteNu,

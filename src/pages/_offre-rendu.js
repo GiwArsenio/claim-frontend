@@ -38,6 +38,7 @@ export function configurerUrls(apiBase, siteUrl) {
 // celle qui precedait ce portage.
 import ANNUAIRE_CJS from '../../assets/companies-data.js';
 import casseTitre from '../../assets/casse-titre.js';
+import formaterLieu from '../../assets/lieu.js';
 import { construireCorps, texteOriginal } from './_offre-normalise.js';
 import { SKILLS_FAMILIES } from './_competences-familles.js';
 const ANNUAIRE = ANNUAIRE_CJS;
@@ -163,7 +164,7 @@ export async function construire(job, urlCanonique) {
     ? `${titreAffiche} — ${nomSociete} (${ville}) | Claim!`
     : `${titreAffiche} — ${nomSociete} | Claim!`;
 
-  const pastilles = [`<span class="pastille pastille-ville">${echapper(ville || 'Lieu non précisé')}</span>`];
+  const pastilles = [`<span class="pastille pastille-ville">${echapper(formaterLieu(ville) || 'Lieu non précisé')}</span>`];
   if (contrat) pastilles.push(`<span class="pastille">${echapper(LABELS_CONTRAT[contrat] || contrat)}</span>`);
   if (job.jev_publishable && job.jev_publishable.experience && job.jev_experience) {
     pastilles.push(`<span class="pastille">${echapper(LABELS_EXPERIENCE[job.jev_experience] || job.jev_experience)}</span>`);
@@ -330,7 +331,7 @@ en documentation).
       ? ANNUAIRE.logoSurFondSombre(societe.slug || '') : false;
     return `<span class="slogo fond-logo${inversable ? ' logo-inversable' : ''}${surFondSombre ? ' logo-fond-sombre' : ''}"><span>${inits}</span>`
       + `<img src="${echapper(logoSociete)}" alt="Logo ${echapper(nomSociete)}" `
-      + `onerror="this.remove()" onload="this.previousElementSibling.remove()"/></span>`;
+      + `width="26" height="26" onerror="this.remove()" onload="this.previousElementSibling.remove()"/></span>`;
   })();
 
   const html = `<!DOCTYPE html>
@@ -365,7 +366,7 @@ ${societe.logo_url
     de la page de lecture : elle situe l'entreprise sans concurrencer le titre. */
  .slogo { width:26px; height:26px; border-radius:.375rem; flex-shrink:0; position:relative; overflow:hidden;
    display:inline-flex; align-items:center; justify-content:center; color: var(--blanc); font-weight:900;
-   font-size:9px; letter-spacing:-.02em; }
+   font-size:11px; letter-spacing:-.02em; }
  .slogo img { position:absolute; inset:0; width:100%; height:100%; object-fit:contain;
    border-radius:inherit; padding:2px; }
  /* Fond clair pour un logo ; la couleur de la marque garde les initiales. */
@@ -413,8 +414,8 @@ ${societe.logo_url
   .page { padding: 1.25rem 1.25rem 3rem; }
   .enveloppe {
    background: var(--surface);
-   border-radius: .625rem;
-   box-shadow: 0 1px 2px rgba(25, 44, 52, .06), 0 4px 14px rgba(25, 44, 52, .05);
+   border-radius: var(--r-l);
+   box-shadow: var(--ombre-1);
   }
  }
 
@@ -508,11 +509,11 @@ ${societe.logo_url
                  letter-spacing: -.05em; text-decoration: none; }
   #ft .ft-logo:hover { color: var(--blanc-survol); }
   #ft .ft-links { display: flex; gap: .4rem; flex-wrap: wrap; }
-  #ft .ft-links a { color: rgba(255,255,255,0.9); text-decoration: none; font-size: .68rem;
+  #ft .ft-links a { color: rgba(255,255,255,0.9); text-decoration: none; font-size: .75rem;
                     font-weight: 500; padding: .2rem .5rem; border-radius: .25rem;
                     border: 1px solid rgba(255,255,255,.15); transition: background .15s, color .15s; }
   #ft .ft-links a:hover { background: var(--surbrillance); color: var(--blanc); }
-  #ft .ft-copy { font-size: .62rem; color: rgba(255,255,255,0.9); margin-top: .15rem; }
+  #ft .ft-copy { font-size: .75rem; color: rgba(255,255,255,0.9); margin-top: .15rem; }
 
 /* ── PIED SUR TELEPHONE ───────────────────────────────────────────────
    Le logo et les liens partagent une ligne ; la copie passe dessous.
@@ -540,8 +541,8 @@ ${societe.logo_url
    Au-dessus, elle tient deja en deux lignes : inutile de la reduire la
    ou elle n'a pas besoin de l'etre. */
   @media (max-width: 380px) {
-    #ft .ft-copy { font-size: .58rem; line-height: 1.3; }
-    #ft .ft-copy .heart { font-size: .66rem; }
+    #ft .ft-copy { font-size: .75rem; line-height: 1.3; }
+    #ft .ft-copy .heart { font-size: .75rem; }
   }
   @media (max-width: 768px) {
     #ft { padding: .625rem 1rem .5rem; }
@@ -557,17 +558,18 @@ ${societe.logo_url
 </script>
 <script>window.__claimMesure = ${JSON.stringify(mesure).replace(/</g, '\\u003c')};</script>
 <script src="/assets/icones.js"></script>
-<style id="plan-critique">\n/* CSS CRITIQUE DU PLAN — injecte, ne pas modifier ici */\n/* ══ CSS CRITIQUE DU PLAN — doit precede la feuille de theme ══\n *\n * Le symptome : sur iPad, au chargement d'une page, le defilement\n * semble depasser le pied de page. Le fond sous le pied, d'une couleur\n * qui n'appartient pas au site, s'affiche pendant quelques instants,\n * puis tout se stabilise.\n *\n * La cause : les regles qui posent le fond du plan vivent dans\n * assets/theme.css — une feuille EXTERNE. Avant qu'elle n'arrive, le\n * navigateur ne sait rien : --plan, --fond et --champ sont indefinis,\n * \`background: var(--plan)\` ne s'applique pas, le fond est transparent,\n * et \`overscroll-behavior-y\` reste a \`auto\`.\n *\n * CE FICHIER EST UN GABARIT. Les marqueurs #f3f4f5 et\n * #12181b sont remplaces par scripts/injecter-plan-critique.cjs\n * avec la couleur de la page : toutes les pages n'ont pas le meme plan.\n *\n *   accueil, entreprises, observatoire, offer, 404\n *       --plan: var(--champ)   jour #f3f4f5   nuit #12181b\n *   a-propos, cgu, confidentialite, contact\n *       --plan: var(--fond)    jour #fff      nuit #0f1416\n *\n * Mettre le meme repli partout etait l'erreur de la version\n * precedente : les quatre pages du pied affichaient du gris la ou\n * elles doivent etre blanches — un fond qui n'appartient pas a la page.\n *\n * Les fallbacks de var() gardent la main des que la feuille de theme\n * arrive : --plan est alors defini, et c'est lui qui s'applique.\n */\n\nhtml {\n  background: var(--plan, #f3f4f5);\n  /* Le rebond du geste est desactive des le premier octet : sans\n     cela, le canvas deborde du body pendant que la feuille arrive. */\n  overscroll-behavior-y: none;\n  min-height: 100%;\n}\n\nbody {\n  background: var(--plan, #f3f4f5);\n  overscroll-behavior-y: none;\n  /* Le body doit couvrir la fenetre MEME quand le contenu est court.\n     Sans cela, quand la page est plus courte que l'ecran — ce qui\n     arrive au premier paint — le pied flotte au milieu et le fond\n     apparait dessous. C'est le « vide sous le pied ». */\n  min-height: 100dvh;\n  margin: 0;\n}\n\n/* Le mode nuit, des le premier paint. Le script qui pose data-theme\n   est inline dans le <head> : il s'execute avant le premier rendu.\n   Sans ces deux regles, un lecteur en mode nuit voyait un flash clair. */\nhtml[data-theme="nuit"] {\n  background: var(--plan, #12181b);\n}\nhtml[data-theme="nuit"] body {\n  background: var(--plan, #12181b);\n}\n\n/* ══ LE PIED EST TENU AU BAS ══\n *\n * Sans cela, quand le contenu est plus court que la fenetre, le pied\n * flotte au milieu de l'ecran et le fond du body occupe le bas : c'est\n * la bande grise sous le pied. Elle apparait des que la page ne\n * remplit pas l'ecran — au premier paint, et sur les pages courtes.\n *\n * #app porte min-height: 100% dans son propre CSS. Un pourcentage se\n * resout contre la hauteur du parent ; le body n'en a pas, donc il vaut\n * auto, et l'etirement ne se fait pas. On donne ici une valeur absolue\n * au viewport, qui ne depend de rien.\n *\n * Les selecteurs sont volontairement nus : ils doivent gagner sur le\n * CSS de chaque page, qui arrive apres. A specificite egale, le dernier\n * declare l'emporte — theme.css ne redefinit ni le display du body ni\n * la marge du pied.\n *\n * Le board est exclu (bloc retire a l'injection) : c'est une\n * application a hauteur fixe, son document ne defile pas.\n */\n/* __DEBUT_PIED_COLLE__ */\nbody {\n  display: flex;\n  flex-direction: column;\n  min-height: 100dvh;\n}\n#app {\n  min-height: 100dvh;\n}\n#ft {\n  margin-top: auto;\n}\n/* __FIN_PIED_COLLE__ */\n\n</style>\n<link rel="stylesheet" href="/assets/theme.css">
+<link rel="stylesheet" href="/assets/theme.css">
 <script>(function(){try{var t=localStorage.getItem('claim-theme');if(t==='nuit'||(!t&&window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.setAttribute('data-theme','nuit');}}catch(e){}})();</script>
 <script src="/assets/theme.js" defer></script>
 </head>
 <body>
+<a class="skip-link" href="#contenu">Aller au contenu</a>
 ${BLOC_CONSENTEMENT}
 <div class="page">
-<main class="enveloppe">
+<main id="contenu" class="enveloppe" tabindex="-1">
   <a class="retour" id="retour-offre" href="/job-board.html">← Toutes les offres</a>
   <h1>${echapper(titreAffiche)}</h1>
-  <div class="societe">${tuileSociete}<span>${echapper(nomSociete)}${ville ? ' · ' + echapper(ville) : ''}</span></div>
+  <div class="societe">${tuileSociete}<span>${echapper(nomSociete)}</span></div>
   <div class="pastilles">${pastilles.join('')}</div>
   ${corps || '<p>Description non disponible.</p>'}
   ${competences}

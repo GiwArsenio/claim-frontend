@@ -2,7 +2,7 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const assert = require('node:assert/strict');
 const html = fs.readFileSync(require('node:path').join(__dirname, '../job-board.html'), 'utf8');
-const funcs = ['specialtyLabel', 'experienceLabel', 'cardExperienceHtml', 'cardFactHtml', 'cardSalaryHtml', 'cardMetadataHtml', 'salaryLabel', 'cardLocationHtml', 'descriptionBlocks', 'descriptionHtml', 'decodeBasicEntities', 'descriptionSectionsHtml', 'prefMarche', 'urlOffre', 'skillLabels', 'skillChips', 'skillsHtml'].map(name => {
+const funcs = ['specialtyLabel', 'experienceLabel', 'cardExperienceHtml', 'cardFactHtml', 'cardSalaryHtml', 'cardMetadataHtml', 'salaryLabel', 'cardLocationHtml', 'descriptionBlocks', 'descriptionHtml', 'decodeBasicEntities', 'descriptionSectionsHtml', 'prefMarche', 'urlOffre', 'skillLabels', 'skillChips', 'cardSpecialtyHtml', 'skillsHtml'].map(name => {
  const start = html.indexOf('function ' + name + '(');
  const end = html.indexOf('\n}', start) + 2;
  assert.ok(start >= 0 && end > start);
@@ -11,6 +11,8 @@ const funcs = ['specialtyLabel', 'experienceLabel', 'cardExperienceHtml', 'cardF
 const context = vm.createContext({});
 // Le module d'icones : les gabarits appellent ICONES.icone(...).
 vm.runInContext(fs.readFileSync(require('node:path').join(__dirname, '../assets/icones.js'), 'utf8'), context);
+// Le formateur de lieu (T04) : la carte l'appelle, il est charge par la page.
+vm.runInContext(fs.readFileSync(require('node:path').join(__dirname, '../assets/lieu.js'), 'utf8'), context);
 vm.runInContext(`const JEV_SPECIALTY_LABELS = {"actuariat": "Actuariat", "ia_data": "IA / Data", "souscription_technique": "Souscription technique", "autre": "Autre"}; const JEV_EXPERIENCE_LABELS = {senior:"Senior"}; const CONTRACT_LABELS = {cdi:"CDI"}; const DESCRIPTION_PREVIEW_CHARS = 600; let descExpanded = {}; let descSections = []; const SECTION_ICONS = { "Le poste": "briefcase", "Missions": "list-checks", "Profil recherché": "person" }; function escapeHtml(x){return x;} const location={origin:"https://claimyourjob.com",href:"https://claimyourjob.com/fr/job-board.html",pathname:"/fr/job-board.html"}; ${funcs}`, context);
 
 function label(row){context.row = row;return vm.runInContext('specialtyLabel(row)', context);}
@@ -39,16 +41,17 @@ console.log('Cards Jev regression tests passed');
 // Le libellé de lieu vient de l'API (champ ville) : la carte ne doit plus
 // concaténer la région, qui n'est jamais renseignée en base.
 assert.ok(!html.includes('j.region'), 'la region ne doit plus etre affichee');
-// La carte ne colle pas la ville au nom de l entreprise. La fiche, elle,
-// suit la page d offre qui ecrit « Societe · Ville » : l assertion porte donc
-// sur le rendu de la carte et non sur tout le fichier.
+// La carte ne colle pas la ville au nom de l entreprise. L assertion porte sur
+// le rendu de la carte et non sur tout le fichier (T04 : la fiche n ecrit plus
+// « Societe · Ville » non plus, la ville n y figure que dans la pastille).
 const carte = html.match(/const el = document\.createElement\('div'\);[\s\S]*?feedEl\.appendChild\(el\);/)[0];
 assert.ok(!carte.includes('escapeHtml(j.ville)'), 'la carte ne doit pas coller la ville au nom');
 assert.ok(!html.includes('${j.city'), 'la carte ne doit plus utiliser city brut');
 console.log('Ville display tests passed');
 
 // Typography aligned across page; resting cards have visible border and shadow.
-assert.ok(html.includes('.kl { font-size: 10px;'));
+// T05 : l'étiquette .kl passe de 10 à 11 px (plancher de lisibilité du site).
+assert.ok(html.includes('.kl { font-size: 11px;'));
 // Les couleurs viennent des jetons du theme : la carte et la colonne
 // doivent rester sur les memes roles de couleur (bordure de carte, fond de
 // colonne), quel que soit le theme actif.
@@ -119,16 +122,47 @@ assert.ok(!sansVille.includes(MARQUEUR), 'pas de pastille de localisation sans v
 assert.ok(sansVille.includes('CDI'));
 console.log('Location pill tests passed');
 
-// Couleur propre à la localisation, et badges de spécialité rehaussés.
+// T10 (cahier des charges du propriétaire) : ligne 1 sans pastille, une icône par
+// élément ; ligne 2 en pastilles (spécialité cyan, compétences grises).
 context.row = {ville:'Nanterre', jev_publishable:{}};
 const loc = vm.runInContext('cardLocationHtml(row)', context);
-assert.ok(loc.includes('card-fact--loc'), 'la localisation doit porter sa propre classe');
-assert.ok(!vm.runInContext("cardFactHtml('Contrat','CDI')", context).includes('card-fact--loc'));
-// La localisation porte sa propre teinte : les valeurs viennent des jetons.
-assert.ok(html.includes('.card-fact--loc { background: var(--teal-clair); border-color: var(--teal-bord); }'));
-assert.ok(html.includes('.card-fact--loc .ic { color: var(--teal); }'));
-assert.ok(html.includes('.jc .ctags .tag { font-size: 9px; padding: 3px 6px; }'));
-console.log('Location colour and badge height tests passed');
+assert.ok(!loc.includes('card-fact--loc'), 'le lieu ne porte plus de teinte propre');
+assert.ok(loc.includes('class="card-fact"') && loc.includes('class="ic"') && loc.includes('aria-hidden="true"'), 'une icone decorative');
+for (const [libelle, valeur, icone] of [['Contrat', 'CDI', 'briefcase'], ['Expérience', 'Senior', 'signal'], ['Salaire', '45 k€', 'euro']]) {
+  const fait = vm.runInContext(`cardFactHtml('${libelle}','${valeur}','${icone}')`, context);
+  assert.ok(fait.includes('class="ic"') && fait.includes(`aria-label="${libelle} : ${valeur}"`), libelle + ' : icone et nom accessible');
+}
+assert.ok(!vm.runInContext("cardFactHtml('Contrat','CDI')", context).includes('class="ic"'), 'sans icone demandee, pas de svg');
+// Ligne 1 : ni fond, ni bordure ; le trait entre deux éléments est un pseudo-élément.
+assert.ok(/\.card-fact \{[^}]*position: relative;[^}]*\}/.test(html) && !/\.card-fact \{[^}]*(background|border)[^}]*\}/.test(html),
+  'la ligne 1 n\'a ni fond ni bordure');
+assert.ok(html.includes('.card-fact::before { content: ""; position: absolute; left: -9px;'), 'le trait separateur');
+assert.ok(html.includes('@media (max-width: 480px) {\n  .cm { column-gap: 14px; }\n  .card-fact::before { display: none; }'), 'pas de trait sous 481 px');
+// T05 : aucun texte lisible ne descend sous 11 px ; T10 : les anciennes étiquettes ne reviennent pas.
+assert.ok(html.includes('.etq { display: inline-flex;') && html.includes('font-size: 12px; font-weight: 600; line-height: 16px;'));
+assert.ok(html.includes('.etq--spec { background: var(--teal-clair); border-color: var(--teal-bord); color: var(--teal-texte); }') && html.includes('.etq--comp { background: var(--surface-2); border-color: var(--bord-carte);'));
+assert.ok(!/\.tag\s*\{/.test(html) && !/\.tm\s*\{/.test(html) && !/\.tn\s*\{/.test(html) && !/\.ccomp\s*\{/.test(html),
+  'les anciennes etiquettes (.tag, .tm, .tn, .ccomp) ne reviennent pas');
+
+// Ligne 2 : la spécialité est une pastille cyan, les compétences des pastilles grises (2 + « +N »).
+const specialite = vm.runInContext("cardSpecialtyHtml('IA / Data')", context);
+assert.ok(specialite.includes('etq etq--spec') && specialite.includes('>IA / Data</span>'));
+assert.ok(specialite.includes('aria-label="Spécialité : IA / Data"'));
+assert.equal(vm.runInContext("cardSpecialtyHtml('')", context), '');
+vm.runInContext("const SKILLS_FAMILIES = {outils: 'Outils', data: 'Données et BI', reglementation: 'Réglementation'}", context);
+context.row = {skills: {outils: ['Python', 'SQL', 'Excel', 'VBA'], reglementation: ['IFRS 17']}};
+const competences = vm.runInContext('skillChips(row, 2)', context);
+assert.equal((competences.match(/etq--comp/g) || []).length, 3, 'deux competences et la pastille +N : ' + competences);
+assert.ok(competences.includes('>Python</span>') && competences.includes('>SQL</span>'));
+assert.ok(!competences.includes('>Excel</span>') && !competences.includes('>VBA</span>') && competences.includes('>+3</span>'), 'le reste est compte');
+assert.ok(competences.includes('title="Autres compétences : Excel, VBA, IFRS 17"'), 'le titre liste les autres');
+context.row = {skills: {outils: ['Python', 'SQL']}};
+assert.ok(!vm.runInContext('skillChips(row, 2)', context).includes('etq--plus'), 'deux competences : pas de +N');
+context.row = {skills: {outils: ['Python']}};
+assert.ok(vm.runInContext('skillChips(row, 2)', context).includes('>Python</span>') && !vm.runInContext('skillChips(row, 2)', context).includes('+'));
+context.row = {skills: {}};
+assert.equal(vm.runInContext('skillChips(row, 3)', context), '');
+console.log('Card line 1 and line 2 tests passed');
 
 // Description : aperçu dépliable, paragraphes conservés. Le texte long ne doit
 // plus être coupé définitivement à 600 caractères.

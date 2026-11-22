@@ -51,6 +51,9 @@ const FAMILLES = {
     // Dashboard de monitoring : contrôles statiques (aucun réseau).
     'tests/monitoring.test.cjs',
     'tests/cards.test.cjs',
+    // Échelle de rayons et d'ombres, rejouable par tools/codemod-jetons-design.cjs (T08).
+    'tests/jetons_design.test.cjs',
+    'tests/texte_minuscule.test.cjs',
     'tests/date-publique.test.cjs',
     'tests/consentement.test.cjs',
     'tests/clarity.test.cjs',
@@ -72,10 +75,14 @@ const FAMILLES = {
     'tests/rail_fiche.test.cjs',
     'tests/familles_competences_alignees.test.cjs',
     'tests/casse_titre.test.cjs',
+    'tests/images_dimensions.test.cjs',
+    'tests/lieu_format.test.cjs',
+    'tests/audit_design_outil.test.cjs',
   ],
   // Demandent un navigateur. Lents, mais locaux : ils ouvrent le serveur
   // de test et n'appellent que lui.
   navigateur: [
+    'tests/etiquettes_cartes.test.cjs',
     'tests/filtres_entrees.test.cjs',
     'tests/accessibilite-a02.test.cjs',
     'tests/migration-navigateur.test.cjs',
@@ -97,10 +104,21 @@ const FAMILLES = {
     'tests/board_mobile_lisibilite.test.cjs',
     'tests/casse_titre_surfaces.test.cjs',
     'tests/accueil_mobile.test.cjs',
+    'tests/accueil_etat_erreur.test.cjs',
+    'tests/employeurs_accessibles.test.cjs',
+    'tests/cibles_tactiles.test.cjs',
+    'tests/board_etat_erreur.test.cjs',
+    'tests/pourquoi_structure.test.cjs',
+    'tests/accueil_releve.test.cjs',
     'tests/villes.test.cjs',
     // Simule iOS par l'agent utilisateur, mais tourne sous Chromium comme
     // les autres : l'import de WebKit qui trainait ici n'etait jamais lu.
     'tests/plan_premier_paint.test.cjs',
+    'tests/detail_hierarchie.test.cjs',
+    'tests/lien_evitement.test.cjs',
+    'tests/audit_design_outil_mesure.test.cjs',
+    // Inter est servie par le site : zéro appel Google, poids <= 120 Ko (T09).
+    'tests/polices_locales.test.cjs',
   ],
   // Parlent à la production. Une régression en ligne doit se voir, mais
   // elle ne doit pas bloquer une fusion : la production peut tomber sans

@@ -22,9 +22,8 @@
 
 <!-- Même typographie et mêmes icônes que le board : le lecteur doit
      retrouver la même page, qu'il arrive par l'accueil ou par la liste. -->
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<link rel="preload" href="/assets/polices/Inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin/>
+<link rel="stylesheet" href="/assets/polices.css"/>
 <style>
   :root {
 
@@ -51,7 +50,7 @@
   }
   body {
     margin: 0;
-    font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-family: 'Inter', 'Inter Fallback', system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     color: var(--encre);
     line-height: 1.65;
     /* La teinte des sections, pas le blanc pur. Le body n'est visible
@@ -80,7 +79,7 @@
   .nav-links a { color: rgba(255, 255, 255, .8); text-decoration: none;
                  font-size: .925rem; font-weight: 600; }
   .nav-links a:hover { color: var(--blanc); }
-  .btn-cta { background: var(--surface); color: var(--teal); padding: .45rem 1.2rem; border-radius: .5rem;
+  .btn-cta { background: var(--surface); color: var(--teal); padding: .45rem 1.2rem; border-radius: var(--r-m);
              font-weight: 700; font-size: .925rem; border: none; cursor: pointer;
              font-family: inherit; white-space: nowrap; }
   /* Le bouton ne reagissait a rien. Pose sur le fond clair — en mode nuit
@@ -94,10 +93,10 @@
     flex-direction: column; justify-content: center; gap: 5px;
     width: 36px; height: 36px;
     background: rgba(255, 255, 255, .15);
-    border: none; border-radius: .4rem; cursor: pointer;
+    border: none; border-radius: var(--r-m); cursor: pointer;
     padding: 7px 8px; flex-shrink: 0;
   }
-  .btn-burger span { display: block; height: 2px; background: var(--surface); border-radius: 2px;
+  .btn-burger span { display: block; height: 2px; background: var(--surface); border-radius: var(--r-s);
                      transition: transform .25s, opacity .2s; }
   .btn-burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
   .btn-burger.open span:nth-child(2) { opacity: 0; }
@@ -112,7 +111,6 @@
   .hero h1 { font-size: clamp(1.9rem, 3.4vw, 2.9rem); font-weight: 900; letter-spacing: -.03em;
              line-height: 1.1; margin: 0 0 .9rem; max-width: 20ch;
              }
-  .hero h1 em { color: var(--teal); font-style: normal; }
   .hero .sub { color: var(--gris); font-size: 1.05rem; max-width: 62ch; margin: 0 0 1.75rem; }
   .hero .sub strong { color: var(--encre); font-weight: 700; }
 
@@ -121,13 +119,13 @@
      mêmes listes déroulantes. Seule la largeur s'adapte — l'accueil n'a pas de
      colonne d'offres à droite, la barre reste donc bornée à 50 rem. */
   .sbar { display: flex; align-items: center; background: var(--surface);
-          border: 1px solid var(--bord-carte); border-radius: .625rem;
-          padding: .3rem; max-width: 50rem; box-shadow: 0 1px 4px rgba(0, 0, 0, .07);
+          border: 1px solid var(--bord-carte); border-radius: var(--r-l);
+          padding: .3rem; max-width: 50rem; box-shadow: var(--ombre-1);
           margin-bottom: .5rem; }
   .sf { flex: 1; display: flex; align-items: center; padding: 0 1rem; gap: .4rem; min-width: 0; }
   .sf input { width: 100%; border: none; outline: none; background: transparent;
               font-family: inherit; font-size: .925rem; color: var(--encre);
-              border-radius: 4px; }
+              border-radius: var(--r-s); }
   /* Le champ disparaissait du parcours clavier : `outline: none` supprimait
      l'indicateur sans rien mettre a la place. Le focus se voit desormais sur
      le champ lui-meme. */
@@ -137,7 +135,7 @@
   .sf input::placeholder { color: rgba(var(--gris-doux-rgb), .9); }
   .sdiv { width: 1px; height: 1.4rem; background: var(--bord-doux); flex-shrink: 0; }
   .btn-srch { background: linear-gradient(135deg, var(--teal-fond), var(--teal-fonce)); color: var(--blanc); border: none;
-              cursor: pointer; padding: .5rem 1.5rem; border-radius: .375rem; font-weight: 700;
+              cursor: pointer; padding: .5rem 1.5rem; border-radius: var(--r-m); font-weight: 700;
               font-size: .925rem; font-family: inherit; white-space: nowrap; }
   .btn-srch:hover { filter: brightness(1.08); }
 
@@ -147,7 +145,7 @@
      35 px. Demande explicite : les filtres de l'accueil doivent avoir la
      dimension de ceux du board, pas une echelle a eux. */
   .chip { display: flex; align-items: center; gap: .3rem; padding: 0 .85rem; height: 35px;
-          border-radius: .375rem; background: var(--surface); color: var(--gris); font-size: .8rem;
+          border-radius: var(--r-m); background: var(--surface); color: var(--gris); font-size: .8rem;
           font-weight: 500; border: 1px solid var(--bord-carte); cursor: pointer;
           white-space: nowrap; flex-shrink: 0; transition: background .15s; font-family: inherit; }
   /* Le bouton « Filtres » n'apparait qu'en dessous de 768 px : sur bureau,
@@ -161,7 +159,7 @@
                 detache la pastille du bandeau. Un aplat de couleur sature se
                 lirait « allume » : ce n'est pas un survol, c'est un changement
                 de nature. */
-             box-shadow: 0 1px 6px rgba(0, 0, 0, .28);
+             box-shadow: var(--ombre-2);
              /* Le texte suit le fond : sinon il garde sa couleur d'origine
                 et le filtre devient illisible sur la surface eclaircie. */
              color: var(--encre); }
@@ -187,39 +185,9 @@ html[data-theme="nuit"] select.chip {
   --fleche-pastille: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b9aa0' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
 }
 
-  /* ── CHIFFRES ── */
   /* ── CHIFFRES ──
-     Quatre nombres qui portent la preuve, posés sur une seule ligne. Les
-     chiffres prennent l'échelle et l'interlettrage des titres ; les libellés
-     se réduisent à un rôle d'étiquette. La séparation entre colonnes est un
-     filet qui s'efface à ses extrémités — elle sépare sans découper. */
-  .chiffres { border-bottom: 1px solid var(--bord); background: var(--surface); }
-  .chiffres dl { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
-                 margin: 0; padding: .55rem 0 .65rem; }
-  .chiffres dl > div { position: relative; padding: 0 1.6rem; }
-  .chiffres dl > div:first-child { padding-left: 0; }
-  .chiffres dl > div + div::before {
-    content: ''; position: absolute; left: 0; top: .1rem; bottom: .1rem; width: 1px;
-    background: linear-gradient(180deg, transparent, var(--bord) 24%, var(--bord) 76%, transparent);
-  }
-  .chiffres dt { font-size: clamp(1.32rem, 1.75vw, 1.55rem); font-weight: 900; line-height: 1;
-                 letter-spacing: -.04em; color: var(--encre);
-                 font-variant-numeric: tabular-nums; }
-  /* Avant l'arrivée des chiffres, le tiret cadratin prenait la graisse et la
-     taille d'un nombre : quatre barres noires en travers de la page. Il
-     attend désormais dans la couleur du filet, à la même place. */
-  .chiffres dt.attente { color: var(--bord); }
-  .chiffres dd { display: flex; align-items: center; gap: .4rem; margin: .38rem 0 0;
-                 font-size: .69rem; font-weight: 700; letter-spacing: .085em;
-                 color: var(--gris-doux); text-transform: uppercase;
-                 /* Sans cela, la colonne ne peut pas descendre sous la largeur
-                    de son libelle : sur un telephone de 360 px, la grille des
-                    chiffres forcait le document a 376 px, et une barre de
-                    defilement horizontale apparait. `min-width: 0` autorise le
-                    retrait ; le libelle passe alors a la ligne. */
-                 min-width: 0; flex-wrap: wrap; }
-  .chiffres dd .ic { width: 15px; height: 15px; color: var(--teal); opacity: .9;
-                     font-variation-settings: 'wght' 300; flex-shrink: 0; }
+     Le bandeau de quatre chiffres a laissé la place au panneau « Relevé du
+     jour » : ses styles vivent dans assets/accueil-releve.css. */
 
   /* ── PANNEAUX DE SECTION ──
      Deux sections portaient leur contenu à même le fond blanc : elles se
@@ -230,8 +198,8 @@ html[data-theme="nuit"] select.chip {
              border-bottom: 1px solid var(--bord); padding: 2.25rem 0; }
   /* Le rayon des panneaux suit celui de la barre de recherche : .625rem.
      A 1rem, l'accueil parlait une autre langue graphique que le board. */
-  .panneau { background: var(--surface); border: 1px solid var(--bord); border-radius: .625rem;
-             box-shadow: var(--ombre); padding: clamp(1.15rem, 2.6vw, 2rem); }
+  .panneau { background: var(--surface); border: 1px solid var(--bord); border-radius: var(--r-l);
+             box-shadow: var(--ombre-1); padding: clamp(1.15rem, 2.6vw, 2rem); }
 
   /* ── SECTIONS ── */
   section { padding: 3rem 0; }
@@ -251,19 +219,19 @@ html[data-theme="nuit"] select.chip {
      La réserve droite des étiquettes les empêche de passer sous la date, qui
      est posée en absolu comme sur le board. */
   .grille { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--gouttiere); }
-  .oc { background: var(--surface); border-radius: .625rem; padding: .875rem;
+  .oc { background: var(--surface); border-radius: var(--r-l); padding: .875rem;
         display: flex; flex-direction: column; text-decoration: none; color: inherit;
         cursor: pointer; transition: transform .15s, box-shadow .15s; position: relative;
         border: 1.5px solid var(--bord-carte);
-        box-shadow: 0 2px 6px rgba(25, 44, 52, .08), 0 5px 14px rgba(25, 44, 52, .04);
+        box-shadow: var(--ombre-1);
         min-width: 0; overflow: hidden; }
   .oc:hover { transform: translateY(-1px); border-color: var(--bord-carte-survol);
-              box-shadow: 0 5px 16px rgba(25, 44, 52, .14); }
+              box-shadow: var(--ombre-2); }
   .oc .ct { display: flex; align-items: flex-start; margin-bottom: .45rem; }
   /* Tuile de logo : la teinte de l'employeur dessous, le logo de la source
      dessus, les initiales entre les deux. Le repli n'a jamais de trou. */
-  .clogo { width: 38px; height: 38px; border-radius: 6px; display: flex; align-items: center;
-           justify-content: center; color: var(--blanc); font-weight: 900; font-size: 9.5px;
+  .clogo { width: 38px; height: 38px; border-radius: var(--r-m); display: flex; align-items: center;
+           justify-content: center; color: var(--blanc); font-weight: 900; font-size: 11px;
            flex-shrink: 0; position: relative; overflow: hidden; }
   .clogo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain;
                border-radius: inherit; padding: 2px; }
@@ -286,25 +254,33 @@ html[data-theme="nuit"] select.chip {
   .oc .csub { font-size: .75rem; color: var(--gris); font-weight: 500;
               white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .oc:hover .ctitle { color: var(--teal); }
-  .oc .cm { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin: 9px 0; }
-  .card-fact { display: inline-flex; align-items: center; flex: 0 0 auto; max-width: 100%;
-               padding: 2px 8px; border: 1px solid var(--bord-carte); border-radius: 4px; background: var(--surface-2); }
-  .card-fact-value { color: var(--encre-forte); font-size: 12px; font-weight: 600; line-height: 16px;
-                     overflow-wrap: anywhere; }
-  .card-fact .ic { width: 14px; height: 14px; color: var(--gris-icone); margin-right: 3px; }
-  .card-fact--loc { background: var(--teal-clair); border-color: var(--teal-bord); }
-  .card-fact--loc .card-fact-value { color: var(--teal-texte); }
-  .card-fact--loc .ic { color: var(--teal); }
-  .oc .ctags { display: flex; flex-wrap: wrap; gap: 3px; min-width: 0; padding-right: 4rem; }
-  .oc .ctags .tag { font-size: 9px; padding: 3px 6px; }
-  .tag { display: inline-block; padding: 1.5px 5px; border-radius: 3px; font-size: 8px;
-         font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
-  .tm { background: var(--cyan-clair); color: var(--cyan-texte); }
-  .tn { background: var(--orange-clair); color: var(--orange-texte); }
-  .oc .cdate { position: absolute; bottom: .5rem; right: .875rem; font-size: 9px;
+  .oc .cm { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 18px; margin: 9px 0; overflow: hidden; }
+  /* Ligne 1 de la carte (T10) : lieu, contrat, expérience, salaire. Ni pastille,
+     ni fond, ni bordure : une icône de 14 px, puis le texte. Un trait fin sépare
+     deux éléments voisins. Il est dessiné AVANT chaque élément, dans l'espace
+     entre eux ; celui du premier élément de chaque ligne tombe hors de la boîte
+     (cachée par overflow) : jamais de trait au début, à la fin, ni orphelin quand
+     un élément manque ou que la ligne passe à la suivante. */
+  .card-fact { position: relative; display: inline-flex; align-items: center; gap: 4px; flex: 0 1 auto; min-width: 0; max-width: 100%; }
+  .card-fact::before { content: ""; position: absolute; left: -9px; top: 50%; width: 1px; height: 12px; margin-top: -6px; background: var(--bord-carte); }
+  .card-fact-value { color: var(--encre-forte); font-size: 12px; font-weight: 600; line-height: 16px; overflow-wrap: anywhere; }
+  .card-fact .ic { flex: none; width: 14px; height: 14px; color: var(--gris-icone); }
+  /* Petit écran : pas de trait. L'icône et l'espace séparent, et aucun trait ne
+     peut se retrouver seul en début de ligne. */
+  @media (max-width: 480px) {
+    .oc .cm { column-gap: 14px; }
+    .card-fact::before { display: none; }
+  }
+  /* Ligne 2 : la spécialité (teal, comme l'ancienne pastille du lieu) puis les compétences (gris), en pastilles. */
+  .etq { display: inline-flex; align-items: center; max-width: 100%; padding: 2px 8px; border: 1px solid transparent; border-radius: var(--r-s);
+    font-size: 12px; font-weight: 600; line-height: 16px; overflow-wrap: anywhere; }
+  .etq--spec { background: var(--teal-clair); border-color: var(--teal-bord); color: var(--teal-texte); }
+  .etq--comp { background: var(--surface-2); border-color: var(--bord-carte); color: var(--encre-forte); }
+  .oc .ctags { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; min-width: 0; padding-right: 7.5rem; }
+  .oc .cdate { position: absolute; bottom: .5rem; right: .875rem; font-size: 11px;
                color: var(--gris-doux); font-weight: 500; }
   /* La tuile des employeurs garde sa propre échelle : elle est plus petite. */
-  .sigle { width: 34px; height: 34px; border-radius: .5rem; flex-shrink: 0; display: flex;
+  .sigle { width: 34px; height: 34px; border-radius: var(--r-m); flex-shrink: 0; display: flex;
            align-items: center; justify-content: center; color: var(--blanc); font-weight: 900;
            font-size: 11px; letter-spacing: -.02em; position: relative; overflow: hidden; }
   /* Le logo est contenu dans le carré, comme sur le board. Sans cette règle,
@@ -314,30 +290,16 @@ html[data-theme="nuit"] select.chip {
                  justify-content: center; border-radius: inherit; }
   .sigle img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain;
                border-radius: inherit; padding: 4px; }
-  .vide { grid-column: 1 / -1; background: var(--surface); border-radius: .625rem; padding: 1.4rem 1.25rem;
-          color: var(--gris); font-size: .9rem; box-shadow: var(--ombre); }
-
-  /* ── RAISONS ── */
-  .raisons { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--gouttiere); }
-  /* ── RAISONS ──
-     Trois cartes de même poids. Le filet teal n'apparaît qu'au survol : il
-     signale la carte lue sans colorer la page au repos. */
-  .rc { position: relative; background: var(--surface); border: 1px solid var(--bord);
-        border-radius: .625rem; padding: 1.5rem 1.35rem 1.45rem;
-        box-shadow: 0 1px 2px rgba(25, 44, 52, .04);
-        transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
-  .rc::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 3px;
-                border-radius: .625rem .625rem 0 0;
-                background: linear-gradient(90deg, var(--teal), var(--teal-bord));
-                opacity: 0; transition: opacity .18s ease; }
-  .rc:hover { transform: translateY(-2px); border-color: var(--teal-bord);
-              box-shadow: 0 2px 4px rgba(25, 44, 52, .05), 0 12px 26px rgba(25, 44, 52, .08); }
-  .rc:hover::before { opacity: 1; }
-  .rc .ico { width: 40px; height: 40px; border-radius: .65rem; background: var(--teal-clair);
-             border: 1px solid var(--teal-bord);
-             display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; }
-  .rc h3 { font-size: 1.02rem; font-weight: 800; letter-spacing: -.015em; margin: 0 0 .45rem; }
-  .rc p { margin: 0; font-size: .885rem; line-height: 1.58; color: var(--gris); }
+  .vide { grid-column: 1 / -1; background: var(--surface); border-radius: var(--r-l); padding: 1.4rem 1.25rem;
+          color: var(--gris); font-size: .9rem; box-shadow: var(--ombre-1); }
+  .vide p { margin: 0; }
+  .vide-actions { margin-top: .75rem !important; display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1.1rem; }
+  .vide-reessayer { font: inherit; font-weight: 700; color: var(--encre); background: var(--surface);
+                    border: 1px solid var(--bord); border-radius: var(--r-m); padding: .5rem 1rem; min-height: 2.25rem;
+                    cursor: pointer; }
+  .vide-reessayer:hover { border-color: var(--teal); }
+  .vide-reessayer:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+  #liste:focus { outline: none; }
 
   /* ── EMPLOYEURS ── */
   /* Les logos défilent d'un seul tenant, sur une seule ligne. Le bandeau
@@ -357,10 +319,22 @@ html[data-theme="nuit"] select.chip {
   /* Le logo seul : plus de cadre, de fond ni de marge autour de la marque.
      C'est un mur d'employeurs, pas une grille de vignettes. Le nom reste
      accessible au survol et aux lecteurs d'écran. */
-  .firme { display: inline-flex; align-items: center; border-radius: .625rem;
+  .firme { display: inline-flex; align-items: center; border-radius: var(--r-l);
            font-size: .82rem; font-weight: 600; text-decoration: none; color: inherit;
-           flex: 0 0 auto; }
-  .firme .sigle { width: 64px; height: 64px; border-radius: .625rem; font-size: 17px; }
+           flex: 0 0 auto; position: relative; }
+  .firme .sigle { width: 64px; height: 64px; border-radius: var(--r-l); font-size: 17px; }
+  /* La liste garde son rôle de liste (une puce par employeur pour un lecteur
+     d'écran), sans puce ni retrait à l'écran. */
+  .employeurs-liste { list-style: none; margin: 0; padding: 0; }
+  /* Le monogramme — quand l'employeur n'a pas de logo, ou en attendant qu'il
+     arrive — a UN seul style, neutre, pour toutes les entreprises : aucune
+     teinte propre à une marque. Les vrais logos ne changent pas. */
+  .firme .sigle--mono,
+  .firme .sigle-repli { background: var(--surface-2); color: var(--encre);
+                        border: 1px solid var(--bord-carte); }
+  /* Le nom de l'employeur, pour les lecteurs d'écran seulement. */
+  .firme .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+                    overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 
   /* Sans animation, le bandeau reste utilisable : il se fait défiler à la main. */
   @media (prefers-reduced-motion: reduce) {
@@ -391,7 +365,7 @@ html[data-theme="nuit"] select.chip {
      vire au turquoise clair (#4fb3c2), et le bouton devenait un aplat
      clair pose sur une page sombre. Le texte blanc passait encore, mais
      la surface ne suivait pas le theme. */
-  .bteal { background: var(--teal-fond); color: var(--blanc); padding: .6rem 1.4rem; border-radius: .5rem;
+  .bteal { background: var(--teal-fond); color: var(--blanc); padding: .6rem 1.4rem; border-radius: var(--r-m);
             font-weight: 700; font-size: .925rem; text-decoration: none; white-space: nowrap;
             display: inline-block;
             transition: background .15s, color .15s, transform .1s; }
@@ -428,7 +402,7 @@ html[data-theme="nuit"] select.chip {
   .pied a:hover { color: var(--teal); }
   .pied .nav2 a { position: relative; }
   .pied .nav2 a::after { content: ''; position: absolute; left: 0; right: 0; bottom: -3px;
-                         height: 1.5px; border-radius: 2px; background: var(--teal);
+                         height: 1.5px; border-radius: var(--r-s); background: var(--teal);
                          transform: scaleX(0); transform-origin: left;
                          transition: transform .18s ease; }
   .pied .nav2 a:hover::after { transform: scaleX(1); }
@@ -438,13 +412,7 @@ html[data-theme="nuit"] select.chip {
 
   @media (max-width: 900px) {
     .env { padding: 0 1.25rem; }
-    /* Deux colonnes : le filet de gauche ne vaut que pour la seconde, et
-       les chiffres du premier rang gardent leur accolade. */
-    .chiffres dl { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem 0; }
-    .chiffres dl > div { padding: 0 1.1rem; }
-    .chiffres dl > div:nth-child(odd) { padding-left: 0; }
-    .chiffres dl > div:nth-child(odd)::before { display: none; }
-    .grille, .raisons { grid-template-columns: 1fr; }
+    .grille { grid-template-columns: 1fr; }
     .pied .haut { grid-template-columns: 1fr; gap: 1.5rem; }
     .barre { grid-template-columns: 9rem 1fr 2.5rem; }
     .hero { padding: 2.25rem 0 1.75rem; }
@@ -471,7 +439,7 @@ html[data-theme="nuit"] select.chip {
                 transform: translateX(100%);
                 transition: transform .3s cubic-bezier(.4, 0, .2, 1);
                 display: flex; flex-direction: column; padding: 0;
-                box-shadow: -4px 0 24px rgba(0, 0, 0, .18); }
+                box-shadow: var(--ombre-2); }
     #burger-menu.open { pointer-events: all; }
     #burger-menu.open .bm-overlay { opacity: 1; }
     #burger-menu.open .bm-panel { transform: translateX(0); }
@@ -481,7 +449,7 @@ html[data-theme="nuit"] select.chip {
     .bm-logo { font-size: 1.3rem; font-weight: 900; color: var(--blanc); letter-spacing: -.05em; text-decoration: none;
                text-decoration: none; }
     .bm-close { background: var(--surbrillance); border: none; color: var(--blanc);
-                width: 32px; height: 32px; border-radius: .375rem; cursor: pointer;
+                width: 32px; height: 32px; border-radius: var(--r-m); cursor: pointer;
                 display: flex; align-items: center; justify-content: center; }
 
     .bm-nav { flex: 1; display: flex; flex-direction: column; padding: .75rem 0; gap: .1rem; }
@@ -499,16 +467,19 @@ html[data-theme="nuit"] select.chip {
                  display: flex; flex-direction: column; }
     .bm-footer .btn-cta { display: flex; justify-content: center; align-self: stretch;
                           box-sizing: border-box; width: auto; margin: 0;
-                          padding: .65rem 1rem; font-size: .925rem; border-radius: .5rem; }
+                          padding: .65rem 1rem; font-size: .925rem; border-radius: var(--r-m); }
 
     .hero { padding: 1.5rem 0 1.25rem; }
-    .sbar { flex-direction: column; border-radius: .625rem; padding: .25rem;
+    .sbar { flex-direction: column; border-radius: var(--r-l); padding: .25rem;
             gap: 0; align-items: stretch; }
     .sf { padding: .3rem .75rem; }
     .sf.loc-field { border-top: 1px solid var(--bord-doux); }
     .sdiv { display: none; }
-    .btn-srch { border-radius: .375rem; padding: .5rem 1rem; font-size: .85rem;
-                margin: .2rem .1rem .1rem; width: calc(100% - .2rem); text-align: center; }
+    /* Cible tactile : 44 px de haut au minimum, et 8 px (.5rem) d'air au-dessus
+       pour ne pas toucher le champ voisin. */
+    .btn-srch { border-radius: var(--r-m); padding: .5rem 1rem; font-size: .85rem;
+                min-height: 44px;
+                margin: .5rem .1rem .1rem; width: calc(100% - .2rem); text-align: center; }
     .chips { gap: .3rem; justify-content: center; }
     .chip { font-size: .825rem; padding: .28rem .7rem; }
 
@@ -550,7 +521,7 @@ html[data-theme="nuit"] select.chip {
 
   .villes { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; }
   .ville-carte { position: relative; display: block; aspect-ratio: 4 / 3;
-                 border-radius: 10px; overflow: hidden; text-decoration: none;
+                 border-radius: var(--r-l); overflow: hidden; text-decoration: none;
                  background: var(--champ); }
   .ville-carte img { position: absolute; inset: 0; width: 100%; height: 100%;
                      object-fit: cover; transition: transform .5s ease; }
@@ -568,7 +539,7 @@ html[data-theme="nuit"] select.chip {
   /* Le bouton garde ses couleurs fixes : en theme nuit, « encre » devient
      clair, et le texte blanc sur la pastille blanche disparaissait. */
   .ville-btn { background: #fff; color: #191c1d; font-size: .8rem; font-weight: 700;
-               padding: .48rem .9rem; border-radius: 999px; white-space: nowrap;
+               padding: .48rem .9rem; border-radius: 9999px; white-space: nowrap;
                transition: background .15s, color .15s; }
   .ville-carte:hover .ville-btn { background: var(--teal); color: #fff; }
   .ville-carte:focus-visible { outline: 2px solid var(--teal); outline-offset: 3px; }
@@ -576,7 +547,7 @@ html[data-theme="nuit"] select.chip {
   .villes-liste { display: flex; flex-wrap: wrap; gap: .5rem;
                   margin-top: 1.1rem; padding-top: 1.3rem;
                   border-top: 1px solid var(--bord-doux); }
-  .ville-puce { border: 1px solid var(--bord-carte); border-radius: 999px;
+  .ville-puce { border: 1px solid var(--bord-carte); border-radius: 9999px;
                 padding: .42rem .85rem; font-size: .84rem; font-weight: 500;
                 color: var(--encre); text-decoration: none; background: var(--surface); }
   .ville-puce:hover { background: var(--teal-clair); border-color: var(--teal-bord);
@@ -672,7 +643,7 @@ en documentation).
 
 .consent button {
   font: inherit; font-size: .845rem; font-weight: 600;
-  height: 40px; padding: 0 1.1rem; border-radius: .5rem;
+  height: 40px; padding: 0 1.1rem; border-radius: var(--r-m);
   cursor: pointer; white-space: nowrap;
   transition: background .15s ease, border-color .15s ease, color .15s ease;
 }
@@ -706,12 +677,12 @@ en documentation).
   #ft .ft-logo { font-size: .95rem; font-weight: 900; color: var(--blanc); letter-spacing: -.05em; text-decoration: none; }
   #ft .ft-logo:hover { color: var(--blanc-survol); }
   #ft .ft-links { display: flex; gap: .4rem; flex-wrap: wrap; }
-  #ft .ft-links a { color: rgba(255,255,255,0.9); text-decoration: none; font-size: .68rem; font-weight: 500;
-                    padding: .2rem .5rem; border-radius: .25rem; border: 1px solid rgba(255,255,255,.15);
+  #ft .ft-links a { color: rgba(255,255,255,0.9); text-decoration: none; font-size: .75rem; font-weight: 500;
+                    padding: .2rem .5rem; border-radius: var(--r-s); border: 1px solid rgba(255,255,255,.15);
                     transition: background .15s, color .15s; }
   #ft .ft-links a:hover { background: var(--surbrillance); color: var(--blanc); }
-  #ft .ft-copy { font-size: .62rem; color: rgba(255,255,255,0.9); display: flex; align-items: center; gap: .3rem; flex-wrap: wrap; margin-top: .15rem; }
-  #ft .ft-copy .heart { color: var(--coeur); font-size: .7rem; }
+  #ft .ft-copy { font-size: .75rem; color: rgba(255,255,255,0.9); display: flex; align-items: center; gap: .3rem; flex-wrap: wrap; margin-top: .15rem; }
+  #ft .ft-copy .heart { color: var(--coeur); font-size: .75rem; }
   #ft .ft-copy a { color: rgba(255,255,255,0.9); text-decoration: none; }
   #ft .ft-copy a:hover { color: var(--blanc); text-decoration: underline; }
 
@@ -741,8 +712,8 @@ en documentation).
    Au-dessus, elle tient deja en deux lignes : inutile de la reduire la
    ou elle n'a pas besoin de l'etre. */
   @media (max-width: 380px) {
-    #ft .ft-copy { font-size: .58rem; line-height: 1.3; }
-    #ft .ft-copy .heart { font-size: .66rem; }
+    #ft .ft-copy { font-size: .75rem; line-height: 1.3; }
+    #ft .ft-copy .heart { font-size: .75rem; }
   }
   .bm-logo:hover { color: var(--blanc-survol); }
   .bm-mentions { display: flex; gap: 1rem; margin-top: 1rem; flex-wrap: wrap; }
@@ -789,7 +760,7 @@ en documentation).
   #hd .nav-links a.on { color: var(--blanc); border-bottom: 2px solid #fff; padding-bottom: 2px; }
   #hd .nav-links a.on:hover { color: var(--blanc); border-bottom-color: var(--blanc-survol); }
   #hd .btn-cta { background: var(--surface); color: var(--teal); padding: .45rem 1.2rem;
-                 border-radius: .5rem; font-weight: 700; font-size: .925rem; border: none;
+                 border-radius: var(--r-m); font-weight: 700; font-size: .925rem; border: none;
                  cursor: pointer; font-family: inherit; white-space: nowrap;
                  text-decoration: none; display: inline-block;
                  transition: background .15s, border-color .15s, color .15s; }
@@ -797,10 +768,10 @@ en documentation).
                        color: var(--encre); }
   #hd .btn-burger { display: none; flex-direction: column; justify-content: center; gap: 5px;
                      width: 36px; height: 36px; background: rgba(255, 255, 255, .15);
-                     border: none; border-radius: .4rem; cursor: pointer;
+                     border: none; border-radius: var(--r-m); cursor: pointer;
                      padding: 7px 8px; flex-shrink: 0; }
   #hd .btn-burger span { display: block; height: 2px; background: var(--surface);
-                         border-radius: 2px; transition: transform .25s, opacity .2s; }
+                         border-radius: var(--r-s); transition: transform .25s, opacity .2s; }
   #hd .btn-burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
   #hd .btn-burger.open span:nth-child(2) { opacity: 0; }
   #hd .btn-burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
@@ -931,9 +902,12 @@ html[data-theme="nuit"] body {
 <link rel="stylesheet" href="/assets/theme.css">
 <script>(function(){try{var t=localStorage.getItem('claim-theme-v2');if(t==='nuit'){document.documentElement.setAttribute('data-theme','nuit');}}catch(e){}})();</script>
 <script src="/assets/theme.js" defer></script>
+<link rel="stylesheet" href="/assets/accueil-releve.css">
 <link rel="stylesheet" href="/assets/filtres-entrees.css">
+<link rel="stylesheet" href="/assets/accueil-pourquoi.css">
 </head>
 <body>
+<a class="skip-link" href="#contenu">Aller au contenu</a>
 
 <header id="hd">
     <nav>
@@ -954,10 +928,11 @@ html[data-theme="nuit"] body {
     </nav>
   </header>
 
-<main id="contenu">
+<main id="contenu" tabindex="-1">
 <div class="hero">
-  <div class="env">
-    <h1>Toutes les offres en <em>actuariat</em>, <em>data</em> et <em>IA</em> en assurance.</h1>
+  <div class="env hero-grille">
+   <div class="hero-texte">
+    <h1>Toutes les offres en actuariat, data et IA en assurance.</h1>
     <p class="sub">
       <strong id="chiffre-hero">Les offres</strong> en ligne, relevées chaque matin sur
       <strong id="chiffre-sources">les sites carrières</strong> des employeurs — assureurs, mutuelles,
@@ -968,7 +943,7 @@ html[data-theme="nuit"] body {
         <form class="sbar" action="/job-board.html" method="get">
       <div class="sf">
         <svg class="ic" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="color:var(--gris-doux)"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-        <input id="q" name="q" type="text" data-clarity-mask="true" placeholder="Mots-clés (e.g. Actuaire, Data Scientist)" autocomplete="off" aria-label="Mots-clés"/>
+        <input id="q" name="q" type="text" data-clarity-mask="true" placeholder="Mots-clés (ex. Actuaire, Data Scientist)" autocomplete="off" aria-label="Mots-clés"/>
       </div>
       <div class="sdiv"></div>
       <div class="sf loc-field">
@@ -987,22 +962,37 @@ html[data-theme="nuit"] body {
 <a class="filtre-entree" href="/job-board.html#filtres-date-filter" onclick="location.href=prefMarche()+'/job-board.html#filtres-date-filter';return false;">Date de publication</a>
 <a class="filtre-entree" href="/job-board.html#filtres-ats-filter" onclick="location.href=prefMarche()+'/job-board.html#filtres-ats-filter';return false;">Source ATS</a>
     </div>
-  </div>
-</div>
+   </div>
 
-<div class="chiffres">
-  <div class="env">
-    <dl>
-      <div><dt id="f-offres" class="attente">—</dt>
-           <dd><svg class="ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect width="20" height="14" x="2" y="6" rx="2"/><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>OFFRES EN LIGNE</dd></div>
-      <div><dt id="f-sources" class="attente">—</dt>
-           <dd><svg class="ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>SOURCES RELEVÉES</dd></div>
-      <div><dt id="f-employeurs" class="attente">—</dt>
-           <dd><svg class="ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>EMPLOYEURS QUI RECRUTENT</dd></div>
-      <div><dt id="f-releve" class="attente">—</dt>
-           <dd id="f-releve-libelle"><svg class="ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span
-             id="f-releve-texte">DERNIER RELEVÉ</span></dd></div>
-    </dl>
+   <!-- Le relevé du jour : il remplace le bandeau de quatre chiffres (D7).
+        Les `id` f-offres, f-employeurs, f-sources, f-releve et f-releve-libelle
+        sont ceux du bandeau : le script et les tests les lisent. La classe
+        `chiffres` est gardée pour la même raison. Dans chaque ligne la valeur
+        (dt) précède son libellé (dd) ; la feuille accueil-releve.css les remet
+        dans l'ordre de lecture visuel. -->
+   <aside class="releve chiffres" aria-labelledby="releve-titre">
+    <div class="releve-tete">
+      <h2 id="releve-titre">Relevé du jour</h2>
+      <p class="releve-etat" id="releve-etat" role="status">Mis à jour chaque matin</p>
+    </div>
+    <div class="releve-corps">
+      <dl class="releve-lignes">
+        <div class="releve-ligne releve-ligne--vedette"><dt id="f-offres" class="attente">—</dt><dd>offres en ligne</dd></div>
+        <div class="releve-ligne"><dt id="f-employeurs" class="attente">—</dt><dd>employeurs qui recrutent</dd></div>
+        <div class="releve-ligne"><dt id="f-sources" class="attente">—</dt><dd>sources relevées</dd></div>
+        <div class="releve-ligne"><dt id="f-releve" class="attente">—</dt><dd id="f-releve-libelle"><span id="f-releve-texte">Dernier relevé</span></dd></div>
+      </dl>
+      <h3 class="releve-sous-titre" id="releve-repart-titre">Répartition des offres</h3>
+      <table class="releve-repart" aria-labelledby="releve-repart-titre">
+        <tbody>
+          <tr><th scope="row">Actuariat</th><td class="barre-cel" aria-hidden="true"><span class="releve-piste"><span class="releve-barre" data-barre="actuariat"></span></span></td><td class="n attente" data-nombre="actuariat">—</td></tr>
+          <tr><th scope="row">IA / Data</th><td class="barre-cel" aria-hidden="true"><span class="releve-piste"><span class="releve-barre" data-barre="ia_data"></span></span></td><td class="n attente" data-nombre="ia_data">—</td></tr>
+          <tr><th scope="row">Souscription technique</th><td class="barre-cel" aria-hidden="true"><span class="releve-piste"><span class="releve-barre" data-barre="souscription_technique"></span></span></td><td class="n attente" data-nombre="souscription_technique">—</td></tr>
+          <tr><th scope="row">Pas encore classées</th><td class="barre-cel" aria-hidden="true"><span class="releve-piste"><span class="releve-barre releve-barre--autre" data-barre="autres"></span></span></td><td class="n attente" data-nombre="autres">—</td></tr>
+        </tbody>
+      </table>
+    </div>
+   </aside>
   </div>
 </div>
 
@@ -1027,7 +1017,7 @@ html[data-theme="nuit"] body {
       </div>
       <a class="lien" href="/job-board.html" id="lien-board">Toutes les offres →</a>
     </div>
-    <div class="grille" id="liste">
+    <div class="grille" id="liste" aria-busy="true" tabindex="-1">
       <div class="vide">Chargement des offres…</div>
     </div>
   </div>
@@ -1051,7 +1041,7 @@ html[data-theme="nuit"] body {
     <div class="villes">
         <a class="ville-carte" href="/job-board.html?city=Paris">
           <img src="/assets/villes/paris.jpg" alt="" aria-hidden="true"
-               width="800" height="533" loading="lazy" decoding="async"/>
+               width="1000" height="667" loading="lazy" decoding="async"/>
           <span class="ville-texte">
             <span class="ville-nom">Paris</span>
             <span class="ville-btn">Voir les offres</span>
@@ -1059,7 +1049,7 @@ html[data-theme="nuit"] body {
         </a>
         <a class="ville-carte" href="/job-board.html?city=Lyon">
           <img src="/assets/villes/lyon.jpg" alt="" aria-hidden="true"
-               width="800" height="533" loading="lazy" decoding="async"/>
+               width="1000" height="667" loading="lazy" decoding="async"/>
           <span class="ville-texte">
             <span class="ville-nom">Lyon</span>
             <span class="ville-btn">Voir les offres</span>
@@ -1123,47 +1113,42 @@ html[data-theme="nuit"] body {
   </div>
 </section>
 
-<section class="surface">
+<section class="surface pourquoi">
   <div class="env">
-    <div class="panneau">
     <div class="tete">
       <div>
         <h2>Pourquoi Claim!</h2>
         <p>Trois partis pris, et ils tiennent toute la page.</p>
       </div>
     </div>
-    <div class="raisons">
-      <div class="rc">
-        <div class="ico">
-          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2"
-               stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 5-9 5-9-5 9-5z"></path>
-               <path d="M3 13l9 5 9-5"></path></svg>
+    <div class="pourquoi-points">
+      <div class="pourquoi-point">
+        <div class="pourquoi-titre">
+          <svg class="pourquoi-ico" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3l9 5-9 5-9-5 9-5z"></path> <path d="M3 13l9 5 9-5"></path></svg>
+          <h3>Là où les autres ne vont pas</h3>
         </div>
-        <h3>Là où les autres ne vont pas</h3>
         <p>Les sources sont relevées une par une, y compris les sites carrières que les agrégateurs
            laissent de côté. Une offre publiée chez un assureur régional y est, comme celle d'un grand groupe.</p>
       </div>
-      <div class="rc">
-        <div class="ico">
-          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2"
-               stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"></circle>
-               <path d="M12 8v4.5l3 1.8"></path></svg>
+      <div class="pourquoi-point">
+        <div class="pourquoi-titre">
+          <svg class="pourquoi-ico" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8"></circle> <path d="M12 8v4.5l3 1.8"></path></svg>
+          <h3>Relevé chaque matin</h3>
         </div>
-        <h3>Relevé chaque matin</h3>
         <p>La collecte tourne tous les jours avant l'ouverture. Une offre retirée le lendemain quitte le
            board le lendemain — pas dans trois semaines.</p>
       </div>
-      <div class="rc">
-        <div class="ico">
-          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2"
-               stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7.5 3v6c0 4.3-3 7.6-7.5 9-4.5-1.4-7.5-4.7-7.5-9V6L12 3z"></path>
-               <path d="M9 12l2 2 4-4"></path></svg>
+      <div class="pourquoi-point">
+        <div class="pourquoi-titre">
+          <svg class="pourquoi-ico" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3l7.5 3v6c0 4.3-3 7.6-7.5 9-4.5-1.4-7.5-4.7-7.5-9V6L12 3z"></path> <path d="M9 12l2 2 4-4"></path></svg>
+          <h3>Le métier, et lui seul</h3>
         </div>
-        <h3>Le métier, et lui seul</h3>
         <p>Actuariat, data, IA, souscription : rien d'autre. Pas d'« informatique » noyée dans
            1 200 annonces — le tri est fait à la collecte, pas à la main par le candidat.</p>
       </div>
-    </div>
     </div>
   </div>
 </section>
@@ -1177,7 +1162,7 @@ html[data-theme="nuit"] body {
         <p id="compte-employeurs">Les employeurs dont les annonces sont relevées chaque matin.</p>
       </div>
     </div>
-    <div class="employeurs" id="employeurs" aria-label="Employeurs qui recrutent"></div>
+    <div class="employeurs" id="employeurs"></div>
     </div>
   </div>
 </section>
@@ -1221,6 +1206,8 @@ html[data-theme="nuit"] body {
 <script src="/assets/companies-data.js"></script>
 <!-- La casse de titre : meme regle que le board et la fiche. -->
 <script src="/assets/casse-titre.js"></script>
+<!-- Le lieu sans code pays brut : « Paris », « Casablanca (Maroc) ». -->
+<script src="/assets/lieu.js"></script>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -1259,11 +1246,6 @@ const echapper = (v) => String(v == null ? '' : v).replace(/[&<>"']/g,
   (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
 const couleur = (slug) => (annuaire ? annuaire.couleurEntreprise(slug) : 'var(--teal)');
-// Le texte des initiales se lit sur la teinte de l'employeur : sur une teinte
-// claire, le blanc serait illisible.
-const couleurTexte = (teinte) => (annuaire && annuaire.couleurTexteSurTeinte
-  ? annuaire.couleurTexteSurTeinte(teinte) : 'var(--blanc)');
-
 // ── Cartes : le rendu du board ─────────────────────────────────────────────
 // La carte de l'accueil est celle du board, au paramètre de grille près. Les
 // règles de publication sont les mêmes : une valeur que la curation ne juge
@@ -1293,34 +1275,47 @@ function labelSalaire(j) {
   return publie && j.jev_salaire_libelle ? j.jev_salaire_libelle : '';
 }
 
-function badge(libelle, valeur) {
+// Ligne 1 de la carte : une icône (décorative) puis le texte. Le nom
+// accessible reste « Contrat : CDI » : l'icône ne dit rien de plus.
+function badge(libelle, valeur, icone) {
   const titre = echapper(libelle + ' : ' + valeur);
   return '<span class="card-fact" title="' + titre + '" aria-label="' + titre + '">'
+    + (icone ? ICONES.icone(icone, { taille: 14 }) : '')
     + '<span class="card-fact-value">' + echapper(valeur) + '</span></span>';
 }
 
-// Seule la localisation porte une icône : « CDI » ou « Senior » se lisent seuls.
-function badgeLieu(ville) {
-  if (!ville) return '';
-  const titre = echapper('Localisation : ' + ville);
-  return '<span class="card-fact card-fact--loc" title="' + titre + '" aria-label="' + titre + '">'
-    + '<svg class="ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>'
-    + '<span class="card-fact-value">' + echapper(ville) + '</span></span>';
+function badgeLieu(brut) {
+  const ville = formaterLieu(brut);
+  return ville ? badge('Localisation', ville, 'map-pin') : '';
 }
 
 function bandeauMetadonnees(j) {
   const contrat = CONTRATS[j.contract_type] || j.contract_type || 'Non précisé';
   const exp = labelExperience(j);
   const sal = labelSalaire(j);
-  return '<div class="cm">' + badgeLieu(j.ville) + badge('Contrat', contrat)
-    + (exp ? badge('Expérience', exp) : '') + (sal ? badge('Salaire', sal) : '') + '</div>';
+  return '<div class="cm">' + badgeLieu(j.ville) + badge('Contrat', contrat, 'briefcase')
+    + (exp ? badge('Expérience', exp, 'signal') : '') + (sal ? badge('Salaire', sal, 'euro') : '') + '</div>';
 }
 
+// Ligne 2 de la carte : la spécialité (pastille teal, celle qui sert au
+// filtrage), puis les compétences (pastilles grises). Deux compétences au
+// plus ; le reste tient dans une pastille « +N » dont le titre les liste :
+// aucune information n'est perdue en silence.
 function pucesCompetences(j, max) {
   const s = j.skills || {};
-  return Object.keys(FAMILLES_COMPETENCES)
-    .flatMap((f) => (s[f] || []).map((l) => '<span class="tag tm">' + echapper(l) + '</span>'))
-    .slice(0, max).join('');
+  const toutes = Object.keys(FAMILLES_COMPETENCES).flatMap((f) => s[f] || []);
+  const visibles = toutes.slice(0, max)
+    .map((l) => '<span class="etq etq--comp">' + echapper(l) + '</span>').join('');
+  const autres = toutes.slice(max);
+  if (!autres.length) return visibles;
+  const titre = echapper('Autres compétences : ' + autres.join(', '));
+  return visibles + '<span class="etq etq--comp etq--plus" title="' + titre + '" aria-label="' + titre + '">+' + autres.length + '</span>';
+}
+
+function badgeSpecialite(specialite) {
+  if (!specialite) return '';
+  const titre = echapper('Spécialité : ' + specialite);
+  return '<span class="etq etq--spec" title="' + titre + '" aria-label="' + titre + '">' + echapper(specialite) + '</span>';
 }
 
 // Tuile de logo : la même cascade que le board — le logo publié par la source,
@@ -1344,7 +1339,7 @@ function tuileLogo(co) {
     + (surFondSombre ? ' logo-fond-sombre' : '') + '">'
     + '<span>' + inits + '</span>'
     + '<img src="' + echapper(logo) + '" alt="Logo ' + echapper(co.name || '') + '" '
-    + 'onerror="this.remove()" onload="this.previousElementSibling.remove()"/>'
+    + 'width="38" height="38" onerror="this.remove()" onload="this.previousElementSibling.remove()"/>'
     + '</div>';
 }
 
@@ -1384,6 +1379,10 @@ const initiales = (nom) => (annuaire ? annuaire.initiales(nom) : '');
 // Un appel : /stats/published. S'il tombe, la page reste lisible — les chiffres
 // s'effacent, rien ne casse.
 async function chargerChiffres() {
+  const etat = document.getElementById('releve-etat');
+  // Le texte de repos est fixe : un nouvel essai après une panne ne doit pas
+  // reprendre le message de panne pour son état normal.
+  const texteRepos = 'Mis à jour chaque matin';
   let stats;
   try {
     const r = await fetch(`${API_BASE}/stats/published`);
@@ -1391,33 +1390,73 @@ async function chargerChiffres() {
     stats = await r.json();
   } catch (e) {
     console.error('[accueil] chiffres indisponibles :', e.message);
+    // Panne : le tiret d'attente reste, écrit explicitement. Ni vide, ni 0 —
+    // un zéro laisserait croire que le site est vide. Les cases gardent leur
+    // taille, la mise en page ne bouge pas quand les chiffres reviennent.
+    ['f-offres', 'f-sources', 'f-employeurs', 'f-releve'].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = '—';
+    });
+    // Les « — » restent en place (la hauteur du panneau ne bouge pas) et une
+    // seule ligne, déjà réservée, dit pourquoi.
+    if (etat) etat.textContent = 'Chiffres momentanément indisponibles';
     return null;
   }
+  if (etat) etat.textContent = texteRepos;
 
-  document.getElementById('f-offres').textContent = stats.jobs_online;
-  document.getElementById('f-employeurs').textContent = stats.companies_hiring;
-  if (stats.sources_tracked) document.getElementById('f-sources').textContent = stats.sources_tracked;
+  // Un nombre se dit en français (« 1 234 ») ; une valeur absente reste « — ».
+  const nombre = (n) => (Number.isFinite(n) ? n.toLocaleString('fr-FR') : null);
+  const poser = (el, texte) => {
+    if (!el || texte === null) return;
+    el.textContent = texte;
+    // La valeur est posée : le tiret d'attente n'a plus lieu d'être.
+    el.classList.remove('attente');
+  };
 
-  // Le relevé se dit en français, dans l'heure de Paris.
+  poser(document.getElementById('f-offres'), nombre(stats.jobs_online));
+  poser(document.getElementById('f-employeurs'), nombre(stats.companies_hiring));
+  if (stats.sources_tracked) poser(document.getElementById('f-sources'), nombre(stats.sources_tracked));
+
+  // Le relevé se dit en français, dans l'heure de Paris : « 03 h 04 ».
   if (stats.last_collection_at) {
     const quand = new Date(stats.last_collection_at);
-    const heure = quand.toLocaleTimeString('fr-FR', { timeZone: 'Europe/Paris',
-      hour: '2-digit', minute: '2-digit' });
-    const jour = quand.toLocaleDateString('fr-FR', { timeZone: 'Europe/Paris',
-      day: 'numeric', month: 'long' });
-    document.getElementById('f-releve').textContent = heure;
-    // Le texte seul : son frère est l'icône, qu'un textContent sur le parent
-    // effacerait à chaque chargement.
-    document.getElementById('f-releve-texte').textContent = `RELEVÉ DU ${jour.toUpperCase()}`;
+    if (!Number.isNaN(quand.getTime())) {
+      const [hh, mm] = quand.toLocaleTimeString('fr-FR', { timeZone: 'Europe/Paris',
+        hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).split(':');
+      const jour = quand.toLocaleDateString('fr-FR', { timeZone: 'Europe/Paris',
+        day: 'numeric', month: 'long' });
+      poser(document.getElementById('f-releve'), `${hh} h ${mm}`);
+      // Le texte seul : le libellé n'a pas d'autre enfant, mais l'id du texte
+      // reste celui que lisent les tests.
+      document.getElementById('f-releve-texte').textContent = `Dernier relevé le ${jour}`;
+    }
+  }
+
+  // Répartition par spécialité. Les barres se mesurent sur le TOTAL des offres
+  // en ligne : la somme des trois spécialités peut lui être inférieure (offres
+  // pas encore classées), et ne doit jamais passer pour le total. La dernière
+  // ligne rend cet écart lisible.
+  const total = Number(stats.jobs_online);
+  const repart = stats.by_specialty && typeof stats.by_specialty === 'object' ? stats.by_specialty : null;
+  if (repart && Number.isFinite(total)) {
+    let somme = 0;
+    const valeurs = {};
+    for (const code of ['actuariat', 'ia_data', 'souscription_technique']) {
+      const n = Number(repart[code]);
+      if (Number.isFinite(n) && n >= 0) { valeurs[code] = n; somme += n; }
+    }
+    valeurs.autres = Math.max(0, total - somme);
+    for (const [code, n] of Object.entries(valeurs)) {
+      poser(document.querySelector(`[data-nombre="${code}"]`), nombre(n));
+      const barre = document.querySelector(`[data-barre="${code}"]`);
+      if (barre) barre.style.setProperty('--part', total > 0 ? Math.min(1, n / total).toFixed(4) : '0');
+    }
   }
 
   document.getElementById('chiffre-hero').textContent = `${stats.jobs_online} offres`;
   if (stats.sources_tracked) {
     document.getElementById('chiffre-sources').textContent = `${stats.sources_tracked} sources`;
   }
-  // Les valeurs sont posées : le tiret d'attente n'a plus lieu d'être.
-  document.querySelectorAll('.chiffres dt.attente')
-    .forEach((el) => el.classList.remove('attente'));
 
   const compte = document.getElementById('compte-employeurs');
   if (compte) {
@@ -1430,16 +1469,33 @@ async function chargerChiffres() {
 }
 
 // ── Les dernières offres ───────────────────────────────────────────────────
-async function chargerOffres() {
+async function chargerOffres(apresReessai) {
   const liste = document.getElementById('liste');
+  const compteEl = document.getElementById('compte-offres');
+  // La page est occupée tant que la réponse n'est pas là : retiré au succès
+  // comme à l'échec (bloc finally), pour qu'aucun état ne reste « en cours ».
+  liste.setAttribute('aria-busy', 'true');
+  if (apresReessai) {
+    compteEl.textContent = 'Chargement…';
+    liste.innerHTML = '<div class="vide">Chargement des offres…</div>';
+  }
   try {
     // Une sélection, pas les six dernières : le fil chronologique peut être
     // monopolisé par un seul employeur — cinq offres d'AXA sur six, observé.
     // `jobs/selection` rend une offre par employeur, la plus récente de
     // chacun, dans le périmètre que le board publie.
-    const r = await fetch(`${API_BASE}/jobs/selection?limite=6`);
-    if (!r.ok) throw new Error(`HTTP ${r.status}`);
-    const d = await r.json();
+    // Une réponse qui ne vient jamais ne doit pas laisser « Chargement… » :
+    // au bout de 20 s, on la tient pour perdue et on propose de réessayer.
+    const coupe = new AbortController();
+    const minuteur = setTimeout(() => coupe.abort(), 20000);
+    let d;
+    try {
+      const r = await fetch(`${API_BASE}/jobs/selection?limite=6`, { signal: coupe.signal });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      d = await r.json();
+    } finally {
+      clearTimeout(minuteur);
+    }
     const offres = d.data || [];
 
     // Le compte annonce ce qui est montré : le nombre d'offres et celui des
@@ -1447,7 +1503,7 @@ async function chargerOffres() {
     // s'il est vrai, un employeur pouvant manquer de fiches distinctes.
     const employeurs = new Set(offres.map((j) =>
       (j.companies || {}).slug || j.source || '')).size;
-    document.getElementById('compte-offres').textContent =
+    compteEl.textContent =
       offres.length > 1
         ? (employeurs === offres.length
             ? `${offres.length} offres récentes, ${employeurs} employeurs différents.`
@@ -1495,8 +1551,7 @@ async function chargerOffres() {
       const quand = (annuaire && annuaire.publicationLabel)
         ? annuaire.publicationLabel(j.published_at || j.source_published_at || j.first_seen_at) : '';
       const specialite = labelSpecialite(j);
-      const etiquettes = (specialite ? '<span class="tag tn">' + echapper(specialite) + '</span>' : '')
-        + pucesCompetences(j, 3);
+      const etiquettes = badgeSpecialite(specialite) + pucesCompetences(j, 2);
       return `
         <a class="oc" id="card-${echapper(j.slug || '')}" href="${prefMarche()}/offre/${encodeURIComponent(j.slug || '')}" data-slug="${echapper(j.slug || '')}">
           <div class="ct">
@@ -1513,11 +1568,29 @@ async function chargerOffres() {
     }).join('');
   } catch (e) {
     console.error('[accueil] offres indisponibles :', e.message);
+    // Un seul message d'état : « Chargement… » disparaît, le compte du titre
+    // se vide, et l'explication (sans détail technique) vit dans le bloc
+    // ci-dessous, avec de quoi agir.
+    compteEl.textContent = '';
     liste.innerHTML = `
-      <div class="vide">
-        Les offres ne se chargent pas pour l'instant.
-        <a href="/job-board.html">Ouvrir le board</a>.
+      <div class="vide" role="alert">
+        <p>Les offres ne se chargent pas pour l'instant.</p>
+        <p class="vide-actions">
+          <button type="button" class="vide-reessayer" id="offres-reessayer">Réessayer</button>
+          <a href="/job-board.html">Ouvrir le board</a>
+        </p>
       </div>`;
+    const bouton = document.getElementById('offres-reessayer');
+    bouton.addEventListener('click', () => {
+      // Les chiffres ont pu tomber avec les offres : on les redemande aussi.
+      chargerChiffres();
+      chargerOffres(true);
+    });
+    // Après un réessai raté, le bouton qui avait le focus vient d'être
+    // remplacé : le focus le suit, le clavier ne se perd pas.
+    if (apresReessai) bouton.focus();
+  } finally {
+    liste.removeAttribute('aria-busy');
   }
 }
 
@@ -1526,29 +1599,25 @@ async function chargerOffres() {
 // employeurs. Rien n'est recopié ici.
 function tuileEmployeur(p) {
     const nom = echapper(p.nom);
-    const fond = echapper(couleur(p.slug));
-    const encre = echapper(couleurTexte(fond));
-    const inits = echapper(initiales(p.nom));
+    const inits = echapper(annuaire.monogramme ? annuaire.monogramme(p.nom) : initiales(p.nom));
     const logo = annuaire.logoEntreprise ? annuaire.logoEntreprise(p.slug) : null;
-    // Sans logo, la tuile affiche ses initiales sur la teinte — c'est le
-    // repli de toutes les surfaces. Avec un logo, les initiales ne servent
-    // que d'attente et disparaissent dès que l'image est là.
-    // La teinte ne teint que le repli : avec un logo, elle dessinerait un
-    // carré coloré derrière la marque. Elle reste donc dans un span qui
-    // s'efface au chargement de l'image — et qui réapparaît si elle casse.
+    // Sans logo, la tuile affiche ses initiales : c'est le repli de toutes les
+    // surfaces. Avec un logo, les initiales ne servent que d'attente et
+    // disparaissent dès que l'image est là — et réapparaissent si elle casse.
+    // Un seul style de monogramme, neutre, pour toutes les entreprises : la
+    // couleur d'une marque ne vit que dans son vrai logo.
     const dedans = logo
-      ? '<span class="sigle-repli" style="background:' + fond + ';color:' + encre + '">' + inits + '</span>'
+      ? '<span class="sigle-repli">' + inits + '</span>'
         + '<img src="' + echapper(logo) + '" alt="" aria-hidden="true" '
-        + 'onerror="this.remove()" onload="this.previousElementSibling.remove()"/>'
+        + 'width="64" height="64" onerror="this.remove()" onload="this.previousElementSibling.remove()"/>'
       : inits;
-    const teinte = logo ? '' : ' style="background:' + fond + ';color:' + encre + '"';
-    // Le nom n'est pas rendu : la bande ne montre que les logos. Il reste
-    // porté par le titre et par `aria-label`, donc lisible au survol et par
-    // un lecteur d'écran. La tuile n'est plus un lien : elle ne renvoie plus
-    // vers une page en chantier.
-    return '<span class="firme" role="img" aria-label="' + nom + '" title="' + nom + '">'
-      + '<span class="sigle"' + teinte + ' aria-hidden="true">' + dedans + '</span>'
-      + '</span>';
+    // Le nom est dit une fois, en texte réservé aux lecteurs d'écran : la
+    // bande ne montre que les logos, et les initiales sont décoratives. La
+    // tuile n'est pas un lien : elle ne renvoie plus vers une page en chantier.
+    return '<li class="firme" title="' + nom + '">'
+      + '<span class="sigle' + (logo ? '' : ' sigle--mono') + '" aria-hidden="true">' + dedans + '</span>'
+      + '<span class="sr-only">' + nom + '</span>'
+      + '</li>';
 }
 
 function dessinerEmployeurs() {
@@ -1556,10 +1625,17 @@ function dessinerEmployeurs() {
   if (!cible || !annuaire || !Array.isArray(annuaire.PROFILS)) return;
 
   const base = annuaire.PROFILS.map(tuileEmployeur).join('');
-  const piste = document.createElement('div');
-  piste.className = 'employeurs-piste';
+  // Une vraie liste, nommée : un lecteur d'écran annonce « liste, N éléments ».
+  // `role="list"` rend ce rôle explicite là où `list-style: none` le ferait
+  // perdre à Safari.
+  const piste = document.createElement('ul');
+  piste.className = 'employeurs-piste employeurs-liste';
+  piste.setAttribute('role', 'list');
+  piste.setAttribute('aria-label', 'Employeurs qui recrutent');
   piste.innerHTML = base;
   cible.replaceChildren(piste);
+  // Les employeurs, une seule fois : la liste lue est la première série.
+  const nombre = piste.children.length;
 
   // Le bandeau doit tenir sans trou sur les grands écrans : on répète la
   // liste jusqu'à couvrir la largeur visible, puis on la double. C'est ce
@@ -1572,8 +1648,11 @@ function dessinerEmployeurs() {
   }
   const moitie = piste.innerHTML;
   piste.insertAdjacentHTML('beforeend', moitie);
-  // La copie ne doit pas être annoncée deux fois aux lecteurs d'écran.
-  [...piste.children].slice(piste.children.length / 2)
+  // Tout ce qui suit la première série n'est que du remplissage visuel (on
+  // répète pour couvrir les grands écrans, puis on double pour boucler) : ni
+  // annoncé aux lecteurs d'écran, ni atteignable. Sans cela, sur un écran
+  // large, chaque employeur serait lu plusieurs fois.
+  [...piste.children].slice(nombre)
     .forEach((el) => el.setAttribute('aria-hidden', 'true'));
 
   // Vitesse constante (~42 px/s), quelle que soit la largeur de la piste.

@@ -1,0 +1,107 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   ACCUEIL — LE PANNEAU « RELEVÉ DU JOUR »
+
+   Le site relève, chaque matin, les sites carrières des employeurs : c'est son
+   idée. Le panneau la montre au lieu de la dire. Il se lit comme un relevé :
+   un intitulé, des lignes « libellé ........ valeur » à points de conduite, puis
+   la répartition par spécialité.
+
+   Ce fichier est à part de la feuille inline de index.html : il remplace le
+   bandeau de quatre chiffres (décision D7) sans toucher au reste du CSS.
+
+   Règles tenues ici
+     • Aucune couleur en dur : que des jetons de assets/theme.css, donc jour et
+       nuit sont servis par les mêmes règles.
+     • Aucun mouvement : les barres sont posées d'un coup, jamais animées.
+     • Hauteur réservée : le panneau a la même hauteur en attente, chargé et en
+       panne (une ligne d'état unique, des lignes déjà présentes avec « — »),
+       donc rien ne bouge quand les chiffres arrivent.
+     • La somme des spécialités n'est PAS le total : une dernière ligne, « Pas
+       encore classées », rend l'écart lisible. Les barres sont mesurées sur le
+       total des offres en ligne.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* ── Mise en page du hero : texte à gauche, relevé à droite (≥ 1024 px) ───── */
+.hero-grille { display: grid; grid-template-columns: minmax(0, 1fr); gap: 2rem; align-items: start; }
+.hero-texte { min-width: 0; }
+
+@media (min-width: 1024px) {
+  .hero-grille {
+    grid-template-columns: minmax(0, 1fr) clamp(21rem, 28vw, 27rem);
+    column-gap: clamp(2rem, 4vw, 4rem);
+  }
+}
+
+/* ── Le panneau ───────────────────────────────────────────────────────────── */
+.releve {
+  background: var(--surface);
+  border: 1px solid var(--bord-carte, var(--bord));
+  border-radius: var(--r-l);
+  box-shadow: var(--ombre-1);
+  overflow: hidden;
+  min-width: 0;
+}
+
+.releve-tete { background: var(--teal-fond); color: var(--blanc); padding: .8rem 1.25rem .75rem; }
+.releve-tete h2 { margin: 0; font-size: 1.125rem; font-weight: 800; letter-spacing: -.01em; line-height: 1.25; }
+/* Une seule ligne, réservée : « mis à jour » au repos, « indisponible » en panne. */
+.releve-etat { margin: .15rem 0 0; font-size: .8125rem; font-weight: 500; line-height: 1.3;
+               min-height: 1.3em; color: var(--blanc); opacity: .92; }
+
+.releve-corps { padding: .5rem 1.25rem 1.1rem; }
+
+/* Lignes à points de conduite : le libellé à gauche, la valeur à droite. Dans le
+   HTML la valeur (dt) précède son libellé (dd) ; row-reverse les remet dans
+   l'ordre de lecture visuel sans toucher aux `id` ni au balisage. */
+.releve-lignes { margin: 0; padding: 0; }
+.releve-ligne { display: flex; flex-direction: row-reverse; align-items: baseline;
+                gap: .6rem; padding: .5rem 0; margin: 0; min-width: 0; }
+.releve-ligne + .releve-ligne { border-top: 1px solid var(--bord); }
+.releve-ligne dt { margin: 0; flex: 0 0 auto; color: var(--encre); font-weight: 800; font-size: 1.0625rem;
+                   line-height: 1.2; font-variant-numeric: tabular-nums; letter-spacing: -.01em;
+                   /* Largeur réservée, alignée à droite : le « — » d'attente et le nombre
+                      qui le remplace occupent la même place, rien ne glisse. */
+                   min-width: 4.5ch; text-align: right; }
+.releve-ligne--vedette dt { min-width: 3ch; }
+#f-releve { min-width: 7.5ch; }
+.releve-ligne dd { margin: 0; flex: 1 1 auto; min-width: 0; display: flex; align-items: baseline; gap: .5rem;
+                   color: var(--gris); font-size: .875rem; line-height: 1.35; }
+.releve-ligne dd::after { content: ''; flex: 1 1 1rem; min-width: .75rem;
+                          border-bottom: 1px dotted var(--gris-doux); opacity: .7;
+                          transform: translateY(-.25em); }
+/* La ligne vedette : le nombre d'offres. */
+.releve-ligne--vedette { padding-top: .35rem; }
+.releve-ligne--vedette dt { font-size: 2.125rem; font-weight: 900; letter-spacing: -.04em; line-height: 1; }
+.releve-ligne--vedette dd { color: var(--encre); font-weight: 600; font-size: .9375rem; }
+/* Avant l'arrivée des chiffres, le tiret attend dans la couleur du filet. */
+.releve-ligne dt.attente { color: var(--gris-doux); }
+
+/* ── Répartition par spécialité ───────────────────────────────────────────── */
+.releve-sous-titre { margin: .9rem 0 .25rem; font-size: .8125rem; font-weight: 700; color: var(--gris);
+                     line-height: 1.3; }
+.releve-repart { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.releve-repart th, .releve-repart td { padding: .28rem 0; vertical-align: middle; }
+.releve-repart th { width: 46%; text-align: left; font-weight: 500; font-size: .875rem; color: var(--encre);
+                    line-height: 1.3; padding-right: .5rem; }
+.releve-repart .n { width: 2.6rem; text-align: right; font-size: .875rem; font-weight: 700; color: var(--encre);
+                    font-variant-numeric: tabular-nums; }
+.releve-repart .n.attente { color: var(--gris-doux); }
+.releve-repart .barre-cel { padding: .28rem .6rem; }
+.releve-piste { display: block; height: .5rem; border-radius: 9999px; background: var(--surface-2);
+                border: 1px solid var(--bord); overflow: hidden; }
+.releve-barre { display: block; height: 100%; width: calc(var(--part, 0) * 100%);
+                background: var(--teal); border-radius: 9999px; }
+.releve-barre--autre { background: var(--gris-doux); }
+
+/* ── Téléphone : le panneau passe sous la recherche, plus serré ───────────── */
+@media (max-width: 1023px) {
+  .hero-grille { gap: 1.75rem; }
+  .releve { max-width: 34rem; }
+}
+@media (max-width: 480px) {
+  .releve { max-width: none; }
+  .releve-tete { padding-left: 1rem; padding-right: 1rem; }
+  .releve-corps { padding-left: 1rem; padding-right: 1rem; }
+  .releve-ligne--vedette dt { font-size: 1.875rem; }
+  .releve-repart th { width: 42%; }
+}

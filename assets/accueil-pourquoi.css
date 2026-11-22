@@ -1,0 +1,72 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   ACCUEIL — « POURQUOI CLAIM! »
+
+   Trois partis pris qui ne se suivent pas : ce n'est pas une séquence, donc
+   aucune numérotation. Ils se lisent côte à côte, séparés par un filet, à
+   même le fond de la page — ni carte autour, ni carte dans la carte, ni
+   pastille d'icône au-dessus du titre.
+
+   Cette feuille est la seule à décrire la section. Elle ne définit aucune
+   couleur : tout vient des jetons de assets/theme.css, qui suivent le thème
+   (jour par défaut, nuit sur demande).
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* Trois colonnes d'égale largeur, sans gouttière : c'est le filet qui sépare. */
+.pourquoi-points {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.pourquoi-point {
+  padding: .25rem clamp(1.25rem, 2.6vw, 2.25rem);
+}
+/* Les colonnes extrêmes s'alignent sur le titre de la section. */
+.pourquoi-point:first-child { padding-left: 0; }
+.pourquoi-point:last-child  { padding-right: 0; }
+.pourquoi-point + .pourquoi-point { border-left: 1px solid var(--bord-fort); }
+
+/* Le titre porte une icône nue, petite, à sa gauche : elle ne forme plus un
+   bloc à part au-dessus du texte. Elle est décorative (aria-hidden). */
+.pourquoi-titre {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  margin: 0 0 .5rem;
+}
+.pourquoi-ico {
+  flex: 0 0 auto;
+  width: 19px;
+  height: 19px;
+  color: var(--teal);
+}
+.pourquoi-titre h3 {
+  margin: 0;
+  font-size: 1.02rem;
+  font-weight: 800;
+  letter-spacing: -.015em;
+  line-height: 1.3;
+  color: var(--encre);
+}
+.pourquoi-point p {
+  margin: 0;
+  font-size: .9rem;
+  line-height: 1.6;
+  color: var(--gris);
+}
+
+/* Téléphone et petites tablettes : une colonne, les filets deviennent
+   horizontaux. Même seuil que le reste de l'accueil. */
+@media (max-width: 900px) {
+  .pourquoi-points { grid-template-columns: 1fr; }
+  .pourquoi-point,
+  .pourquoi-point:first-child,
+  .pourquoi-point:last-child {
+    padding: 1.35rem 0;
+  }
+  .pourquoi-point:first-child { padding-top: .25rem; }
+  .pourquoi-point:last-child  { padding-bottom: .25rem; }
+  .pourquoi-point + .pourquoi-point {
+    border-left: 0;
+    border-top: 1px solid var(--bord-fort);
+  }
+}

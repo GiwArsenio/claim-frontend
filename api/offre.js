@@ -27,6 +27,11 @@ try {
 // Ce fichier fait partie du depot : pas de repli, il est toujours la.
 const casseTitre = require('../assets/casse-titre.js');
 
+// Le lieu sans code pays brut : « Paris », « Casablanca (Maroc) ». Affichage
+// seulement : le titre de page et les donnees structurees gardent la valeur
+// de l'API.
+const formaterLieu = require('../assets/lieu.js');
+
 const LABELS_CONTRAT = {
   cdi: 'CDI', cdd: 'CDD', alternance: 'Alternance', stage: 'Stage',
   freelance: 'Freelance', interim: 'Intérim', vie: 'V.I.E', autre: 'Non précisé',
@@ -148,7 +153,7 @@ async function construire(job, urlCanonique) {
     ? `${titreAffiche} — ${nomSociete} (${ville}) | Claim!`
     : `${titreAffiche} — ${nomSociete} | Claim!`;
 
-  const pastilles = [`<span class="pastille pastille-ville">${echapper(ville || 'Lieu non précisé')}</span>`];
+  const pastilles = [`<span class="pastille pastille-ville">${echapper(formaterLieu(ville) || 'Lieu non précisé')}</span>`];
   if (contrat) pastilles.push(`<span class="pastille">${echapper(LABELS_CONTRAT[contrat] || contrat)}</span>`);
   if (job.jev_publishable && job.jev_publishable.experience && job.jev_experience) {
     pastilles.push(`<span class="pastille">${echapper(LABELS_EXPERIENCE[job.jev_experience] || job.jev_experience)}</span>`);
@@ -315,7 +320,7 @@ en documentation).
       ? ANNUAIRE.logoSurFondSombre(societe.slug || '') : false;
     return `<span class="slogo fond-logo${inversable ? ' logo-inversable' : ''}${surFondSombre ? ' logo-fond-sombre' : ''}"><span>${inits}</span>`
       + `<img src="${echapper(logoSociete)}" alt="Logo ${echapper(nomSociete)}" `
-      + `onerror="this.remove()" onload="this.previousElementSibling.remove()"/></span>`;
+      + `width="26" height="26" onerror="this.remove()" onload="this.previousElementSibling.remove()"/></span>`;
   })();
 
   const html = `<!DOCTYPE html>
@@ -350,7 +355,7 @@ ${societe.logo_url
     de la page de lecture : elle situe l'entreprise sans concurrencer le titre. */
  .slogo { width:26px; height:26px; border-radius:.375rem; flex-shrink:0; position:relative; overflow:hidden;
    display:inline-flex; align-items:center; justify-content:center; color: var(--blanc); font-weight:900;
-   font-size:9px; letter-spacing:-.02em; }
+   font-size:11px; letter-spacing:-.02em; }
  .slogo img { position:absolute; inset:0; width:100%; height:100%; object-fit:contain;
    border-radius:inherit; padding:2px; }
  /* Fond clair pour un logo ; la couleur de la marque garde les initiales. */
@@ -398,8 +403,8 @@ ${societe.logo_url
   .page { padding: 1.25rem 1.25rem 3rem; }
   .enveloppe {
    background: var(--surface);
-   border-radius: .625rem;
-   box-shadow: 0 1px 2px rgba(25, 44, 52, .06), 0 4px 14px rgba(25, 44, 52, .05);
+   border-radius: var(--r-l);
+   box-shadow: var(--ombre-1);
   }
  }
 
@@ -493,11 +498,11 @@ ${societe.logo_url
                  letter-spacing: -.05em; text-decoration: none; }
   #ft .ft-logo:hover { color: var(--blanc-survol); }
   #ft .ft-links { display: flex; gap: .4rem; flex-wrap: wrap; }
-  #ft .ft-links a { color: rgba(255,255,255,0.9); text-decoration: none; font-size: .68rem;
+  #ft .ft-links a { color: rgba(255,255,255,0.9); text-decoration: none; font-size: .75rem;
                     font-weight: 500; padding: .2rem .5rem; border-radius: .25rem;
                     border: 1px solid rgba(255,255,255,.15); transition: background .15s, color .15s; }
   #ft .ft-links a:hover { background: var(--surbrillance); color: var(--blanc); }
-  #ft .ft-copy { font-size: .62rem; color: rgba(255,255,255,0.9); margin-top: .15rem; }
+  #ft .ft-copy { font-size: .75rem; color: rgba(255,255,255,0.9); margin-top: .15rem; }
 
 /* ── PIED SUR TELEPHONE ───────────────────────────────────────────────
    Le logo et les liens partagent une ligne ; la copie passe dessous.
@@ -525,8 +530,8 @@ ${societe.logo_url
    Au-dessus, elle tient deja en deux lignes : inutile de la reduire la
    ou elle n'a pas besoin de l'etre. */
   @media (max-width: 380px) {
-    #ft .ft-copy { font-size: .58rem; line-height: 1.3; }
-    #ft .ft-copy .heart { font-size: .66rem; }
+    #ft .ft-copy { font-size: .75rem; line-height: 1.3; }
+    #ft .ft-copy .heart { font-size: .75rem; }
   }
   @media (max-width: 768px) {
     #ft { padding: .625rem 1rem .5rem; }
@@ -547,12 +552,13 @@ ${societe.logo_url
 <script src="/assets/theme.js" defer></script>
 </head>
 <body>
+<a class="skip-link" href="#contenu">Aller au contenu</a>
 ${BLOC_CONSENTEMENT}
 <div class="page">
-<main class="enveloppe">
+<main id="contenu" class="enveloppe" tabindex="-1">
   <a class="retour" id="retour-offre" href="/job-board.html">← Toutes les offres</a>
   <h1>${echapper(titreAffiche)}</h1>
-  <div class="societe">${tuileSociete}<span>${echapper(nomSociete)}${ville ? ' · ' + echapper(ville) : ''}</span></div>
+  <div class="societe">${tuileSociete}<span>${echapper(nomSociete)}</span></div>
   <div class="pastilles">${pastilles.join('')}</div>
   ${corps || '<p>Description non disponible.</p>'}
   ${competences}

@@ -126,11 +126,12 @@ for (const selecteur of PARTAGE) {
 
 // La fiche reste une carte blanche, angles arrondis, et son en-tete se fige.
 //
-// Le rayon suit celui du site : .625rem, comme la barre de recherche et
+// Le rayon suit celui du site : le cran --r-l de l'echelle (T08 : il valait
+// .625rem avant l'echelle de rayons), comme la barre de recherche et
 // les cards de l'accueil. Le test verifie que les DEUX fiches — celle du
 // board et celle de la page d'offre — portent le meme rayon : c'est la
 // regle qui compte, la valeur seule n'en dit rien.
-const RAYON_CARTE = '.625rem';
+const RAYON_CARTE = 'var(--r-l)';
 const rayonDc = /\.dc \{\s*background: var\(--surface\);[\s\S]{0,200}?border-radius: ([^;]+);/.exec(board);
 const rayonEnveloppe = /\.enveloppe \{[\s\S]{0,300}?border-radius: ([^;]+);/.exec(offre);
 assert.ok(rayonDc, 'la fiche du board declare un rayon');
@@ -141,7 +142,7 @@ assert.equal(rayonEnveloppe[1], rayonDc[1],
   'la page d offre et la fiche du board portent le meme rayon');
 assert.ok(/\.d-entete \{[\s\S]{0,400}position: sticky;/.test(board),
   "et son en-tete se fige toujours au defilement");
-assert.ok(/\.d-entete \{[\s\S]{0,900}border-radius: \.625rem \.625rem 0 0;/.test(board),
+assert.ok(/\.d-entete \{[\s\S]{0,900}border-radius: var\(--r-l\) var\(--r-l\) 0 0;/.test(board),
   "l'en-tete fige reprend les angles hauts de la carte");
 
 console.log('Rail de la fiche tests passed —', annuaire.PROFILS.length,
