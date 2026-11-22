@@ -8,7 +8,7 @@
      • UNE icône de 14 px (décorative) par élément, puis le texte (12 px, 600) ;
      • un trait vertical de 1 px entre deux éléments voisins, visible à partir de
        481 px, absent en dessous ; jamais au début, à la fin, ni orphelin.
-   LIGNE 2 — en pastilles : la spécialité (fond cyan) puis les compétences (fond
+   LIGNE 2 — en pastilles : la spécialité (fond, bordure et texte teal, comme l'ancienne pastille du lieu) puis les compétences (fond
      gris, bordure grise). Trois compétences au plus, puis « +N » dont le titre
      liste les autres.
    Partout : casse normale, texte ≥ 11 px, contraste ≥ 4,5:1, jour et nuit,
@@ -64,7 +64,9 @@ function lireCartes(sel) {
     return r;
   };
   const ref = {
-    cyan: jeton('background-color', 'var(--cyan-clair)'),
+    teal: jeton('background-color', 'var(--teal-clair)'),
+    tealBord: jeton('border-top-color', 'var(--teal-bord)'),
+    tealTexte: jeton('color', 'var(--teal-texte)'),
     gris: jeton('background-color', 'var(--surface-2)'),
     trait: jeton('background-color', 'var(--bord-carte)'),
     bordGris: jeton('border-top-color', 'var(--bord-carte)'),
@@ -118,6 +120,8 @@ function lireCartes(sel) {
         fond: cs.backgroundColor,
         bordure: px(cs.borderTopWidth),
         bordureCouleur: cs.borderTopColor,
+        couleur: cs.color,
+        icones: e.querySelectorAll('svg').length,
         rayon: cs.borderTopLeftRadius,
         casse: cs.textTransform,
         taille: px(cs.fontSize),
@@ -211,7 +215,7 @@ function verifier(quoi, lecture, largeur) {
     });
     // Pas de trait après le dernier : rien ne le dessine (le trait appartient à l'élément suivant).
 
-    // ── LIGNE 2 : spécialité cyan, puis compétences grises ──
+    // ── LIGNE 2 : spécialité teal, puis compétences grises ──
     const spec = c.pastilles.filter((p) => /etq--spec/.test(p.classe));
     const comp = c.pastilles.filter((p) => /etq--comp/.test(p.classe) && !/etq--plus/.test(p.classe));
     const plus = c.pastilles.filter((p) => /etq--plus/.test(p.classe));
@@ -235,13 +239,17 @@ function verifier(quoi, lecture, largeur) {
       assert.equal(p.rayon, ref.rayon, `${t} : rayon = jeton --r-s`);
       assert.equal(p.bordure, 1, `${t} : bordure de 1 px`);
       if (/etq--spec/.test(p.classe)) {
-        assert.equal(p.fond, ref.cyan, `${t} : spécialité sur fond cyan`);
+        // Exactement l'effet de l'ancienne pastille du lieu (.card-fact--loc) : fond, bordure et texte teal.
+        assert.equal(p.fond, ref.teal, `${t} : spécialité sur fond teal`);
+        assert.equal(p.bordureCouleur, ref.tealBord, `${t} : bordure teal`);
+        assert.equal(p.couleur, ref.tealTexte, `${t} : texte teal`);
+        assert.equal(p.icones, 0, `${t} : pas d'icône sur la spécialité`);
       } else {
         assert.equal(p.fond, ref.gris, `${t} : compétence sur fond gris`);
         assert.equal(p.bordureCouleur, ref.bordGris, `${t} : bordure grise`);
       }
     }
-    assert.ok(c.pastilles.every((p) => p.fond === ref.cyan || p.fond === ref.gris), `${ou} : deux fonds seulement`);
+    assert.ok(c.pastilles.every((p) => p.fond === ref.teal || p.fond === ref.gris), `${ou} : deux fonds seulement`);
     assert.equal(c.debordeX, false, `${ou} : la carte déborde`);
 
     // ── Éléments manquants : rien d'orphelin, rien de vide ──
@@ -260,7 +268,7 @@ function verifier(quoi, lecture, largeur) {
   return vu;
 }
 
-test('T10 — ligne 1 sans pastille avec icônes et traits, ligne 2 cyan puis gris : 2 surfaces × 2 largeurs × 2 thèmes', async () => {
+test('T10 — ligne 1 sans pastille avec icônes et traits, ligne 2 teal puis gris : 2 surfaces × 2 largeurs × 2 thèmes', async () => {
   await aide.demarrerServeur();
   await aide.demarrerNavigateur();
   try {

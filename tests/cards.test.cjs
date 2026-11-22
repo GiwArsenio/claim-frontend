@@ -140,7 +140,7 @@ assert.ok(html.includes('.card-fact::before { content: ""; position: absolute; l
 assert.ok(html.includes('@media (max-width: 480px) {\n  .cm { column-gap: 14px; }\n  .card-fact::before { display: none; }'), 'pas de trait sous 481 px');
 // T05 : aucun texte lisible ne descend sous 11 px ; T10 : les anciennes étiquettes ne reviennent pas.
 assert.ok(html.includes('.etq { display: inline-flex;') && html.includes('font-size: 12px; font-weight: 600; line-height: 16px;'));
-assert.ok(html.includes('.etq--spec { background: var(--cyan-clair);') && html.includes('.etq--comp { background: var(--surface-2); border-color: var(--bord-carte);'));
+assert.ok(html.includes('.etq--spec { background: var(--teal-clair); border-color: var(--teal-bord); color: var(--teal-texte); }') && html.includes('.etq--comp { background: var(--surface-2); border-color: var(--bord-carte);'));
 assert.ok(!/\.tag\s*\{/.test(html) && !/\.tm\s*\{/.test(html) && !/\.tn\s*\{/.test(html) && !/\.ccomp\s*\{/.test(html),
   'les anciennes etiquettes (.tag, .tm, .tn, .ccomp) ne reviennent pas');
 

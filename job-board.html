@@ -362,10 +362,10 @@ a.ctitle:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; bo
   .cm { column-gap: 14px; }
   .card-fact::before { display: none; }
 }
-/* Ligne 2 : la spécialité (cyan) puis les compétences (gris), en pastilles. */
+/* Ligne 2 : la spécialité (teal, comme l'ancienne pastille du lieu) puis les compétences (gris), en pastilles. */
 .etq { display: inline-flex; align-items: center; max-width: 100%; padding: 2px 8px; border: 1px solid transparent; border-radius: var(--r-s);
   font-size: 12px; font-weight: 600; line-height: 16px; overflow-wrap: anywhere; }
-.etq--spec { background: var(--cyan-clair); border-color: var(--cyan-clair); color: var(--cyan-texte); }
+.etq--spec { background: var(--teal-clair); border-color: var(--teal-bord); color: var(--teal-texte); }
 .etq--comp { background: var(--surface-2); border-color: var(--bord-carte); color: var(--encre-forte); }
 .cmi { display: flex; align-items: center; gap: 3px; font-size: .725rem; color: var(--gris); font-weight: 600; }
 .ctags { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; padding-right: 6rem; }
@@ -2943,7 +2943,7 @@ function skillLabels(j) {
   return Object.keys(SKILLS_FAMILIES).flatMap(f => (s[f] || []).map(l => ({ famille: f, label: l })));
 }
 
-// Ligne 2 de la carte : la spécialité (pastille cyan, celle qui sert au
+// Ligne 2 de la carte : la spécialité (pastille teal, celle qui sert au
 // filtrage), puis les compétences (pastilles grises). Trois compétences au
 // plus ; le reste tient dans une pastille « +N » dont le titre les liste :
 // aucune information n'est perdue en silence.
