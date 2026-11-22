@@ -303,40 +303,67 @@ for (const [nom, format] of [['bureau', aide.FORMATS.bureau], ['téléphone', ai
 }
 
 test('T12 — au chargement normal, le hero ne bouge pas quand les chiffres arrivent', async () => {
+  /* On mesure la position et la hauteur des éléments du hero juste avant et
+     bien après l'arrivée des chiffres. Un score de décalage de mise en page
+     n'est pas assez précis ici : il attribue au hero toute l'entrée dès qu'un
+     seul de ses éléments y participe, donc il compte aussi ce qui bouge plus
+     bas dans la page (les cartes d'offres qui arrivent). Le 22/11/2026, c'est
+     ainsi qu'un vrai saut de 27,7 px (le sous-titre perdait une ligne, la
+     recherche remontait) a été signalé en CI, puis une valeur résiduelle qui
+     ne venait pas du hero. */
   await aide.demarrerServeur();
   await aide.demarrerNavigateur();
   try {
     for (const format of [aide.FORMATS.bureau, aide.FORMATS.phone]) {
       const { ctx, page } = await aide.ouvrirPage(format);
       try {
-        /* On isole ce que le test annonce : l'arrivée des chiffres. Inter est
-           bloquée, donc aucun remplacement de police ne vient s'ajouter aux
-           décalages comptés (il en faisait varier la valeur selon la machine :
-           0,019 en CI, sous 0,01 en local, et le déploiement s'arrêtait). Le
-           remplacement de police a son propre test, plus bas. */
+        /* Inter est bloquée : le remplacement de police a son propre test, plus
+           bas. Les chiffres sont retardés de 400 ms pour que la première mesure
+           tombe sûrement avant leur arrivée, quelle que soit la vitesse de la
+           machine (sans cela le test pourrait ne rien comparer). */
         await page.route('**/assets/polices/*.woff2', (r) => r.abort());
+        await page.route('**/stats/published*', async (r) => {
+          await new Promise((ok) => setTimeout(ok, 400));
+          r.fallback();
+        });
         await page.addInitScript(() => {
-          window.__decalages = 0;
-          new PerformanceObserver((liste) => {
-            for (const e of liste.getEntries()) {
-              if (e.hadRecentInput) continue;
-              /* Seuls comptent les décalages du hero lui-même. */
-              const touche = (e.sources || []).some((s) => s.node && s.node.closest && s.node.closest('.hero'));
-              if (touche) window.__decalages += e.value;
+          const SEL = { titre: '.hero h1', sous_titre: '.hero .sub', recherche: '.hero .sbar',
+                        filtres: '.hero .filtres-entrees', panneau: '.hero aside' };
+          const mesure = () => {
+            const m = {};
+            for (const [nom, sel] of Object.entries(SEL)) {
+              const el = document.querySelector(sel);
+              if (!el) return null;
+              const r = el.getBoundingClientRect();
+              m[nom] = { haut: r.top + window.scrollY, hauteur: r.height };
             }
-          }).observe({ type: 'layout-shift', buffered: true });
+            return m;
+          };
+          window.__premiere = null;
+          const boucle = () => {
+            if (!window.__premiere) window.__premiere = mesure();
+            if (!window.__premiere || performance.now() < 3000) requestAnimationFrame(boucle);
+          };
+          requestAnimationFrame(boucle);
+          window.__mesure = mesure;
         });
         await page.goto(aide.BASE + '/index.html', { waitUntil: 'domcontentloaded' });
-        const tot = await page.evaluate(() => document.querySelector('.hero').getBoundingClientRect().height);
-        await aide.attendre(page, 2000);
-        const fin = await page.evaluate(() => ({
-          hero: document.querySelector('.hero').getBoundingClientRect().height,
-          decalages: window.__decalages,
+        await aide.attendre(page, 2500);
+        const r = await page.evaluate(() => ({
+          premiere: window.__premiere,
+          fin: window.__mesure(),
           offres: document.getElementById('f-offres').textContent.trim(),
+          texte: document.getElementById('chiffre-hero').textContent.trim(),
         }));
-        assert.equal(fin.offres, String(TOTAL), 'les chiffres ne sont pas arrivés');
-        assert.ok(Math.abs(fin.hero - tot) <= 1, `le hero a changé de hauteur : ${tot} → ${fin.hero} px`);
-        assert.ok(fin.decalages < 0.01, `décalage de mise en page dans le hero : ${fin.decalages}`);
+        assert.equal(r.offres, String(TOTAL), 'les chiffres ne sont pas arrivés');
+        assert.ok(r.premiere, 'aucune mesure avant l\'arrivée des chiffres');
+        assert.notEqual(r.texte, 'Les offres', 'le sous-titre n\'a pas reçu son chiffre');
+        for (const nom of Object.keys(r.premiere)) {
+          const d = r.fin[nom].haut - r.premiere[nom].haut;
+          const h = r.fin[nom].hauteur - r.premiere[nom].hauteur;
+          assert.ok(Math.abs(d) <= 1 && Math.abs(h) <= 1,
+            `« ${nom} » a bougé à l'arrivée des chiffres : position ${d.toFixed(1)} px, hauteur ${h.toFixed(1)} px`);
+        }
       } finally {
         await ctx.close();
       }
