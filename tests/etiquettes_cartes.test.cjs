@@ -2,11 +2,13 @@
    LES ÉTIQUETTES DES CARTES (T10, décision D8 : cahier des charges du propriétaire)
 
    Une carte (accueil `.oc`, board `.jc`) a deux blocs, soumis à la MÊME règle
-   (assets/cartes-lignes.js, demandée par le propriétaire) : 3 éléments au plus par
-   ligne, 2 au moins (sauf s'il n'y en a qu'un) ; les faits (4 au plus) font 2 lignes
-   au plus ; « +N » ne cache jamais plus de 2 éléments et n'existe que s'il fait
-   gagner une ligne : sinon tout s'affiche et le bloc des étiquettes prend 3 lignes
-   ou plus (7 éléments → 5 + « +2 » ; 8 ou 9 → tous ; 10 → 8 + « +2 »…).
+   (assets/cartes-lignes.js, demandée par le propriétaire) : 4 éléments au plus par
+   ligne, 2 au moins (sauf s'il n'y en a qu'un) ; « +N » ne cache jamais plus de 2
+   éléments et n'existe que s'il fait gagner une ligne : sinon tout s'affiche et le
+   bloc des étiquettes prend 3 lignes ou plus (9 éléments → 7 + « +2 » ; 10 à 12 →
+   tous ; 13 → 11 + « +2 »…). 4 est un plafond : si 4 éléments coupent un texte (« Casablanca
+   (M… »), la ligne passe à 3 puis 2 (mesure faite par `ajuster`, au chargement, à
+   chaque changement de largeur et à l'arrivée des polices).
 
    BLOC 1 — les faits : lieu, contrat, expérience, salaire (quand il est publié).
      • ni pastille, ni fond, ni bordure ;
@@ -195,19 +197,16 @@ function verifier(quoi, lecture, largeur) {
     // ── La règle des lignes, pour les deux blocs ──
     const regle = (nom, lignes, total) => {
       for (const n of lignes) {
-        assert.ok(n <= 3, `${ou} : ${nom} : une ligne de ${n} éléments (3 au plus)`);
+        assert.ok(n <= 4, `${ou} : ${nom} : une ligne de ${n} éléments (4 au plus)`);
         if (total > 1) assert.ok(n >= 2, `${ou} : ${nom} : une ligne de ${n} élément (2 au moins)`);
       }
       assert.equal(lignes.reduce((a, b) => a + b, 0), total, `${ou} : ${nom} : tous les éléments sont dans une ligne`);
+      // Le découpage est celui que la règle calcule pour 4, 3 ou 2 éléments par ligne au plus.
+      const permis = [4, 3, 2].filter((m) => REGLE.valable(total, m)).map((m) => String(REGLE.tailles(total, m)));
+      assert.ok(total < 2 || permis.includes(String(lignes)), `${ou} : ${nom} : découpage ${lignes} hors de la règle (${permis.join(' | ')})`);
     };
     regle('les faits', c.lignesFaits, c.items.length);
-    assert.ok(c.lignesFaits.length <= 2, `${ou} : les faits sur ${c.lignesFaits.length} lignes (2 au plus)`);
     regle('les pastilles', c.lignesPastilles, c.pastilles.length);
-    // Les pastilles suivent la règle partagée : mêmes lignes que celles qu'elle calcule.
-    assert.deepEqual(c.lignesPastilles, REGLE.tailles(c.pastilles.length), `${ou} : répartition des pastilles`);
-    // Quatre faits : 2 + 2 ; trois : 3.
-    if (c.items.length === 4) assert.deepEqual(c.lignesFaits, [2, 2], `${ou} : quatre faits font 2 + 2`);
-    if (c.items.length === 3) assert.deepEqual(c.lignesFaits, [3], `${ou} : trois faits font 3`);
     // Rien ne recouvre ni ne coupe une pastille ; la date reste dans la carte.
     assert.ok(c.dateDansCarte, `${ou} : la date sort de la carte`);
     for (const p of c.pastilles) {
@@ -304,7 +303,7 @@ function verifier(quoi, lecture, largeur) {
   assert.ok(vu.sansCompetences >= 1 || cartes.length < 6, `${quoi} : cartes sans compétences présentes`);
   assert.ok(vu.sansSpecialite >= 1, `${quoi} : cartes sans spécialité présentes`);
   assert.ok(vu.plus >= 1, `${quoi} : au moins une carte avec « +N »`);
-  assert.ok(vu.troisLignes >= 1, `${quoi} : au moins une carte avec 3 lignes d'étiquettes`);
+  if (/^board/.test(quoi)) assert.ok(vu.troisLignes >= 1, `${quoi} : au moins une carte avec 3 lignes d'étiquettes`);
   assert.ok(vu.traits >= 3, `${quoi} : des traits entre voisins (${vu.traits})`);
   assert.equal(lecture.debordePage, false, `${quoi} : défilement horizontal`);
   return vu;
@@ -353,19 +352,19 @@ test('T10 — aucune information retirée : les valeurs de la première carte, e
         assert.deepEqual(c.items.map((i) => i.titre), [
           'Localisation : Paris', 'Contrat : CDI', 'Expérience : Junior', 'Salaire : 45–55 k€/an',
         ], `${surface.nom} : lieu, contrat, expérience, salaire`);
-        assert.deepEqual(c.lignesFaits, [2, 2], `${surface.nom} : quatre faits, 2 + 2`);
+        assert.deepEqual(c.lignesFaits, [4], `${surface.nom} : quatre faits courts, une seule ligne de 4`);
         assert.ok(c.items.every((i) => i.texte === i.titre.split(' : ')[1]), 'le texte affiché est la valeur');
         if (surface.nom === 'board') {
           // Board : spécialité + 7 compétences (outils, données, réglementation) = 8 éléments :
           // tous affichés, sur 3 lignes (3 + 3 + 2), pas de « +N ».
           assert.deepEqual(c.pastilles.map((p) => p.texte), ['Actuariat', 'Python', 'SQL', 'Excel', 'Tableau / BI', 'Power BI', 'Solvabilité II', 'IFRS 17']);
-          assert.deepEqual(c.lignesPastilles, [3, 3, 2]);
+          assert.equal(c.lignesPastilles.length, 2, 'huit éléments : 2 lignes');
         } else {
           // Accueil : outils et réglementation seulement = 6 éléments, tous affichés.
           assert.deepEqual(c.pastilles.map((p) => p.texte), ['Actuariat', 'Python', 'SQL', 'Excel', 'Solvabilité II', 'IFRS 17']);
-          assert.deepEqual(c.lignesPastilles, [3, 3]);
+          assert.equal(c.lignesPastilles.length, 2, 'six éléments : 2 lignes');
         }
-        // La 4e offre (7 compétences lues sur l'accueil, 9 sur le board) : « +2 », jamais davantage.
+        // Une carte avec « +2 » (9 éléments), jamais davantage.
         const avecPlus = cartes.find((x) => x.pastilles.some((p) => /etq--plus/.test(p.classe)));
         assert.ok(avecPlus, `${surface.nom} : une carte avec « +2 »`);
         assert.equal(avecPlus.pastilles[avecPlus.pastilles.length - 1].texte, '+2', `${surface.nom} : « +2 »`);
@@ -394,6 +393,49 @@ test('T10 — une compétence qui contient du HTML est écrite, pas interprété
         assert.equal(r.enfants, 0, `${surface.nom} : aucune balise dans la pastille`);
         assert.equal(r.texte, '<img data-injecte>', `${surface.nom} : le texte est affiché tel quel (${r.texte})`);
         assert.equal(r.injecte, false, `${surface.nom} : rien n'a été injecté`);
+      } finally { await ctx.close(); }
+    }
+  } finally { await aide.arreterNavigateur(); await aide.arreterServeur(); }
+});
+
+test('T10 — 4 par ligne quand ça tient, 2 + 2 quand ça coupe un texte (téléphone, 390 px)', async () => {
+  await aide.demarrerServeur();
+  await aide.demarrerNavigateur();
+  try {
+    for (const surface of SURFACES) {
+      const { ctx, page } = await ouvrir(surface, aide.FORMATS.phone, 'jour');
+      try {
+        const { cartes } = await page.evaluate(lireCartes, surface.cartes);
+        // Quatre faits courts (Paris, CDI, Junior, 45–55 k€/an) : une seule ligne de 4.
+        assert.deepEqual(cartes[0].lignesFaits, [4], `${surface.nom} : quatre faits courts tiennent sur une ligne`);
+        // Quatre faits dont « Casablanca (Maroc) » : 4 coupent un texte, la ligne passe à 2 + 2, rien n'est coupé.
+        const long = cartes.find((x) => x.items.length === 4 && x.items[0].titre === 'Localisation : Casablanca (Maroc)');
+        assert.ok(long, `${surface.nom} : une carte à quatre faits avec Casablanca (Maroc)`);
+        assert.deepEqual(long.lignesFaits, [2, 2], `${surface.nom} : Casablanca (Maroc) et trois autres faits : 2 + 2`);
+        assert.ok(long.items.every((i) => !i.tronque), `${surface.nom} : aucun fait coupé`);
+      } finally { await ctx.close(); }
+    }
+  } finally { await aide.arreterNavigateur(); await aide.arreterServeur(); }
+});
+
+test('T10 — la mesure suit la largeur : de 1440 à 390 px, les lignes se refont sans rien couper', async () => {
+  await aide.demarrerServeur();
+  await aide.demarrerNavigateur();
+  try {
+    for (const surface of SURFACES) {
+      const { ctx, page } = await ouvrir(surface, aide.FORMATS.bureau, 'jour');
+      try {
+        await page.setViewportSize({ width: 390, height: 900 });
+        await aide.attendre(page, 600);
+        const { cartes } = await page.evaluate(lireCartes, surface.cartes);
+        const long = cartes.find((x) => x.items.length === 4 && x.items[0].titre === 'Localisation : Casablanca (Maroc)');
+        assert.deepEqual(long.lignesFaits, [2, 2], `${surface.nom} : après le passage à 390 px : 2 + 2`);
+        assert.ok(long.items.every((i) => !i.tronque), `${surface.nom} : aucun fait coupé après le changement de largeur`);
+        // Et dans l'autre sens : retour à 1440 px, les quatre faits courts reprennent une ligne.
+        await page.setViewportSize({ width: 1440, height: 900 });
+        await aide.attendre(page, 600);
+        const retour = (await page.evaluate(lireCartes, surface.cartes)).cartes;
+        assert.deepEqual(retour[0].lignesFaits, [4], `${surface.nom} : retour à 1440 px : une ligne de 4`);
       } finally { await ctx.close(); }
     }
   } finally { await aide.arreterNavigateur(); await aide.arreterServeur(); }
