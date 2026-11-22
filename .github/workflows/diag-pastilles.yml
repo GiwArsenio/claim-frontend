@@ -1,7 +1,7 @@
 name: Diagnostic pastilles (temporaire)
 on:
   push:
-    branches: [design/diag-pastilles]
+    branches: [design/diag-pastilles2]
 permissions:
   contents: read
 jobs:
