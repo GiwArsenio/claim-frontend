@@ -17,11 +17,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
-      - name: AVEC la correction (attendu - vert, 3 fois)
+      - name: SANS la correction du code (attendu - rouge) - sortie complete
         run: |
-          for i in 1 2 3; do node tools/run-tests.cjs --fichier=tests/accueil_releve.test.cjs 2>&1 | grep -E "accueil_releve.test.cjs \.\.\.|a bougé"; done
-      - name: SANS la correction du code (attendu - rouge)
-        run: |
-          git checkout origin/main -- index.html 2>/dev/null || git fetch origin main --depth=1 && git checkout FETCH_HEAD -- index.html
+          git checkout origin/main -- index.html
           grep -c sousTitre index.html || true
-          for i in 1 2; do node tools/run-tests.cjs --fichier=tests/accueil_releve.test.cjs 2>&1 | grep -E "accueil_releve.test.cjs \.\.\.|a bougé"; done
+          node tools/run-tests.cjs --fichier=tests/accueil_releve.test.cjs 2>&1 | grep -E "✖|✔|AssertionError|a bougé|Error" | cut -c1-300 || true
