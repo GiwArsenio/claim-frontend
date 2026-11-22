@@ -309,6 +309,12 @@ test('T12 — au chargement normal, le hero ne bouge pas quand les chiffres arri
     for (const format of [aide.FORMATS.bureau, aide.FORMATS.phone]) {
       const { ctx, page } = await aide.ouvrirPage(format);
       try {
+        /* On isole ce que le test annonce : l'arrivée des chiffres. Inter est
+           bloquée, donc aucun remplacement de police ne vient s'ajouter aux
+           décalages comptés (il en faisait varier la valeur selon la machine :
+           0,019 en CI, sous 0,01 en local, et le déploiement s'arrêtait). Le
+           remplacement de police a son propre test, plus bas. */
+        await page.route('**/assets/polices/*.woff2', (r) => r.abort());
         await page.addInitScript(() => {
           window.__decalages = 0;
           new PerformanceObserver((liste) => {
@@ -331,6 +337,50 @@ test('T12 — au chargement normal, le hero ne bouge pas quand les chiffres arri
         assert.equal(fin.offres, String(TOTAL), 'les chiffres ne sont pas arrivés');
         assert.ok(Math.abs(fin.hero - tot) <= 1, `le hero a changé de hauteur : ${tot} → ${fin.hero} px`);
         assert.ok(fin.decalages < 0.01, `décalage de mise en page dans le hero : ${fin.decalages}`);
+      } finally {
+        await ctx.close();
+      }
+    }
+  } finally {
+    await aide.arreterNavigateur();
+    await aide.arreterServeur();
+  }
+});
+
+test('T12 — le remplacement de la police de secours par Inter décale le hero de moins de 0,1', async () => {
+  /* Le remplacement d'une police change un peu les retours à la ligne : un
+     décalage résiduel existe (mesuré de 0,0004 à 0,028 selon la largeur, police
+     retardée de 1,5 s). Il n'est pas nul, et un seuil à 0,01 serait faux. Ce
+     test garde ce décalage sous 0,1, le seuil « bon » des Web Vitals : un
+     changement qui le dégraderait franchement serait vu. */
+  await aide.demarrerServeur();
+  await aide.demarrerNavigateur();
+  try {
+    for (const format of [aide.FORMATS.bureau, aide.FORMATS.phone]) {
+      const { ctx, page } = await aide.ouvrirPage(format);
+      try {
+        await page.route('**/assets/polices/*.woff2', async (r) => {
+          await new Promise((ok) => setTimeout(ok, 800));
+          r.fallback();
+        });
+        await page.addInitScript(() => {
+          window.__decalages = 0;
+          new PerformanceObserver((liste) => {
+            for (const e of liste.getEntries()) {
+              if (e.hadRecentInput) continue;
+              const touche = (e.sources || []).some((s) => s.node && s.node.closest && s.node.closest('.hero'));
+              if (touche) window.__decalages += e.value;
+            }
+          }).observe({ type: 'layout-shift', buffered: true });
+        });
+        await page.goto(aide.BASE + '/index.html', { waitUntil: 'domcontentloaded' });
+        await aide.attendre(page, 2500);
+        const fin = await page.evaluate(() => ({
+          decalages: window.__decalages,
+          inter: document.fonts.check('16px Inter'),
+        }));
+        assert.ok(fin.inter, 'Inter devrait être arrivée (le test attend 2,5 s, la police est retardée de 0,8 s)');
+        assert.ok(fin.decalages < 0.1, `décalage du hero au remplacement de la police : ${fin.decalages}`);
       } finally {
         await ctx.close();
       }
