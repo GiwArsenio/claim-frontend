@@ -6,7 +6,8 @@
    découpée par spécialité), deux tuiles, quatre pastilles. Ce fichier tient ce
    qui ne doit plus se défaire :
 
-     • le titre n'a plus de mots colorés (décision D5) ;
+     • le titre garde ses trois mots en teal (actuariat, data, IA ; la décision
+       D5 « H1 sans accent » est annulée par le propriétaire) ;
      • les valeurs viennent de /stats/published, au format français ;
      • la somme des spécialités n'est JAMAIS présentée comme le total : les
        fixtures donnent TOTAL offres pour 38 classées, et une pastille « Pas
@@ -75,33 +76,64 @@ function lirePanneau() {
   };
 }
 
-test('T12 — le titre n\'a plus de mot coloré (D5)', async () => {
-  await aide.demarrerServeur();
-  await aide.demarrerNavigateur();
-  try {
-    const { ctx, page } = await aide.ouvrirPage(aide.FORMATS.bureau);
+for (const theme of ['jour', 'nuit']) {
+  test(`T12 — le titre a ses trois mots en teal, lisibles (${theme})`, async () => {
+    await aide.demarrerServeur();
+    await aide.demarrerNavigateur();
     try {
-      await ouvrirAccueil(page);
-      const h1 = await page.evaluate(() => {
-        const t = document.querySelector('h1');
-        return {
-          texte: t.textContent.trim(),
-          balises: t.querySelectorAll('*').length,
-          couleur: getComputedStyle(t).color,
-          couleurCorps: getComputedStyle(document.body).color,
-        };
-      });
-      assert.equal(h1.texte, 'Toutes les offres en actuariat, data et IA en assurance.');
-      assert.equal(h1.balises, 0, 'le titre contient encore des balises (<em>, <span>…) de couleur');
-      assert.equal(h1.couleur, h1.couleurCorps, 'le titre n\'a pas la couleur du texte principal');
+      const { ctx, page } = await aide.ouvrirPage(aide.FORMATS.bureau, { theme });
+      try {
+        await ouvrirAccueil(page);
+        const h1 = await page.evaluate(() => {
+          const rgba = (c) => {
+            const m = c.match(/rgba?\(([^)]+)\)/);
+            const [r, g, b, a = 1] = m[1].split(/[ ,/]+/).filter(Boolean).map(Number);
+            return { r, g, b, a };
+          };
+          const lum = ({ r, g, b }) => {
+            const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+            return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+          };
+          const fond = (el) => {
+            for (let e = el; e; e = e.parentElement) {
+              const c = rgba(getComputedStyle(e).backgroundColor);
+              if (c.a > 0.99) return c;
+            }
+            return { r: 255, g: 255, b: 255, a: 1 };
+          };
+          const t = document.querySelector('h1');
+          const teal = (() => {
+            const i = document.createElement('i');
+            i.style.color = 'var(--teal)'; t.appendChild(i);
+            const c = getComputedStyle(i).color; i.remove(); return c;
+          })();
+          const mots = [...t.querySelectorAll('em')].map((e) => {
+            const s = getComputedStyle(e);
+            const [x, y] = [lum(rgba(s.color)), lum(fond(e))].sort((p, q) => q - p);
+            return { texte: e.textContent, couleur: s.color, style: s.fontStyle,
+                     rapport: Math.round(((x + 0.05) / (y + 0.05)) * 100) / 100 };
+          });
+          return { texte: t.textContent.trim(), mots, teal, couleur: getComputedStyle(t).color,
+                   theme: document.documentElement.getAttribute('data-theme') };
+        });
+        if (theme === 'nuit') assert.equal(h1.theme, 'nuit', 'le thème nuit n\'est pas appliqué');
+        assert.equal(h1.texte, 'Toutes les offres en actuariat, data et IA en assurance.');
+        assert.deepEqual(h1.mots.map((m) => m.texte), ['actuariat', 'data', 'IA']);
+        for (const m of h1.mots) {
+          assert.equal(m.couleur, h1.teal, `« ${m.texte} » n'est pas en teal (${theme})`);
+          assert.equal(m.style, 'normal', `« ${m.texte} » est en italique`);
+          assert.ok(m.rapport >= 4.5, `« ${m.texte} » : contraste ${m.rapport}:1 (${theme})`);
+        }
+        assert.notEqual(h1.couleur, h1.teal, 'le reste du titre ne doit pas être teal');
+      } finally {
+        await ctx.close();
+      }
     } finally {
-      await ctx.close();
+      await aide.arreterNavigateur();
+      await aide.arreterServeur();
     }
-  } finally {
-    await aide.arreterNavigateur();
-    await aide.arreterServeur();
-  }
-});
+  });
+}
 
 test('T12 — le panneau montre les valeurs de /stats/published, sans prendre la somme pour le total', async () => {
   await aide.demarrerServeur();
