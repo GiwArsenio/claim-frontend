@@ -158,11 +158,12 @@
   margin-left: auto; font-weight: 800; color: var(--encre); font-variant-numeric: tabular-nums;
 }
 .releve-pastilles .n.attente { color: var(--gris-doux); }
-/* Le rond reprend la couleur de la part de la jauge ; un fin contour le garde
+/* Le rond reprend la couleur de la part de la jauge ; un fin contour (une
+   bordure, pas une ombre : l'échelle d'ombres est celle du thème) le garde
    visible quand la teinte est proche du fond de la pastille. */
 .releve-pt {
-  flex: 0 0 auto; width: .8rem; height: .8rem; border-radius: 50%;
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--encre) 28%, transparent);
+  flex: 0 0 auto; box-sizing: border-box; width: .8rem; height: .8rem; border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--encre) 28%, transparent);
 }
 .releve-pastilles li:nth-child(1) .releve-pt { background: var(--c1); }
 .releve-pastilles li:nth-child(2) .releve-pt { background: var(--c2); }
