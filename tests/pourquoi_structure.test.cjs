@@ -1,15 +1,16 @@
 /* ─────────────────────────────────────────────────────────────────────────────
-   « POURQUOI CLAIM! » : SANS CARTES IMBRIQUÉES NI PASTILLES D'ICÔNE
+   « POURQUOI CLAIM! » : UN SEUL ENCADRÉ, SANS CARTES IMBRIQUÉES NI PASTILLES D'ICÔNE
 
    La section portait une carte blanche qui contenait trois cartes bordées,
    chacune avec une pastille d'icône carrée au-dessus du titre. Elle se lit
-   désormais en trois colonnes séparées par un filet, à même le fond de la
-   page (une colonne sur téléphone, filets horizontaux).
+   désormais en trois colonnes séparées par un filet, dans un seul encadré
+   blanc (le .panneau de « Ils recrutent en ce moment ») ; une colonne sur
+   téléphone, filets horizontaux.
 
    Ce fichier tient :
      • le texte et la hiérarchie des titres (h2, puis trois h3) : inchangés ;
-     • aucune carte (bordure complète, fond de carte, ombre) dans la section,
-       donc aucune carte dans une carte ;
+     • une seule carte (bordure complète, fond de carte, ombre) dans la
+       section : l'encadré. Aucune carte dans une carte ;
      • aucune pastille d'icône : l'icône est nue, sans fond ni bordure ;
      • aucune numérotation : le contenu n'est pas une séquence ;
      • trois colonnes au bureau, une seule sur téléphone, sans débordement ;
@@ -130,7 +131,7 @@ function mesurer() {
 
 for (const [nom, format] of [['bureau 1440 px', BUREAU], ['téléphone 390 px', PHONE]]) {
   for (const theme of ['jour', 'nuit']) {
-    test(`Pourquoi Claim! — ${nom}, ${theme} : sans cartes, sans pastilles, lisible`, async () => {
+    test(`Pourquoi Claim! — ${nom}, ${theme} : un seul encadré, sans pastilles, lisible`, async () => {
       await aide.demarrerServeur();
       await aide.demarrerNavigateur();
       try {
@@ -145,8 +146,8 @@ for (const [nom, format] of [['bureau 1440 px', BUREAU], ['téléphone 390 px', 
           assert.deepEqual(m.h3, TITRES);
           assert.deepEqual(m.paragraphes, TEXTES);
 
-          /* Aucune carte, donc aucune carte imbriquée. */
-          assert.deepEqual(m.cartes, [], `éléments en forme de carte : ${JSON.stringify(m.cartes)}`);
+          /* Un seul encadré, donc aucune carte imbriquée : ni dans l'encadré, ni autour. */
+          assert.deepEqual(m.cartes, ['panneau'], `éléments en forme de carte : ${JSON.stringify(m.cartes)}`);
 
           /* Aucune pastille : le parent de l'icône n'a ni fond, ni bordure, ni rayon. */
           assert.equal(m.pastilles.length, 3, 'trois icônes attendues');

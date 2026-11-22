@@ -2,9 +2,10 @@
    ACCUEIL — LE PANNEAU « RELEVÉ DU JOUR »
 
    Le site relève, chaque matin, les sites carrières des employeurs : c'est son
-   idée. Le panneau la montre au lieu de la dire. Il se lit comme un relevé :
-   un intitulé, des lignes « libellé ........ valeur » à points de conduite, puis
-   la répartition par spécialité.
+   idée. Le panneau la montre au lieu de la dire. Un bandeau porte l'intitulé,
+   la date du relevé et une demi-jauge : au centre, le nombre d'offres en ligne ;
+   la bande se découpe par spécialité. Dessous, deux tuiles (employeurs,
+   sources) et quatre pastilles, une par part de la jauge.
 
    Ce fichier est à part de la feuille inline de index.html : il remplace le
    bandeau de quatre chiffres (décision D7) sans toucher au reste du CSS.
@@ -12,13 +13,17 @@
    Règles tenues ici
      • Aucune couleur en dur : que des jetons de assets/theme.css, donc jour et
        nuit sont servis par les mêmes règles.
-     • Aucun mouvement : les barres sont posées d'un coup, jamais animées.
+     • Aucun mouvement : la jauge est posée d'un coup, jamais animée.
      • Hauteur réservée : le panneau a la même hauteur en attente, chargé et en
-       panne (une ligne d'état unique, des lignes déjà présentes avec « — »),
-       donc rien ne bouge quand les chiffres arrivent.
-     • La somme des spécialités n'est PAS le total : une dernière ligne, « Pas
-       encore classées », rend l'écart lisible. Les barres sont mesurées sur le
-       total des offres en ligne.
+       panne (des « — » déjà présents, une ligne d'état qui prend la place d'un
+       libellé), donc rien ne bouge quand les chiffres arrivent.
+     • La somme des spécialités n'est PAS le total : la dernière part, « Pas
+       classées », porte l'écart. La jauge est mesurée sur le total des offres
+       en ligne.
+     • L'association pastille ↔ part passe par la couleur du rond ; le nom et le
+       nombre sont écrits dans la pastille, et la jauge a un texte alternatif
+       qui les redit : rien ne dépend de la seule couleur.
+     • Texte jamais sous 12 px.
    ───────────────────────────────────────────────────────────────────────────── */
 
 /* ── Mise en page du hero : texte à gauche, relevé à droite (≥ 1024 px) ───── */
@@ -34,74 +39,154 @@
 
 /* ── Le panneau ───────────────────────────────────────────────────────────── */
 .releve {
+  /* Les quatre parts : du teal de marque au gris, de la plus foncée à la plus
+     claire. La jauge et les ronds des pastilles lisent les mêmes variables. */
+  --c1: var(--teal);
+  --c2: color-mix(in srgb, var(--teal) 70%, var(--surface));
+  --c3: color-mix(in srgb, var(--teal) 42%, var(--surface));
+  --c4: color-mix(in srgb, var(--gris) 45%, var(--surface));
+  --piste: color-mix(in srgb, var(--gris) 16%, var(--teal-pale));
+  --ecart: 1.8deg; /* petit blanc entre deux parts */
+
   background: var(--surface);
   border: 1px solid var(--bord-carte, var(--bord));
+  border-top: 3px solid var(--teal);
   border-radius: var(--r-l);
   box-shadow: var(--ombre-1);
   overflow: hidden;
   min-width: 0;
 }
 
-.releve-tete { background: var(--teal-fond); color: var(--blanc); padding: .8rem 1.25rem .75rem; }
-.releve-tete h2 { margin: 0; font-size: 1.125rem; font-weight: 800; letter-spacing: -.01em; line-height: 1.25; }
-/* Une seule ligne, réservée : « mis à jour » au repos, « indisponible » en panne. */
-.releve-etat { margin: .15rem 0 0; font-size: .8125rem; font-weight: 500; line-height: 1.3;
-               min-height: 1.3em; color: var(--blanc); opacity: .92; }
+/* ── Le bandeau : titre, date, jauge ──────────────────────────────────────── */
+.releve-haut {
+  background: var(--teal-pale);
+  padding: 1.15rem 1.5rem 0;
+  border-bottom: 1px solid var(--bord);
+}
+.releve-tete {
+  display: flex; justify-content: space-between; align-items: baseline;
+  gap: 1rem; margin: 0 0 .6rem;
+}
+.releve-tete h2 { margin: 0; font-size: 1.0625rem; font-weight: 800; letter-spacing: -.01em;
+                  line-height: 1.25; color: var(--encre); }
+.releve-quand { margin: 0; font-size: .8125rem; line-height: 1.3; color: var(--gris); white-space: nowrap; }
+.releve-quand .attente { color: var(--gris); }
 
-.releve-corps { padding: .5rem 1.25rem 1.1rem; }
+/* La demi-jauge. Sa largeur suit le panneau (300 px au plus) ; sa hauteur
+   garde la proportion. Le nombre se met à l'échelle de la jauge (unités `cqi`),
+   avec une taille de repli pour les navigateurs qui ne les connaissent pas. */
+.releve-jauge {
+  position: relative; overflow: hidden;
+  width: min(300px, 100%); aspect-ratio: 300 / 158;
+  margin: 0 auto; container-type: inline-size;
+}
+/* Le cercle entier, dont on ne voit que la moitié haute (le bas est rogné par
+   la jauge) et dont on creuse le centre : il reste une bande de 18,5 px pour
+   300 px de large, proportionnelle ensuite. */
+.releve-arc {
+  position: absolute; left: 0; top: 0; width: 100%; aspect-ratio: 1; border-radius: 50%;
+  -webkit-mask: radial-gradient(closest-side, transparent 0 87.5%, #000 88%);
+          mask: radial-gradient(closest-side, transparent 0 87.5%, #000 88%);
+  /* Avant l'arrivée des chiffres, et en panne : une piste neutre. */
+  background: conic-gradient(from 270deg, var(--piste) 0deg 180deg, transparent 180deg 360deg);
+}
+/* Chiffres chargés : le script pose --a1, --a2, --a3 (fin de chaque part, en
+   degrés sur 180) ; la dernière part va jusqu'à 180°. */
+.releve--charge .releve-arc {
+  background: conic-gradient(from 270deg,
+    var(--c1) 0deg calc(var(--a1) - var(--ecart)),
+    transparent calc(var(--a1) - var(--ecart)) var(--a1),
+    var(--c2) var(--a1) calc(var(--a2) - var(--ecart)),
+    transparent calc(var(--a2) - var(--ecart)) var(--a2),
+    var(--c3) var(--a2) calc(var(--a3) - var(--ecart)),
+    transparent calc(var(--a3) - var(--ecart)) var(--a3),
+    var(--c4) var(--a3) 180deg,
+    transparent 180deg 360deg);
+}
 
-/* Lignes à points de conduite : le libellé à gauche, la valeur à droite. Dans le
-   HTML la valeur (dt) précède son libellé (dd) ; row-reverse les remet dans
-   l'ordre de lecture visuel sans toucher aux `id` ni au balisage. */
-.releve-lignes { margin: 0; padding: 0; }
-.releve-ligne { display: flex; flex-direction: row-reverse; align-items: baseline;
-                gap: .6rem; padding: .5rem 0; margin: 0; min-width: 0; }
-.releve-ligne + .releve-ligne { border-top: 1px solid var(--bord); }
-.releve-ligne dt { margin: 0; flex: 0 0 auto; color: var(--encre); font-weight: 800; font-size: 1.0625rem;
-                   line-height: 1.2; font-variant-numeric: tabular-nums; letter-spacing: -.01em;
-                   /* Largeur réservée, alignée à droite : le « — » d'attente et le nombre
-                      qui le remplace occupent la même place, rien ne glisse. */
-                   min-width: 4.5ch; text-align: right; }
-.releve-ligne--vedette dt { min-width: 3ch; }
-#f-releve { min-width: 7.5ch; }
-.releve-ligne dd { margin: 0; flex: 1 1 auto; min-width: 0; display: flex; align-items: baseline; gap: .5rem;
-                   color: var(--gris); font-size: .875rem; line-height: 1.35; }
-.releve-ligne dd::after { content: ''; flex: 1 1 1rem; min-width: .75rem;
-                          border-bottom: 1px dotted var(--gris-doux); opacity: .7;
-                          transform: translateY(-.25em); }
-/* La ligne vedette : le nombre d'offres. */
-.releve-ligne--vedette { padding-top: .35rem; }
-.releve-ligne--vedette dt { font-size: 2.125rem; font-weight: 900; letter-spacing: -.04em; line-height: 1; }
-.releve-ligne--vedette dd { color: var(--encre); font-weight: 600; font-size: .9375rem; }
-/* Avant l'arrivée des chiffres, le tiret attend dans la couleur du filet. */
-.releve-ligne dt.attente { color: var(--gris-doux); }
+.releve-centre {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 58%;
+  display: grid; place-content: center; text-align: center;
+}
+.releve-centre strong {
+  font-size: 2.75rem; font-size: clamp(2rem, 14.7cqi, 2.75rem);
+  font-weight: 900; letter-spacing: -.04em; line-height: 1; color: var(--teal);
+  font-variant-numeric: tabular-nums; word-spacing: .15em;
+}
+.releve-centre strong.attente { color: var(--gris-doux); }
+.releve-libelle { margin-top: .3rem; font-size: .8125rem; line-height: 1.2; color: var(--gris); }
 
-/* ── Répartition par spécialité ───────────────────────────────────────────── */
-.releve-sous-titre { margin: .9rem 0 .25rem; font-size: .8125rem; font-weight: 700; color: var(--gris);
-                     line-height: 1.3; }
-.releve-repart { width: 100%; border-collapse: collapse; table-layout: fixed; }
-.releve-repart th, .releve-repart td { padding: .28rem 0; vertical-align: middle; }
-.releve-repart th { width: 46%; text-align: left; font-weight: 500; font-size: .875rem; color: var(--encre);
-                    line-height: 1.3; padding-right: .5rem; }
-.releve-repart .n { width: 2.6rem; text-align: right; font-size: .875rem; font-weight: 700; color: var(--encre);
-                    font-variant-numeric: tabular-nums; }
-.releve-repart .n.attente { color: var(--gris-doux); }
-.releve-repart .barre-cel { padding: .28rem .6rem; }
-.releve-piste { display: block; height: .5rem; border-radius: 9999px; background: var(--surface-2);
-                border: 1px solid var(--bord); overflow: hidden; }
-.releve-barre { display: block; height: 100%; width: calc(var(--part, 0) * 100%);
-                background: var(--teal); border-radius: 9999px; }
-.releve-barre--autre { background: var(--gris-doux); }
+/* Une seule ligne d'état, toujours dans le HTML (les lecteurs d'écran
+   l'annoncent) mais visuellement cachée tant que tout va bien. En panne, elle
+   prend la place du libellé : la hauteur du panneau ne change pas. */
+.releve-etat {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+  font-size: .8125rem; line-height: 1.2; color: var(--gris);
+}
+.releve--panne .releve-libelle { display: none; }
+.releve--panne .releve-etat {
+  position: static; width: auto; height: auto; margin: .3rem 0 0; overflow: visible; clip: auto;
+  white-space: normal; max-width: 15rem; justify-self: center;
+}
 
-/* ── Téléphone : le panneau passe sous la recherche, plus serré ───────────── */
+/* ── Le bas : deux tuiles, quatre pastilles ───────────────────────────────── */
+.releve-bas { padding: 1.1rem 1.5rem 1.35rem; container-type: inline-size; }
+
+.releve-tuiles { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; margin: 0; padding: 0; }
+.releve-tuile { background: var(--surface-2); border-radius: var(--r-m); padding: .6rem .85rem; min-width: 0; }
+.releve-tuile dt {
+  margin: 0; font-size: 1.3rem; font-weight: 800; line-height: 1.2; color: var(--encre);
+  font-variant-numeric: tabular-nums;
+}
+.releve-tuile dd { margin: 0; font-size: .8125rem; line-height: 1.3; color: var(--gris); }
+.releve-tuile dt.attente { color: var(--gris-doux); }
+
+/* Les pastilles : deux colonnes, donc toujours deux lignes. Le texte ne passe
+   jamais sous 12 px ; quand le panneau est étroit, on resserre les marges. */
+.releve-pastilles {
+  display: grid; grid-template-columns: 1fr 1fr; gap: .4rem;
+  margin: 1rem 0 0; padding: 0; list-style: none;
+}
+.releve-pastilles li {
+  display: flex; align-items: center; gap: .5rem; min-width: 0; white-space: nowrap;
+  padding: .3rem .8rem .3rem .65rem; border-radius: 9999px;
+  background: var(--surface-2); border: 1px solid var(--bord);
+  font-size: .8125rem; font-weight: 600; color: var(--gris);
+}
+.releve-pastilles .n {
+  margin-left: auto; font-weight: 800; color: var(--encre); font-variant-numeric: tabular-nums;
+}
+.releve-pastilles .n.attente { color: var(--gris-doux); }
+/* Le rond reprend la couleur de la part de la jauge ; un fin contour (une
+   bordure, pas une ombre : l'échelle d'ombres est celle du thème) le garde
+   visible quand la teinte est proche du fond de la pastille. */
+.releve-pt {
+  flex: 0 0 auto; box-sizing: border-box; width: .8rem; height: .8rem; border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--encre) 28%, transparent);
+}
+.releve-pastilles li:nth-child(1) .releve-pt { background: var(--c1); }
+.releve-pastilles li:nth-child(2) .releve-pt { background: var(--c2); }
+.releve-pastilles li:nth-child(3) .releve-pt { background: var(--c3); }
+.releve-pastilles li:nth-child(4) .releve-pt { background: var(--c4); }
+
+@container (max-width: 330px) {
+  .releve-pastilles li { font-size: .75rem; gap: .35rem; padding: .28rem .55rem .28rem .45rem; }
+  .releve-pt { width: .65rem; height: .65rem; }
+}
+@container (max-width: 270px) {
+  .releve-pastilles li { gap: .3rem; padding: .25rem .4rem .25rem .35rem; }
+  .releve-pt { width: .6rem; height: .6rem; }
+}
+
+/* ── Téléphone : le panneau passe sous la recherche ───────────────────────── */
 @media (max-width: 1023px) {
   .hero-grille { gap: 1.75rem; }
   .releve { max-width: 34rem; }
 }
 @media (max-width: 480px) {
   .releve { max-width: none; }
-  .releve-tete { padding-left: 1rem; padding-right: 1rem; }
-  .releve-corps { padding-left: 1rem; padding-right: 1rem; }
-  .releve-ligne--vedette dt { font-size: 1.875rem; }
-  .releve-repart th { width: 42%; }
+}
+@media (max-width: 360px) {
+  .releve-haut, .releve-bas { padding-left: 1rem; padding-right: 1rem; }
 }

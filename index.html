@@ -967,30 +967,37 @@ html[data-theme="nuit"] body {
    <!-- Le relevé du jour : il remplace le bandeau de quatre chiffres (D7).
         Les `id` f-offres, f-employeurs, f-sources, f-releve et f-releve-libelle
         sont ceux du bandeau : le script et les tests les lisent. La classe
-        `chiffres` est gardée pour la même raison. Dans chaque ligne la valeur
-        (dt) précède son libellé (dd) ; la feuille accueil-releve.css les remet
-        dans l'ordre de lecture visuel. -->
+        `chiffres` est gardée pour la même raison. Une jauge en demi-anneau
+        porte le total des offres au centre ; sa bande se découpe par
+        spécialité (le script pose les angles). Chaque pastille reprend, par un
+        petit rond, la couleur de sa part dans la jauge. Voir
+        assets/accueil-releve.css. -->
    <aside class="releve chiffres" aria-labelledby="releve-titre">
-    <div class="releve-tete">
-      <h2 id="releve-titre">Relevé du jour</h2>
-      <p class="releve-etat" id="releve-etat" role="status">Mis à jour chaque matin</p>
+    <div class="releve-haut">
+      <div class="releve-tete">
+        <h2 id="releve-titre">Relevé du jour</h2>
+        <p class="releve-quand" id="f-releve-libelle"><span id="f-releve-texte">Dernier relevé</span><span class="releve-sep">,</span> <span id="f-releve" class="attente">—</span></p>
+      </div>
+      <div class="releve-jauge">
+        <div class="releve-arc" role="img" aria-label="Répartition des offres par spécialité : chiffres en attente"></div>
+        <div class="releve-centre">
+          <strong id="f-offres" class="attente">—</strong>
+          <span class="releve-libelle">offres en ligne</span>
+          <p class="releve-etat" id="releve-etat" role="status">Mis à jour chaque matin</p>
+        </div>
+      </div>
     </div>
-    <div class="releve-corps">
-      <dl class="releve-lignes">
-        <div class="releve-ligne releve-ligne--vedette"><dt id="f-offres" class="attente">—</dt><dd>offres en ligne</dd></div>
-        <div class="releve-ligne"><dt id="f-employeurs" class="attente">—</dt><dd>employeurs qui recrutent</dd></div>
-        <div class="releve-ligne"><dt id="f-sources" class="attente">—</dt><dd>sources relevées</dd></div>
-        <div class="releve-ligne"><dt id="f-releve" class="attente">—</dt><dd id="f-releve-libelle"><span id="f-releve-texte">Dernier relevé</span></dd></div>
+    <div class="releve-bas">
+      <dl class="releve-tuiles">
+        <div class="releve-tuile"><dt id="f-employeurs" class="attente">—</dt><dd>employeurs qui recrutent</dd></div>
+        <div class="releve-tuile"><dt id="f-sources" class="attente">—</dt><dd>sources relevées</dd></div>
       </dl>
-      <h3 class="releve-sous-titre" id="releve-repart-titre">Répartition des offres</h3>
-      <table class="releve-repart" aria-labelledby="releve-repart-titre">
-        <tbody>
-          <tr><th scope="row">Actuariat</th><td class="barre-cel" aria-hidden="true"><span class="releve-piste"><span class="releve-barre" data-barre="actuariat"></span></span></td><td class="n attente" data-nombre="actuariat">—</td></tr>
-          <tr><th scope="row">IA / Data</th><td class="barre-cel" aria-hidden="true"><span class="releve-piste"><span class="releve-barre" data-barre="ia_data"></span></span></td><td class="n attente" data-nombre="ia_data">—</td></tr>
-          <tr><th scope="row">Souscription technique</th><td class="barre-cel" aria-hidden="true"><span class="releve-piste"><span class="releve-barre" data-barre="souscription_technique"></span></span></td><td class="n attente" data-nombre="souscription_technique">—</td></tr>
-          <tr><th scope="row">Pas encore classées</th><td class="barre-cel" aria-hidden="true"><span class="releve-piste"><span class="releve-barre releve-barre--autre" data-barre="autres"></span></span></td><td class="n attente" data-nombre="autres">—</td></tr>
-        </tbody>
-      </table>
+      <ul class="releve-pastilles" aria-label="Répartition des offres par spécialité">
+        <li><span class="releve-pt" aria-hidden="true"></span><span class="releve-nom">Actuariat</span><b class="n attente" data-nombre="actuariat">—</b></li>
+        <li><span class="releve-pt" aria-hidden="true"></span><span class="releve-nom">IA / Data</span><b class="n attente" data-nombre="ia_data">—</b></li>
+        <li><span class="releve-pt" aria-hidden="true"></span><span class="releve-nom">Souscription</span><b class="n attente" data-nombre="souscription_technique">—</b></li>
+        <li><span class="releve-pt" aria-hidden="true"></span><span class="releve-nom">Pas classées</span><b class="n attente" data-nombre="autres">—</b></li>
+      </ul>
     </div>
    </aside>
   </div>
@@ -1115,6 +1122,7 @@ html[data-theme="nuit"] body {
 
 <section class="surface pourquoi">
   <div class="env">
+    <div class="panneau">
     <div class="tete">
       <div>
         <h2>Pourquoi Claim!</h2>
@@ -1149,6 +1157,7 @@ html[data-theme="nuit"] body {
         <p>Actuariat, data, IA, souscription : rien d'autre. Pas d'« informatique » noyée dans
            1 200 annonces — le tri est fait à la collecte, pas à la main par le candidat.</p>
       </div>
+    </div>
     </div>
   </div>
 </section>
@@ -1400,6 +1409,10 @@ async function chargerChiffres() {
     // Les « — » restent en place (la hauteur du panneau ne bouge pas) et une
     // seule ligne, déjà réservée, dit pourquoi.
     if (etat) etat.textContent = 'Chiffres momentanément indisponibles';
+    // Le message se pose sous le « — » de la jauge, à la place du libellé :
+    // le panneau garde exactement la même hauteur.
+    const panneau = document.querySelector('.releve');
+    if (panneau) panneau.classList.add('releve--panne');
     return null;
   }
   if (etat) etat.textContent = texteRepos;
@@ -1428,14 +1441,16 @@ async function chargerChiffres() {
       poser(document.getElementById('f-releve'), `${hh} h ${mm}`);
       // Le texte seul : le libellé n'a pas d'autre enfant, mais l'id du texte
       // reste celui que lisent les tests.
-      document.getElementById('f-releve-texte').textContent = `Dernier relevé le ${jour}`;
+      document.getElementById('f-releve-texte').textContent = jour;
     }
   }
 
-  // Répartition par spécialité. Les barres se mesurent sur le TOTAL des offres
-  // en ligne : la somme des trois spécialités peut lui être inférieure (offres
-  // pas encore classées), et ne doit jamais passer pour le total. La dernière
-  // ligne rend cet écart lisible.
+  // Répartition par spécialité. La jauge se mesure sur le TOTAL des offres en
+  // ligne : la somme des trois spécialités peut lui être inférieure (offres pas
+  // encore classées), et ne doit jamais passer pour le total. La dernière part,
+  // « Pas encore classées », rend cet écart lisible. Chaque part est un angle
+  // de la demi-jauge (180°) que la feuille accueil-releve.css transforme en
+  // bande ; le script ne pose que des nombres.
   const total = Number(stats.jobs_online);
   const repart = stats.by_specialty && typeof stats.by_specialty === 'object' ? stats.by_specialty : null;
   if (repart && Number.isFinite(total)) {
@@ -1448,8 +1463,23 @@ async function chargerChiffres() {
     valeurs.autres = Math.max(0, total - somme);
     for (const [code, n] of Object.entries(valeurs)) {
       poser(document.querySelector(`[data-nombre="${code}"]`), nombre(n));
-      const barre = document.querySelector(`[data-barre="${code}"]`);
-      if (barre) barre.style.setProperty('--part', total > 0 ? Math.min(1, n / total).toFixed(4) : '0');
+    }
+    const arc = document.querySelector('.releve-arc');
+    if (arc && total > 0) {
+      // Angles cumulés : fin de la part 1, de la part 2, de la part 3. La part 4
+      // va jusqu'à 180°. Jamais au-delà, même si l'API se contredit.
+      let cumul = 0;
+      ['actuariat', 'ia_data', 'souscription_technique'].forEach((code, i) => {
+        cumul = Math.min(1, cumul + (valeurs[code] || 0) / total);
+        arc.style.setProperty(`--a${i + 1}`, `${(cumul * 180).toFixed(2)}deg`);
+      });
+      const panneau = document.querySelector('.releve');
+      if (panneau) panneau.classList.add('releve--charge');
+      // Le texte dit ce que la jauge montre : l'information ne dépend pas de la couleur.
+      arc.setAttribute('aria-label', 'Répartition des offres par spécialité : '
+        + `actuariat ${nombre(valeurs.actuariat || 0)}, IA / Data ${nombre(valeurs.ia_data || 0)}, `
+        + `souscription ${nombre(valeurs.souscription_technique || 0)}, `
+        + `pas encore classées ${nombre(valeurs.autres)}`);
     }
   }
 

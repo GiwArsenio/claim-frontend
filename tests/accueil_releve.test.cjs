@@ -2,13 +2,17 @@
    LE PANNEAU « RELEVÉ DU JOUR » DE L'ACCUEIL (T12)
 
    Le panneau remplace le bandeau de quatre chiffres (décision D7) et occupe la
-   moitié droite du hero. Ce fichier tient ce qui ne doit plus se défaire :
+   moitié droite du hero : une demi-jauge (total des offres au centre, bande
+   découpée par spécialité), deux tuiles, quatre pastilles. Ce fichier tient ce
+   qui ne doit plus se défaire :
 
      • le titre n'a plus de mots colorés (décision D5) ;
      • les valeurs viennent de /stats/published, au format français ;
      • la somme des spécialités n'est JAMAIS présentée comme le total : les
-       fixtures donnent TOTAL offres pour 38 classées, et une ligne « Pas encore
-       classées » porte les restantes ;
+       fixtures donnent TOTAL offres pour 38 classées, et une pastille « Pas
+       classées » porte les restantes ; la jauge est mesurée sur le total ;
+     • chaque pastille a un rond de la couleur de sa part dans la jauge, et
+       les pastilles tiennent sur deux lignes à toutes les largeurs ;
      • les chiffres s'alignent (`tabular-nums`) ;
      • en panne : « — » et un message, sans que la page change de hauteur ;
      • bureau : le panneau est à droite du titre ; téléphone : sous la
@@ -51,10 +55,9 @@ function lirePanneau() {
   document.querySelectorAll('[data-nombre]').forEach((el) => {
     nombres[el.dataset.nombre] = el.textContent.trim();
   });
-  const barres = {};
-  document.querySelectorAll('[data-barre]').forEach((el) => {
-    barres[el.dataset.barre] = parseFloat(el.style.getPropertyValue('--part'));
-  });
+  /* La jauge : fin de chaque part, en degrés sur 180 (posée par le script). */
+  const arc = document.querySelector('.releve-arc');
+  const angles = arc ? ['--a1', '--a2', '--a3'].map((v) => parseFloat(arc.style.getPropertyValue(v))) : [];
   const h1 = document.querySelector('h1');
   return {
     offres: txt('#f-offres'),
@@ -64,8 +67,9 @@ function lirePanneau() {
     libelleReleve: txt('#f-releve-texte'),
     etat: txt('#releve-etat'),
     nombres,
-    barres,
-    enAttente: document.querySelectorAll('.chiffres dt.attente, .releve .n.attente').length,
+    angles,
+    texteJauge: arc ? arc.getAttribute('aria-label') : null,
+    enAttente: document.querySelectorAll('.chiffres dt.attente, .releve .attente').length,
     h1Texte: h1 ? h1.textContent.trim() : null,
     h1Balises: h1 ? h1.querySelectorAll('*').length : -1,
   };
@@ -116,6 +120,15 @@ test('T12 — le panneau montre les valeurs de /stats/published, sans prendre la
       assert.match(p.libelleReleve, /22 octobre/, 'date du dernier relevé');
       assert.equal(p.enAttente, 0, 'des chiffres sont restés en attente');
       assert.equal(p.etat, 'Mis à jour chaque matin', 'ligne d\'état au repos');
+      const repos = await page.evaluate(() => ({
+        etatVisible: document.querySelector('.releve-etat').getBoundingClientRect().width > 2,
+        libelleVisible: document.querySelector('.releve-libelle').getBoundingClientRect().width > 2,
+        classes: document.querySelector('.releve').className,
+      }));
+      assert.equal(repos.etatVisible, false, 'la ligne d\'état est visible alors que tout va bien');
+      assert.equal(repos.libelleVisible, true, 'le libellé « offres en ligne » a disparu');
+      assert.match(repos.classes, /releve--charge/, 'la jauge n\'est pas passée en mode chargé');
+      assert.doesNotMatch(repos.classes, /releve--panne/);
 
       assert.deepEqual(p.nombres, { actuariat: '21', ia_data: '11', souscription_technique: '6', autres: String(AUTRES) });
 
@@ -125,9 +138,18 @@ test('T12 — le panneau montre les valeurs de /stats/published, sans prendre la
       assert.notEqual(p.offres, String(somme), 'la somme des spécialités est présentée comme le total');
       assert.equal(Number(p.nombres.autres), TOTAL - somme, 'la ligne « Pas encore classées » doit porter l\'écart');
 
-      /* Les barres se mesurent sur le total, pas sur la somme des spécialités. */
-      assert.ok(Math.abs(p.barres.actuariat - 21 / TOTAL) < 0.001, `barre actuariat : ${p.barres.actuariat}`);
-      assert.ok(Math.abs(p.barres.autres - AUTRES / TOTAL) < 0.001, `barre « autres » : ${p.barres.autres}`);
+      /* La jauge se mesure sur le total, pas sur la somme des spécialités : les
+         trois premières parts, puis « autres » jusqu'à 180°. */
+      const [a1, a2, a3] = p.angles;
+      assert.equal(p.angles.length, 3, 'les angles de la jauge n\'ont pas été posés');
+      assert.ok(Math.abs(a1 - 180 * 21 / TOTAL) < 0.05, `part actuariat : ${a1}°`);
+      assert.ok(Math.abs((a2 - a1) - 180 * 11 / TOTAL) < 0.05, `part IA / Data : ${a2 - a1}°`);
+      assert.ok(Math.abs((a3 - a2) - 180 * 6 / TOTAL) < 0.05, `part souscription : ${a3 - a2}°`);
+      assert.ok(Math.abs((180 - a3) - 180 * AUTRES / TOTAL) < 0.05, `part « autres » : ${180 - a3}°`);
+      assert.ok(a3 < 180, 'la jauge se ferme sur la somme des spécialités au lieu du total');
+
+      /* Le texte alternatif redit ce que la jauge montre : rien ne tient à la couleur seule. */
+      assert.match(p.texteJauge, new RegExp(`actuariat 21, IA / Data 11, souscription 6, pas encore classées ${AUTRES}`));
 
       /* Les identifiants du bandeau d'origine existent toujours. */
       const ids = await page.evaluate(() => ['f-offres', 'f-employeurs', 'f-sources', 'f-releve',
@@ -153,8 +175,8 @@ test('T12 — les chiffres sont à chasse fixe et les libellés en casse normale
     try {
       await ouvrirAccueil(page);
       const r = await page.evaluate(() => {
-        const nums = [...document.querySelectorAll('.releve dt, .releve .n')];
-        const textes = [...document.querySelectorAll('.releve dd, .releve th, .releve h3, .releve-etat')];
+        const nums = [...document.querySelectorAll('.releve dt, .releve .n, .releve #f-offres')];
+        const textes = [...document.querySelectorAll('.releve dd, .releve-nom, .releve-libelle, .releve-quand, .releve-etat')];
         return {
           nums: nums.map((e) => getComputedStyle(e).fontVariantNumeric),
           capitales: textes.map((e) => getComputedStyle(e).textTransform).filter((t) => t !== 'none'),
@@ -164,7 +186,7 @@ test('T12 — les chiffres sont à chasse fixe et les libellés en casse normale
             .map((e) => parseFloat(getComputedStyle(e).fontSize)).filter((px) => px < 12),
         };
       });
-      assert.ok(r.nums.length >= 8, 'les nombres du panneau sont introuvables');
+      assert.ok(r.nums.length >= 7, 'les nombres du panneau sont introuvables');
       for (const v of r.nums) assert.match(v, /tabular-nums/, `un nombre n'est pas à chasse fixe : ${v}`);
       assert.deepEqual(r.capitales, [], 'des libellés sont en capitales');
       assert.deepEqual(r.espaces, [], 'des libellés ont des lettres espacées');
@@ -283,6 +305,15 @@ for (const [nom, format] of [['bureau', aide.FORMATS.bureau], ['téléphone', ai
         }
         for (const [code, v] of Object.entries(p.nombres)) assert.equal(v, '—', `la ligne ${code} doit rester « — »`);
         assert.equal(p.etat, 'Chiffres momentanément indisponibles');
+        const panne = await page.evaluate(() => ({
+          classes: document.querySelector('.releve').className,
+          etatVisible: document.querySelector('.releve-etat').getBoundingClientRect().width > 2,
+          libelleVisible: document.querySelector('.releve-libelle').getBoundingClientRect().width > 2,
+        }));
+        assert.match(panne.classes, /releve--panne/);
+        assert.doesNotMatch(panne.classes, /releve--charge/, 'la jauge montre des parts alors que les chiffres manquent');
+        assert.equal(panne.etatVisible, true, 'le message de panne n\'est pas visible');
+        assert.equal(panne.libelleVisible, false, 'le libellé et le message de panne se superposent');
         assert.ok(!/failed|error|http|undefined|nan/i.test(JSON.stringify(p)), 'un texte technique est visible');
 
         assert.ok(Math.abs(apres.hero - tot) <= 1,
@@ -455,28 +486,40 @@ for (const theme of ['jour', 'nuit']) {
             return { r: 255, g: 255, b: 255, a: 1 };
           };
           const mesures = [];
-          const cibles = ['.releve-tete h2', '.releve-etat', '.releve dt', '.releve-ligne--vedette dt',
-            '.releve dd', '.releve-sous-titre', '.releve th', '.releve .n'];
+          const cibles = ['.releve-tete h2', '.releve-quand', '.releve-centre strong', '.releve-libelle',
+            '.releve-tuile dt', '.releve-tuile dd', '.releve-nom', '.releve .n'];
           for (const sel of cibles) {
             const el = document.querySelector(sel);
             const b = fond(el);
             const c = compose(rgba(getComputedStyle(el).color), b);
             mesures.push({ sel, rapport: Math.round(rapport(c, b) * 100) / 100 });
           }
-          /* La barre doit se distinguer de sa piste (3:1, élément graphique). */
-          const barre = document.querySelector('.releve-barre');
-          const piste = document.querySelector('.releve-piste');
-          const rb = rapport(rgba(getComputedStyle(barre).backgroundColor), rgba(getComputedStyle(piste).backgroundColor));
+          /* Le rond de chaque pastille a EXACTEMENT la couleur de sa part dans la
+             jauge : c'est ce qui permet de les associer. On compare avec la
+             couleur que la feuille donne à la variable de la part, et on vérifie
+             que la jauge la reprend. */
+          const lire = (v) => {
+            const t = document.createElement('i');
+            t.style.cssText = `position:absolute;width:1px;height:1px;background:var(${v})`;
+            document.querySelector('.releve').appendChild(t);
+            const c = getComputedStyle(t).backgroundColor; t.remove(); return c;
+          };
+          const ronds = [...document.querySelectorAll('.releve-pt')].map((e) => getComputedStyle(e).backgroundColor);
+          const parts = ['--c1', '--c2', '--c3', '--c4'].map(lire);
+          const fondJauge = getComputedStyle(document.querySelector('.releve-arc')).backgroundImage;
           const mouvement = [...document.querySelectorAll('.releve, .releve *')].filter((e) => {
             const s = getComputedStyle(e);
             return (s.animationName !== 'none') || s.transitionDuration.split(',').some((d) => parseFloat(d) > 0);
           }).length;
-          return { mesures, barre: Math.round(rb * 100) / 100, mouvement,
+          return { mesures, ronds, parts, jaugeReprendLesParts: parts.every((c) => fondJauge.includes(c)),
+                   distinctes: new Set(parts).size, mouvement,
                    theme: document.documentElement.getAttribute('data-theme') };
         });
         if (theme === 'nuit') assert.equal(r.theme, 'nuit', 'le thème nuit n\'est pas appliqué');
         for (const m of r.mesures) assert.ok(m.rapport >= 4.5, `${m.sel} : contraste ${m.rapport}:1 (${theme})`);
-        assert.ok(r.barre >= 3, `la barre se distingue mal de sa piste : ${r.barre}:1 (${theme})`);
+        assert.deepEqual(r.ronds, r.parts, `les ronds des pastilles n'ont pas la couleur de leur part (${theme})`);
+        assert.equal(r.distinctes, 4, `deux parts de la jauge ont la même couleur (${theme})`);
+        assert.ok(r.jaugeReprendLesParts, `la jauge ne reprend pas les couleurs des parts (${theme})`);
         assert.equal(r.mouvement, 0, 'le panneau contient un mouvement (transition ou animation)');
       } finally {
         await ctx.close();
@@ -487,3 +530,50 @@ for (const theme of ['jour', 'nuit']) {
     }
   });
 }
+
+test('T12 — les pastilles des spécialités tiennent sur deux lignes, texte entier, de 340 à 1440 px', async () => {
+  /* Deux colonnes, donc deux pastilles par ligne : quelle que soit la largeur,
+     jamais trois ou quatre lignes, et jamais un texte coupé. Sous 340 px (très
+     vieux téléphones) la limite n'est pas tenue ; on ne la prétend pas. */
+  await aide.demarrerServeur();
+  await aide.demarrerNavigateur();
+  try {
+    for (const largeur of [340, 360, 390, 430, 768, 1024, 1180, 1280, 1440]) {
+      const mobile = largeur < 768;
+      const format = { viewport: { width: largeur, height: 900 }, isMobile: mobile, hasTouch: mobile };
+      const { ctx, page } = await aide.ouvrirPage(format);
+      try {
+        /* Des nombres réalistes (jusqu'à trois chiffres par spécialité) : avec les
+           petits nombres des fixtures, les pastilles tiendraient sur deux lignes
+           même sans la grille, et le test ne prouverait rien. */
+        await page.route('**/stats/published*', (r) => r.fulfill({
+          status: 200, contentType: 'application/json',
+          body: JSON.stringify({ jobs_online: 1243, companies_hiring: 58, sources_tracked: 61,
+            last_collection_at: '2026-11-22T03:04:00Z', generated_at: '2026-11-22T07:30:00+00:00',
+            by_specialty: { actuariat: 312, souscription_technique: 140, ia_data: 205 }, classified_jobs: 657 }),
+        }));
+        await ouvrirAccueil(page);
+        const r = await page.evaluate(() => {
+          const li = [...document.querySelectorAll('.releve-pastilles li')];
+          return {
+            nombre: li.length,
+            lignes: new Set(li.map((e) => Math.round(e.getBoundingClientRect().top))).size,
+            coupees: li.filter((e) => e.scrollWidth > e.clientWidth + 1).map((e) => e.textContent.trim()),
+            petits: li.map((e) => parseFloat(getComputedStyle(e).fontSize)).filter((px) => px < 12),
+            deborde: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
+          };
+        });
+        assert.equal(r.nombre, 4, `${largeur} px : quatre pastilles attendues`);
+        assert.equal(r.lignes, 2, `${largeur} px : les pastilles sont sur ${r.lignes} lignes au lieu de 2`);
+        assert.deepEqual(r.coupees, [], `${largeur} px : texte de pastille coupé`);
+        assert.deepEqual(r.petits, [], `${largeur} px : texte de pastille sous 12 px`);
+        assert.equal(r.deborde, false, `${largeur} px : la page déborde horizontalement`);
+      } finally {
+        await ctx.close();
+      }
+    }
+  } finally {
+    await aide.arreterNavigateur();
+    await aide.arreterServeur();
+  }
+});

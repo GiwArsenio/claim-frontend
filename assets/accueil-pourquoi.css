@@ -2,11 +2,12 @@
    ACCUEIL — « POURQUOI CLAIM! »
 
    Trois partis pris qui ne se suivent pas : ce n'est pas une séquence, donc
-   aucune numérotation. Ils se lisent côte à côte, séparés par un filet, à
-   même le fond de la page — ni carte autour, ni carte dans la carte, ni
-   pastille d'icône au-dessus du titre.
+   aucune numérotation. Ils se lisent côte à côte, séparés par un filet, dans
+   un seul encadré blanc (le .panneau, le même que « Ils recrutent en ce
+   moment ») : un encadré, jamais une carte dans la carte, ni pastille d'icône
+   au-dessus du titre.
 
-   Cette feuille est la seule à décrire la section. Elle ne définit aucune
+   Cette feuille est la seule à décrire les colonnes. Elle ne définit aucune
    couleur : tout vient des jetons de assets/theme.css, qui suivent le thème
    (jour par défaut, nuit sur demande).
    ───────────────────────────────────────────────────────────────────────────── */
