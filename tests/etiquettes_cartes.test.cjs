@@ -9,7 +9,7 @@
      • un trait vertical de 1 px entre deux éléments voisins, visible à partir de
        481 px, absent en dessous ; jamais au début, à la fin, ni orphelin.
    LIGNE 2 — en pastilles : la spécialité (fond, bordure et texte teal, comme l'ancienne pastille du lieu) puis les compétences (fond
-     gris, bordure grise). Trois compétences au plus, puis « +N » dont le titre
+     gris, bordure grise). Deux compétences au plus, puis « +N » dont le titre
      liste les autres.
    Partout : casse normale, texte ≥ 11 px, contraste ≥ 4,5:1, jour et nuit,
    1440 et 390 px, cartes à éléments manquants, aucun défilement horizontal.
@@ -221,10 +221,10 @@ function verifier(quoi, lecture, largeur) {
     const plus = c.pastilles.filter((p) => /etq--plus/.test(p.classe));
     assert.ok(spec.length <= 1, `${ou} : une seule spécialité`);
     if (spec.length) assert.equal(c.pastilles[0], spec[0], `${ou} : la spécialité vient en premier`);
-    assert.ok(comp.length <= 3, `${ou} : trois compétences au plus (${comp.length})`);
+    assert.ok(comp.length <= 2, `${ou} : deux compétences au plus (${comp.length})`);
     assert.ok(plus.length <= 1 && (!plus.length || c.pastilles[c.pastilles.length - 1] === plus[0]), `${ou} : « +N » en dernier`);
     if (plus.length) {
-      assert.equal(comp.length, 3, `${ou} : « +N » seulement après trois compétences`);
+      assert.equal(comp.length, 2, `${ou} : « +N » seulement après deux compétences`);
       const n = +/^\+(\d+)$/.exec(plus[0].texte)[1];
       const liste = plus[0].titre.replace(/^Autres compétences : /, '').split(', ');
       assert.equal(liste.length, n, `${ou} : « ${plus[0].texte} » = ${liste.length} compétences dans le titre`);
@@ -300,7 +300,7 @@ test('T10 — la frontière des 481 px : trait présent à 481, absent à 480, j
   } finally { await aide.arreterNavigateur(); await aide.arreterServeur(); }
 });
 
-test('T10 — aucune information retirée : les valeurs de la première carte, et tout ce qui est au-delà de 3 compétences', async () => {
+test('T10 — aucune information retirée : les valeurs de la première carte, et tout ce qui est au-delà de 2 compétences', async () => {
   await aide.demarrerServeur();
   await aide.demarrerNavigateur();
   try {
@@ -315,23 +315,23 @@ test('T10 — aucune information retirée : les valeurs de la première carte, e
         ], `${surface.nom} : lieu, contrat, expérience, salaire`);
         assert.ok(c.items.every((i) => i.texte === i.titre.split(' : ')[1]), 'le texte affiché est la valeur');
         assert.equal(c.pastilles[0].texte, 'Actuariat', `${surface.nom} : la spécialité`);
-        assert.deepEqual(c.pastilles.slice(1, 4).map((p) => p.texte), ['Python', 'SQL', 'Excel'], `${surface.nom} : trois compétences`);
-        const plus = c.pastilles[4];
+        assert.deepEqual(c.pastilles.slice(1, 3).map((p) => p.texte), ['Python', 'SQL'], `${surface.nom} : deux compétences`);
+        const plus = c.pastilles[3];
         if (surface.nom === 'board') {
           // Board : outils, données, méthodes, logiciels, réglementation.
-          assert.equal(plus.texte, '+4');
-          assert.equal(plus.titre, 'Autres compétences : Tableau / BI, Power BI, Solvabilité II, IFRS 17');
+          assert.equal(plus.texte, '+5');
+          assert.equal(plus.titre, 'Autres compétences : Excel, Tableau / BI, Power BI, Solvabilité II, IFRS 17');
         } else {
           // Accueil : outils et réglementation seulement.
-          assert.equal(plus.texte, '+2');
-          assert.equal(plus.titre, 'Autres compétences : Solvabilité II, IFRS 17');
+          assert.equal(plus.texte, '+3');
+          assert.equal(plus.titre, 'Autres compétences : Excel, Solvabilité II, IFRS 17');
         }
         // La carte sans lieu : le premier élément est le contrat, pas de vide.
         const sansLieu = cartes.find((x) => !x.items.some((i) => i.rubrique === 'Localisation'));
         assert.ok(sansLieu && sansLieu.items[0].rubrique === 'Contrat', `${surface.nom} : sans lieu, la ligne commence par le contrat`);
-        // Exactement trois compétences : pas de « +N ».
-        const trois = cartes.find((x) => x.pastilles.filter((p) => /etq--comp/.test(p.classe)).length === 3 && !x.pastilles.some((p) => /plus/.test(p.classe)));
-        assert.ok(trois || surface.nom === 'accueil', `${surface.nom} : une carte avec exactement trois compétences n'a pas de « +N »`);
+        // Exactement deux compétences : pas de « +N ».
+        const deux = cartes.find((x) => x.pastilles.filter((p) => /etq--comp/.test(p.classe)).length === 2 && !x.pastilles.some((p) => /plus/.test(p.classe)));
+        assert.ok(deux || surface.nom === 'accueil', `${surface.nom} : une carte avec exactement deux compétences n'a pas de « +N »`);
       } finally { await ctx.close(); }
     }
   } finally { await aide.arreterNavigateur(); await aide.arreterServeur(); }

@@ -21,7 +21,7 @@ const EXPERIENCES = ['junior', 'confirmed', 'senior', 'lead'];
 const SALAIRES = ['45–55 k€/an', '≥ 60 k€/an', '38–42 k€/an'];
 
 /* Compétences : toutes les familles que lisent le board et l'accueil. Les
-   listes sont de longueurs différentes pour exercer le « +N » (plus de 3). */
+   listes sont de longueurs différentes pour exercer le « +N » (plus de 2). */
 const COMPETENCES = [
   { outils: ['Python', 'SQL', 'Excel'], data: ['Tableau / BI', 'Power BI'], reglementation: ['Solvabilité II', 'IFRS 17'] },
   { outils: ['R', 'SAS'], data: ['Power BI'], reglementation: [] },
@@ -36,7 +36,7 @@ const MANQUES = {
   4: ['competences', 'lieu'],
   5: ['specialite'],
   6: ['experience', 'salaire', 'competences-sauf-une'],
-  7: ['lieu', 'competences-exactement-trois'],
+  7: ['lieu', 'competences-exactement-deux'],
 };
 
 /** Renvoie une copie de l'offre avec tous les champs d'affichage des cartes. */
@@ -45,7 +45,7 @@ function completer(offre, i, options = {}) {
   let skills = COMPETENCES[i % COMPETENCES.length];
   if (manque.includes('competences')) skills = {};
   if (manque.includes('competences-sauf-une')) skills = { outils: ['Python'] };
-  if (manque.includes('competences-exactement-trois')) skills = { outils: ['Python', 'SQL', 'Excel'] };
+  if (manque.includes('competences-exactement-deux')) skills = { outils: ['Python', 'SQL'] };
   // Cas hostile : la première compétence de la première offre est du HTML.
   if (options.hostile && i === 0) skills = { ...skills, outils: ['<img data-injecte>', ...skills.outils.slice(1)] };
   return {

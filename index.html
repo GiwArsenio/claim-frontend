@@ -1298,7 +1298,7 @@ function bandeauMetadonnees(j) {
 }
 
 // Ligne 2 de la carte : la spécialité (pastille teal, celle qui sert au
-// filtrage), puis les compétences (pastilles grises). Trois compétences au
+// filtrage), puis les compétences (pastilles grises). Deux compétences au
 // plus ; le reste tient dans une pastille « +N » dont le titre les liste :
 // aucune information n'est perdue en silence.
 function pucesCompetences(j, max) {
@@ -1551,7 +1551,7 @@ async function chargerOffres(apresReessai) {
       const quand = (annuaire && annuaire.publicationLabel)
         ? annuaire.publicationLabel(j.published_at || j.source_published_at || j.first_seen_at) : '';
       const specialite = labelSpecialite(j);
-      const etiquettes = badgeSpecialite(specialite) + pucesCompetences(j, 3);
+      const etiquettes = badgeSpecialite(specialite) + pucesCompetences(j, 2);
       return `
         <a class="oc" id="card-${echapper(j.slug || '')}" href="${prefMarche()}/offre/${encodeURIComponent(j.slug || '')}" data-slug="${echapper(j.slug || '')}">
           <div class="ct">

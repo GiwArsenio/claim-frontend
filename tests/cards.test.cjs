@@ -144,22 +144,22 @@ assert.ok(html.includes('.etq--spec { background: var(--teal-clair); border-colo
 assert.ok(!/\.tag\s*\{/.test(html) && !/\.tm\s*\{/.test(html) && !/\.tn\s*\{/.test(html) && !/\.ccomp\s*\{/.test(html),
   'les anciennes etiquettes (.tag, .tm, .tn, .ccomp) ne reviennent pas');
 
-// Ligne 2 : la spécialité est une pastille cyan, les compétences des pastilles grises (3 + « +N »).
+// Ligne 2 : la spécialité est une pastille cyan, les compétences des pastilles grises (2 + « +N »).
 const specialite = vm.runInContext("cardSpecialtyHtml('IA / Data')", context);
 assert.ok(specialite.includes('etq etq--spec') && specialite.includes('>IA / Data</span>'));
 assert.ok(specialite.includes('aria-label="Spécialité : IA / Data"'));
 assert.equal(vm.runInContext("cardSpecialtyHtml('')", context), '');
 vm.runInContext("const SKILLS_FAMILIES = {outils: 'Outils', data: 'Données et BI', reglementation: 'Réglementation'}", context);
 context.row = {skills: {outils: ['Python', 'SQL', 'Excel', 'VBA'], reglementation: ['IFRS 17']}};
-const competences = vm.runInContext('skillChips(row, 3)', context);
-assert.equal((competences.match(/etq--comp/g) || []).length, 4, 'trois competences et la pastille +N : ' + competences);
-assert.ok(competences.includes('>Python</span>') && competences.includes('>SQL</span>') && competences.includes('>Excel</span>'));
-assert.ok(!competences.includes('>VBA</span>') && competences.includes('>+2</span>'), 'le reste est compte');
-assert.ok(competences.includes('title="Autres compétences : VBA, IFRS 17"'), 'le titre liste les autres');
-context.row = {skills: {outils: ['Python', 'SQL', 'Excel']}};
-assert.ok(!vm.runInContext('skillChips(row, 3)', context).includes('etq--plus'), 'trois competences : pas de +N');
+const competences = vm.runInContext('skillChips(row, 2)', context);
+assert.equal((competences.match(/etq--comp/g) || []).length, 3, 'deux competences et la pastille +N : ' + competences);
+assert.ok(competences.includes('>Python</span>') && competences.includes('>SQL</span>'));
+assert.ok(!competences.includes('>Excel</span>') && !competences.includes('>VBA</span>') && competences.includes('>+3</span>'), 'le reste est compte');
+assert.ok(competences.includes('title="Autres compétences : Excel, VBA, IFRS 17"'), 'le titre liste les autres');
+context.row = {skills: {outils: ['Python', 'SQL']}};
+assert.ok(!vm.runInContext('skillChips(row, 2)', context).includes('etq--plus'), 'deux competences : pas de +N');
 context.row = {skills: {outils: ['Python']}};
-assert.ok(vm.runInContext('skillChips(row, 3)', context).includes('>Python</span>') && !vm.runInContext('skillChips(row, 3)', context).includes('+'));
+assert.ok(vm.runInContext('skillChips(row, 2)', context).includes('>Python</span>') && !vm.runInContext('skillChips(row, 2)', context).includes('+'));
 context.row = {skills: {}};
 assert.equal(vm.runInContext('skillChips(row, 3)', context), '');
 console.log('Card line 1 and line 2 tests passed');

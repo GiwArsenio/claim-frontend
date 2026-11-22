@@ -2944,7 +2944,7 @@ function skillLabels(j) {
 }
 
 // Ligne 2 de la carte : la spécialité (pastille teal, celle qui sert au
-// filtrage), puis les compétences (pastilles grises). Trois compétences au
+// filtrage), puis les compétences (pastilles grises). Deux compétences au
 // plus ; le reste tient dans une pastille « +N » dont le titre les liste :
 // aucune information n'est perdue en silence.
 function skillChips(j, max) {
@@ -3324,7 +3324,7 @@ function renderFeed() {
     const co = j.companies || {};
     const ct      = j.contract_type || '';
     const sp = specialtyLabel(j);
-    const skillTagHtml = skillChips(j, 3);
+    const skillTagHtml = skillChips(j, 2);
 
 
     const el = document.createElement('div');
