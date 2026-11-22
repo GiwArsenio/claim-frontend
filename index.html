@@ -1453,6 +1453,25 @@ async function chargerChiffres() {
     }
   }
 
+  /* Le sous-titre porte deux textes provisoires (« Les offres », « les sites
+     carrières ») plus longs que les chiffres qui les remplacent. Selon la
+     police, le paragraphe perd alors une ligne et tout ce qui est dessous
+     (la recherche, les filtres) remonte d'un coup : mesuré en CI, 27,7 px.
+     On fige donc sa hauteur juste avant le remplacement. Le verrou saute si
+     la largeur de la fenêtre change, pour ne pas laisser un vide après une
+     rotation de l'écran. */
+  const sousTitre = document.querySelector('.hero .sub');
+  if (sousTitre) {
+    const largeurFenetre = window.innerWidth;
+    sousTitre.style.minHeight = sousTitre.getBoundingClientRect().height + 'px';
+    const lacher = () => {
+      if (window.innerWidth === largeurFenetre) return;
+      sousTitre.style.minHeight = '';
+      window.removeEventListener('resize', lacher);
+    };
+    window.addEventListener('resize', lacher);
+  }
+
   document.getElementById('chiffre-hero').textContent = `${stats.jobs_online} offres`;
   if (stats.sources_tracked) {
     document.getElementById('chiffre-sources').textContent = `${stats.sources_tracked} sources`;
