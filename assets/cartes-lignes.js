@@ -1,26 +1,25 @@
 /* ─────────────────────────────────────────────────────────────────────────────
    CARTES D'OFFRE — LA RÈGLE DES LIGNES
 
-   Une carte a deux blocs, chacun avec sa règle.
+   Une carte a deux blocs : les FAITS (lieu, contrat, expérience, salaire : 4 au
+   plus) et les ÉTIQUETTES (spécialité, puis compétences). Règle commune :
 
-   LES FAITS (lieu, contrat, expérience, salaire : 4 au plus)
      • 4 éléments au plus par ligne, 2 au moins (sauf s'il n'y en a qu'un) ;
-     • 2 lignes au plus (donc 4 faits = 1 ligne de 4, ou 2 + 2 si 4 coupent un texte) ;
-     • « 4 au plus » est un plafond : après dessin, le bloc est mesuré ; si une ligne
-       coupe un texte (« Casablanca (M… »), il est refait avec 3 puis 2 éléments par
-       ligne (voir `ajuster`).
-
-   LES ÉTIQUETTES (spécialité, puis compétences)
-     • UNE seule ligne, 4 éléments au plus ;
-     • tout le reste tient dans une pastille « +N », qui compte comme un élément :
-       1 à 4 étiquettes → toutes ; 5 ou plus → les 3 premières + « +N » (N = total − 3) ;
-     • si les étiquettes coupent un texte (noms longs, écran étroit), on en montre
-       moins (2, puis 1) et « +N » grandit d'autant : jamais de deuxième ligne.
+     • 2 lignes au plus par bloc, et 3 lignes au plus pour la carte entière ;
+     • la PRIORITÉ va aux faits : s'ils ont besoin de 2 lignes, les étiquettes n'en
+       ont qu'une ; s'ils tiennent sur une, les étiquettes peuvent en avoir deux ;
+     • tout ce qui ne tient pas dans les lignes permises des étiquettes est dans une
+       pastille « +N », sans plafond sur N. « +N » compte comme un élément (le
+       dernier) : avec 2 lignes, 8 étiquettes tiennent, 9 donnent 7 + « +N ».
+       Avec 1 ligne : 4 étiquettes tiennent, 5 donnent 3 + « +N ».
      • « +N » a un titre qui liste les compétences cachées : rien n'est perdu en silence.
 
-   Les mesures sont refaites à chaque changement de largeur et à l'arrivée des
-   polices. Si même un seul élément coupe un texte, il reste coupé par « … » (son
-   titre le dit en entier).
+   « 4 par ligne » est un plafond. Après dessin, la carte est mesurée : si une ligne
+   coupe un texte (« Casablanca (M… »), on essaie 3 puis 2 par ligne (les faits
+   peuvent ainsi passer de 1 à 2 lignes, et les étiquettes perdre une ligne) ; si cela
+   ne suffit pas, les étiquettes en montrent moins et « +N » grandit. La mesure est
+   refaite à chaque changement de largeur et à l'arrivée des polices. Si même un
+   seul élément coupe un texte, il reste coupé par « … » (son titre le dit en entier).
 
    La règle est ici, une seule fois : l'accueil et le board l'appellent tous deux,
    pour que leurs cartes ne divergent pas.
@@ -28,9 +27,10 @@
 (function (racine) {
   'use strict';
 
-  var MAX_PAR_LIGNE = 4;   // faits : 4 au plus par ligne
-  var MIN_PAR_LIGNE = 2;   // faits : 2 au moins par ligne
-  var MAX_ETIQUETTES = 4;  // étiquettes : 4 au plus sur leur unique ligne, « +N » compris
+  var MAX_PAR_LIGNE = 4;    // 4 éléments au plus par ligne
+  var MIN_PAR_LIGNE = 2;    // 2 au moins (sauf un élément seul)
+  var MAX_LIGNES_BLOC = 2;  // 2 lignes au plus par bloc
+  var MAX_LIGNES_CARTE = 3; // 3 lignes au plus pour la carte
 
   function echapper(t) {
     return String(t).replace(/[&<>"']/g, function (c) {
@@ -71,9 +71,15 @@
     return lignes;
   }
 
-  /** Combien d'étiquettes sont montrées au départ : toutes jusqu'à 4 ; sinon 3 + « +N ». */
-  function visibles(n) {
-    return n <= MAX_ETIQUETTES ? n : MAX_ETIQUETTES - 1;
+  /** Lignes permises aux étiquettes quand les faits en occupent `lignesFaits` : la priorité va aux faits. */
+  function lignesEtiquettes(lignesFaits) {
+    return Math.max(1, Math.min(MAX_LIGNES_BLOC, MAX_LIGNES_CARTE - lignesFaits));
+  }
+
+  /** Combien d'étiquettes sur `n` sont montrées avec `lignes` lignes : toutes si elles tiennent, sinon une place de moins pour « +N ». */
+  function visibles(n, lignes) {
+    var places = MAX_PAR_LIGNE * (lignes || MAX_LIGNES_BLOC);
+    return n <= places ? n : places - 1;
   }
 
   /** La pastille « +N » : son titre liste les libellés cachés. */
@@ -83,19 +89,30 @@
   }
 
   /**
-   * Le bloc des étiquettes : UNE ligne. elements = [{ html, libelle }] ; `html` commence par « <span ».
-   * Les étiquettes au-delà de `visibles(n)` sont dans la page mais cachées (`hidden`), pour que la
-   * mesure puisse en montrer davantage ou moins selon la largeur ; « +N » dit combien sont cachées.
+   * Le bloc des étiquettes, avant mesure (on suppose que les faits tiennent sur une ligne : 2 lignes
+   * permises). elements = [{ html, libelle }] ; `html` commence par « <span ». Les étiquettes en trop
+   * sont dans la page mais cachées (`hidden`), pour que la mesure puisse en montrer plus ou moins ;
+   * « +N » dit combien sont cachées.
    */
   function etiquettesHtml(elements) {
     var n = elements.length;
     if (!n) return '';
-    var k = visibles(n);
-    var corps = elements.map(function (e, i) {
-      return i < k ? e.html : e.html.replace(/^<span /, '<span hidden ');
-    }).join('');
-    var reste = elements.slice(k).map(function (e) { return e.libelle; });
-    return '<div class="ctags"><div class="ctags-l">' + corps + (reste.length ? pastillePlus(reste) : '') + '</div></div>';
+    var k = visibles(n, MAX_LIGNES_BLOC);
+    var cachees = elements.slice(k);
+    var montrees = elements.slice(0, k).map(function (e) { return e.html; });
+    if (cachees.length) montrees.push(pastillePlus(cachees.map(function (e) { return e.libelle; })));
+    var masquees = cachees.map(function (e) { return e.html.replace(/^<span /, '<span hidden '); }).join('');
+    var lignes = [];
+    var debut = 0;
+    var t = tailles(montrees.length);
+    t.forEach(function (taille, i) {
+      var items = montrees.slice(debut, debut + taille);
+      debut += taille;
+      // Les cachées gardent leur ordre : juste avant « +N », qui ferme la dernière ligne.
+      if (i === t.length - 1 && cachees.length) items.splice(items.length - 1, 0, masquees);
+      lignes.push('<div class="ctags-l">' + items.join('') + '</div>');
+    });
+    return '<div class="ctags">' + lignes.join('') + '</div>';
   }
 
   /** Les lignes en HTML : un <div class="…"> par ligne. */
@@ -125,63 +142,100 @@
     });
   }
 
-  /** Refait le bloc des faits (.cm) : 4 par ligne au plus, puis 3, puis 2 tant qu'une ligne coupe un texte. */
+  /**
+   * Refait le bloc des faits (.cm) : 4 par ligne au plus, puis 3, puis 2 tant qu'une ligne coupe un
+   * texte. Rend le nombre de lignes obtenu.
+   */
   function ajusterBloc(bloc, classe) {
     var elements = [];
     Array.prototype.forEach.call(bloc.querySelectorAll('.' + classe), function (l) {
       Array.prototype.forEach.call(l.children, function (e) { elements.push(e); });
     });
     var n = elements.length;
-    if (n < 2) return;
+    if (n < 2) return n ? 1 : 0;
     var dernier = null;
+    var lignes = 1;
     for (var m = MAX_PAR_LIGNE; m >= MIN_PAR_LIGNE; m--) {
       if (!valable(n, m)) continue;
       var t = tailles(n, m);
       if (dernier && String(t) === String(dernier)) continue;
       dernier = t;
+      lignes = t.length;
       poser(bloc, elements, t, classe);
-      if (!elements.some(coupe)) return;
+      if (!elements.some(coupe)) return lignes;
+    }
+    return lignes;
+  }
+
+  /** Pose les étiquettes : `k` montrées, réparties en `tailles` lignes, « +N » (s'il y en a) en dernier, les autres cachées. */
+  function poserEtiquettes(bloc, etiquettes, libelles, k, t) {
+    var doc = bloc.ownerDocument;
+    while (bloc.firstChild) bloc.removeChild(bloc.firstChild);
+    var n = etiquettes.length;
+    var plus = null;
+    if (k < n) {
+      var tmp = doc.createElement('div');
+      tmp.innerHTML = pastillePlus(libelles.slice(k));
+      plus = tmp.firstChild;
+    }
+    var suite = etiquettes.slice(0, k).concat(plus ? [plus] : []);
+    var debut = 0;
+    t.forEach(function (taille, i) {
+      var l = doc.createElement('div');
+      l.className = 'ctags-l';
+      suite.slice(debut, debut + taille).forEach(function (e) { l.appendChild(e); });
+      debut += taille;
+      if (i === t.length - 1) {
+        // Les cachées (dans l'ordre), avant « +N ».
+        etiquettes.slice(k).forEach(function (e) { l.insertBefore(e, plus); });
+      }
+      bloc.appendChild(l);
+    });
+    etiquettes.forEach(function (e, i) { e.hidden = i >= k; });
+  }
+
+  /**
+   * Refait le bloc des étiquettes (.ctags) avec `lignes` lignes au plus : on montre le plus d'étiquettes
+   * possible (toutes si elles tiennent, sinon une place de moins pour « +N »), sur 4, puis 3, puis 2 par
+   * ligne ; si un texte est coupé, on en montre une de moins, et ainsi de suite.
+   */
+  function ajusterEtiquettes(bloc, lignes) {
+    lignes = lignes || MAX_LIGNES_BLOC;
+    var rangees = Array.prototype.slice.call(bloc.querySelectorAll('.ctags-l'));
+    if (!rangees.length) return;
+    var etiquettes = [];
+    rangees.forEach(function (l) {
+      Array.prototype.forEach.call(l.children, function (e) {
+        if (!e.classList.contains('etq--plus')) etiquettes.push(e);
+      });
+    });
+    var n = etiquettes.length;
+    if (!n) return;
+    var libelles = etiquettes.map(function (e) { return e.textContent.trim(); });
+    for (var k = visibles(n, lignes); k >= 1; k--) {
+      var places = k + (k < n ? 1 : 0);
+      for (var m = MAX_PAR_LIGNE; m >= MIN_PAR_LIGNE; m--) {
+        if (!valable(places, m)) continue;
+        var t = tailles(places, m);
+        if (t.length > lignes) continue;
+        poserEtiquettes(bloc, etiquettes, libelles, k, t);
+        if (!Array.prototype.some.call(bloc.querySelectorAll('.etq:not([hidden])'), coupe)) return;
+      }
     }
   }
 
   /**
-   * Refait le bloc des étiquettes (.ctags) : une seule ligne ; on montre 4 étiquettes
-   * (3 + « +N » s'il y en a plus), puis moins tant qu'un texte est coupé.
+   * Ajuste toutes les cartes sous `racine` (le document par défaut) : d'abord les faits (priorité), puis
+   * les étiquettes avec les lignes qui restent (3 au plus pour la carte).
    */
-  function ajusterEtiquettes(bloc) {
-    var ligne = bloc.querySelector('.ctags-l');
-    if (!ligne) return;
-    var ancien = ligne.querySelector('.etq--plus');
-    if (ancien) ligne.removeChild(ancien);
-    var etiquettes = Array.prototype.slice.call(ligne.children);
-    var n = etiquettes.length;
-    if (!n) return;
-    var libelles = etiquettes.map(function (e) { return e.textContent.trim(); });
-    var doc = bloc.ownerDocument;
-    function appliquer(k) {
-      var plus = ligne.querySelector('.etq--plus');
-      if (plus) ligne.removeChild(plus);
-      etiquettes.forEach(function (e, i) { e.hidden = i >= k; });
-      if (k < n) {
-        var tmp = doc.createElement('div');
-        tmp.innerHTML = pastillePlus(libelles.slice(k));
-        ligne.appendChild(tmp.firstChild);
-      }
-    }
-    var k = visibles(n);
-    for (;;) {
-      appliquer(k);
-      var coupees = Array.prototype.some.call(ligne.children, function (e) { return !e.hidden && coupe(e); });
-      if (!coupees || k <= 1) break;
-      k--;
-    }
-  }
-
-  /** Ajuste toutes les cartes sous `racine` (le document par défaut). */
   function ajuster(racine) {
     var r = racine || document;
-    Array.prototype.forEach.call(r.querySelectorAll('.cm'), function (b) { ajusterBloc(b, 'cm-l'); });
-    Array.prototype.forEach.call(r.querySelectorAll('.ctags'), function (b) { ajusterEtiquettes(b); });
+    Array.prototype.forEach.call(r.querySelectorAll('.jc, .oc'), function (carte) {
+      var cm = carte.querySelector('.cm');
+      var ct = carte.querySelector('.ctags');
+      var lignesFaits = cm ? ajusterBloc(cm, 'cm-l') : 0;
+      if (ct) ajusterEtiquettes(ct, lignesEtiquettes(lignesFaits));
+    });
   }
 
   /** À appeler une fois : refait l'ajustement quand la largeur change et quand les polices arrivent. */
@@ -199,9 +253,10 @@
   }
 
   var api = {
-    MAX_PAR_LIGNE: MAX_PAR_LIGNE, MIN_PAR_LIGNE: MIN_PAR_LIGNE, MAX_ETIQUETTES: MAX_ETIQUETTES,
+    MAX_PAR_LIGNE: MAX_PAR_LIGNE, MIN_PAR_LIGNE: MIN_PAR_LIGNE,
+    MAX_LIGNES_BLOC: MAX_LIGNES_BLOC, MAX_LIGNES_CARTE: MAX_LIGNES_CARTE,
     tailles: tailles, valable: valable, repartir: repartir, html: html,
-    visibles: visibles, pastillePlus: pastillePlus, etiquettesHtml: etiquettesHtml,
+    lignesEtiquettes: lignesEtiquettes, visibles: visibles, pastillePlus: pastillePlus, etiquettesHtml: etiquettesHtml,
     ajuster: ajuster, ajusterBloc: ajusterBloc, ajusterEtiquettes: ajusterEtiquettes, installer: installer,
   };
   racine.CARTES_LIGNES = api;

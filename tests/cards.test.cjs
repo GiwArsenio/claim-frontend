@@ -13,7 +13,7 @@ const context = vm.createContext({});
 vm.runInContext(fs.readFileSync(require('node:path').join(__dirname, '../assets/icones.js'), 'utf8'), context);
 // Le formateur de lieu (T04) : la carte l'appelle, il est charge par la page.
 vm.runInContext(fs.readFileSync(require('node:path').join(__dirname, '../assets/lieu.js'), 'utf8'), context);
-// La règle des lignes (faits : 4 par ligne au plus, 2 au moins ; étiquettes : une ligne de 4 avec « +N ») : la carte l'appelle.
+// La règle des lignes (4 par ligne au plus, 2 au moins, 3 lignes au plus pour la carte, « +N » pour le reste) : la carte l'appelle.
 vm.runInContext(fs.readFileSync(require('node:path').join(__dirname, '../assets/cartes-lignes.js'), 'utf8'), context);
 vm.runInContext(`const JEV_SPECIALTY_LABELS = {"actuariat": "Actuariat", "ia_data": "IA / Data", "souscription_technique": "Souscription technique", "autre": "Autre"}; const JEV_EXPERIENCE_LABELS = {senior:"Senior"}; const CONTRACT_LABELS = {cdi:"CDI"}; const DESCRIPTION_PREVIEW_CHARS = 600; let descExpanded = {}; let descSections = []; const SECTION_ICONS = { "Le poste": "briefcase", "Missions": "list-checks", "Profil recherché": "person" }; function escapeHtml(x){return x;} const location={origin:"https://claimyourjob.com",href:"https://claimyourjob.com/fr/job-board.html",pathname:"/fr/job-board.html"}; ${funcs}`, context);
 
@@ -149,34 +149,42 @@ assert.ok(!/\.tag\s*\{/.test(html) && !/\.tm\s*\{/.test(html) && !/\.tn\s*\{/.te
   'les anciennes etiquettes (.tag, .tm, .tn, .ccomp) ne reviennent pas');
 
 // Ligne 2 : la spécialité est une pastille cyan, les compétences des pastilles grises.
-// Règle (assets/cartes-lignes.js) : UNE seule ligne, 4 éléments au plus, « +N » compris ; tout le reste
-// est dans « +N ». Les étiquettes en trop restent dans la page, cachées (`hidden`) : la mesure du navigateur
-// en montre moins quand la place manque (testée en navigateur).
+// Règle (assets/cartes-lignes.js) : 4 par ligne au plus, 2 au moins, 2 lignes au plus (1 si les faits en prennent 2) ;
+// tout le reste est dans « +N ». Le HTML ci-dessous est celui d'avant mesure (faits sur une ligne : 2 lignes
+// d'étiquettes) ; les étiquettes en trop restent dans la page, cachées (`hidden`), et la mesure du navigateur
+// en montre plus ou moins (testée en navigateur).
 const specialite = vm.runInContext("cardSpecialtyHtml('IA / Data')", context);
 assert.ok(specialite.includes('etq etq--spec') && specialite.includes('>IA / Data</span>'));
 assert.ok(specialite.includes('aria-label="Spécialité : IA / Data"'));
 assert.equal(vm.runInContext("cardSpecialtyHtml('')", context), '');
 vm.runInContext("const SKILLS_FAMILIES = {outils: 'Outils', data: 'Données et BI', reglementation: 'Réglementation'}", context);
 const etiquettes = (sp, skills) => { context.row = { skills }; context.sp = sp; return vm.runInContext('cardTagsHtml(sp, row)', context); };
-const montrees = (h) => (h.match(/<span class="etq[^"]*"(?! hidden)[^>]*>/g) || []).filter((x) => !x.includes('hidden')).length;
+const lignesTags = (h) => h.split('<div class="ctags-l">').slice(1).map((l) => (l.replace(/<span hidden [^>]*>[^<]*<\/span>/g, '').match(/<span class="etq/g) || []).length);
 const cachees = (h) => (h.match(/<span hidden class="etq/g) || []).length;
-const unePlus = (h) => (h.match(/etq--plus/g) || []).length;
+const lignesNb = (h) => (h.match(/class="ctags-l"/g) || []).length;
 
-// Spécialité + 3 compétences = 4 éléments : tous affichés, une ligne, pas de « +N ».
+// Spécialité + 3 compétences = 4 étiquettes : une ligne de 4, pas de « +N ».
 let h = etiquettes('IA / Data', {outils: ['Python', 'SQL', 'Excel']});
-assert.equal((h.match(/class="ctags-l"/g) || []).length, 1, 'une seule ligne');
-assert.ok(!h.includes('etq--plus') && cachees(h) === 0 && h.includes('>Excel</span>'), 'quatre éléments : tous affichés : ' + h);
-// Spécialité + 4 compétences = 5 éléments : 3 affichés + « +2 ».
-h = etiquettes('IA / Data', {outils: ['Python', 'SQL', 'Excel', 'VBA']});
-assert.equal(cachees(h), 2, 'cinq éléments : deux cachées');
-assert.ok(h.includes('>+2</span>') && h.includes('title="Autres compétences : Excel, VBA"'), 'le reste est compté et listé : ' + h);
-assert.ok(h.includes('<span class="etq etq--comp" title="Python">') && h.includes('<span hidden class="etq etq--comp" title="Excel">'), 'les deux premières compétences sont affichées, pas les suivantes');
-// Beaucoup de compétences : tout le reste en « +N », sans plafond.
+assert.deepEqual(lignesTags(h), [4], 'quatre étiquettes : une ligne de 4 : ' + h);
+assert.ok(!h.includes('etq--plus') && cachees(h) === 0 && h.includes('>Excel</span>'));
+// 5 → 3 + 2 ; 8 → 4 + 4 : toutes affichées, 2 lignes.
+assert.deepEqual(lignesTags(etiquettes('IA / Data', {outils: ['A', 'B', 'C', 'D']})), [3, 2]);
+h = etiquettes('IA / Data', {outils: 'ABCDEFG'.split('')});
+assert.deepEqual(lignesTags(h), [4, 4], 'huit étiquettes : 4 + 4');
+assert.ok(!h.includes('etq--plus') && cachees(h) === 0 && h.includes('>G</span>'));
+// 9 étiquettes : 7 affichées + « +2 » (le « +N » compte comme un élément : 4 + 4).
+h = etiquettes('IA / Data', {outils: 'ABCDEFGH'.split('')});
+assert.deepEqual(lignesTags(h), [4, 4], '9 étiquettes : 7 + « +2 » : 4 + 4 (« +2 » compris)');
+assert.equal(lignesNb(h), 2);
+assert.ok(h.includes('>+2</span>') && h.includes('title="Autres compétences : G, H"') && cachees(h) === 2, 'le reste est compté et listé : ' + h);
+// Beaucoup de compétences : tout le reste en « +N », sans plafond ; jamais plus de 2 lignes.
 h = etiquettes('IA / Data', {outils: Array.from({length: 12}, (_, i) => 'C' + i)});
-assert.ok(h.includes('>+10</span>') && unePlus(h) === 1, 'treize éléments : 3 affichés + « +10 » : ' + h);
-// Sans spécialité : 4 compétences tiennent, 5 donnent 3 + « +2 ».
-assert.ok(!etiquettes('', {outils: ['A', 'B', 'C', 'D']}).includes('etq--plus'));
-assert.ok(etiquettes('', {outils: ['A', 'B', 'C', 'D', 'E']}).includes('>+2</span>'));
+assert.ok(h.includes('>+6</span>') && lignesNb(h) === 2, '13 étiquettes : 7 affichées + « +6 » : ' + h);
+for (let n = 1; n <= 30; n++) {
+  const g = etiquettes('', {outils: Array.from({length: n}, (_, i) => 'C' + i)});
+  assert.ok(lignesNb(g) <= 2, n + ' compétences : plus de 2 lignes');
+  assert.ok((g.match(/etq--plus/g) || []).length === (n > 8 ? 1 : 0), n + ' compétences : « +N » seulement au-delà de 8');
+}
 // Un seul élément : une pastille, pas de « +N ». Rien à afficher : pas de bloc vide.
 assert.ok(!etiquettes('IA / Data', {}).includes('+') && etiquettes('IA / Data', {}).includes('IA / Data'));
 assert.equal(etiquettes('', {}), '');
