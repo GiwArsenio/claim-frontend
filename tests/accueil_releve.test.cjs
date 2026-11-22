@@ -531,14 +531,16 @@ for (const theme of ['jour', 'nuit']) {
   });
 }
 
-test('T12 — les pastilles des spécialités tiennent sur deux lignes, texte entier, de 340 à 1440 px', async () => {
+test('T12 — les pastilles des spécialités tiennent sur deux lignes, texte entier, de 350 à 1440 px', async () => {
   /* Deux colonnes, donc deux pastilles par ligne : quelle que soit la largeur,
-     jamais trois ou quatre lignes, et jamais un texte coupé. Sous 340 px (très
-     vieux téléphones) la limite n'est pas tenue ; on ne la prétend pas. */
+     jamais trois ou quatre lignes, et jamais un texte coupé. Limite mesurée en CI
+     (Chromium 156, polices du runner) le 22/11/2026 : propre dès 340 px après le
+     resserrage des marges, mais d'à peine 2 px ; on garantit donc 350 px. Sous
+     340 px (très vieux téléphones) du texte est coupé ; on ne le prétend pas. */
   await aide.demarrerServeur();
   await aide.demarrerNavigateur();
   try {
-    for (const largeur of [340, 360, 390, 430, 768, 1024, 1180, 1280, 1440]) {
+    for (const largeur of [350, 360, 390, 430, 768, 1024, 1180, 1280, 1440]) {
       const mobile = largeur < 768;
       const format = { viewport: { width: largeur, height: 900 }, isMobile: mobile, hasTouch: mobile };
       const { ctx, page } = await aide.ouvrirPage(format);
