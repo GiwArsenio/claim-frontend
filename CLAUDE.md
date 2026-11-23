@@ -41,3 +41,9 @@ audit ancien présenté comme actuel, une cause attribuée de mémoire, des rés
 qui **avertit sans jamais bloquer** (absence sans recherche, PR ou commit jamais vu dans une sortie d'outil,
 horaire sans lecture de la planification). C'est la même mécanique que dans `claim-api`, qui est la référence :
 voir `claim-api/docs/GARDE_FOUS_REPONSES.md`. Un avertissement n'est pas une preuve d'erreur : vérifie.
+
+## Règles de permission (`.claude/settings.json`)
+Elles ne font que **restreindre** (aucun droit donné) : lecture de `.env` refusée ; confirmation demandée avant
+un push forcé, un `reset --hard`, une suppression via `gh api -X DELETE`, et avant les actions irréversibles ou
+de configuration sur Supabase, Railway et Cloudflare. Les fusions de PR n'y figurent pas : elles restent
+soumises à l'accord du propriétaire (voir « Avant toute fusion »). Détail : `claim-api/docs/GARDE_FOUS_REPONSES.md`.

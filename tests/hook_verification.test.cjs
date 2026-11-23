@@ -88,3 +88,36 @@ test("la configuration pointe vers des scripts exécutables et un délai raisonn
     }
   }
 });
+
+/* ── Règles de permission (`.claude/settings.json`) ───────────────────────────────────────── */
+
+const permissions = () => JSON.parse(fs.readFileSync(path.join(RACINE, '.claude', 'settings.json'), 'utf8')).permissions;
+
+test("le fichier ne donne aucun droit : que des restrictions (deny, ask)", () => {
+  assert.deepEqual(Object.keys(permissions()).sort(), ['ask', 'deny']);
+});
+
+test("les secrets sont refusés en dur", () => {
+  for (const r of ['Read(./.env)', 'Read(./.env.*)']) assert.ok(permissions().deny.includes(r), r);
+});
+
+test("les actions irréversibles demandent confirmation", () => {
+  const ask = permissions().ask;
+  for (const r of ['Bash(git push --force*)', 'Bash(git push -f*)', 'Bash(git reset --hard *)', 'Bash(gh api -X DELETE *)',
+    'mcp__Supabase__apply_migration', 'mcp__Railway__delete-service', 'mcp__Railway__accept-deploy',
+    'mcp__Railway__set-variables', 'mcp__Cloudflare_Developer_Platform__d1_database_delete']) {
+    assert.ok(ask.includes(r), r);
+  }
+});
+
+test("les fusions de PR ne sont pas couvertes (décision du propriétaire : une règle ask l'emporterait sur toute règle allow)", () => {
+  const regles = [...permissions().deny, ...permissions().ask];
+  assert.deepEqual(regles.filter((r) => r.includes('merge') && r.includes('/pulls/')), []);
+});
+
+test("chaque règle a une forme valide et n'est pas en double", () => {
+  const regles = [...permissions().deny, ...permissions().ask];
+  const forme = /^(?:Read|Bash)\(.+\)$|^mcp__[A-Za-z0-9_]+__[A-Za-z0-9_-]+$/;
+  assert.deepEqual(regles.filter((r) => !forme.test(r)), []);
+  assert.equal(new Set(regles).size, regles.length);
+});
