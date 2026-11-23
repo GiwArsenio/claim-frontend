@@ -46,6 +46,10 @@
       <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M8 4.5V8l2.5 1.5"/></svg>
       <span>Cron</span>
     </button>
+    <button role="tab" id="onglet-agent" aria-controls="panneau-agent" aria-selected="false">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7"/></svg>
+      <span>Traitements</span>
+    </button>
     <button role="tab" id="onglet-collecte" aria-controls="panneau-collecte" aria-selected="false">
       <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 12V6M6 12V3M10 12v-4M14 12V5"/></svg>
       <span>Sources</span>
@@ -182,6 +186,36 @@
             <span class="mentions" id="cron-items"></span>
           </header>
           <div class="repartition" id="cron-repartition"></div>
+        </div>
+      </section>
+
+      <!-- ══ Traitements de l'agent ═════════════════════════════════════ -->
+      <section id="panneau-agent" role="tabpanel" aria-labelledby="onglet-agent" tabindex="0" hidden>
+        <header class="entete-section">
+          <h2 class="entete-section__titre">Traitements de l’agent</h2>
+          <p class="entete-section__aide">Ce que l’agent a vu, dit et fait. Interface de suivi : aucune action ne se déclenche d’ici.</p>
+        </header>
+
+        <div class="chiffres" id="agent-chiffres"></div>
+
+        <div class="panneau">
+          <header class="panneau__tete">
+            <h3 class="panneau__titre">Journal</h3>
+            <span class="mentions" id="agent-mention"></span>
+          </header>
+          <div class="tableau-enveloppe">
+            <table class="tableau tableau--serre">
+              <thead>
+                <tr>
+                  <th scope="col">Quand</th>
+                  <th scope="col">Type</th>
+                  <th scope="col">Résumé</th>
+                  <th scope="col">Palier</th>
+                </tr>
+              </thead>
+              <tbody id="corps-agent"></tbody>
+            </table>
+          </div>
         </div>
       </section>
 

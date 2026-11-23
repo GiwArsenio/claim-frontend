@@ -333,6 +333,8 @@ verifier("aucune route orpheline dans le client", () => {
     '/redondances',
     // Routes de suivi exposées par le relais.
     '/runs', '/usage',
+    // Traitements de l'agent : GET /admin/monitoring/agent (lecture seule).
+    '/agent',
   ]);
   for (const route of routes) {
     // `appeler()` préfixe déjà par API = '/monitoring/api'. Une route écrite
@@ -507,6 +509,41 @@ verifier("les boutons d'arbitrage sont désactivés pendant l'appel", () => {
   assert.match(bloc[0], /b\.disabled = false/, "ils reviennent si l'appel échoue");
   // Une décision prise marque la ligne et désactive pour de bon.
   assert.match(bloc[0], /rendreCasLimites\(\)/, "la ligne est re-rendue après décision");
+});
+
+// ── Onglets : chacun a son panneau et son chargeur ───────────────────────
+verifier('chaque onglet a un panneau, et chaque panneau un chargeur', () => {
+  const page = lire('monitoring.html');
+  const client = lire('assets/monitoring.js');
+  const onglets = [...page.matchAll(/id="onglet-([a-z]+)"[^>]*aria-controls="panneau-([a-z]+)"/g)];
+  assert.ok(onglets.length >= 9, 'les onglets du dashboard doivent être trouvés');
+  const chargeurs = (client.match(/const CHARGEURS = \{([\s\S]*?)\n  \};/) || [])[1] || '';
+  for (const [, nom, panneau] of onglets) {
+    assert.equal(nom, panneau, `l'onglet ${nom} doit contrôler panneau-${nom}`);
+    assert.match(page, new RegExp(`<section id="panneau-${nom}"[^>]*role="tabpanel"[^>]*aria-labelledby="onglet-${nom}"`),
+      `le panneau-${nom} doit exister et référencer son onglet`);
+    assert.match(chargeurs, new RegExp(`\\b${nom}:`), `l'onglet ${nom} doit avoir un chargeur dans CHARGEURS`);
+  }
+});
+
+// ── Traitements de l'agent : interface de SUIVI, jamais d'action ─────────
+verifier("l'onglet Traitements ne déclenche aucune action et échappe tout le journal", () => {
+  const page = lire('monitoring.html');
+  const client = lire('assets/monitoring.js');
+  const panneau = page.match(/<section id="panneau-agent"[\s\S]*?<\/section>/);
+  assert.ok(panneau, 'panneau-agent introuvable');
+  assert.doesNotMatch(panneau[0], /<button|<form|<input|onclick=|role="button"/i,
+    "le panneau est un suivi : aucun bouton, formulaire ou gestionnaire d'action");
+  const bloc = client.match(/function rendreAgent[\s\S]*?async function chargerAgent\(\) \{[\s\S]*?\n  \}/);
+  assert.ok(bloc, 'rendreAgent / chargerAgent introuvables');
+  assert.doesNotMatch(bloc[0], /method\s*:|POST|PUT|PATCH|DELETE/,
+    "le chargement de l'agent est une lecture : aucun verbe d'écriture");
+  // Tout ce qui vient du journal passe par `echapper` avant d'entrer dans innerHTML.
+  // (`agent.diagnostic` entre dans la note d'une carte, échappée par `x.note`.)
+  for (const champ of ['e.resume', 'e.alert_key', 'e.detail', 'journal.raison', 'x.note', 'x.valeur']) {
+    assert.ok(bloc[0].includes(`echapper(${champ}`), `${champ} doit être échappé`);
+    assert.doesNotMatch(bloc[0], new RegExp('\\$\\{' + champ.replace('.', '\\.') + '\\}'), `${champ} ne doit jamais être injecté brut`);
+  }
 });
 
 console.log(`\n${controles} contrôles passés.`);
