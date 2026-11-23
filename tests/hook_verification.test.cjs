@@ -121,3 +121,33 @@ test("chaque règle a une forme valide et n'est pas en double", () => {
   assert.deepEqual(regles.filter((r) => !forme.test(r)), []);
   assert.equal(new Set(regles).size, regles.length);
 });
+
+/* ── Skills du projet (`.claude/skills/`) ──────────────────────────────────────────────────── */
+
+const lireSkill = (nom) => {
+  const texte = fs.readFileSync(path.join(RACINE, '.claude', 'skills', nom, 'SKILL.md'), 'utf8');
+  assert.ok(texte.startsWith('---\n'), nom);
+  const [entete, ...reste] = texte.slice(4).split('\n---\n');
+  const meta = Object.fromEntries(entete.split('\n').filter((l) => l.includes(': ')).map((l) => [l.slice(0, l.indexOf(': ')), l.slice(l.indexOf(': ') + 2)]));
+  return { meta, corps: reste.join('\n---\n') };
+};
+
+test("skills : le seul skill est fusionner-pr, avec un nom identique à son dossier", () => {
+  assert.deepEqual(fs.readdirSync(path.join(RACINE, '.claude', 'skills')).sort(), ['fusionner-pr']);
+  const { meta } = lireSkill('fusionner-pr');
+  assert.equal(meta.name, 'fusionner-pr');
+  assert.ok(meta.description.length > 20);
+});
+
+test("skills : fusionner-pr ne peut pas être déclenché par l'agent et garde ses garde-fous", () => {
+  const { meta, corps } = lireSkill('fusionner-pr');
+  assert.equal(meta['disable-model-invocation'], 'true');
+  assert.ok(corps.includes('cette PR') && corps.includes('seulement'));
+  assert.ok(corps.includes('design/T10-captures') && corps.includes('captures/reference'));
+  assert.ok(corps.includes('Monitor'));
+});
+
+test("skills : aucune clé dans fusionner-pr", () => {
+  const { corps } = lireSkill('fusionner-pr');
+  assert.ok(!/eyJ[A-Za-z0-9_-]{20,}|sb_secret_|ghp_[A-Za-z0-9]{20,}/.test(corps));
+});
