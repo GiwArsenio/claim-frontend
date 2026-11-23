@@ -123,6 +123,8 @@ const FAMILLES = {
     'tests/audit_design_outil_mesure.test.cjs',
     // Inter est servie par le site : zéro appel Google, poids <= 120 Ko (T09).
     'tests/polices_locales.test.cjs',
+    // Onglet « Traitements » du dashboard de monitoring (API simulée).
+    'tests/monitoring_agent_navigateur.test.cjs',
   ],
   // Parlent à la production. Une régression en ligne doit se voir, mais
   // elle ne doit pas bloquer une fusion : la production peut tomber sans
@@ -174,6 +176,7 @@ const POIDS = {
   'tests/migration-navigateur.test.cjs': 4,
   'tests/reseau-local.test.cjs': 3,
   'tests/plan_premier_paint.test.cjs': 6,
+  'tests/monitoring_agent_navigateur.test.cjs': 10,
 };
 const POIDS_DEFAUT = 15;
 

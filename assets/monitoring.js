@@ -435,6 +435,98 @@
     rendreCron(await appeler(`/cron?period=${etat.periode}`));
   }
 
+  // ── Traitements de l'agent ───────────────────────────────────────────────
+  //
+  // Interface de SUIVI : elle montre ce que l'agent a vu, dit et fait, et
+  // n'écrit rien. Les trois règles du fichier s'appliquent ici :
+  //  - un journal illisible s'affiche « Non disponible » avec sa raison, jamais
+  //    comme zéro ;
+  //  - « non démarré » n'est pas une panne : tant que l'agent n'existe pas,
+  //    c'est l'état normal, il ne s'affiche donc pas en rouge ;
+  //  - tout ce qui vient du journal passe par `echapper`.
+
+  const TYPES_AGENT = {
+    alerte_recue: ['Alerte reçue', 'attention'],
+    diagnostic: ['Diagnostic', 'inconnu'],
+    battement: ['Battement', 'inconnu'],
+    proposition: ['Proposition', 'attention'],
+    validation: ['Validation', 'ok'],
+    action: ['Action', 'ok'],
+    resultat: ['Résultat', 'ok']
+  };
+  const PALIERS_AGENT = { 1: 'Fait seul', 2: 'À valider', 3: 'Jamais seul' };
+  const ETATS_AGENT = {
+    non_demarre: ['Non démarré', 'neutre'],
+    actif: ['Actif', 'ok'],
+    silencieux: ['Silencieux', 'critique'],
+    inconnu: ['Inconnu', 'inconnu']
+  };
+
+  function rendreAgent(d) {
+    const journal = d.journal || {};
+    const agent = d.agent || {};
+    const [libelleAgent, tonAgent] = ETATS_AGENT[agent.statut] || [agent.statut || 'Inconnu', 'inconnu'];
+    const noteAgent = [agent.diagnostic, agent.dernier_battement ? `Dernier signe : ${depuis(agent.dernier_battement)}` : '']
+      .filter(Boolean).join(' ');
+
+    if (!journal.disponible) {
+      $('agent-chiffres').innerHTML = `<div class="chiffre" data-ton="inconnu">
+          <p class="chiffre__etiquette">Journal de l’agent</p>
+          <p class="chiffre__valeur" data-type="texte">Non disponible</p>
+          <p class="chiffre__note">${echapper(journal.raison || 'Lecture impossible.')}</p>
+        </div>`;
+      $('agent-mention').textContent = '';
+      $('corps-agent').innerHTML = '<tr><td colspan="4" class="vide">Journal non disponible : aucune valeur n’est affichée plutôt qu’un zéro.</td></tr>';
+      return;
+    }
+
+    const c = d.comptes || {};
+    const jours = d.period_days || etat.periode;
+    const sansAction = !(c.action || 0) && !(c.proposition || 0);
+    const cartes = [
+      { etiquette: 'Agent', valeur: libelleAgent, note: noteAgent, ton: tonAgent },
+      { etiquette: 'Alertes reçues', valeur: nombre.format(c.alerte_recue || 0), note: `sur ${jours} jour(s)`, ton: 'neutre' },
+      { etiquette: 'Diagnostics', valeur: nombre.format(c.diagnostic || 0), note: 'Ce que l’agent a lu et conclu', ton: 'neutre' },
+      {
+        etiquette: 'Actions', valeur: nombre.format(c.action || 0),
+        note: sansAction ? 'Aucune action ni proposition sur la période' : `${nombre.format(c.proposition || 0)} proposition(s)`,
+        ton: 'neutre'
+      }
+    ];
+    $('agent-chiffres').innerHTML = cartes.map((x) => `<div class="chiffre" data-ton="${x.ton}">
+        <p class="chiffre__etiquette">${echapper(x.etiquette)}</p>
+        <p class="chiffre__valeur" data-type="texte">${echapper(x.valeur)}</p>
+        <p class="chiffre__note">${echapper(x.note || '')}</p>
+      </div>`).join('');
+
+    const evenements = d.evenements || [];
+    $('agent-mention').textContent = [
+      `${jours} j`,
+      `${nombre.format(c.battement || 0)} battement(s) non listé(s)`,
+      d.tronque ? `${evenements.length} derniers événements` : ''
+    ].filter(Boolean).join(' · ');
+
+    $('corps-agent').innerHTML = evenements.length
+      ? evenements.map((e) => {
+        const [texte, ton] = TYPES_AGENT[e.type] || [e.type || '?', 'inconnu'];
+        const detail = e.detail
+          ? `<details class="agent-detail"><summary>Détail${e.detail_tronque ? ' (tronqué)' : ''}</summary><pre>${echapper(e.detail)}</pre></details>`
+          : '';
+        const cle = e.alert_key ? `<span class="agent-cle">${echapper(e.alert_key)}</span>` : '';
+        return `<tr>
+          <td title="${echapper(e.created_at || '')}">${heure(e.created_at)}<span class="agent-depuis">${depuis(e.created_at)}</span></td>
+          <td><span class="pastille" data-etat="${ton}">${echapper(texte)}</span></td>
+          <td>${echapper(e.resume)}${cle}${detail}</td>
+          <td>${echapper(PALIERS_AGENT[e.palier] || '—')}</td>
+        </tr>`;
+      }).join('')
+      : '<tr><td colspan="4" class="vide">Aucun événement sur la période.</td></tr>';
+  }
+
+  async function chargerAgent() {
+    rendreAgent(await appeler(`/agent?period=${etat.periode}`));
+  }
+
   // ── Sources ──────────────────────────────────────────────────────────────
 
   function rendreTableauSources(donnees) {
@@ -1323,6 +1415,7 @@
     apercu: chargerApercu,
     rapprochements: chargerRapprochements,
     cron: chargerCron,
+    agent: chargerAgent,
     collecte: chargerCollecte,
     offres: chargerOffres,
     indexation: chargerIndexation,

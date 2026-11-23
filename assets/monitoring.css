@@ -1329,3 +1329,36 @@ td.description .description-complete { display: inline; }
   .revue-carte__pied { flex-direction: column; align-items: stretch; }
   .revue-actions { flex-wrap: wrap; }
 }
+
+/* ── Traitements de l'agent ─────────────────────────────────────────────── */
+.agent-depuis { display: block; color: var(--encre-3); font-size: .75rem; }
+.agent-cle { display: block; color: var(--encre-3); font-size: .75rem; word-break: break-all; }
+.agent-detail { margin-top: .35rem; }
+.agent-detail summary { cursor: pointer; color: var(--teal); font-size: .75rem; }
+.agent-detail summary:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+.agent-detail pre {
+  margin: .35rem 0 0; padding: .55rem .7rem; max-height: 14rem; overflow: auto;
+  background: var(--carte-2); border: 1px solid var(--trait); border-radius: var(--r-s);
+  font-size: .75rem; line-height: 1.45; white-space: pre-wrap; word-break: break-word; color: var(--encre-2);
+}
+
+/* Téléphone : le journal se lit en cartes empilées. Un tableau à quatre
+   colonnes y obligeait à faire défiler horizontalement et coupait le résumé,
+   c'est-à-dire la seule colonne qui compte. */
+@media (max-width: 700px) {
+  #panneau-agent .tableau, #panneau-agent .tableau tbody { display: block; width: 100%; }
+  #panneau-agent .tableau thead { display: none; }
+  #corps-agent tr {
+    display: grid; grid-template-columns: 1fr auto; gap: .3rem .75rem; align-items: start;
+    padding: .75rem 1rem; border-top: 1px solid var(--trait);
+  }
+  #corps-agent tr:first-child { border-top: 0; }
+  #corps-agent td { display: block; padding: 0; border: 0; min-width: 0; }
+  #corps-agent td:nth-child(1) { grid-column: 1; grid-row: 1; }
+  #corps-agent td:nth-child(1) .agent-depuis { display: inline; margin-left: .5rem; }
+  #corps-agent td:nth-child(2) { grid-column: 2; grid-row: 1; justify-self: end; }
+  #corps-agent td:nth-child(3) { grid-column: 1 / -1; grid-row: 2; overflow-wrap: anywhere; }
+  #corps-agent td:nth-child(4) { grid-column: 1 / -1; grid-row: 3; color: var(--encre-2); font-size: .8125rem; }
+  #corps-agent td:nth-child(4)::before { content: 'Palier : '; color: var(--encre-3); }
+  #corps-agent td.vide { grid-column: 1 / -1; grid-row: 1; }
+}
