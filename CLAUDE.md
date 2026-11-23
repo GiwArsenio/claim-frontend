@@ -47,3 +47,9 @@ Elles ne font que **restreindre** (aucun droit donné) : lecture de `.env` refus
 un push forcé, un `reset --hard`, une suppression via `gh api -X DELETE`, et avant les actions irréversibles ou
 de configuration sur Supabase, Railway et Cloudflare. Les fusions de PR n'y figurent pas : elles restent
 soumises à l'accord du propriétaire (voir « Avant toute fusion »). Détail : `claim-api/docs/GARDE_FOUS_REPONSES.md`.
+
+## Skills du projet (`.claude/skills/`)
+- `/fusionner-pr N` : fusionne la PR N (accord du propriétaire pour cette PR seulement), puis vérifie la CI, le
+  déploiement Cloudflare et le site en ligne. Seul le propriétaire le lance. Les autres skills de collecte et de
+  Railway sont dans `claim-api`.
+
