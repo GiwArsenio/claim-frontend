@@ -65,10 +65,12 @@ const FAMILLES = {
     'tests/migration-fr.test.cjs',
     'tests/mesure_items.test.cjs',
     'tests/params_mesure.test.cjs',
-    'tests/aide-parcours.cjs',
-    'tests/captures-reference.cjs',
-    'tests/survol-a07-aide.cjs',
-    'tests/audit-survol.cjs',
+    // Absents volontairement : tests/aide-parcours.cjs, captures-reference.cjs et
+    // survol-a07-aide.cjs sont des aides importees (require) par les tests
+    // navigateur ; tests/audit-survol.cjs est un outil a lancer a la main
+    // (node tests/audit-survol.cjs [jour|nuit]). Aucun n'est un test : les lister
+    // ici donnait l'impression qu'ils tournaient (le lanceur ne lance que les
+    // *.test.cjs).
     'tests/defilement_fiche_conserve.test.cjs',
     'tests/detail_sans_entete.test.cjs',
     'tests/effacement_defilement_fiche.test.cjs',
@@ -138,9 +140,11 @@ const FAMILLES = {
   production: [
     'tests/seo_offre.test.cjs',
     'tests/ga4_present.test.cjs',
-    'tests/verifier-production.cjs',
-    'tests/verifier-reference-prod.cjs',
-    'tests/verifier-chrome-prod.cjs',
+    // Absents volontairement : tests/verifier-production.cjs,
+    // verifier-reference-prod.cjs et verifier-chrome-prod.cjs sont des releves
+    // manuels sur le site reel (node tests/<nom>.cjs [url]). Ils affichent un
+    // constat mais ne rendent jamais de code d'echec : les ranger ici les ferait
+    // passer pour des controles verts.
   ],
 };
 
