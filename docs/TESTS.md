@@ -31,13 +31,15 @@ Un fichier absent, vide ou sans code de sortie compte comme un échec, jamais co
 | Retouche de texte ou de style, document | `--famille=statique` |
 | Un test précis que je viens d'écrire ou de modifier | `--fichier=tests/x.test.cjs` |
 | Changement de comportement dans le navigateur (clic, filtre, fiche, mise en page) | `statique` puis `--fichier=` sur les tests concernés, puis `--famille=navigateur` si le changement est large |
-| Avant de demander une fusion | `statique` en local ; la CI rejoue `statique` et `navigateur` (voir 3). La suite complète seulement si on le demande. |
+| Avant de demander une fusion | `statique` en local, **car la CI ne tourne pas sur une PR** (voir 3) : le premier contrôle automatique a lieu après la fusion. La suite complète seulement si on le demande. |
 | Vérifier le site en ligne | `--famille=production` (parle au vrai site, ne bloque rien) |
 | Comparer le rendu au pixel | `--famille=visuel` (voir « Pièges ») |
 
 Les tests navigateur demandent Chromium (`npx playwright install chromium`).
 
 ## 3. Ce que fait la CI
+
+**La CI ne se lance pas sur une PR** : il n'existe que deux workflows (`deploy.yml`, `nuit.yml`, relus le 26/11/2026), et aucun ne se déclenche sur `pull_request`. Une PR n'a donc aucun contrôle automatique avant sa fusion ; c'est la fusion elle-même qui lance la chaîne ci-dessous, déploiement compris.
 
 `deploy.yml` (se déclenche à chaque push sur `main`, et à la main via `workflow_dispatch`) :
 
