@@ -12,8 +12,8 @@ const {spawn}=require('node:child_process');
  await p.goto('http://localhost:8899/job-board.html');
  await p.waitForTimeout(700);
  assert.equal(await p.locator('#filtres-panneau').isVisible(),false);
- assert.equal(await p.locator('.filtres-entrees .filtre-entree:visible').count(),width===390?3:6);
- for(const category of ['contract-filter','specialty-filter','experience-filter','date-filter','ats-filter']){
+ assert.equal(await p.locator('.filtres-entrees .filtre-entree:visible').count(),width===390?3:8);
+ for(const category of ['contract-filter','specialty-filter','branch-filter','company-type-filter','experience-filter','date-filter','ats-filter']){
  if(width===390 && !['contract-filter','specialty-filter'].includes(category)) continue;
  await p.locator(`[data-categorie="${category}"]`).click();
  assert.equal(await p.locator('.fp-groupe:visible').count(),1,'une catégorie n’ouvre que ses valeurs');
@@ -32,13 +32,13 @@ const {spawn}=require('node:child_process');
  await p.locator('.fp-fermer').click();
  assert.equal(await p.locator('#contract-filter').inputValue(),'');
  await p.goto('http://localhost:8899/index.html');
- assert.equal(await p.locator('.filtres-entrees .filtre-entree:visible').count(),width===390?3:6);
+ assert.equal(await p.locator('.filtres-entrees .filtre-entree:visible').count(),width===390?3:8);
  await p.locator('.filtres-entrees a').filter({hasText:'Spécialité'}).click();
  await p.waitForTimeout(300);
  assert(await p.locator('#filtres-panneau').isVisible());
  assert.equal(new URL(p.url()).hash,'#filtres-specialty-filter');
  assert.deepEqual(errors,[]);
- console.log(`OK ${width}px : six boutons, cinq catégories, multichoix, annulation et lien accueil`);
+ console.log(`OK ${width}px : huit boutons, sept catégories, multichoix, annulation et lien accueil`);
  await p.close();
  }
  }finally{await b.close();server.kill();}

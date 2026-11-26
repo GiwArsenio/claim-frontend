@@ -88,6 +88,7 @@ const FAMILLES = {
   navigateur: [
     'tests/etiquettes_cartes.test.cjs',
     'tests/filtres_entrees.test.cjs',
+    'tests/filtres_entreprise_branche.test.cjs',
     'tests/accessibilite-a02.test.cjs',
     'tests/migration-navigateur.test.cjs',
     'tests/affichage-a05.test.cjs',

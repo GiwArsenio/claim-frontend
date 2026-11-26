@@ -73,6 +73,14 @@ const LABELS_SPECIALITE = {
 
 const LABELS_EXPERIENCE = { junior: 'Junior', confirmed: 'Confirmé', senior: 'Senior', lead: 'Lead' };
 
+const LABELS_BRANCHES = {
+  epargne_retraite: 'Épargne-Retraite',
+  prevoyance_sante: 'Prévoyance-Santé',
+  iard: 'IARD',
+  emprunteur: 'Emprunteur',
+  reassurance: 'Réassurance',
+};
+
 // La source ne publie pas de date d'expiration : ne pas en fabriquer.
 //
 // La source ne publie pas de date d'expiration. Ne pas fabriquer de
@@ -163,6 +171,12 @@ async function construire(job, urlCanonique) {
   }
   if (job.jev_publishable && job.jev_publishable.specialty && job.jev_specialty) {
     pastilles.push(`<span class="pastille pastille-specialite">${echapper(LABELS_SPECIALITE[job.jev_specialty] || job.jev_specialty)}</span>`);
+  }
+  if (Array.isArray(job.risk_branches)) {
+    job.risk_branches.forEach((code) => {
+      const lib = LABELS_BRANCHES[code];
+      if (lib) pastilles.push(`<span class="pastille">${echapper(lib)}</span>`);
+    });
   }
 
   // Priorité à la structure éditoriale de la source quand elle a été
