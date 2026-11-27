@@ -31,7 +31,7 @@ Un fichier absent, vide ou sans code de sortie compte comme un échec, jamais co
 | Retouche de texte ou de style, document | `--famille=statique` |
 | Un test précis que je viens d'écrire ou de modifier | `--fichier=tests/x.test.cjs` |
 | Changement de comportement dans le navigateur (clic, filtre, fiche, mise en page) | `statique` puis `--fichier=` sur les tests concernés, puis `--famille=navigateur` si le changement est large |
-| Avant de demander une fusion | `statique` en local, **car la CI ne tourne pas sur une PR** (voir 3) : le premier contrôle automatique a lieu après la fusion. La suite complète seulement si on le demande. |
+| Avant de demander une fusion | `statique` en local. La CI relance ensuite `statique` et l'alignement du rendu sur la PR (`pr.yml`, voir 3), mais **pas le navigateur** : pour un changement de comportement, lance aussi les tests navigateur concernés. La suite complète seulement si on le demande. |
 | Vérifier le site en ligne | `--famille=production` (parle au vrai site, ne bloque rien) |
 | Comparer le rendu au pixel | `--famille=visuel` (voir « Pièges ») |
 
@@ -39,7 +39,9 @@ Les tests navigateur demandent Chromium (`npx playwright install chromium`).
 
 ## 3. Ce que fait la CI
 
-**La CI ne se lance pas sur une PR** : il n'existe que deux workflows (`deploy.yml`, `nuit.yml`, relus le 26/11/2026), et aucun ne se déclenche sur `pull_request`. Une PR n'a donc aucun contrôle automatique avant sa fusion ; c'est la fusion elle-même qui lance la chaîne ci-dessous, déploiement compris.
+`pr.yml` « Contrôles sur PR » (ajouté le 27/11/2026) se déclenche sur chaque pull request vers `main` (`pull_request`, rien d'autre). Un seul job `statique` (délai 10 min), mêmes étapes et mêmes versions que le job du même nom de `deploy.yml` : `--famille=statique`, puis `npm run aligner:rendu:verifier`. Un nouveau commit sur la PR annule le contrôle précédent. Ce workflow ne publie rien, ne reçoit aucun secret et n'a que le droit de lire le dépôt. Il ne lance ni le navigateur, ni la production, ni le visuel : ceux-là, comme la mise en ligne, n'ont lieu qu'après la fusion.
+
+Après la fusion, c'est la chaîne ci-dessous (`deploy.yml`) qui s'exécute, déploiement compris.
 
 `deploy.yml` (se déclenche à chaque push sur `main`, et à la main via `workflow_dispatch`) :
 
