@@ -1,0 +1,45 @@
+# CLAIM! — Controles rapides sur chaque pull request, avant la fusion.
+#
+# Ce fichier ne publie rien, ne recoit aucun secret et ne parle a aucun
+# service externe : il lit le code de la PR et lance les controles qui
+# n'ont pas besoin de navigateur (environ une minute au total).
+#
+# Les etapes sont reprises a l'identique du job « statique » de l'autre
+# workflow du depot. Les tests navigateur, les controles de production et
+# la mise en ligne restent apres la fusion dans `main`.
+
+name: Controles sur PR
+
+on:
+  pull_request:
+    branches: [main]
+
+# Un nouveau commit sur la PR annule le controle precedent de cette PR.
+concurrency:
+  group: pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  statique:
+    name: Controles statiques
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Installer les dependances
+        run: npm ci
+
+      - name: Tests statiques
+        run: node tools/run-tests.cjs --famille=statique
+
+      - name: Verifier l'alignement du rendu
+        run: npm run aligner:rendu:verifier
